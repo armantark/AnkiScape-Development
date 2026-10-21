@@ -13,7 +13,6 @@ from types import MappingProxyType
 from typing import Mapping, Optional, Tuple
 
 
-FARM_MINUTES_PER_ANSWER = 6
 COMPOST_BIN_CAPACITY = 15
 LIVID_FARM_ALLOTMENT_PATCH_ID = "livid_farm_allotment"
 LIVID_FARM_PROTECTION_SCROLL = "Patch protection scroll"
@@ -146,7 +145,7 @@ VINE_HERB_MAX_SAVE_SLOTS = 80
 SHARED_DISEASE_SLOTS = 6
 # PLACEHOLDER(farming.kalferberry_regrowth_minutes): a period vine-bush
 # regrowth routine or measured cutoff interval would settle the renewal timer.
-KALFERBERRY_REGROWTH_MINUTES = FARM_MINUTES_PER_ANSWER
+KALFERBERRY_REGROWTH_MINUTES = 6
 
 FARMING_SOURCE_BLOCKED: Mapping[str, str] = MappingProxyType({
     "watering_growth_multiplier": "The ledger does not settle an exact pre-EOC growth multiplier.",
@@ -350,7 +349,7 @@ _SPECIAL = (
         0,
         0,
         fixed_yield=4,
-        regrowth=FARM_MINUTES_PER_ANSWER,
+        regrowth=6,
         immune=True,
         sources=(
             "White tree fruit oldid 5838367, 2012-06-26T04:41:55Z",

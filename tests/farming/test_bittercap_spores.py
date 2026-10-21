@@ -110,7 +110,7 @@ class BittercapSporeKernelTest(unittest.TestCase):
                     continue
                 self.assertEqual(_action(_patch_view(planned), "primary_action"), (True, ""))
                 self.assertTrue(queued_ok, message)
-                reviewed, consumed, info = apply_farming_review_with_queue_pure(queued)
+                reviewed, consumed, info = apply_farming_review_with_queue_pure(queued, calendar_minutes=6)
                 self.assertEqual((consumed, info["status"]), (True, "executed"))
                 self.assertEqual(reviewed["inventory"], {**after, "Weeds": 3})
                 self.assertEqual(reviewed["farm_patches"][PATCH]["crop_id"], "bittercap")
@@ -119,15 +119,15 @@ class BittercapSporeKernelTest(unittest.TestCase):
     def test_harvest_and_replant_preview_and_queue_use_the_alternate_stack(self):
         planted, ok, _ = execute_farm_field_step_pure(_planned(_mushroom_state({CANONICAL: 1})), PLANT)
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, GROWTH_CARDS)
+        ready, _ = advance_farm_clock_pure(planted, 6 * (GROWTH_CARDS))
         self.assertEqual(_action(_patch_view(ready), "shortcut_action"), (False, MISSING))
         ready["inventory"][ALTERNATE] = 1
         self.assertEqual(_action(_patch_view(ready), "shortcut_action"), (True, ""))
 
         queued, ok, message = _farming(ready, "harvest_replant", patch_id=PATCH)
         self.assertTrue(ok, message)
-        harvested, _, harvest = apply_farming_review_with_queue_pure(queued)
-        replanted, _, replant = apply_farming_review_with_queue_pure(harvested)
+        harvested, _, harvest = apply_farming_review_with_queue_pure(queued, calendar_minutes=6)
+        replanted, _, replant = apply_farming_review_with_queue_pure(harvested, calendar_minutes=6)
 
         self.assertEqual((harvest["kind"], harvest["outputs"]), ("harvest", {"Bittercap mushroom": 6}))
         self.assertEqual((replant["kind"], replant["status"]), ("plant", "executed"))
@@ -148,7 +148,7 @@ class BittercapSporeKernelTest(unittest.TestCase):
                 queued, ok, message = _queue_plant(_planned(_mushroom_state(queued_with)))
                 self.assertTrue(ok, message)
                 queued["inventory"] = dict(at_review)
-                reviewed, _, info = apply_farming_review_with_queue_pure(queued)
+                reviewed, _, info = apply_farming_review_with_queue_pure(queued, calendar_minutes=6)
                 if after is None:
                     self.assertEqual((info["status"], info["message"]), ("skipped", "missing seeds or compost"))
                     self.assertEqual(reviewed["inventory"], at_review)
@@ -197,7 +197,7 @@ class BittercapSporeKernelTest(unittest.TestCase):
         self.assertTrue(ok, message)
         self.assertEqual(queued["inventory"]["Compost"], 0)
         while queued["farm_queue"]:
-            queued, _, _ = apply_farming_review_with_queue_pure(queued)
+            queued, _, _ = apply_farming_review_with_queue_pure(queued, calendar_minutes=6)
         self.assertEqual(queued["farm_patches"][PATCH]["crop_id"], "bittercap")
         self.assertIsNone(queued["farm_patches"]["falador_allotment_north"]["crop_id"])
         self.assertEqual(
@@ -372,7 +372,7 @@ class BittercapSporeRuntimeTest(unittest.TestCase):
         self._answer(addon)
         continued = addon._state.player_data["inventory"]
         self.assertEqual((continued[CANONICAL], continued[ALTERNATE]), (0, 1))
-        for _card in range(GROWTH_CARDS):
+        for _card in range(240):
             self._answer(addon)
         self.assertTrue(menu["on_farming_action"]("harvest_replant", {"patch_id": PATCH})["ok"])
         self._answer(addon)

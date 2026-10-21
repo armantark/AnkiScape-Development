@@ -2688,7 +2688,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertTrue(ok)
         player_data, _ = advance_farm_clock_pure(
-            player_data, 40, lambda: 1.0
+            player_data, 240, lambda: 1.0
         )
         player_data, ok, _ = execute_farm_field_step_pure(
             player_data,
@@ -2696,7 +2696,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertTrue(ok)
         player_data, _ = advance_farm_clock_pure(
-            player_data, 5, lambda: 1.0
+            player_data, 30, lambda: 1.0
         )
 
         dialog = self._open(

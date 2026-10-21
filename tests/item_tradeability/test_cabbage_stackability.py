@@ -57,7 +57,7 @@ class CabbageStackabilityTest(unittest.TestCase):
                       inventory={"Pie shell": 3, "Tomato": 3, "Onion": 3, "Coins": 17})
         farming = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         planted = _plant_ready(player, crop_id="cabbage")
-        mature, _info = farming.advance_farm_clock_pure(planted, 8)
+        mature, _info = farming.advance_farm_clock_pure(planted, 48)
         queued, step_id, message = farming.add_farm_queue_step_pure(
             mature, "harvest", "falador_allotment_north")
         self.assertIsNotNone(step_id, message)

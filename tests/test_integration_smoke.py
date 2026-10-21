@@ -7,10 +7,8 @@ from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
 from pathlib import Path
 
-# --- Minimal fakes for Anki runtime ---
 class _FakeHooks:
     def __init__(self):
-        # Lists emulate VS Code/Anki gui_hooks collections with append/remove
         self.overview_did_refresh = []
         self.overview_will_refresh = []
         self.reviewer_did_show_question = []
@@ -5871,7 +5869,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"},
         )
         self.assertTrue(ok)
-        state, _ = farming_logic.advance_farm_clock_pure(state, 17, lambda: 1.0)
+        state, _ = farming_logic.advance_farm_clock_pure(state, 102, lambda: 1.0)
         state, step_id, _ = farming_logic.add_farm_queue_step_pure(
             state, "dig_up", "champions_bush"
         )
@@ -5974,7 +5972,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "stage": 6,
             "health_checked": True,
             "jade_state": "prunable",
-            "next_regrowth_at": 6,
+            "next_regrowth_at": 0.06,
         })
         addon._state.player_data = state
         addon._state.current_skill = "Mining"
@@ -6078,6 +6076,8 @@ class TestIntegrationSmoke(unittest.TestCase):
             "completed_achievements": [],
         }
         state.update(farming_logic.default_farming_state_pure())
+        state["shop_market_clock"] = {"answered_cards": 238, "market_tick": 239}
+        state["world_clock"] = {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 143494}
         state, ok, _ = farming_logic.set_farm_plan_pure(
             state,
             "lumbridge_tree",
@@ -6095,7 +6095,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(ok)
         state, _ = farming_logic.advance_farm_clock_pure(
             state,
-            40,
+            240,
             lambda: 1.0,
         )
         state, step_ids = farming_logic.queue_full_run_pure(state)

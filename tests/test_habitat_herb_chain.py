@@ -75,7 +75,7 @@ class TestHabitatHerbChain(unittest.TestCase):
 
                 state, clock_info = advance_farm_clock_pure(
                     state,
-                    14,
+                    84,
                     lambda: 1.0,
                 )
                 self.assertEqual(clock_info["minutes"], 84)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 
+
 from typing import Any, Callable, Mapping, Optional
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure
@@ -393,6 +394,7 @@ from .runtime_actions_context import (
     RuntimeActionContext,
     stop_card,
     stun_card,
+    card_ticks_pure,
 )
 
 
@@ -753,10 +755,15 @@ def advance_shared_review_state_for_review(ctx: RuntimeActionContext) -> None:
     ctx.player_data.update(updated)
 
 
+def _calendar_minutes_for_review(ctx: RuntimeActionContext) -> float:
+    ticks = ctx.calendar_ticks_for_answer if ctx.calendar_ticks_for_answer is not None else card_ticks_pure(ctx.review_action_multiplier)
+    return ticks / 100
+
+
 def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:
     """Advance the background farm clock once for any answered review card."""
 
-    updated, info = advance_farm_clock_pure(ctx.player_data, 1, ctx.random_random)
+    updated, info = advance_farm_clock_pure(ctx.player_data, _calendar_minutes_for_review(ctx), ctx.random_random)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     return info
@@ -885,6 +892,7 @@ def handle_farming_review_answer(ctx: RuntimeActionContext) -> bool:
     updated, consumed, info = apply_farming_review_with_queue_pure(
         ctx.player_data,
         ctx.random_random,
+        calendar_minutes=_calendar_minutes_for_review(ctx),
     )
     consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
     if consumed:

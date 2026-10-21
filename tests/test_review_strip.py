@@ -175,7 +175,7 @@ class ReviewStripTest(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        state, _events = advance_farm_clock_pure(state, 7, lambda: 1.0)
+        state, _events = advance_farm_clock_pure(state, 42, lambda: 1.0)
         return state
 
     # ---- the badges ------------------------------------------------------

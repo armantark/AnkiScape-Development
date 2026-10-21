@@ -336,7 +336,7 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             },
         )
 
-        harvested, consumed, info = apply_farming_review_with_queue_pure(queued)
+        harvested, consumed, info = apply_farming_review_with_queue_pure(queued, calendar_minutes=6)
         self.assertTrue(consumed)
         self.assertEqual(info["outputs"], {"White tree fruit": 4})
         self.assertEqual(harvested["inventory"]["White tree fruit"], 4)
@@ -346,14 +346,14 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             0,
         )
 
-        regrown_one, _ = advance_farm_clock_pure(harvested, 1)
+        regrown_one, _ = advance_farm_clock_pure(harvested, 6)
         self.assertEqual(
             regrown_one["farm_patches"]["varrock_white_tree"][
                 "produce_count"
             ],
             1,
         )
-        regrown, _ = advance_farm_clock_pure(regrown_one, 3)
+        regrown, _ = advance_farm_clock_pure(regrown_one, 18)
         self.assertEqual(
             regrown["farm_patches"]["varrock_white_tree"]["produce_count"],
             4,
@@ -535,7 +535,7 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
 class TestFarmingClockAndActions(unittest.TestCase):
     def test_clock_advances_six_minutes_and_eagerly_crosses_all_boundaries(self):
         planted = _plant_ready(_state())
-        advanced, info = advance_farm_clock_pure(planted, 7, lambda: 1.0)
+        advanced, info = advance_farm_clock_pure(planted, 42, lambda: 1.0)
         record = advanced["farm_patches"]["falador_allotment_north"]
         self.assertEqual(info["minutes"], 42)
         self.assertEqual(advanced["farm_clock_minutes"], 42)
@@ -544,12 +544,12 @@ class TestFarmingClockAndActions(unittest.TestCase):
 
     def test_first_stage_is_immune_then_disease_kills_at_next_boundary(self):
         planted = _plant_ready(_state())
-        first, _ = advance_farm_clock_pure(planted, 2, lambda: 0.0)
+        first, _ = advance_farm_clock_pure(planted, 12, lambda: 0.0)
         self.assertEqual(first["farm_patches"]["falador_allotment_north"]["stage"], 1)
         self.assertFalse(first["farm_patches"]["falador_allotment_north"]["diseased"])
-        diseased, _ = advance_farm_clock_pure(first, 2, lambda: 0.0)
+        diseased, _ = advance_farm_clock_pure(first, 12, lambda: 0.0)
         self.assertTrue(diseased["farm_patches"]["falador_allotment_north"]["diseased"])
-        dead, _ = advance_farm_clock_pure(diseased, 2, lambda: 1.0)
+        dead, _ = advance_farm_clock_pure(diseased, 12, lambda: 1.0)
         self.assertTrue(dead["farm_patches"]["falador_allotment_north"]["dead"])
 
     def test_watering_applies_settled_point_nine_disease_factor(self):
@@ -558,14 +558,14 @@ class TestFarmingClockAndActions(unittest.TestCase):
         watered_state["inventory"]["Watering can"] = 1
         watered = _plant_ready(watered_state)
 
-        unwatered, _ = advance_farm_clock_pure(unwatered, 4, lambda: 0.22)
-        watered, _ = advance_farm_clock_pure(watered, 4, lambda: 0.22)
+        unwatered, _ = advance_farm_clock_pure(unwatered, 24, lambda: 0.22)
+        watered, _ = advance_farm_clock_pure(watered, 24, lambda: 0.22)
 
         self.assertTrue(unwatered["farm_patches"]["falador_allotment_north"]["diseased"])
         self.assertFalse(watered["farm_patches"]["falador_allotment_north"]["diseased"])
 
     def test_large_clock_tick_eagerly_processes_disease_and_the_crossed_death_boundary(self):
-        advanced, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 0.0)
+        advanced, _ = advance_farm_clock_pure(_plant_ready(_state()), 42, lambda: 0.0)
         record = advanced["farm_patches"]["falador_allotment_north"]
         self.assertTrue(record["dead"])
         self.assertFalse(record["diseased"])
@@ -586,7 +586,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertTrue(record["protected"])
         self.assertEqual(record["lives"], 5)
         self.assertEqual(info["farming_xp"], 43.0)
-        safe, _ = advance_farm_clock_pure(planted, 20, lambda: 0.0)
+        safe, _ = advance_farm_clock_pure(planted, 120, lambda: 0.0)
         self.assertFalse(safe["farm_patches"]["falador_allotment_north"]["dead"])
 
     def test_livid_scroll_protects_current_tree_and_nine_matching_plantings(self):
@@ -707,7 +707,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             CURE_PLANT_SPELL_FIRST,
         )
         cured, consumed, info = apply_farming_review_with_queue_pure(
-            queued, lambda: 1.0
+            queued, lambda: 1.0, calendar_minutes=6
         )
         self.assertTrue(consumed)
         self.assertEqual(info["cure_route"], "cure_plant_spell")
@@ -722,7 +722,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         item_fallback["inventory"]["Earth rune"] = 0
         queued, _ = queue_full_run_pure(item_fallback)
         cured, consumed, info = apply_farming_review_with_queue_pure(
-            queued, lambda: 1.0
+            queued, lambda: 1.0, calendar_minutes=6
         )
         self.assertTrue(consumed)
         self.assertEqual(info["cure_route"], "plant_cure_item")
@@ -758,7 +758,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         )
 
         cured, consumed, info = apply_farming_review_with_queue_pure(
-            changed, lambda: 1.0
+            changed, lambda: 1.0, calendar_minutes=6
         )
         self.assertTrue(consumed)
         self.assertEqual(info["cure_route"], "cure_plant_spell")
@@ -803,7 +803,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertEqual(harvest_save_slots_pure(potato, 1, True), 143)
         rolls = iter((0.0, 1.0) * 3)
         self.assertEqual(roll_variable_harvest_count_pure(3, 128, lambda: next(rolls)), 6)
-        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 42, lambda: 1.0)
         rolls = iter((1.0, 1.0, 1.0))
         harvested, ok, info = execute_farm_field_step_pure(
             ready,
@@ -824,7 +824,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"},
         )
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, 17, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planted, 102, lambda: 1.0)
         ready, ok, _ = execute_farm_field_step_pure(
             ready,
             {"kind": "check_health", "patch_id": "champions_bush"},
@@ -837,7 +837,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(info["outputs"], {"Redberries": 4})
         self.assertEqual(harvested["farm_patches"]["champions_bush"]["produce_count"], 0)
-        regrown, _ = advance_farm_clock_pure(harvested, 4, lambda: 1.0)
+        regrown, _ = advance_farm_clock_pure(harvested, 24, lambda: 1.0)
         self.assertEqual(regrown["farm_patches"]["champions_bush"]["produce_count"], 1)
 
     def test_recovered_white_lily_and_blossoms_plant_grow_and_harvest(self):
@@ -850,7 +850,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             with self.subTest(crop_id=crop_id):
                 planted = _plant_ready(_state(), patch_id, crop_id)
                 self.assertEqual(planted["farming_exp"], planting_xp)
-                mature, _ = advance_farm_clock_pure(planted, cards, lambda: 1.0)
+                mature, _ = advance_farm_clock_pure(planted, 6 * (cards), lambda: 1.0)
                 crop = FARMING_CROPS_BY_ID[crop_id]
                 self.assertEqual(mature["farm_patches"][patch_id]["stage"], crop.stages)
                 harvested, ok, info = execute_farm_field_step_pure(
@@ -865,7 +865,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
     def test_recovered_wergali_uses_the_real_variable_herb_harvest(self):
         planted = _plant_ready(_state(), "falador_herb", "wergali")
         self.assertEqual(planted["farming_exp"], 52.8)
-        mature, _ = advance_farm_clock_pure(planted, 14, lambda: 1.0)
+        mature, _ = advance_farm_clock_pure(planted, 84, lambda: 1.0)
         rolls = iter((1.0, 1.0, 1.0))
         harvested, ok, info = execute_farm_field_step_pure(
             mature,
@@ -879,18 +879,18 @@ class TestFarmingClockAndActions(unittest.TestCase):
 
     def test_habitat_disease_placeholder_runs_at_its_exact_threshold(self):
         planted = _plant_ready(_state(), "habitat_vine_flower", "red_blossom")
-        healthy, _ = advance_farm_clock_pure(planted, 2, lambda: 6 / 128)
+        healthy, _ = advance_farm_clock_pure(planted, 12, lambda: 6 / 128)
         self.assertFalse(healthy["farm_patches"]["habitat_vine_flower"]["diseased"])
-        diseased, _ = advance_farm_clock_pure(planted, 2, lambda: 0.0)
+        diseased, _ = advance_farm_clock_pure(planted, 12, lambda: 0.0)
         self.assertTrue(diseased["farm_patches"]["habitat_vine_flower"]["diseased"])
 
     def test_kalferberry_matures_at_75_minutes_and_renews_after_harvest(self):
         planted = _plant_ready(_state(), "habitat_vine_bush", "kalferberry")
         self.assertEqual(planted["farming_exp"], 220.0)
-        before, _ = advance_farm_clock_pure(planted, 12, lambda: 1.0)
+        before, _ = advance_farm_clock_pure(planted, 72, lambda: 1.0)
         self.assertEqual(before["farm_clock_minutes"], 72)
         self.assertEqual(before["farm_patches"]["habitat_vine_bush"]["stage"], 4)
-        mature, _ = advance_farm_clock_pure(before, 1, lambda: 1.0)
+        mature, _ = advance_farm_clock_pure(before, 6, lambda: 1.0)
         self.assertEqual(mature["farm_clock_minutes"], 78)
         self.assertEqual(mature["farm_patches"]["habitat_vine_bush"]["stage"], 5)
 
@@ -908,7 +908,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertEqual(info["outputs"], {"Kalferberry": 4})
         self.assertEqual(info["farming_xp"], 210.0)
         self.assertEqual(harvested["farm_patches"]["habitat_vine_bush"]["produce_count"], 0)
-        regrown, _ = advance_farm_clock_pure(harvested, 1, lambda: 1.0)
+        regrown, _ = advance_farm_clock_pure(harvested, 6, lambda: 1.0)
         self.assertEqual(regrown["farm_patches"]["habitat_vine_bush"]["produce_count"], 1)
 
     def test_reachable_cannibal_jadinko_route_ends_with_kalferberry_harvest(self):
@@ -960,7 +960,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        mature, _ = advance_farm_clock_pure(planted, 13, lambda: 1.0)
+        mature, _ = advance_farm_clock_pure(planted, 78, lambda: 1.0)
         checked, ok, _info = execute_farm_field_step_pure(
             mature,
             {"kind": "check_health", "patch_id": "habitat_vine_bush"},
@@ -979,7 +979,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
         data["inventory"].update({"Rake": 1, "Spade": 1, "Oak sapling": 1})
         planted, ok, _ = execute_farm_field_step_pure(data, {"kind": "plant", "patch_id": "lumbridge_tree", "crop_id": "oak"})
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, 34, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planted, 204, lambda: 1.0)
         checked, ok, info = execute_farm_field_step_pure(ready, {"kind": "check_health", "patch_id": "lumbridge_tree"})
         self.assertTrue(ok)
         self.assertEqual(info["farming_xp"], 467.3)
@@ -1011,7 +1011,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        mature, _ = advance_farm_clock_pure(planted, 40, lambda: 1.0)
+        mature, _ = advance_farm_clock_pure(planted, 240, lambda: 1.0)
         self.assertEqual(
             mature["farm_patches"]["lumbridge_tree"]["produce_count"],
             0,
@@ -1036,12 +1036,12 @@ class TestFarmingClockAndActions(unittest.TestCase):
             0,
         )
 
-        first, _ = advance_farm_clock_pure(checked, 1, lambda: 1.0)
+        first, _ = advance_farm_clock_pure(checked, 6, lambda: 1.0)
         self.assertEqual(
             first["farm_patches"]["lumbridge_tree"]["produce_count"],
             1,
         )
-        full, _ = advance_farm_clock_pure(first, 4, lambda: 1.0)
+        full, _ = advance_farm_clock_pure(first, 24, lambda: 1.0)
         self.assertEqual(
             full["farm_patches"]["lumbridge_tree"]["produce_count"],
             6,
@@ -1061,7 +1061,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             0,
         )
 
-        regrown, _ = advance_farm_clock_pure(harvested, 1, lambda: 1.0)
+        regrown, _ = advance_farm_clock_pure(harvested, 6, lambda: 1.0)
         self.assertEqual(
             regrown["farm_patches"]["lumbridge_tree"]["produce_count"],
             1,
@@ -1122,7 +1122,7 @@ class TestFarmingQueueAndTransactions(unittest.TestCase):
         data = _plant_ready(_state())
         planned, ok, _ = set_farm_plan_pure(data, "falador_allotment_north", "potato", "compost")
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planned, 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planned, 42, lambda: 1.0)
         queued, ids, _ = queue_harvest_and_replant_same_pure(ready, "falador_allotment_north")
         self.assertEqual(len(ids), 2)
         self.assertEqual([row["kind"] for row in queued["farm_queue"]], ["harvest", "plant"])
@@ -1163,7 +1163,7 @@ class TestFarmingQueueAndTransactions(unittest.TestCase):
             "_copy_with_farm_state",
             wraps=farming_logic._copy_with_farm_state,
         ) as copy_state:
-            updated, consumed, info = apply_farming_review_with_queue_pure(data)
+            updated, consumed, info = apply_farming_review_with_queue_pure(data, calendar_minutes=6)
         self.assertTrue(consumed)
         self.assertEqual(info["status"], "executed")
         self.assertEqual(updated["farm_clock_minutes"], 6)
@@ -1177,7 +1177,7 @@ class TestFarmingQueueAndTransactions(unittest.TestCase):
         started, count, _ = make_saplings_pure(data, "oak", 28)
         self.assertEqual(count, 2)
         self.assertEqual(started["inventory"]["Oak seedling"], 2)
-        matured, _ = advance_farm_clock_pure(started, 1)
+        matured, _ = advance_farm_clock_pure(started, 6)
         self.assertEqual(matured["inventory"]["Oak seedling"], 0)
         self.assertEqual(matured["inventory"]["Oak sapling"], 2)
 
@@ -1185,7 +1185,7 @@ class TestFarmingQueueAndTransactions(unittest.TestCase):
         filled, ok, _ = fill_compost_bin_pure(matured, "falador_bin", "Potato", lambda: 0.625)
         self.assertTrue(ok)
         self.assertEqual(filled["farm_compost_bins"]["falador_bin"]["ready_at"], filled["farm_clock_minutes"] + 45)
-        ready, _ = advance_farm_clock_pure(filled, 8)
+        ready, _ = advance_farm_clock_pure(filled, 48)
         self.assertEqual(ready["farm_compost_bins"]["falador_bin"]["status"], "ready")
         collected, ok, _ = collect_compost_bin_pure(ready, "falador_bin")
         self.assertTrue(ok)
@@ -1333,7 +1333,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertEqual([step["kind"] for step in queued["farm_queue"]], ["plant"])
 
         unplanned = _plant_ready(_state(), "falador_allotment_north", "potato")
-        unplanned, _ = advance_farm_clock_pure(unplanned, 7, lambda: 1.0)
+        unplanned, _ = advance_farm_clock_pure(unplanned, 42, lambda: 1.0)
         untouched, ids = queue_full_run_pure(unplanned)
         self.assertEqual(ids, ())
         self.assertEqual(untouched["farm_queue"], [])
@@ -1345,7 +1345,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertTrue(ok)
         regrower, ok, _ = execute_farm_field_step_pure(regrower, {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"})
         self.assertTrue(ok)
-        regrower, _ = advance_farm_clock_pure(regrower, 17, lambda: 1.0)
+        regrower, _ = advance_farm_clock_pure(regrower, 102, lambda: 1.0)
         regrower, ok, _ = execute_farm_field_step_pure(regrower, {"kind": "check_health", "patch_id": "champions_bush"})
         self.assertTrue(ok)
         regrower, ok, _ = execute_farm_field_step_pure(regrower, {"kind": "harvest", "patch_id": "champions_bush"})
@@ -1360,7 +1360,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertTrue(ok)
         tree, ok, _ = execute_farm_field_step_pure(tree, {"kind": "plant", "patch_id": "lumbridge_tree", "crop_id": "oak"})
         self.assertTrue(ok)
-        tree, _ = advance_farm_clock_pure(tree, 34, lambda: 1.0)
+        tree, _ = advance_farm_clock_pure(tree, 204, lambda: 1.0)
         tree_run, _ = queue_full_run_pure(tree)
         self.assertEqual([step["kind"] for step in tree_run["farm_queue"]], ["check_health", "chop", "clear", "plant"])
 
@@ -1386,7 +1386,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        willow, _ = advance_farm_clock_pure(willow, 40, lambda: 1.0)
+        willow, _ = advance_farm_clock_pure(willow, 240, lambda: 1.0)
         willow_run, _ = queue_full_run_pure(willow)
         self.assertEqual(
             [step["kind"] for step in willow_run["farm_queue"]],
@@ -1405,7 +1405,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertTrue(ok)
         fruit, ok, _ = execute_farm_field_step_pure(fruit, {"kind": "plant", "patch_id": "catherby_fruit", "crop_id": "apple"})
         self.assertTrue(ok)
-        fruit, _ = advance_farm_clock_pure(fruit, 160, lambda: 1.0)
+        fruit, _ = advance_farm_clock_pure(fruit, 960, lambda: 1.0)
         fruit_run, _ = queue_full_run_pure(fruit)
         self.assertEqual([step["kind"] for step in fruit_run["farm_queue"]], ["check_health", "harvest"])
 
@@ -1434,7 +1434,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
                 },
             )
             self.assertTrue(ok)
-            mature, _ = advance_farm_clock_pure(planted, 1, lambda: 1.0)
+            mature, _ = advance_farm_clock_pure(planted, 6, lambda: 1.0)
 
             uncleared, ok, _ = execute_farm_field_step_pure(
                 mature,
@@ -1509,7 +1509,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             state, {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"}
         )
         self.assertTrue(ok)
-        state, _ = advance_farm_clock_pure(state, 17, lambda: 1.0)
+        state, _ = advance_farm_clock_pure(state, 102, lambda: 1.0)
         xp_before = state["farming_exp"]
 
         queued, ok, message = apply_farming_frontend_action_pure(
@@ -1628,7 +1628,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"},
         )
         self.assertTrue(ok)
-        mature, _ = advance_farm_clock_pure(bush, 17, lambda: 1.0)
+        mature, _ = advance_farm_clock_pure(bush, 102, lambda: 1.0)
         variants = {}
         variants["immature crop"] = copy.deepcopy(bush)
         variants["diseased crop"] = copy.deepcopy(mature)
@@ -1642,7 +1642,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        potato, _ = advance_farm_clock_pure(potato, 41, lambda: 1.0)
+        potato, _ = advance_farm_clock_pure(potato, 246, lambda: 1.0)
         variants["non-regrowth crop"] = potato
 
         for label, state in variants.items():
@@ -1864,7 +1864,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
 
     def test_taverley_is_disease_free_and_mushrooms_require_medium_tasks_for_immunity(self):
         taverley = _plant_ready(_state(), "taverley_potato", "potato")
-        taverley, _ = advance_farm_clock_pure(taverley, 7, lambda: 0.0)
+        taverley, _ = advance_farm_clock_pure(taverley, 42, lambda: 0.0)
         self.assertFalse(taverley["farm_patches"]["taverley_potato"]["diseased"])
 
         mushroom = _state()
@@ -1872,10 +1872,10 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         mushroom["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Mushroom spore": 1})
         mushroom, ok, _ = execute_farm_field_step_pure(mushroom, {"kind": "plant", "patch_id": "canifis_mushroom", "crop_id": "bittercap"})
         self.assertTrue(ok)
-        diseased, _ = advance_farm_clock_pure(mushroom, 14, lambda: 0.0)
+        diseased, _ = advance_farm_clock_pure(mushroom, 84, lambda: 0.0)
         self.assertTrue(diseased["farm_patches"]["canifis_mushroom"]["diseased"])
         mushroom["completed_task_sets"] = ["morytania_medium"]
-        immune, _ = advance_farm_clock_pure(mushroom, 14, lambda: 0.0)
+        immune, _ = advance_farm_clock_pure(mushroom, 84, lambda: 0.0)
         self.assertFalse(immune["farm_patches"]["canifis_mushroom"]["diseased"])
 
     def test_jade_vine_branch_clock_prunes_without_items_and_sixth_branch_turns_wild(self):
@@ -1884,11 +1884,11 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         data["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Secateurs": 1, "Jade vine seed": 1})
         planted, ok, _ = execute_farm_field_step_pure(data, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"})
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, 160, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planted, 960, lambda: 1.0)
         self.assertEqual(ready["farm_patches"]["handelmort_jade_vine"]["produce_count"], 0)
         ready, ok, _ = execute_farm_field_step_pure(ready, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(ready, 5, lambda: 0.0)
+        ready, _ = advance_farm_clock_pure(ready, 30, lambda: 0.0)
         record = ready["farm_patches"]["handelmort_jade_vine"]
         self.assertEqual(record["produce_count"], 1)
         self.assertEqual([step["kind"] for step in ready["farm_queue"]], ["harvest"])
@@ -1901,7 +1901,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             pruned, "set_jade_vine_policy", {"policy": JADE_POLICY_TRAIN_SLAYER}
         )
         self.assertTrue(ok)
-        wild, _ = advance_farm_clock_pure(slayer_policy, 30, lambda: 0.0)
+        wild, _ = advance_farm_clock_pure(slayer_policy, 180, lambda: 0.0)
         self.assertEqual(wild["farm_patches"]["handelmort_jade_vine"]["jade_state"], "wild")
         self.assertFalse(any(step.get("jade_auto_prune") for step in wild["farm_queue"]))
 
@@ -1934,7 +1934,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         data["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Limpwurt seed": 1})
         planted, ok, _ = execute_farm_field_step_pure(data, {"kind": "plant", "patch_id": "falador_flower", "crop_id": "limpwurt"})
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, 4, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planted, 24, lambda: 1.0)
         harvested, ok, info = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "falador_flower"}, lambda: 1.0)
         self.assertTrue(ok)
         self.assertEqual(info["outputs"], {"Limpwurt root": 12})
@@ -1946,7 +1946,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         data["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Guam seed": 1, "Juju farming potion (3)": 1})
         planted, ok, _ = execute_farm_field_step_pure(data, {"kind": "plant", "patch_id": "falador_herb", "crop_id": "guam"})
         self.assertTrue(ok)
-        ready, _ = advance_farm_clock_pure(planted, 14, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(planted, 84, lambda: 1.0)
         active, ok, _ = activate_juju_farming_potion_pure(ready)
         self.assertTrue(ok)
         self.assertEqual(active["inventory"]["Juju farming potion (2)"], 1)
@@ -1962,7 +1962,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(message, "not a Juju farming potion")
         self.assertEqual(rejected["inventory"], ready["inventory"])
-        active, _ = advance_farm_clock_pure(active, 1, lambda: 1.0)
+        active, _ = advance_farm_clock_pure(active, 6, lambda: 1.0)
         active["farm_patches"]["falador_herb"]["lives"] = 1
         rolls = iter((1.0, 0.0))
         harvested, ok, info = execute_farm_field_step_pure(active, {"kind": "harvest", "patch_id": "falador_herb"}, lambda: next(rolls))
@@ -1987,7 +1987,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         vine["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Jade vine seed": 1})
         vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"})
         self.assertTrue(ok)
-        vine, _ = advance_farm_clock_pure(vine, 160, lambda: 1.0)
+        vine, _ = advance_farm_clock_pure(vine, 960, lambda: 1.0)
         vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
         self.assertTrue(ok)
         self.assertEqual(vine["farm_patches"]["handelmort_jade_vine"]["next_regrowth_at"], vine["farm_clock_minutes"] + 30)
@@ -2011,7 +2011,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
             data, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"}
         )
         self.assertTrue(ok)
-        data, _ = advance_farm_clock_pure(data, 160, lambda: 1.0)
+        data, _ = advance_farm_clock_pure(data, 960, lambda: 1.0)
         data, ok, message = execute_farm_field_step_pure(
             data, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0
         )
@@ -2019,7 +2019,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertIn("Replant blocked", message["message"])
         self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["crop_id"], "jade_vine")
         data["inventory"].update({"Coconut": 5, "Watermelon": 5})
-        data, _ = advance_farm_clock_pure(data, 1, lambda: 1.0)
+        data, _ = advance_farm_clock_pure(data, 6, lambda: 1.0)
         self.assertEqual(data["inventory"]["Coconut"], 0)
         self.assertEqual(data["inventory"]["Watermelon"], 0)
         self.assertIsNone(data["farm_patches"]["handelmort_jade_vine"]["crop_id"])
@@ -2079,7 +2079,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
 
         with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
             fighting, consumed, info = apply_farming_review_with_queue_pure(
-                queued, lambda: 1.0
+                queued, lambda: 1.0, calendar_minutes=6
             )
         self.assertTrue(consumed)
         self.assertEqual(info["status"], "continuing")
@@ -2129,7 +2129,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertEqual(finished["current_combat_target"], "chicken")
 
     def test_belt_tools_harvest_plant_and_clear_with_none_in_the_bank(self):
-        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 42, lambda: 1.0)
         ready["inventory"].pop("Spade", None)
         harvested, ok, _ = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "falador_allotment_north"})
         self.assertTrue(ok)
@@ -2149,12 +2149,12 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         for patch_id in ("falador_allotment_north", "falador_allotment_south"):
             data = _plant_ready(data, patch_id, "potato")
         batched_rolls = iter((0.0, 1.0, 0.0, 1.0, 0.0, 1.0))
-        batched, batched_info = advance_farm_clock_pure(data, 7, lambda: next(batched_rolls))
+        batched, batched_info = advance_farm_clock_pure(data, 42, lambda: next(batched_rolls))
         repeated = copy.deepcopy(data)
         repeated_events = []
         repeated_rolls = iter((0.0, 1.0, 0.0, 1.0, 0.0, 1.0))
         for _ in range(7):
-            repeated, info = advance_farm_clock_pure(repeated, 1, lambda: next(repeated_rolls))
+            repeated, info = advance_farm_clock_pure(repeated, 6, lambda: next(repeated_rolls))
             repeated_events.extend(info["events"])
         self.assertEqual(batched, repeated)
         self.assertEqual(batched_info["events"], repeated_events)
@@ -2168,7 +2168,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertEqual(clean["farming_exp"], 0.0)
         self.assertEqual(clean["farm_clock_minutes"], 0)
         self.assertEqual(len(clean["farm_event_log"]), 200)
-        advanced, _ = advance_farm_clock_pure(data, 1)
+        advanced, _ = advance_farm_clock_pure(data, 6)
         self.assertTrue(advanced["farming_exp"] == 0.0)
         self.assertLessEqual(len(advanced["farm_event_log"]), 200)
 
@@ -2269,7 +2269,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         )
         self.assertEqual(
             regrowing_patch["status_label"],
-            "Regrowing · next produce in about 1 review",
+            "Regrowing · next produce in about 100 reviews",
         )
 
     def test_willow_projection_keeps_chop_primary_and_exposes_pruning(self):
@@ -2291,13 +2291,13 @@ class TestFarmingFrontendProjection(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        state, _ = advance_farm_clock_pure(state, 40, lambda: 1.0)
+        state, _ = advance_farm_clock_pure(state, 240, lambda: 1.0)
         state, ok, _ = execute_farm_field_step_pure(
             state,
             {"kind": "check_health", "patch_id": "lumbridge_tree"},
         )
         self.assertTrue(ok)
-        state, _ = advance_farm_clock_pure(state, 5, lambda: 1.0)
+        state, _ = advance_farm_clock_pure(state, 30, lambda: 1.0)
 
         patch = next(
             patch
@@ -2360,7 +2360,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         self.assertIsNotNone(step_id)
         self.assertEqual(farming_frontend_projection_pure(queued)["hud"]["priority"], "queue")
 
-        ready, _ = advance_farm_clock_pure(_plant_ready(queued), 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(_plant_ready(queued), 42, lambda: 1.0)
         ready_view = farming_frontend_projection_pure(ready)
         self.assertEqual(ready_view["hud"]["priority"], "ready")
         self.assertEqual(ready_view["hud"]["queue_count"], 1)
@@ -2391,7 +2391,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         self.assertNotIn("Supercompost", patch_view["primary_action"]["locked_reason"])
 
         ready = _plant_ready(_state(1))
-        ready, _ = advance_farm_clock_pure(ready, 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(ready, 42, lambda: 1.0)
         ready["inventory"]["Potato seed"] = 3
         ready, ok, _ = set_farm_plan_pure(
             ready, "falador_allotment_north", "potato", compost_tier="supercompost"
@@ -2444,7 +2444,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
             flowers, {"kind": "plant", "patch_id": "falador_flower", "crop_id": "marigold"}
         )
         self.assertTrue(ok)
-        flowers, _ = advance_farm_clock_pure(flowers, 4, lambda: 1.0)
+        flowers, _ = advance_farm_clock_pure(flowers, 24, lambda: 1.0)
         view = farming_frontend_projection_pure(flowers)
         patch_view = next(
             patch
@@ -2532,7 +2532,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         )
         self.assertTrue(all(not location["open_by_default"] for location in locations))
 
-        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 1.0)
+        ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 42, lambda: 1.0)
         ready_view = farming_frontend_projection_pure(ready)
         falador = next(location for location in ready_view["locations"] if location["location_id"] == "falador")
         self.assertTrue(falador["open_by_default"])
@@ -2607,14 +2607,14 @@ class TestFarmingEndToEnd(unittest.TestCase):
         state, ids = queue_full_run_pure(state)
         self.assertEqual(len(ids), 1)
 
-        state, consumed, info = apply_farming_review_with_queue_pure(state, lambda: 1.0)
+        state, consumed, info = apply_farming_review_with_queue_pure(state, lambda: 1.0, calendar_minutes=6)
         self.assertTrue(consumed)
         self.assertEqual(info["status"], "executed")
         self.assertEqual(state["farm_patches"]["falador_allotment_north"]["crop_id"], "potato")
         self.assertEqual(state["inventory"]["Potato seed"], 3)
 
         for _ in range(7):
-            state, consumed, info = apply_farming_review_with_queue_pure(state, lambda: 1.0)
+            state, consumed, info = apply_farming_review_with_queue_pure(state, lambda: 1.0, calendar_minutes=6)
             self.assertFalse(consumed)
             self.assertEqual(info["status"], "empty")
         self.assertEqual(farming_frontend_projection_pure(state)["ready_count"], 1)
@@ -2622,14 +2622,14 @@ class TestFarmingEndToEnd(unittest.TestCase):
         state, ids = queue_full_run_pure(state)
         self.assertEqual([step["kind"] for step in state["farm_queue"]], ["harvest", "plant"])
         self.assertEqual(len(ids), 2)
-        state, consumed, harvest = apply_farming_review_with_queue_pure(state, lambda: 1.0)
+        state, consumed, harvest = apply_farming_review_with_queue_pure(state, lambda: 1.0, calendar_minutes=6)
         self.assertTrue(consumed)
         self.assertEqual(harvest["status"], "executed")
         self.assertGreaterEqual(state["inventory"]["Potato"], 3)
         harvested_total = state["farming_counters"]["produce_harvested"]
         self.assertGreaterEqual(harvested_total, 3)
 
-        state, consumed, replanted = apply_farming_review_with_queue_pure(state, lambda: 1.0)
+        state, consumed, replanted = apply_farming_review_with_queue_pure(state, lambda: 1.0, calendar_minutes=6)
         self.assertTrue(consumed)
         self.assertEqual(replanted["status"], "executed")
         self.assertEqual(state["farm_queue"], [])

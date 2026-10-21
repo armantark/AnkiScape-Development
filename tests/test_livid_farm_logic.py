@@ -580,7 +580,7 @@ class TestLividFarmLogic(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        player, _ = advance_farm_clock_pure(player, 7, lambda: 1.0)
+        player, _ = advance_farm_clock_pure(player, 42, lambda: 1.0)
         player, step_ids, message = queue_harvest_and_replant_same_pure(
             player,
             LIVID_FARM_ALLOTMENT_PATCH_ID,

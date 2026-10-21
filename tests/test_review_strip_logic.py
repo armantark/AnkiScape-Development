@@ -561,7 +561,7 @@ class StatusBadgeViewTest(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        data, _events = advance_farm_clock_pure(data, 7, lambda: 1.0)
+        data, _events = advance_farm_clock_pure(data, 42, lambda: 1.0)
 
         views = review_status_badges_view_pure(data)
         farming_rows = views["farming"]["rows"]
@@ -592,7 +592,7 @@ class StatusBadgeViewTest(unittest.TestCase):
             },
         )
         self.assertTrue(ok)
-        data, _events = advance_farm_clock_pure(data, 2, lambda: 1.0)
+        data, _events = advance_farm_clock_pure(data, 12, lambda: 1.0)
         data["farm_patches"]["falador_allotment_north"].update(
             {"diseased": True, "dead": False}
         )

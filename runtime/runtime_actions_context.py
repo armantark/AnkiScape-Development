@@ -83,6 +83,7 @@ class RuntimeActionContext:
     select_review_action: Optional[Callable[[str], bool]] = None
     refresh_carried_inventory: Optional[Callable[[], None]] = None
     card: Optional[CardBudget] = None
+    calendar_ticks_for_answer: Optional[int] = None
     familiar_ticks_before: Optional[int] = None
 
     def __post_init__(self) -> None:

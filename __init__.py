@@ -1140,6 +1140,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         select_review_action=_select_review_action,
         review_action_multiplier=_review_action_multiplier(),
         familiar_ticks_before=_state.familiar_ticks_before,
+        calendar_ticks_for_answer=_state.calendar_ticks_for_answer,
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
@@ -1947,7 +1948,7 @@ def _on_main_menu(
         return _apply_house_result(purchase_house_option_pure(_state.player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
 
     def _get_farming_projection():
-        return farming_frontend_projection_pure(_state.player_data)
+        return farming_frontend_projection_pure(_state.player_data, speed=_review_action_multiplier())
 
     def _get_ge_projection():
         return ge_frontend_projection_pure(
@@ -2051,17 +2052,17 @@ def _on_main_menu(
                     "ok": False,
                     "reason": "undo_unavailable",
                     "message": "Anki could not create an undo entry.",
-                    "projection": farming_frontend_projection_pure(_state.player_data),
+                    "projection": farming_frontend_projection_pure(_state.player_data, speed=_review_action_multiplier()),
                 }
             return {
                 "ok": False,
                 "message": change_message,
-                "projection": farming_frontend_projection_pure(_state.player_data),
+                "projection": farming_frontend_projection_pure(_state.player_data, speed=_review_action_multiplier()),
             }
         return {
             "ok": True,
             "message": change_message,
-            "projection": farming_frontend_projection_pure(_state.player_data),
+            "projection": farming_frontend_projection_pure(_state.player_data, speed=_review_action_multiplier()),
         }
 
     def _apply_mage_arena_action(action_id, god_id):
@@ -5231,7 +5232,6 @@ def _advance_clocks_for_answer(successful_answer) -> None:
     except Exception:
         pass
     try:
-        # Fills wait in the offer's collection box until collected.
         ge_updated, _events = advance_ge_market_tick_pure(
             _state.player_data, item_catalog=GE_ITEM_CATALOG
         )
@@ -5306,7 +5306,7 @@ def on_answer_card(self, ease, _old):
         _advance_effects_for_answer(successful_answer)
         _advance_farming_for_answer(answers_farm_step)
         _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, before_state)
-        _state.familiar_ticks_before = None
+        _state.familiar_ticks_before = _state.calendar_ticks_for_answer = None
     _state.card_turned = False
     _state.answer_shown = False  # Reset for the next card
     try:

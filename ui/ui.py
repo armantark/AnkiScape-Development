@@ -5758,7 +5758,7 @@ def show_main_menu(
         def _projection() -> dict:
             if get_farming_projection is not None:
                 return dict(get_farming_projection() or {})
-            return farming_frontend_projection_pure(player_data)
+            return farming_frontend_projection_pure(player_data, speed=_game_speed())
 
         def _clear_sheet() -> None:
             item = sheet_layout.takeAt(0)
@@ -6667,7 +6667,7 @@ def show_main_menu(
         farming_spell_picker = QComboBox()
         farming_spell_picker.setObjectName("magicFarmingPatchCombo")
         farming_spell_picker.addItem("Choose a patch…", "")
-        projection = farming_frontend_projection_pure(player_data)
+        projection = farming_frontend_projection_pure(player_data, speed=_game_speed())
         patch_rows = sorted(
             (
                 patch

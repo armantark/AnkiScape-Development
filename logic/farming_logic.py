@@ -11,7 +11,6 @@ from ..core.tool_belt import tool_on_belt, without_belt_tools
 from ..data.farming_data import (
     COMPOST_BIN_CAPACITY,
     COMPOST_TIERS,
-    FARM_MINUTES_PER_ANSWER,
     FARMING_COMPOST_BINS,
     FARMING_COMPOST_BINS_BY_ID,
     FARMING_CROPS_BY_ID,
@@ -26,6 +25,8 @@ from ..data.farming_data import (
 )
 from ..logic_pure.logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
 from ..data.quest_data import QUEST_DISPLAY_NAMES
+from .farming.calendar import advance_farm_calendar
+from .pace.short_timers import cards_for_ticks_pure
 from .farming.materials import _consume, _has_items, _int, _missing_items_reason
 
 
@@ -282,7 +283,7 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
     last_crop_id = record.get("last_crop_id")
     record["crop_id"] = crop_id
     record["last_crop_id"] = last_crop_id if isinstance(last_crop_id, str) and last_crop_id in FARMING_CROPS_BY_ID else crop_id
-    record["planted_at"] = _int(record.get("planted_at"))
+    record["planted_at"] = _number(record.get("planted_at"))
     record["stage"] = _int(record.get("stage"))
     tier = record.get("compost_tier", "none")
     record["compost_tier"] = tier if tier in COMPOST_TIERS else "none"
@@ -293,8 +294,8 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
         record["protected"] or record["livid_protected"]
     )
     record["produce_count"] = _int(record.get("produce_count"))
-    record["last_regrowth_at"] = _int(record.get("last_regrowth_at"))
-    record["next_regrowth_at"] = _int(record.get("next_regrowth_at"))
+    record["last_regrowth_at"] = _number(record.get("last_regrowth_at"))
+    record["next_regrowth_at"] = _number(record.get("next_regrowth_at"))
     record["jade_state"] = record.get("jade_state") if record.get("jade_state") in {None, "prunable", "wild"} else None
     record["jade_prunes"] = _int(record.get("jade_prunes"))
     encounter = record.get("jade_combat_encounter")
@@ -325,8 +326,9 @@ def _sanitize_bin_record(raw: Any) -> dict[str, Any]:
     tier = record.get("tier")
     record["tier"] = tier if tier in {"compost", "supercompost"} else None
     record["input_item"] = record.get("input_item") if isinstance(record.get("input_item"), str) else None
-    for key in ("filled_at", "ready_at", "amount"):
-        record[key] = _int(record.get(key))
+    record["amount"] = _int(record.get("amount"))
+    for key in ("filled_at", "ready_at"):
+        record[key] = _number(record.get(key))
     if record["status"] == "empty" or record["tier"] is None:
         record.update(_default_bin_record())
     return record
@@ -358,7 +360,7 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
                     "protected": True,
                     "health_checked": True,
                     "produce_count": crop.fixed_yield or 0,
-                    "last_regrowth_at": _int(player_data.get("farm_clock_minutes")),
+                    "last_regrowth_at": _number(player_data.get("farm_clock_minutes")),
                 }
             )
         record["plan"] = None
@@ -456,7 +458,7 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
             if not isinstance(job.get("seedling_item"), str):
                 continue
             job["amount"] = _int(job.get("amount"), minimum=1)
-            job["ready_at"] = _int(job.get("ready_at"))
+            job["ready_at"] = _number(job.get("ready_at"))
             jobs.append(job)
     highest_job_id = max(
         (_int(job["id"].removeprefix("farm_sapling_")) for job in jobs if job["id"].startswith("farm_sapling_")),
@@ -507,7 +509,7 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
             if player_data.get("farm_jade_vine_policy") in JADE_VINE_POLICIES
             else JADE_POLICY_KEEP_TAME
         ),
-        "farm_clock_minutes": _int(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
+        "farm_clock_minutes": _number(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
         "farm_patches": patches,
         "farm_compost_bins": bins,
         "farm_plans": plans,
@@ -533,7 +535,7 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
             _int(player_data.get("farm_next_sapling_job_id", 1), default=1, minimum=1),
         ),
         "farm_event_log": event_log,
-        "farm_juju_active_until": _int(player_data.get("farm_juju_active_until", defaults["farm_juju_active_until"])),
+        "farm_juju_active_until": _number(player_data.get("farm_juju_active_until", defaults["farm_juju_active_until"])),
         "farming_counters": counters,
     }
 
@@ -783,45 +785,14 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
             record["last_regrowth_at"] += crop.regrowth_minutes
 
 
-def _advance_one_farm_card(updated: dict[str, Any], random_random: Callable[[], float]) -> None:
-    updated["farm_clock_minutes"] += FARM_MINUTES_PER_ANSWER
-    ready_jobs = []
-    pending_jobs = []
-    for job in updated["farm_sapling_jobs"]:
-        (ready_jobs if job["ready_at"] <= updated["farm_clock_minutes"] else pending_jobs).append(job)
-    updated["farm_sapling_jobs"] = pending_jobs
-    for job in ready_jobs:
-        inventory = updated["inventory"]
-        amount = min(job["amount"], _int(inventory.get(job["seedling_item"])))
-        if amount:
-            inventory[job["seedling_item"]] -= amount
-            inventory[job["sapling_item"]] = _int(inventory.get(job["sapling_item"])) + amount
-        _log(updated, "saplings_ready", f"{amount} {job['sapling_item']} matured.", amount=amount)
-    for bin_id in FARMING_COMPOST_BINS_BY_ID:
-        record = updated["farm_compost_bins"][bin_id]
-        if record["status"] == "filling" and record["ready_at"] <= updated["farm_clock_minutes"]:
-            record["status"] = "ready"
-            _log(updated, "compost_ready", f"{FARMING_COMPOST_BINS_BY_ID[bin_id].display_name} is ready.", bin_id=bin_id)
-    for patch_id in FARMING_PATCHES_BY_ID:
-        _process_patch_boundaries(updated, patch_id, random_random)
-
-
 def advance_farm_clock_pure(
     player_data: Mapping[str, Any],
-    answered_cards: int = 1,
+    calendar_minutes: float = 0.06,
     random_random: Callable[[], float] = lambda: 1.0,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     updated = _copy_with_farm_state(player_data)
-    cards = _int(answered_cards)
-    events: list[dict[str, Any]] = []
-    for _ in range(cards):
-        _advance_one_farm_card(updated, random_random)
-        events.extend(
-            dict(row)
-            for row in updated["farm_event_log"]
-            if _int(row.get("clock")) == updated["farm_clock_minutes"]
-        )
-    return updated, {"minutes": cards * FARM_MINUTES_PER_ANSWER, "events": events}
+    info = advance_farm_calendar(updated, _number(calendar_minutes), random_random, _process_patch_boundaries, _log)
+    return updated, info
 
 
 def _patch_crop_for_step(updated: Mapping[str, Any], step: Mapping[str, Any]) -> tuple[Optional[str], Any, Any, Optional[str]]:
@@ -1097,10 +1068,10 @@ def roll_variable_harvest_count_pure(lives: int, save_slots: int, random_random:
 
 
 def _juju_farming_active(updated: Mapping[str, Any]) -> bool:
-    deadline = _int(updated.get("farm_juju_active_until"))
+    deadline = _number(updated.get("farm_juju_active_until"))
     # Five era-minutes is shorter than one six-minute review tick; preserve the
     # potion's next-action usefulness without extending it to a second review.
-    return deadline > 0 and _int(updated.get("farm_clock_minutes")) <= deadline + 1
+    return deadline > 0 and _number(updated.get("farm_clock_minutes")) <= deadline + 1
 
 
 def _harvest_tool_options(crop: Any) -> tuple[str, ...]:
@@ -1937,17 +1908,18 @@ def consume_next_farm_queue_step_pure(
 def apply_farming_review_with_queue_pure(
     player_data: Mapping[str, Any],
     random_random: Callable[[], float] = lambda: 1.0,
+    *, calendar_minutes: float = 0.06,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    """Advance one successful review and consume its queued detour with one copy."""
+    """Advance the calendar and consume the queued detour with one copy."""
 
     updated = _copy_with_farm_state(player_data)
     queue = updated["farm_queue"]
     cure_first = bool(queue and queue[0].get("kind") == "cure")
     if cure_first:
         consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
-        _advance_one_farm_card(updated, random_random)
+        advance_farm_calendar(updated, _number(calendar_minutes), random_random, _process_patch_boundaries, _log)
     else:
-        _advance_one_farm_card(updated, random_random)
+        advance_farm_calendar(updated, _number(calendar_minutes), random_random, _process_patch_boundaries, _log)
         consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
     return updated, consumed, info
 
@@ -2335,7 +2307,7 @@ def _access_reason(gate: Any) -> str:
     return "This patch is locked."
 
 
-def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str, Any], crop: Any) -> tuple[str, str, int]:
+def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str, Any], crop: Any, speed: int) -> tuple[str, str, int]:
     if crop is None:
         return "empty", "Empty", 10**9
     if record.get("dead"):
@@ -2354,12 +2326,12 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
             return "ready", "Health check ready", 0
         if crop.id == "jade_vine":
             branches = _int(record.get("produce_count"))
-            next_at = _int(record.get("next_regrowth_at"))
+            next_at = _number(record.get("next_regrowth_at"))
             if not next_at:
                 return "growing", "Branch clock not armed", 0
             reviews = max(
                 1,
-                math.ceil(max(0, next_at - _int(state.get("farm_clock_minutes"))) / FARM_MINUTES_PER_ANSWER),
+                cards_for_ticks_pure(round(max(0, next_at - _number(state.get("farm_clock_minutes"))) * 100), speed),
             )
             review_word = "review" if reviews == 1 else "reviews"
             branch_word = "branch" if branches == 1 else "branches"
@@ -2374,13 +2346,13 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
         ):
             elapsed = max(
                 0,
-                _int(state.get("farm_clock_minutes"))
-                - _int(record.get("last_regrowth_at")),
+                _number(state.get("farm_clock_minutes"))
+                - _number(record.get("last_regrowth_at")),
             )
-            interval = crop.regrowth_minutes or FARM_MINUTES_PER_ANSWER
+            interval = crop.regrowth_minutes
             reviews = max(
                 1,
-                math.ceil(max(0, interval - elapsed) / FARM_MINUTES_PER_ANSWER),
+                cards_for_ticks_pure(round(max(0, interval - elapsed) * 100), speed),
             )
             review_word = "review" if reviews == 1 else "reviews"
             return (
@@ -2402,8 +2374,8 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
     stages = crop.stages or 0
     stage = _int(record.get("stage"))
     if crop.stage_minutes:
-        boundary = _int(record.get("planted_at")) + (stage + 1) * crop.stage_minutes
-        reviews = max(1, math.ceil(max(0, boundary - _int(state.get("farm_clock_minutes"))) / FARM_MINUTES_PER_ANSWER))
+        boundary = _number(record.get("planted_at")) + (stage + 1) * crop.stage_minutes
+        reviews = max(1, cards_for_ticks_pure(round(max(0, boundary - _number(state.get("farm_clock_minutes"))) * 100), speed))
         return "growing", f"Growing · stage {stage + 1}/{stages} · next stage in about {reviews} reviews", reviews
     return "growing", f"Growing · stage {stage + 1}/{stages}", 10**8
 
@@ -2517,7 +2489,7 @@ def _farm_preset_modified(state: Mapping[str, Any], preset: Mapping[str, Any]) -
     )
 
 
-def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def farming_frontend_projection_pure(player_data: Mapping[str, Any], *, speed: int = 1) -> dict[str, Any]:
     """Return presentation-ready Farming state; Qt only renders this projection."""
 
     state = _copy_with_farm_state(player_data)
@@ -2543,7 +2515,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             continue
         record = state["farm_patches"][patch.id]
         crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
-        status, status_label, reviews = _patch_status_view(state, patch, record, crop)
+        status, status_label, reviews = _patch_status_view(state, patch, record, crop, speed)
         access_allowed = farming_access_gate_allows_pure(state, patch.access_gate)
         access_reason = "" if access_allowed else _access_reason(patch.access_gate)
         plan = _sanitize_plan(state["farm_plans"].get(patch.id)) or _sanitize_plan(record.get("plan"))

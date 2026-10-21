@@ -286,7 +286,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 6)
+        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 0.6)
         self.assertEqual(addon._state.player_data["farm_queue"], [])
         self.assertEqual(addon._state.player_data["farm_patches"]["falador_allotment_north"]["crop_id"], "potato")
         self.assertEqual(addon._state.player_data["inventory"]["Logs"], 0)
@@ -389,7 +389,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 6)
+        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 0.06)
         self.assertEqual(addon._state.player_data["farm_queue"], before_step)
         self.assertEqual(addon._state.player_data["inventory"]["Potato seed"], 3)
         self.assertEqual(len(addon._state.review_undo_stack), 1)
@@ -424,7 +424,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         )
         self.assertTrue(ok)
         patch = state["farm_patches"]["falador_allotment_north"]
-        state["farm_clock_minutes"] = 18
+        state["farm_clock_minutes"] = 19.94
         patch["stage"] = 1
         patch["diseased"] = True
         state, _, _ = farming_logic.add_farm_queue_step_pure(
@@ -439,7 +439,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
         patch = addon._state.player_data["farm_patches"]["falador_allotment_north"]
-        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 24)
+        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 20)
         self.assertFalse(patch["dead"])
         self.assertGreaterEqual(patch["stage"], 2)
         self.assertEqual(addon._state.player_data["farm_queue"], [])
@@ -465,9 +465,9 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 6)
+        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 0.06)
         self.assertEqual(len(saves), 1)
-        self.assertEqual(saves[0]["farm_clock_minutes"], 6)
+        self.assertEqual(saves[0]["farm_clock_minutes"], 0.06)
 
     def test_farming_and_woodcutting_level_callbacks_see_pre_award_levels(self):
         addon = _load_addon_as_package("ankiscape_farming_level_notifications")
@@ -557,7 +557,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         )
         self.assertTrue(ok)
         state["inventory"]["Logs"] = 0
-        state["farm_clock_minutes"] = 18
+        state["farm_clock_minutes"] = 19.94
         state["farm_patches"]["falador_allotment_north"]["stage"] = 1
         addon._state.player_data = state
         addon._state.current_skill = "Fletching"
@@ -602,7 +602,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
             {"kind": "plant", "patch_id": "falador_allotment_north", "crop_id": "potato"},
         )
         self.assertTrue(ok)
-        state["farm_clock_minutes"] = 18
+        state["farm_clock_minutes"] = 19.94
         state["farm_patches"]["falador_allotment_north"]["stage"] = 1
         addon._state.player_data = state
         before = copy.deepcopy(state)
@@ -616,7 +616,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         self.assertTrue(addon._state.player_data["farm_patches"]["falador_allotment_north"]["diseased"])
-        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 24)
+        self.assertEqual(addon._state.player_data["farm_clock_minutes"], 20)
 
         addon._on_state_did_undo(types.SimpleNamespace(
             operation="Answer Card",
