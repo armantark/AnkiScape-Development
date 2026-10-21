@@ -66,6 +66,14 @@ QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]
         QuestPrerequisite("creature_of_fenkenstrain", "Creature of Fenkenstrain"),
         QuestPrerequisite("monkey_madness", "Monkey Madness"),
     ),
+    # Template:Questreq oldid 6552449; Sal's Realm capture 20121018050049.
+    "legends_quest": (
+        QuestPrerequisite("family_crest", "Family Crest"),
+        QuestPrerequisite("heroes_quest", "Heroes' Quest"),
+        QuestPrerequisite("shilo_village", "Shilo Village"),
+        QuestPrerequisite("underground_pass", "Underground Pass"),
+        QuestPrerequisite("waterfall_quest", "Waterfall Quest"),
+    ),
 }
 
 
