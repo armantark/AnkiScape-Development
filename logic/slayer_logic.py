@@ -303,6 +303,13 @@ def slayer_target_ids_for_assignment_pure(
     return family.target_ids if family else ()
 
 
+def slayer_kill_limit_pure(player_data: Mapping[str, Any], target_id: str) -> int | None:
+    """The last assigned kill is a card boundary only for the assigned family."""
+    if target_id not in slayer_target_ids_for_assignment_pure(player_data):
+        return None
+    return sanitize_slayer_state_pure(player_data)["slayer_assignment"]["remaining"]
+
+
 def apply_slayer_kills_pure(
     player_data: Mapping[str, Any],
     *,

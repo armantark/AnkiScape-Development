@@ -4,6 +4,7 @@ kill, death and empty-encounter settlement after it, and the Wilderness ambush
 that can follow a burst the player survived."""
 
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from ..logic.pace.danger_stops import low_lifepoints_without_food_pure
 from ..logic.equipment_instance_logic import advance_equipped_condition_pure
 from .logic_pure_combat_food import _combat_consume_auto_food
 from .logic_pure_combat_model import _combat_apply_pvm_death, _combat_apply_wilderness_ambush
@@ -142,3 +143,26 @@ def _combat_settle_wilderness_ambush(
     if ambush.get("died"):
         return ambush, max_player_lp, True
     return ambush, _non_negative_int(ambush.get("lifepoints_after", player_lp), player_lp), False
+
+
+def _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before):
+    if not live_cadence:
+        return ""
+    if low_lifepoints_without_food_pure(data, lifepoints, maximum):
+        return "fled" if data.get("combat_auto_flee", True) else "low_lp_no_food"
+    if not poison_before and (data.get("combat_status_effects") or {}).get("poison"):
+        return "poison_started"
+    if prayers and prayer_points <= 0:
+        return "prayer_empty"
+    return ""
+
+
+def _combat_result_stop_reason(reason, died, fled, familiar_escape, out_of_ammo, out_of_runes, live_cadence):
+    if reason:
+        return reason
+    stops = (
+        (out_of_ammo, "out_of_ammo"), (out_of_runes, "out_of_runes"),
+        (familiar_escape, "void_shifter"), (died and live_cadence, "died"),
+        (fled, "fled" if live_cadence else "auto_flee"),
+    )
+    return next((name for stopped, name in stops if stopped), "")

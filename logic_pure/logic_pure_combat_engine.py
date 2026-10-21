@@ -2,6 +2,8 @@
 
 from typing import Iterable, Mapping, Optional
 from .combat_lure import prepare_combat_lure_encounter_pure
+from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason
+from .logic_pure_combat_setup import _combat_spell_enemy_state
 
 from ..logic.equipment_instance_logic import (
     advance_equipped_condition_pure,
@@ -763,6 +765,7 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
         equipment_data,
     )
     if bank_run_result is not None:
+        bank_run_result["stop_reason"] = "bank_trip"
         data["combat_last_result"] = bank_run_result
         return data
     # A stale loadout must not deliver an instant restock: the repair stays
@@ -1050,6 +1053,16 @@ def _combat_apply_enemy_unequip_special(data, target_id):
     return data, {"kind": "unequip", "item": removed_item, "slot": removed_slot}
 
 
+def _combat_kill_stop_reason(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
+    if not live_cadence:
+        return ""
+    if limit is not None and kills >= limit:
+        return "slayer_task_complete"
+    if allow_bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
+        return "bank_trip"
+    return ""
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1059,6 +1072,8 @@ def apply_combat_burst_pure(
     *,
     live_cadence=False,
     stop_after_first_kill=False,
+    stop_after_kills=None,
+    stop_on_danger=False,
     safe_death=False,
     no_grave=False,
     allow_bank_run=True,
@@ -1256,58 +1271,9 @@ def apply_combat_burst_pure(
 
     spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""
     spell_effect_value = float(spell_spec.get("effect_value", 0.0) or 0.0) if combat_class == "magic" else 0.0
-    magic_effects_applied = (
-        {
-            str(effect)
-            for effect in encounter.get("magic_effects_applied", ())
-            if isinstance(effect, str)
-        }
-        if live_cadence and active_encounter
-        else set()
+    magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor = (
+        _combat_spell_enemy_state(encounter, live_cadence and active_encounter, live_cadence, spell_effect, spell_effect_value)
     )
-    magic_effect_applied = spell_effect in magic_effects_applied
-    enemy_attack_factor = (
-        max(
-            0.01,
-            min(
-                1.0,
-                _non_negative_float(
-                    encounter.get("spell_enemy_attack_factor", 1.0),
-                    1.0,
-                ),
-            ),
-        )
-        if live_cadence and active_encounter
-        else 1.0
-    )
-    enemy_defence_factor = (
-        max(
-            0.01,
-            min(
-                1.0,
-                _non_negative_float(
-                    encounter.get("spell_enemy_defence_factor", 1.0),
-                    1.0,
-                ),
-            ),
-        )
-        if live_cadence and active_encounter
-        else 1.0
-    )
-    if spell_effect in {"attack_drain", "strength_drain", "magic_drain"} and (
-        not live_cadence or not magic_effect_applied
-    ):
-        enemy_attack_factor *= max(0.0, 1.0 - spell_effect_value)
-        if live_cadence:
-            magic_effects_applied.add(spell_effect)
-            magic_effect_applied = True
-    if spell_effect in {"defence_drain"} and (
-        not live_cadence or not magic_effect_applied
-    ):
-        enemy_defence_factor *= max(0.0, 1.0 - spell_effect_value)
-        if live_cadence:
-            magic_effects_applied.add(spell_effect)
-            magic_effect_applied = True
     spell_enemy_attack_factor = enemy_attack_factor
     spell_enemy_defence_factor = enemy_defence_factor
     # Curse ramps are reset for each fight. The burst EV uses the attacks a
@@ -1408,12 +1374,14 @@ def apply_combat_burst_pure(
     out_of_runes = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
+    stop_reason = ""
     # This is a live combat review, so the out-of-combat rest window restarts from
     # zero; the next non-combat review begins healing you back toward full.
     data["combat_rest_reviews"] = 0
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
+        poison_before = bool((data.get("combat_status_effects") or {}).get("poison"))
         enemy_lp, enemy_regen_residual = _combat_regenerate_enemy(
             enemy_lp, enemy_max_lp, enemy_regen_residual,
             enemy_regen_numerator, enemy_regen_denominator, enemy_counts,
@@ -1435,6 +1403,10 @@ def apply_combat_burst_pure(
         if status_stop:
             fled = True
             familiar_escape = status_stop == "void_shifter"
+            break
+        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before)
+        if stop_reason:
+            fled = stop_reason == "fled"
             break
 
         if tick >= next_player_attack and enemy_lp > 0:
@@ -1540,7 +1512,11 @@ def apply_combat_burst_pure(
                 # old `break` wasted up to half of a ~30s review window). A fresh
                 # enemy respawns at full LP and re-engages after its normal attack
                 # delay, so it gets no free instant hit on the kill tick.
-                if stop_on_kill:
+                stop_reason = _combat_kill_stop_reason(
+                    data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
+                    target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
+                )
+                if stop_reason or stop_on_kill:
                     break
                 enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
                 next_enemy_attack = tick + 1 + enemy_attack_speed
@@ -1655,7 +1631,11 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
-                if stop_on_kill:
+                stop_reason = _combat_kill_stop_reason(
+                    data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
+                    target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
+                )
+                if stop_reason or stop_on_kill:
                     break
                 enemy_lp = enemy_max_lp
                 enemy_regen_residual = 0
@@ -1671,6 +1651,10 @@ def apply_combat_burst_pure(
             )
             if potion_event:
                 potions_used.append(potion_event)
+        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before)
+        if stop_reason:
+            fled = stop_reason == "fled"
+            break
 
     data, equipment_condition_events = _combat_bank_burst_rewards(
         data, ticks_elapsed, drops, xp_rewards
@@ -1766,13 +1750,7 @@ def apply_combat_burst_pure(
         "fled": fled,
         "familiar_escape": familiar_escape,
         "wilderness_ambush": wilderness_ambush or {},
-        "stop_reason": (
-            "out_of_ammo" if out_of_ammo
-            else "out_of_runes" if out_of_runes
-            else "void_shifter" if familiar_escape
-            else "auto_flee" if fled
-            else ""
-        ),
+        "stop_reason": _combat_result_stop_reason(stop_reason, died, fled, familiar_escape, out_of_ammo, out_of_runes, live_cadence),
         "food_used": tuple(food_used),
         "potions_used": tuple(potions_used),
         "ammo_used": dict(ammo_used),

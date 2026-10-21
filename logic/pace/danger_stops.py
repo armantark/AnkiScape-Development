@@ -2,8 +2,7 @@
 
 from typing import NamedTuple
 
-from ...logic_pure.logic_pure_combat_food import _combat_auto_eat_food_available
-from ...logic_pure.logic_pure_combat_model import combat_max_lifepoints_pure
+from ...logic_pure.logic_pure_combat_food import _combat_auto_eat_food_available, combat_max_lifepoints_pure
 from ...logic_pure.logic_pure_state import _non_negative_int, _positive_int
 
 
@@ -11,7 +10,8 @@ class CardDangerState(NamedTuple):
     low_lp_no_food: bool
     stunned: bool
     poisoned: bool
-    prayer_empty: bool
+    prayer_points: int
+    prayers_selected: bool
     bank_trip: bool
 
 
@@ -31,8 +31,8 @@ def card_danger_state_pure(data) -> CardDangerState:
         low_lifepoints_without_food_pure(data),
         bool(data.get("thieving_stunned") or data.get("card_tick_debt")),
         bool((data.get("combat_status_effects") or {}).get("poison")),
-        bool(data.get("combat_selected_prayers"))
-        and _non_negative_int(data.get("combat_prayer_points", 0), 0) == 0,
+        _non_negative_int(data.get("combat_prayer_points", 0), 0),
+        bool(data.get("combat_selected_prayers")),
         bool(data.get("skilling_bank_run")),
     )
 
@@ -40,10 +40,11 @@ def card_danger_state_pure(data) -> CardDangerState:
 def card_danger_stop_pure(before: CardDangerState, after: CardDangerState) -> str:
     if after.low_lp_no_food:
         return "low_lp_no_food"
+    if before.prayer_points > 0 and after.prayer_points == 0 and before.prayers_selected:
+        return "prayer_empty"
     transitions = (
         (before.stunned, after.stunned, "stun"),
         (before.poisoned, after.poisoned, "poison_started"),
-        (before.prayer_empty, after.prayer_empty, "prayer_empty"),
         (before.bank_trip, after.bank_trip, "bank_trip"),
     )
     return next((reason for old, new, reason in transitions if new and not old), "")

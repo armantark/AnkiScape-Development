@@ -12,7 +12,7 @@ from .logic_pure_prayer import (
     prayer_effect_state_pure,
     prayer_uptime_fraction_pure,
 )
-from .logic_pure_state import _non_negative_int, _positive_int
+from .logic_pure_state import _non_negative_float, _non_negative_int, _positive_int
 
 
 def _combat_enemy_start_lifepoints(enemy, encounter, active_encounter):
@@ -132,3 +132,25 @@ def _combat_resume_attack_clocks(encounter, resumed, enemy_attack_speed):
         ),
         _non_negative_int(encounter.get("curse_attack_count", 0), 0),
     )
+
+
+def _combat_spell_factor(encounter, key):
+    return max(0.01, min(1.0, _non_negative_float(encounter.get(key, 1.0), 1.0)))
+
+
+def _combat_spell_enemy_state(encounter, resumed, live_cadence, effect, value):
+    """Resume this enemy's spell drains, or apply the spell to a fresh enemy."""
+    applied = {str(name) for name in encounter.get("magic_effects_applied", ()) if isinstance(name, str)} if resumed else set()
+    attack = _combat_spell_factor(encounter, "spell_enemy_attack_factor") if resumed else 1.0
+    defence = _combat_spell_factor(encounter, "spell_enemy_defence_factor") if resumed else 1.0
+    if live_cadence and effect in applied:
+        return applied, True, attack, defence
+    if effect in {"attack_drain", "strength_drain", "magic_drain"}:
+        attack *= max(0.0, 1.0 - value)
+    elif effect == "defence_drain":
+        defence *= max(0.0, 1.0 - value)
+    else:
+        return applied, False, attack, defence
+    if live_cadence:
+        applied.add(effect)
+    return applied, effect in applied, attack, defence

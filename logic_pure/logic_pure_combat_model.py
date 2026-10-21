@@ -1,6 +1,7 @@
 """logic_pure_combat_model.py - split out of logic_pure.py; see that module's header."""
 
 from math import comb, floor, sqrt
+from .logic_pure_combat_food import combat_max_lifepoints_pure
 
 from typing import Iterable, Mapping, Optional
 
@@ -384,10 +385,6 @@ _COMBAT_XP_MODE_TO_STYLE_ID = {
     "defense": "defensive",
     "shared": "controlled",
 }
-
-
-def combat_max_lifepoints_pure(player_data):
-    return max(10, _positive_int(player_data.get("constitution_level", 10), 10) * 10)
 
 
 COMBAT_PRESET_FIELDS = (

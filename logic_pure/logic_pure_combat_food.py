@@ -110,3 +110,7 @@ def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
             "healed_by": healed_by,
         }
     return current_lifepoints, None
+
+
+def combat_max_lifepoints_pure(player_data):
+    return max(10, _positive_int(player_data.get("constitution_level", 10), 10) * 10)

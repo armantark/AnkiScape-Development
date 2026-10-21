@@ -16,7 +16,7 @@ class StepDangerStopsTests(unittest.TestCase):
             ("low_lp_no_food", {"combat_lifepoints": 40}),
             ("stun", {"thieving_stunned": True}),
             ("poison_started", {"combat_status_effects": {"poison": {"damage": 10}}}),
-            ("prayer_empty", {"combat_prayer_points": 0, "combat_selected_prayers": ["thick_skin"]}),
+            ("prayer_empty", {"combat_prayer_points": 0, "combat_selected_prayers": []}),
             ("bank_trip", {"skilling_bank_run": {"reviews_remaining": 1}}),
         )
         for reason, change in cases:

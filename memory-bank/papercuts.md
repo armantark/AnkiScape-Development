@@ -716,3 +716,7 @@
 - 2026-10-18T22:32:49-07:00 — Owner play list: the 2026-10-13 list said "select a monster, check the preview max hit includes the prayer", copied from the play checklist; the max hit lives only in the Combat target row tooltip (`core/target_metadata.py:1635`, "Your max hit: N LP"), so the owner could not find it (notes, Pass 17). Name the exact surface, hover included, in every play-list check.
 
 - 2026-10-20T23:01:42-07:00: Part G startup: settled plan names runtime/runtime_actions_budget.py, but the built budget lives in runtime/runtime_actions_context.py; core/runtime_state.py is absent, locate state through repo search.
+
+- 2026-10-20T23:23:52-07:00: Part G2 normal commit hook refused runtime handle_combat_answer CCN 136 (was 135), new spell helper cognitive 18, engine fan-out 27 (was 26), and a new danger_stops/combat-model import cycle; narrowed the LP helper dependency and moved tick settlement into the existing outcome owner.
+
+- 2026-10-20T23:24:49-07:00: Part G2 hook caught E303 x1 in logic_pure/logic_pure_combat_model.py after the LP helper move left excess blank lines; removed the redundant blank lines.

@@ -305,7 +305,7 @@ from ..logic.summoning_logic import (
     summoning_action_locked_reasons_pure,
     summoning_action_requirements_pure,
 )
-from ..logic.slayer_logic import apply_slayer_kills_pure
+from ..logic.slayer_logic import apply_slayer_kills_pure, slayer_kill_limit_pure
 from ..data.evil_tree_data import (
     EVIL_TREE_ELIGIBLE_BLESSING_TARGETS,
     EVIL_TREE_NEST_MULTIPLIER,
@@ -559,6 +559,8 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             ticks=_combat_review_ticks(ctx),
             rng=ctx.random_random,
             live_cadence=ctx.cadence_live_enabled,
+            stop_on_danger=True,
+            stop_after_kills=slayer_kill_limit_pure(player_data, target_id),
             # A bank run ends the encounter, and an encounter-only enemy cannot
             # be fought again after it, so its fight uses the carried supplies.
             allow_bank_run=not enemy.get("encounter_only"),
@@ -586,6 +588,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    ctx.card.stop_reason = result.get("stop_reason", "")
     guild_result = {}
     if (
         target_id in {"cyclops", "cyclossus"}
