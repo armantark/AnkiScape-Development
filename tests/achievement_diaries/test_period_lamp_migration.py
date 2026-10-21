@@ -95,18 +95,23 @@ class PeriodLampMigrationTest(unittest.TestCase):
         self.assertEqual(migrated, before)
 
     def test_existing_additional_claim_states_are_preserved_for_every_old_version(self):
-        for version in (106, 107, 124):
-            for tier_id in ELITES:
-                for state in ORIGINAL_STATES:
-                    with self.subTest(version=version, tier_id=tier_id, additional=state):
-                        data = self._legacy(version, tier_id)
-                        ids = expected_ids(tier_id)
-                        data["claims"][ids[1]] = copy.deepcopy(state)
-                        migrated = load(data)
-                        self.assertEqual(migrated["claims"][ids[1]], state)
-                        self.assertEqual(xp_and_equipment(migrated), xp_and_equipment(data))
-                        for claim_id in ids[2:]:
-                            self.assertEqual(migrated["claims"][claim_id], {"claimed": False})
+        for version, tier_id, original in product((106, 107, 124), ELITES, ORIGINAL_STATES):
+            ids = expected_ids(tier_id)
+            for additional_id, state in product(ids[1:], ORIGINAL_STATES):
+                with self.subTest(version=version, tier_id=tier_id, original=original,
+                                  additional_id=additional_id, additional=state):
+                    data = self._legacy(version, tier_id)
+                    data["claims"][ids[0]] = copy.deepcopy(original)
+                    data["claims"][additional_id] = copy.deepcopy(state)
+                    migrated = load(data)
+                    expected_original = dict(original)
+                    if version < 107:
+                        expected_original["claimed"] = True
+                    self.assertEqual(migrated["claims"][ids[0]], expected_original)
+                    self.assertEqual(migrated["claims"][additional_id], state)
+                    self.assertEqual(xp_and_equipment(migrated), xp_and_equipment(data))
+                    for claim_id in set(ids[1:]) - {additional_id}:
+                        self.assertEqual(migrated["claims"][claim_id], {"claimed": False})
 
     def test_absent_pre_v107_original_is_retired_without_repaying_any_experience(self):
         for tier_id in ELITES:
@@ -119,6 +124,8 @@ class PeriodLampMigrationTest(unittest.TestCase):
                 self.assertEqual(xp_and_equipment(migrated), xp_and_equipment(data))
                 for claim_id in ids[1:]:
                     self.assertEqual(migrated["claims"][claim_id], {"claimed": False})
+                if tier_id == "falador_elite":
+                    self._assert_falador_assignment(migrated, {"claimed": True})
                 migrated["mining_level"] = 99
                 self.assertFalse(apply_claim_pure(migrated, ids[0], CLAIM_DATA, "mining")[1])
 
@@ -155,23 +162,43 @@ class PeriodLampMigrationTest(unittest.TestCase):
                         self.assertEqual(xp_and_equipment(migrated), xp_and_equipment(before))
 
     def test_spent_and_destroyed_additional_lamps_survive_second_load(self):
-        for version in (106, 107, 124):
-            for tier_id in ELITES:
-                with self.subTest(version=version, tier_id=tier_id):
+        for version, tier_id in product((106, 107, 124), ELITES):
+            for destroy_first in (False, True):
+                with self.subTest(version=version, tier_id=tier_id, destroy_first=destroy_first):
                     data = load(self._legacy(version, tier_id))
                     data["mining_level"] = 99
                     ids = expected_ids(tier_id)
-                    data, ok = apply_claim_pure(data, ids[1], CLAIM_DATA, "mining")
-                    self.assertTrue(ok)
-                    data, ok = apply_destroy_claim_pure(data, ids[2], CLAIM_DATA)
-                    self.assertTrue(ok)
+                    # Across both passes, every additional identifier is spent
+                    # and destroyed, including suffixes _4 and _5.
+                    for index, claim_id in enumerate(ids[1:]):
+                        if bool(index % 2) == destroy_first:
+                            data, ok = apply_destroy_claim_pure(data, claim_id, CLAIM_DATA)
+                        else:
+                            data, ok = apply_claim_pure(data, claim_id, CLAIM_DATA, "mining")
+                        self.assertTrue(ok)
                     before = copy.deepcopy(data)
                     reloaded = load(data)
                     self.assertEqual(reloaded["claims"], before["claims"])
                     self.assertEqual(xp_and_equipment(reloaded), xp_and_equipment(before))
-                    self.assertFalse(apply_claim_pure(reloaded, ids[1], CLAIM_DATA, "mining")[1])
-                    self.assertFalse(apply_claim_pure(reloaded, ids[2], CLAIM_DATA, "mining")[1])
-                    self.assertFalse(apply_destroy_claim_pure(reloaded, ids[2], CLAIM_DATA)[1])
+                    for claim_id in ids[1:]:
+                        self.assertFalse(apply_claim_pure(reloaded, claim_id, CLAIM_DATA, "mining")[1])
+                        self.assertFalse(apply_destroy_claim_pure(reloaded, claim_id, CLAIM_DATA)[1])
+
+    def test_all_additional_identifiers_keep_boolean_and_forfeited_sanitation(self):
+        for version, tier_id in product((125, 126), ELITES):
+            for raw, expected in (
+                (True, {"claimed": True}),
+                (False, {"claimed": False}),
+                ({"claimed": 1}, {"claimed": True}),
+                ({"claimed": 0, "forfeited": 1}, {"claimed": False, "forfeited": True}),
+            ):
+                with self.subTest(version=version, tier_id=tier_id, raw=raw):
+                    data = self._legacy(version, tier_id)
+                    ids = expected_ids(tier_id)[1:]
+                    data["claims"].update({key: copy.deepcopy(raw) for key in ids})
+                    migrated = load(data)
+                    for claim_id in ids:
+                        self.assertEqual(migrated["claims"][claim_id], expected)
 
     def test_unclaimed_tiers_are_gated_and_unrelated_claim_sanitation_is_unchanged(self):
         for version in (106, 107, 124, 125, 126):
