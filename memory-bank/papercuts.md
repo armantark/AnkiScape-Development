@@ -704,3 +704,5 @@
 
 - 2026-10-20T10:49:14-07:00: Deadline fix round 2 searched the full review export and truncated the file list, then guessed two script names that returned `No such file or directory`. The verdict names the exact root scripts `poll_lane_race.py` and `zombie_race.py`; use those paths.
 - 2026-10-18T22:32:49-07:00 — Owner play list: the 2026-10-13 list said "select a monster, check the preview max hit includes the prayer", copied from the play checklist; the max hit lives only in the Combat target row tooltip (`core/target_metadata.py:1635`, "Your max hit: N LP"), so the owner could not find it (notes, Pass 17). Name the exact surface, hover included, in every play-list check.
+
+- 2026-10-20T22:58:00-07:00 — Local parallel-run verification initially lacked the remote gate environment: tests.test_generated_skill_data raised FileNotFoundError for /Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml; tests.test_vinesweeper raised SystemExit: Neither Pillow nor PyQt6 (aqt) is importable. Local runs need the existing ANKISCAPE_GAME_MAIN, ANKISCAPE_DARKAN_WORLD_SERVER and plain PYTHONPATH paths from tools/run_remote_tests.py.
