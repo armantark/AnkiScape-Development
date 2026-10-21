@@ -1,15 +1,16 @@
 """XP per tick of play is the same at speed 1 and speed 10 (plan Part J item 1).
 
-Each sampled route plays one game hour, 3,600 ticks, at speed 10 and then the
-same number of ticks at speed 1, for each of 20 fixed seeds. A card goes
-through the add-on's own card glue (``_spend_card_on_action``), so the carried
-pack, bank trips, the next-step check and the after-card recovery run as they
-do in play. The speed-10 run answers cards until the hour of play is spent: 60
-cards when no card ends early. Its last card can carry play past the hour, so
-the speed-1 run plays to the same tick; otherwise XP that arrives in lumps (a
-runecrafting trip pays at the altar) would make the rate depend on where each
-window ends. A card that a danger stop or a kill ends early leaves its unspent
-ticks unplayed, so they count neither as play nor towards the hour.
+Each sampled route plays a window of 3,600 game ticks (36 minutes of
+0.6-second ticks) at speed 10 and then the same number of ticks at speed 1,
+for each of 20 fixed seeds. A card goes through the add-on's own card glue
+(``_spend_card_on_action``), so the carried pack, bank trips, the next-step
+check and the after-card recovery run as they do in play. The speed-10 run
+answers cards until the window is spent: 60 cards when no card ends early. Its
+last card can carry play past the window, so the speed-1 run plays to the same
+tick; otherwise XP that arrives in lumps (a runecrafting trip pays at the
+altar) would make the rate depend on where each window ends. A card that a
+danger stop or a kill ends early leaves its unspent ticks unplayed, so they
+count neither as play nor towards the window.
 
 The route passes when the mean XP per tick spent at speed 10 is within four
 standard errors of the mean at speed 1. Quests and Dungeoneering take one stage
@@ -18,7 +19,7 @@ or room per card at every speed (assumption 5), so they are not sampled.
 Combat runs with banking off, as Sol's 2026-10-15 kill-cap measurement did,
 because a Combat bank run takes two cards at every speed (plan Q12): the engine
 gets the same ``allow_bank_run=False`` that encounter-only enemies get, and the
-food loadout lasts the hour. Gathering drops what it gathers, the player's own
+food loadout lasts the window. Gathering drops what it gathers, the player's own
 no-banking choice. Processing keeps its bank trips: a trip's travel reviews are
 six-tick steps at every speed, and the start of a trip is a danger stop.
 """
@@ -52,7 +53,7 @@ SEEDS = range(20)
 PLAY_TICKS = 3_600
 MAX_STANDARD_ERRORS = 4
 # A run that keeps answering without spending play (a stalled route) ends here.
-MAX_CARDS_PER_HOUR = 20 * PLAY_TICKS // 6
+MAX_CARDS = 20 * PLAY_TICKS // 6
 
 STOCK = 1_000_000
 MAXED_XP = 13_034_431.0
@@ -304,9 +305,9 @@ COMBAT_PAIRS = {
     80: ("giant_spider_level_50", "fire_giant", "greater_demon", "bloodveld"),
     99: ("fire_giant", "black_demon", "abyssal_demon", "bloodveld"),
 }
-# Sol's 28 Sharks last one trip; an hour of chained fights eats up to about
-# 60, and banking is off, so the loadout holds more than the hour needs.
-_HOUR_OF_SHARKS = 1_000
+# Sol's 28 Sharks last one trip; chained fights eat under 100 in the window,
+# and banking is off, so the loadout holds more than the window needs.
+_SHARK_LOADOUT = 1_000
 
 
 def fighting(band: int, target_id: str) -> Route:
@@ -314,14 +315,14 @@ def fighting(band: int, target_id: str) -> Route:
 
     def player() -> dict:
         data = {
-            "inventory": {"Shark": _HOUR_OF_SHARKS},
+            "inventory": {"Shark": _SHARK_LOADOUT},
             "equipment": dict(COMBAT_SETUPS[band]),
             "current_combat_target": target_id,
             "combat_attack_style": "accurate",
             "combat_lifepoints": band * 10,
             "combat_auto_eat_threshold_percent": 70,
             "combat_auto_eat_food": ["Shark"],
-            "combat_supply_loadout": {"food": {"Shark": _HOUR_OF_SHARKS}},
+            "combat_supply_loadout": {"food": {"Shark": _SHARK_LOADOUT}},
             "prayer_level": 1,
             "summoning_level": 1,
         }
@@ -417,7 +418,7 @@ class RatePropertyCase(unittest.TestCase):
         random.seed(seed)
         xp_before = sum(addon._implemented_exp_keys_snapshot().values())
         spent = cards = 0
-        while spent < ticks and cards < MAX_CARDS_PER_HOUR and addon._state.current_skill == route.skill:
+        while spent < ticks and cards < MAX_CARDS and addon._state.current_skill == route.skill:
             spent += self._card_ticks(route.skill)
             cards += 1
         self.assertGreaterEqual(
@@ -432,9 +433,9 @@ class RatePropertyCase(unittest.TestCase):
         """XP per tick spent for every seed, by speed."""
         rates: dict[int, list[float]] = {1: [], 10: []}
         for seed in SEEDS:
-            xp, hour = self.play(route, 10, seed, PLAY_TICKS)
-            rates[10].append(xp / hour)
-            xp, spent = self.play(route, 1, seed, hour)
+            xp, window = self.play(route, 10, seed, PLAY_TICKS)
+            rates[10].append(xp / window)
+            xp, spent = self.play(route, 1, seed, window)
             rates[1].append(xp / spent)
         return rates
 
