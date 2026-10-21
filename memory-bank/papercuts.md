@@ -730,3 +730,7 @@
 - 2026-10-21T00:01:40-07:00: Part G3 neighbour-repair hook refused unused import card_ticks_pure in runtime/runtime_actions_shared.py (part-g/g3-neighbours-commit.log). The first removal patch assumed a standalone import and failed; removed the name from its grouped import.
 
 - 2026-10-21T00:09:39-07:00: Part G verification: plan section 1.2 names runtime/runtime_actions_budget.py, but the implemented budget lives in runtime/runtime_actions_context.py; a chained read stopped at the missing planned path.
+
+- 2026-10-21T00:35:36-07:00: Part G review-fix startup: broad context read exceeded tool output budget; bounded follow-up reads restored relevant context. A zsh search with tests/test_pace* failed with "zsh:1: no matches found: tests/test_pace*"; use quoted rg globs or existing paths.
+
+- 2026-10-21T00:38:21-07:00: Part G new proof fixtures: a reflected kill requires Magic style because vengeance_pending is gated by magic_supplements_enabled; the observed-drop sanitizer requires both times_seen and quantity_seen > 0, otherwise it discards the record and treats the drop as first seen. Corrected only new fixtures.

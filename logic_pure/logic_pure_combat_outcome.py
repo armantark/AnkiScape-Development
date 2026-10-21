@@ -3,6 +3,9 @@ either side attacks, the equipment wear, drops and experience it banks, the
 kill, death and empty-encounter settlement after it, and the Wilderness ambush
 that can follow a burst the player survived."""
 
+from ..data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
+from ..logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD, carried_fold_gains_pure, filter_loot_pure
+from .logic_pure_combat_model import combat_observed_drop_item_names_pure
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.pace.danger_stops import low_lifepoints_without_food_pure
 from ..logic.equipment_instance_logic import advance_equipped_condition_pure
@@ -51,6 +54,35 @@ def _combat_advance_status_tick(
     if _combat_should_auto_flee(data, player_lp, max_player_lp):
         return player_lp, "auto_flee"
     return player_lp, ""
+
+
+def _combat_drop_ownership_view(data, pending_drops):
+    if not pending_drops:
+        return data
+    ownership_view = dict(data)
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name, amount in pending_drops.items():
+        inventory[item_name] = _non_negative_int(
+            inventory.get(item_name, 0), 0
+        ) + _non_negative_int(amount, 0)
+    ownership_view["inventory"] = inventory
+    return ownership_view
+
+
+def _combat_pending_bank_view(data, target_id, drops, observed_before):
+    """Project kept pending loot into the pack without settling any rewards."""
+    overrides = dict(data.get("loot_overrides") or {})
+    for item in set(combat_observed_drop_item_names_pure(data, target_id)) - observed_before:
+        overrides.setdefault(item, "keep")
+    kept, _left = filter_loot_pure(
+        drops, ITEM_VALUES, data.get("loot_value_threshold", DEFAULT_LOOT_VALUE_THRESHOLD),
+        STACKABLE_ITEM_NAMES, overrides,
+    )
+    view = dict(_combat_drop_ownership_view(data, kept))
+    carried = dict(data.get("carried_inventory") or {})
+    carried[target_id] = carried_fold_gains_pure(carried.get(target_id), kept, STACKABLE_ITEM_NAMES)
+    view["carried_inventory"] = carried
+    return view
 
 
 def _combat_bank_burst_rewards(data, ticks_elapsed, drops, xp_rewards):
@@ -169,7 +201,7 @@ def _combat_result_stop_reason(reason, died, fled, familiar_escape, out_of_ammo,
     return next((name for stopped, name in stops if stopped), "")
 
 
-def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before, died):
+def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before, died, pending_drops, observed_before):
     """Settle a kill's danger, task and bank boundaries; return reason and flee."""
     if not live_cadence:
         return "", False
@@ -180,6 +212,6 @@ def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run,
         return danger, danger == "fled"
     if limit is not None and kills >= limit:
         return "slayer_task_complete", False
-    if allow_bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
+    if allow_bank_run and _combat_bank_run_needed(_combat_pending_bank_view(data, target_id, pending_drops, observed_before), target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
         return "bank_trip", False
     return "", False

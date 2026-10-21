@@ -2,7 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 from .combat_lure import prepare_combat_lure_encounter_pure
-from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop
+from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop, _combat_drop_ownership_view
 from .logic_pure_combat_setup import _combat_spell_enemy_state
 
 from ..logic.equipment_instance_logic import (
@@ -889,19 +889,6 @@ def reclaim_death_office_items_pure(player_data):
     return data, True, ""
 
 
-def _combat_drop_ownership_view(data, pending_drops):
-    if not pending_drops:
-        return data
-    ownership_view = dict(data)
-    inventory = dict(data.get("inventory", {}) or {})
-    for item_name, amount in pending_drops.items():
-        inventory[item_name] = _non_negative_int(
-            inventory.get(item_name, 0), 0
-        ) + _non_negative_int(amount, 0)
-    ownership_view["inventory"] = inventory
-    return ownership_view
-
-
 def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards):
     rolled_drops, refused_clue = _combat_roll_drops(
         enemy,
@@ -1357,6 +1344,7 @@ def apply_combat_burst_pure(
     dragonfire_effect_tick = 0
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
+    observed_before = set(combat_observed_drop_item_names_pure(data, target_id))
     clue_refusal_reason = ""
     kills = 0
     stop_on_kill = stop_after_first_kill or not start_equipment_active
@@ -1505,7 +1493,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before,
                 )
                 if stop_reason or stop_on_kill:
                     break
@@ -1629,7 +1617,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before,
                 )
                 if stop_reason or stop_on_kill:
                     break
