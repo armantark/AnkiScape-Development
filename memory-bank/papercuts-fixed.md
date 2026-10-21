@@ -82,3 +82,4 @@ Resolution: directory searches located the files; corrected table rolls and Cour
 Resolution: use literal rg paths and final-selectors.txt; move these resolved records out of the startup ledger.
 - 2026-10-21: Review-fix preflight refused apply_shooting_star_review_pure cyclomatic complexity 17 (was 16), cognitive 19 (was 18).
 Resolution: remove the redundant nonempty gem-table guard; _pick_gem already returns an empty name for an empty table.
+- 2026-10-21T05:15:37-07:00: Review-fix union status read failed with SyntaxError: unmatched ')' in the inline Python print expression; use tail to read the existing log.
