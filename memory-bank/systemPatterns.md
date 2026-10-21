@@ -787,8 +787,8 @@ the owning middle row before opening details; returning through the top-level
 Activities row must show the master groups without clearing the saved activity.
 The 250-pixel middle-column width is Activities-only; all other categories keep
 the shared 190-pixel width. The simulated world clock belongs in the main-menu
-status row only. It projects from answered-review state at ten reviews per hour
-and must not read or resemble a fallback to wall-clock time.
+status row only. It shows `12 + calendar hours inside the world day`, preserving
+the noon origin at migration; it never reads wall-clock time.
 
 ## UI Gotcha: nested hook callbacks are not removable by a fresh closure
 
@@ -939,10 +939,12 @@ These are approved design decisions, not shipped behavior. The [decision queue](
 - The global speed rule replaces the earlier deferral. Per-method balancing remains deferred; sourced XP amounts stay fixed.
 - Each card supplies 6 game ticks × speed. Handlers spend this budget. Quests and Dungeoneering deliberately keep one stage/room per card.
 - Danger stops the card at every condition in decision 5. Combat can chain only within the budget and before danger.
-- Fish Flingers must use its period duration. The code comment suggests ten minutes/17 cards at ×10; this duration is not yet period-qualified. No past XP rollback. Confirm the period duration or register a placeholder before the build claims source parity.
-- Adaptive World day uses the 60-day active-study median, bounded 100–1,000 cards. Fewer than 7 active days uses 240. Fixed override remains available.
+- Fish Flingers uses its sourced ten-minute duration and eight catches; Master Angler remains automatic by owner ruling. No past XP rollback.
+- Adaptive World day reads `ease > 0` revlog entries from the 60 completed Anki days before the current day, grouped at the scheduler cutoff. The median is bounded 100–1,000 cards; fewer than 7 study days uses 240. Query only on a boundary card, before Anki writes its row; fixed override remains available.
 - Change day length only at a boundary. Share it across reset, growth and restock consumers. Undo must restore the boundary and length exactly.
 - Each card advances 3.6 seconds × speed inside a day. The boundary skips the remaining 24-hour span as logged-out time.
+- Farming walks calendar deadlines in order, preserving fractional minutes and disease RNG across the gap. Market time advances at one tick per 600 calendar ticks; Fish Flingers tickets settle inside the boundary transaction. Undo restores every changed save key and RNG; re-answer reads the current config again.
+- Part H event conversion remains held under F1: the 30-minute notices and two-hour events exceed a default ×1 play window, and Big Chinchompa's 12-hour interval exceeds even the default ×20 window. No shorter interval or replacement phase is approved; other calendar work is independent.
 - Timers use the same budget. Thieving stuns spend stun_ticks; Restaurant fairness spends the actual successful-card budget. Again advances only the clock.
 - Show one pace dialog at first launch for a new player, or once after this update for an existing player. Defaults, current values, hours and close behavior follow decision 10; the owner save has no special path.
 - Ship all pace/calendar parts together after rate/lump/daily-share/danger/chain/Undo/native proof. Only the approved Settings changes and dialog receive new UI. Opus authors UI and a taste-qualified model reviews it.

@@ -25,21 +25,22 @@ computer wall clock never participates.
 One answer always emits one world tick, but consumers do not all pretend that tick is
 the same literal span of RuneScape time:
 
-- **Calendar/economy consumers** keep the shipped scale: ten answers per simulated hour,
-  240 per day, and 1,680 per week. Farming growth, shop restock, and calendar resets use
-  this band. Daily, weekly and monthly resets read their day from the one shared world
-  clock, `logic/pace/world_clock.py`, which owns the day's length (2026-10-18).
+- **Calendar/economy consumers** read `logic/pace/world_clock.py`. Each answer adds
+  `6 × speed` calendar ticks; a boundary skips the rest of the 144,000-tick day.
+  Farming receives the minute delta; shops and the GE receive crossed 600-tick market
+  intervals. Day length changes only at a boundary: fixed 100–1,000 cards, or the
+  median of the previous 60 completed Anki study days (240 before seven study days).
 - **Short activity-duration consumers** count game ticks of their source duration and
   drain by each card's time budget, `6 × speed` ticks (owner assumption 4, 2026-10-15;
-  classification below). They never reuse the calendar's six minutes per card, so a
+  classification below). They do not consume the calendar's logout gap, so a
   four-minute familiar lasts 67 cards at ×1 and seven at ×10.
 - **Foreground action budgets** count only an action that can actually use or progress
   them. A ten-Agility-action boost remains ten Agility actions; it is not a calendar
   duration merely because the period interface described some other effect in minutes.
 
-This is not two competing clocks. It is one answered-card event with explicitly
-different, labeled mappings for long calendar cadence and short gameplay cadence. The
-mapping is an AnkiScape abstraction; period ratios and ordering remain source claims.
+One answered-card event advances play and calendar time together; only the calendar
+includes the logout gap. Migration preserves the old six-minute-per-card timestamp,
+then new answers use play speed. Undo restores the whole calendar transaction and RNG.
 
 ## Current implementation reconciliation
 
