@@ -4,6 +4,8 @@
     CURRENT_CONFIG_VERSION on load via storage_pure.migrate_loaded_data.
 - current_skill is stored separately under the 'ankiscape_current_skill' key.
 """
+from copy import deepcopy
+
 from aqt import mw
 from .constants import ITEM_DEFINITIONS, ORE_DATA
 from .storage_pure import default_player_data, migrate_loaded_data
@@ -42,7 +44,9 @@ def load_player_data():
     if not loaded:
         loaded = mw.col.get_config(_PLAYER_DATA_RECOVERY_KEY)
     if loaded:
-        player_data = migrate_loaded_data(dict(loaded), ORE_DATA, ITEM_DEFINITIONS)
+        # Migrations normalize nested state in place; retain the raw record for
+        # a greeting-only backfill without persisting unrelated normalization.
+        player_data = migrate_loaded_data(deepcopy(loaded), ORE_DATA, ITEM_DEFINITIONS)
         greeting = player_data["cold_war_greeting"]
         if greeting and greeting != loaded.get("cold_war_greeting"):
             backfill = dict(loaded)
