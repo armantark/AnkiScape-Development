@@ -537,7 +537,7 @@ class ReviewStripTest(unittest.TestCase):
 
         rows = self.ui._STATUS_POPOVER.findChild(QListWidget, "reviewStatusList")
         self.assertEqual(rows.count(), 1)
-        self.assertIn("Fish Flingers · Review 1/8", rows.item(0).text())
+        self.assertIn("Fish Flingers · Catch 1/8", rows.item(0).text())
         self.assertIn("stock", rows.item(0).text())
         self.assertIn("tickets remaining", rows.item(0).text())
         self.assertEqual(

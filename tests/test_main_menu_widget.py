@@ -11749,7 +11749,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         clock = _find_named_label(dialog, "mainMenuSimulatedClock")
         self.assertEqual(clock.text(), "World time: 1:00 PM")
-        self.assertEqual(clock.toolTip(), "10 cards = 1 hour")
+        self.assertEqual(clock.toolTip(), "Each answered card moves the world clock by 3.6 seconds times your game speed.\nOne world hour: 1,000 cards at 1x, 100 at 10x, 50 at 20x. The rest of the day passes at once when the world day ends.")
 
     def test_activity_and_dnd_entries_are_alphabetical(self) -> None:
         tree = self._open_activities(self.dialog)
@@ -12438,7 +12438,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         status = _find_named_label(dialog, "bigChinchompaStatusChip")
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         fullness = _find_named_widget(dialog, "bigChinchompaFullness")
-        self.assertIn("source min left", status.text())
+        self.assertIn("world min left", status.text())
         self.assertEqual(button.text(), "Start active event")
         self.assertFalse(fullness.isHidden())
 
@@ -14925,7 +14925,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy = reward_page.findChild(QPushButton, "fishFlingersBuyButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
-        self.assertIn("8 successful reviews", summary.text())
+        self.assertIn("8 catches over 1,000 ticks", summary.text())
         self.assertEqual(primary.text(), "Start activity")
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
@@ -14967,7 +14967,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bass at Lake", summary.text())
         self.assertIn("stock 24/24 (100%, Rich)", summary.text())
         self.assertIn("rotation 1/6", summary.text())
-        self.assertIn("communal pressure 3 stock per review", summary.text())
+        self.assertIn("communal pressure 3 stock lost per catch", summary.text())
         self.assertIn("palette(text)", summary.styleSheet())
         self.assertGreaterEqual(summary.height(), summary.sizeHint().height())
         self.assertLessEqual(panel.width(), dialog.width())
@@ -16004,7 +16004,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         rows = self._ui._world_event_rows(active)
         self.assertTrue(
             any(
-                activity_id == "big_chinchompa" and "source min left" in text
+                activity_id == "big_chinchompa" and "world min left" in text
                 for activity_id, text in rows
             ),
             rows,
