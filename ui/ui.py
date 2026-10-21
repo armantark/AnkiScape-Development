@@ -892,19 +892,6 @@ _EQUIPMENT_BONUS_GROUPS = (
     ("Defence bonuses", ("defence_stab", "defence_slash", "defence_crush", "defence_magic", "defence_ranged")),
     ("Other bonuses", ("melee_strength", "ranged_strength", "magic_damage", "prayer")),
 )
-# A handful of high-signal fields for the one-line summary on inventory rows, so
-# the tooltip reads like the plan's "Stab +20, Slash +29, Str +25" example
-# rather than dumping all 14 fields.
-_EQUIPMENT_SUMMARY_FIELDS = (
-    "attack_stab",
-    "attack_slash",
-    "attack_crush",
-    "attack_ranged",
-    "melee_strength",
-    "ranged_strength",
-    "defence_stab",
-    "prayer",
-)
 # Matches the backend's can_equip_item_pure lock-reason wording ("Defense") so
 # the inventory-row tooltip and the right-click lock reason speak with one voice.
 _COMBAT_SKILL_LABELS = {
@@ -914,14 +901,6 @@ _COMBAT_SKILL_LABELS = {
     "strength": "Strength",
     "magic": "Magic",
     "prayer": "Prayer",
-}
-_COMBAT_SKILL_SHORT_LABELS = {
-    "attack": "Atk",
-    "defense": "Def",
-    "ranged": "Rng",
-    "strength": "Str",
-    "magic": "Magic",
-    "prayer": "Pray",
 }
 
 
@@ -1010,32 +989,6 @@ def equipment_requirement_text(item_name: str) -> str:
         for combat_skill, required in requirements
     ]
     return f"Requires {_join_requirement_parts(parts)}"
-
-
-def equipment_summary_text(item_name: str) -> str:
-    """Compact one-line bonus + requirement summary for tooltips/rows.
-
-    Picks the high-signal offensive/strength fields so the line stays short
-    (the plan's "Stab +20, Slash +29, Str +25, Req 40 Atk" shape) instead of
-    listing every zeroed stat.
-    """
-    spec = EQUIPMENT_ITEM_DATA.get(item_name)
-    if not spec:
-        return ""
-    bonuses = spec.get("bonuses", {})
-    parts = []
-    for field in _EQUIPMENT_SUMMARY_FIELDS:
-        value = _bonus_value(bonuses, field)
-        if value:
-            parts.append(f"{_EQUIPMENT_BONUS_LABELS[field]} {_format_bonus(value)}")
-    requirements = _equipment_skill_requirements(spec)
-    if requirements:
-        req_parts = [
-            f"{required} {_COMBAT_SKILL_SHORT_LABELS.get(combat_skill, str(combat_skill).title())}"
-            for combat_skill, required in requirements
-        ]
-        parts.append(f"Req {', '.join(req_parts)}")
-    return ", ".join(parts)
 
 
 def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
@@ -4677,11 +4630,6 @@ def create_menu(on_main_menu):
     return menu
 
 
-def update_menu_visibility(current_skill: str):
-    """No-op: single consolidated menu item is always visible."""
-    return
-
-
 def _combat_loadout_summary_text(summary: dict) -> str:
     def _mapping_text(mapping: object) -> str:
         if not isinstance(mapping, dict) or not mapping:
@@ -4867,11 +4815,8 @@ def show_main_menu(
     on_check_achievements=None,
     on_save_player_data=None,
 ):
-    """Show the consolidated window.
+    """Show global sections and the registry-driven Skills hub.
 
-    The top bar is limited to global sections (Skills, Bank, Stats,
-    Achievements, Settings). Per-skill navigation lives inside the Skills hub
-    as category -> skill -> target list, driven by the skill registry.
     Callbacks apply changes and handle persistence in the caller.
     """
     _debug_log("ui.show_main_menu: enter")
@@ -4888,6 +4833,9 @@ def show_main_menu(
     tabs = QTabWidget()
     tabs.setDocumentMode(True)
     tabs.setIconSize(QSize(18, 18))
+    tabs.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
+    tabs.tabBar().setExpanding(False)
+    tabs.setUsesScrollButtons(True)
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
         icon_path = os.path.join(current_dir, "icon", filename)
@@ -27741,11 +27689,6 @@ def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> 
     dialog.setLayout(layout)
     update_warning()
     return _exec_selection_dialog(dialog, skill_combo.currentText)
-
-
-def show_review_popup():
-    # Deprecated: replaced by footer link in the main menu.
-    return
 
 
 def show_stats(player_data: dict, current_skill: str):

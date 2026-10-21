@@ -98,7 +98,12 @@ def _tracked_docs(root: Path) -> tuple[Path, ...]:
         capture_output=True,
     )
     paths = (root / item.decode() for item in result.stdout.split(b"\0") if item)
-    return tuple(path for path in paths if path.exists())
+    # The publisher owns status-page checks; their ignored videos are absent from Git snapshots.
+    status_artifacts = root / "memory-bank" / "status-updates"
+    return tuple(
+        path for path in paths if path.exists()
+        and not (path.suffix == ".html" and path.is_relative_to(status_artifacts))
+    )
 
 
 def _relative(path: Path, root: Path) -> str:

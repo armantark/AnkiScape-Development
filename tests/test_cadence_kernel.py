@@ -228,7 +228,6 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon._state.player_data = {"cadence_profiles": {"gem_stall": copy.deepcopy(initial)}}
         addon._state.current_skill = "None"
         addon.save_player_data = lambda: None
-        addon.ui.update_menu_visibility = lambda _skill: None
         addon.update_review_hud = lambda _data, _skill: None
         addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None

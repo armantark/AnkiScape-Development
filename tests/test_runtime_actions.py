@@ -20,7 +20,7 @@ from ankiscape.runtime import runtime_actions
 # Patch targets live on the module that defines the name: a caller resolves it
 # from its own globals, not from runtime_actions' re-export.
 from ankiscape.runtime import runtime_actions_activities
-from ankiscape.runtime import runtime_actions_carried
+from ankiscape.runtime import runtime_actions_carried_overlay
 from ankiscape.runtime import runtime_actions_combat
 from ankiscape.runtime import runtime_actions_quest
 
@@ -1417,7 +1417,7 @@ class TestRuntimeActions(unittest.TestCase):
             return True
 
         with patch.object(
-            runtime_actions_carried,
+            runtime_actions_carried_overlay,
             "_admit_live_cadence",
             side_effect=lambda ctx, _handler_key, _target_id: (ctx, True),
         ):

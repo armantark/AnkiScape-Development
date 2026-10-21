@@ -49,3 +49,6 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   the popup and in the event log. It shows the change in each skill's
   whole-number total, so tenths carry forward: four 4.5 XP burials read +4,
   +5, +4, +5. A skill whose whole number did not change is left out.
+
+- **Game speed** — the amount of 2012 play time that one answered card buys, relative to the base pace.
+- **World day** — the game’s daily calendar span, expressed in answered cards, with active play inside it and logged-out time between days.

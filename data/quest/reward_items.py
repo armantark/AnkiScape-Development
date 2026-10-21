@@ -7,7 +7,7 @@ from .catalog import _quest_reward_item_name
 from . import definitions as _definitions
 from . import stage_overrides as _stage_overrides
 
-from .reward_item_fragments import _BAR_CRAWL_FRAGMENT, _COINS_FRAGMENT, _LET_THEM_EAT_PIE_FRAGMENT, _EAGLES_PEAK_FRAGMENT
+from .reward_item_fragments import _BAR_CRAWL_FRAGMENT, _COINS_FRAGMENT, _LET_THEM_EAT_PIE_FRAGMENT, _EAGLES_PEAK_FRAGMENT, _RATCATCHERS_FRAGMENT
 
 _QUEST_REWARD_ITEM_FRAGMENTS = (
     _BAR_CRAWL_FRAGMENT,
@@ -50,6 +50,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     _definitions._REWARD_ITEM_FRAGMENTS_BY_QUEST['legacy_of_seergaze'][0],
     _LET_THEM_EAT_PIE_FRAGMENT,
     _EAGLES_PEAK_FRAGMENT,
+    _RATCATCHERS_FRAGMENT,
 )
 
 

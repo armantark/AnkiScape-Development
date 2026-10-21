@@ -3,14 +3,17 @@ import io
 import hashlib
 import json
 import os
+import shlex
 import shutil
+import signal
+import subprocess
 import sys
 import tempfile
 import time
 import unittest
 from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from tools import run_remote_tests
 from tools.native import freeze_source
@@ -38,7 +41,21 @@ unittest.main(argv=["run_tests.py"])
 """
 
 
+def _live_pids() -> set[str]:
+    table = subprocess.run(("/bin/ps", "-Ao", "pid="), capture_output=True, text=True, check=True)
+    return set(table.stdout.splitlines())
+
+
+def _kill_exiting(survivors: set[int]) -> None:
+    # A survivor can exit on its own between its last sighting and cleanup.
+    live = _live_pids()
+    for pid in survivors:
+        if str(pid) in live:
+            os.kill(pid, signal.SIGKILL)
+
+
 class LocalTestHostTests(unittest.TestCase):
+
     def setUp(self):
         self.root = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
         self.lock = self.root / "mirror.lock"
@@ -151,6 +168,135 @@ class LocalTestHostTests(unittest.TestCase):
                                 for call in calls), calls)
             self.assertEqual([call.split()[5] for call in calls], ["test", "mkdir", *["rsync"] * 3])
             self.assertEqual({path.name for path in mirror.iterdir()}, {"stale.txt"})
+
+    def test_deadline_stops_the_whole_group_of_a_local_command(self):
+        with self._host(local=True):
+            reports = run_remote_tests.REMOTE_ROOT / "reports"
+            # A pipe held open for writing and never written stalls open() forever, so the
+            # command's descendant, not just its shell, is what has to die at the deadline.
+            stall = reports / "deadline-stall.fifo"
+            os.mkfifo(stall)
+            group_file = self.root / "deadline-stall.group"
+            command = (
+                # Its own group membership, not $$, is the truth to record: a command the
+                # runner never sessioned shares the runner's group, so the shell's pid is
+                # not its pgid there.
+                f"printf '%s\\n' \"$(/bin/ps -o pgid= -p $$)\" "
+                f"> {shlex.quote(str(group_file))}; cat {shlex.quote(str(stall))}"
+            )
+            before = set(_live_pids())
+            started = time.monotonic()
+            with self.assertRaisesRegex(
+                run_remote_tests.SSHDeadlineExceeded,
+                "stalled group did not finish before its deadline",
+            ):
+                run_remote_tests._ssh(
+                    command, label="stalled group", deadline=time.monotonic() + 1.0,
+                )
+            self.assertLess(time.monotonic() - started, 5.0)
+            group = int(group_file.read_text().split()[-1])
+            for _ in range(10):
+                table = subprocess.run(
+                    ("/bin/ps", "-Ao", "pgid=,pid="),
+                    capture_output=True, text=True, check=True,
+                ).stdout
+                survivors = {
+                    int(line.split()[1]) for line in table.splitlines()
+                    if line.split() and int(line.split()[0]) == group
+                    and str(line.split()[1]) not in before
+                }
+                if not survivors:
+                    break
+                time.sleep(0.2)
+            self.addCleanup(_kill_exiting, survivors)
+            self.assertEqual(survivors, set(), f"group {group} outlived its deadline: {survivors}")
+
+    def _assert_deadline_stops_child(self, *, early_exit: bool) -> None:
+        state = self.root / "child.json"
+        program = f"""
+import json, os, signal, time
+from pathlib import Path
+child = os.fork()
+if child == 0:
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    Path({str(state)!r}).write_text(json.dumps(dict(pid=os.getpid(), group=os.getpgrp())))
+    time.sleep(4)
+    os._exit(0)
+while not Path({str(state)!r}).exists():
+    time.sleep(0.01)
+if {early_exit!r}:
+    os._exit(0)
+os.waitpid(child, 0)
+"""
+        owned = []
+        create = subprocess.Popen
+
+        def start(*args, **kwargs):
+            process = create(*args, **kwargs)
+            owned.append(process)
+            return process
+
+        try:
+            with (
+                patch.object(run_remote_tests, "_on_test_host", return_value=True),
+                patch.object(run_remote_tests, "_host_shell", return_value=(sys.executable, "-c")),
+                patch.object(run_remote_tests.subprocess, "Popen", side_effect=start),
+                patch.object(run_remote_tests.os, "getpgid", wraps=os.getpgid) as lookup,
+                self.assertRaisesRegex(run_remote_tests.SSHDeadlineExceeded, "child deadline"),
+            ):
+                run_remote_tests._ssh(program, label="child deadline", deadline=time.monotonic() + 1.0)
+            record = json.loads(state.read_text())
+            self.assertEqual(record["group"], owned[0].pid)
+            self.assertNotEqual(record["group"], os.getpgrp())
+            table = subprocess.run(
+                ("/bin/ps", "-p", str(record["pid"]), "-o", "stat="),
+                capture_output=True, text=True, check=False,
+            )
+            self.assertFalse(
+                table.stdout.strip() and not table.stdout.strip().startswith("Z"),
+                f"child {record['pid']} survived the deadline: {table.stdout!r}",
+            )
+            lookup.assert_not_called()
+        finally:
+            # A failed cleanup must still let this fixture's finite child reach its exit.
+            for process in owned:
+                process.communicate(timeout=6)
+
+    def test_deadline_kills_child_after_leader_exits_on_sigterm(self):
+        self._assert_deadline_stops_child(early_exit=False)
+
+    def test_deadline_kills_child_after_leader_exits_before_deadline(self):
+        self._assert_deadline_stops_child(early_exit=True)
+
+    def test_group_id_stays_reserved_until_the_last_signal(self):
+        owner = ["original"]
+        signals = []
+        process = Mock(pid=123456789)
+
+        def reap(*_args, **_kwargs):
+            owner[0] = "replacement"
+            return -signal.SIGTERM
+
+        def communicate(*_args, **_kwargs):
+            reap()
+            return "", ""
+
+        process.poll.side_effect = reap
+        process.wait.side_effect = reap
+        process.communicate.side_effect = communicate
+        with (
+            patch.object(run_remote_tests.os, "killpg", side_effect=lambda group, stop: signals.append(
+                (group, stop, owner[0]),
+            )),
+            patch.object(run_remote_tests.time, "sleep"),
+        ):
+            run_remote_tests._stop_process_group(process)
+        self.assertEqual(signals, [
+            (process.pid, signal.SIGTERM, "original"),
+            (process.pid, signal.SIGKILL, "original"),
+        ])
+        self.assertEqual(owner[0], "replacement")
+        process.communicate.assert_called_once_with(timeout=run_remote_tests.GROUP_STOP_GRACE)
 
     def test_stalled_local_command_cannot_hold_the_mirror_past_its_deadline(self):
         with self._host(local=True) as (_source, _mirror, ssh_calls):

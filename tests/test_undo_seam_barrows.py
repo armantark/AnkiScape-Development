@@ -59,7 +59,6 @@ class BarrowsUndoSeamTest(unittest.TestCase):
         addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         addon._state.current_skill = "Activities"
         addon.save_player_data = lambda: None
-        addon.ui.update_menu_visibility = lambda _skill: None
         addon.check_achievements = lambda *_args, **_kwargs: None
         addon._show_activity_gain = lambda _text: None
         addon.update_review_hud = lambda *_args, **_kwargs: None

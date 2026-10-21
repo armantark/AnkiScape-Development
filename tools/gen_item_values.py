@@ -10,6 +10,7 @@ JDK 24+; JDK 25 works):
 
 Names can repeat across item ids (charged variants); we keep the highest value
 per name and mark a name stackable or exchangeable if any unnoted variant is.
+The ordinary fly fishing rod uses ID309, not its same-named Daemonheim variant.
 """
 
 import json
@@ -17,7 +18,14 @@ import sys
 from pathlib import Path
 
 
-def build(raw_path: Path, out_path: Path) -> tuple[int, int]:
+def _store_value(raw: dict, name: str, row: dict) -> int:
+    # Rev727/742 ordinary309 is value5; Daemonheim17794 is value50.
+    if name == "Fly fishing rod":
+        row = raw["309"]
+    return int(row.get("value", 0) or 0)
+
+
+def build(raw_path: Path, out_path: Path) -> tuple[int, int, int]:
     raw = json.loads(raw_path.read_text(encoding="utf-8"))["items"]
     values: dict[str, int] = {}
     stackable: set[str] = set()
@@ -26,7 +34,7 @@ def build(raw_path: Path, out_path: Path) -> tuple[int, int]:
         name = row.get("name")
         if not isinstance(name, str) or not name:
             continue
-        value = int(row.get("value", 0) or 0)
+        value = _store_value(raw, name, row)
         if value > 0:
             values[name] = max(values.get(name, 0), value)
         if row.get("stackable"):

@@ -23,11 +23,6 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
-from ..logic.combat_session import (
-    wilderness_combat_risk_confirmed,
-    wilderness_combat_risk_fingerprint,
-)
-
 from ..core.constants import (
     BIRD_NEST_DROP_CHANCE,
     BIRD_NEST_DROP_TABLE,
@@ -502,9 +497,11 @@ from .runtime_actions_magic import (  # noqa: F401  (re-export)
 
 from .runtime_actions_combat import (  # noqa: F401  (re-export)
     handle_combat_answer,
+    wilderness_combat_risk_confirmed,
+    wilderness_combat_risk_fingerprint,
 )
 
-from .runtime_actions_carried import (  # noqa: F401  (re-export)
+from .runtime_actions_carried_requirements import (  # noqa: F401  (re-export)
     _BANK_RUN_TARGET_KEYS,
     _OVERLAY_STACKABLE_NAMES,
     _OVERLAY_TARGET_KEYS,
@@ -522,8 +519,11 @@ from .runtime_actions_carried import (  # noqa: F401  (re-export)
     _processing_requirements_for,
     _repack_view_for_target,
     _set_carried_target_map,
-    _try_pack_yak_winter_storage_overlay,
     _without_urn_substitutions,
+)
+
+from .runtime_actions_carried_overlay import (  # noqa: F401  (re-export)
+    _try_pack_yak_winter_storage_overlay,
     drop_superseded_bank_run_requests_pure,
     run_answer_with_carried_overlay,
 )

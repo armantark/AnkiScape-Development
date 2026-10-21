@@ -63,7 +63,6 @@ class SlayerUndoSeamTest(unittest.TestCase):
         self.addon.check_achievements = lambda *_args: None
         self.addon._refresh_skill_availability = lambda: None
         self.addon.update_review_hud = lambda *_args: None
-        self.addon.ui.update_menu_visibility = lambda *_args: None
 
         captured = {}
         self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(
