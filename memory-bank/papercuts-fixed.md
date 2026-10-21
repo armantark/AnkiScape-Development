@@ -46,3 +46,19 @@
 Resolution: directory searches located the files; corrected table rolls and Court summons prerequisites isolated the real cases. The unreachable reflected Guild fixture was removed before commit. Moving the kill-reward collector to the outcome module cleared the normal hook. Moving these resolved records out of startup memory cleared its line limit. Product proof remains on d91bd7b0d9f9e011e94c2673e2d77c05508e67b0.
 
 - 2026-10-21T01:44:41-07:00: Part G report check raised AssertionError because "Pending drops reserve ownership across kills." contains Pending; it was not an unfinished check. Final log re-read also corrected focused timing from 0.094s to 0.096s. Check only pending table cells; product proof remains accepted.
+
+## Fatal-kill settlement, 2026-10-21
+
+- 2026-10-21T01:56:27-07:00: Fatal-kill investigation: combined source reads exceeded tool output limits; bounded reads used. A zsh search with unmatched data/generated/combat* stopped with "zsh:1: no matches found: data/generated/combat*"; replaced with exact source paths. Initial new legacy regression let the player attack first because legacy ignores carried attack clocks; corrected the new fixture to miss player hits.
+
+- 2026-10-21T01:58:05-07:00: Fatal-kill first green attempt (r7-fatal-green-first.log) failed with "NameError: name '_combat_death_prayer_damage' is not defined" after moving the helper call; added its import. New legacy fixture needed five ticks to reach the first enemy attack; loaded food is consumed by death cleanup rather than graved, so the new test compares full grave and supply state against the same death without a kill. No existing test changed.
+
+- 2026-10-21T01:59:02-07:00: Round 7 read-only archive command accidentally used /tmp as cwd: "fatal: not a git repository (or any of the parent directories): .git" and "can't open file '/private/tmp/run_tests.py': [Errno 2] No such file or directory". Re-ran archive from the assigned worktree and tests from each extracted archive.
+
+- 2026-10-21T02:03:06-07:00: New round-7 recoil XP assertions assumed an NPC multiplier of 1; real Cow xp_multiplier is 0.975, giving 0.39 Attack and 0.129675 Constitution XP. Corrected only the new expectations and the premature progress-note claim. Failed run retained as r7-fatal-xp-fixture.log (418 tests, failures=2).
+
+- 2026-10-21T02:04:11-07:00: Normal round-7 commit hook refused engine cyclomatic complexity 158 (was 157) and new death-prayer test cognitive complexity 21. Replaced the retaliation guard with the equivalent chained range comparison and flattened the two scenario loops with itertools.product. Hook retained; no assertion removed or existing test changed.
+
+- 2026-10-21T02:04:56-07:00: Round-7 hook retry refused tests/pace/test_fatal_kill_settlement.py E301 x1 after loop flattening removed the blank line between methods; restored it. Receipt r7-fatal-commit-final.log retained.
+
+- 2026-10-21T02:07:06-07:00: Round-7 documentation audit refused startup_line_budget_exceeded: 3011 startup lines must stay under 3000 (papercuts.md=751). All new round-7 friction was already resolved; moved the exact entries here and restored papercuts.md to its baseline bytes. No product code changed and no product verification needs replay.
