@@ -765,7 +765,7 @@ class TestLiveCombatContinuity(unittest.TestCase):
         self.assertEqual(resumed_rng, uninterrupted_rng)
         self.assertNotIn("disengaged", resumed["combat_encounter"])
 
-    def test_live_kill_is_terminal_and_never_chains_a_second_spawn(self):
+    def test_live_kills_chain_into_the_next_spawn_for_the_remaining_budget(self):
         enemies = {
             "one_hit": {
                 "display_name": "One hit",
@@ -797,13 +797,13 @@ class TestLiveCombatContinuity(unittest.TestCase):
             live_cadence=True,
         )
         self.assertTrue(ok)
-        self.assertEqual(info["kills"], 1)
-        self.assertEqual(info["ticks_elapsed"], 1)
-        self.assertEqual(result["inventory"]["Bones"], 1)
-        self.assertEqual(result["combat_encounter"], {})
-        self.assertEqual(result["magic_charge_ticks_remaining"], 99)
+        self.assertEqual(info["kills"], 9)
+        self.assertEqual(info["ticks_elapsed"], 36)
+        self.assertEqual(result["inventory"]["Bones"], 9)
+        self.assertEqual(result["combat_encounter"]["enemy_lifepoints"], 1)
+        self.assertEqual(result["magic_charge_ticks_remaining"], 64)
 
-    def test_reflected_live_kill_is_terminal_and_never_chains_a_second_spawn(self):
+    def test_reflected_live_kill_chains_into_a_fresh_enemy(self):
         enemies = {
             "reflection_target": {
                 "display_name": "Reflection target",
@@ -847,9 +847,9 @@ class TestLiveCombatContinuity(unittest.TestCase):
         )
         self.assertTrue(ok)
         self.assertEqual(info["kills"], 1)
-        self.assertEqual(info["ticks_elapsed"], 1)
+        self.assertEqual(info["ticks_elapsed"], 36)
         self.assertEqual(result["inventory"]["Bones"], 1)
-        self.assertEqual(result["combat_encounter"], {})
+        self.assertEqual(result["combat_encounter"]["enemy_lifepoints"], 100)
 
     def test_redemption_consumption_survives_an_early_reflected_kill(self):
         enemies = {
@@ -902,7 +902,7 @@ class TestLiveCombatContinuity(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertTrue(info["killed"])
-        self.assertEqual(info["ticks_elapsed"], 1)
+        self.assertEqual(info["ticks_elapsed"], 36)
         self.assertEqual(result["combat_prayer_points"], 0)
         self.assertEqual(result["combat_selected_prayers"], [])
 

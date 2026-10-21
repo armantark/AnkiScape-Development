@@ -722,3 +722,7 @@
 - 2026-10-20T23:24:49-07:00: Part G2 hook caught E303 x1 in logic_pure/logic_pure_combat_model.py after the LP helper move left excess blank lines; removed the redundant blank lines.
 
 - 2026-10-20T23:28:03-07:00: Part G3 preflight measured spend_card_budget cognitive 16 > 15; moved final stop settlement into CardBudget, its state owner. diff --check then caught runtime/runtime_actions_context.py:205: new blank line at EOF; trimmed the extra newline.
+
+- 2026-10-20T23:34:38-07:00: Part G4 hook refused logic_pure/logic_pure_combat_setup.py E302 x1 and a new setup-to-curses import cycle (part-g/g4-commit.log). Kept fresh-spawn orchestration in the engine, whose dependencies already cover spell setup and curses; used dict.fromkeys for its zeroed counters.
+- 2026-10-20T23:37:00-07:00: Part G4 repair verification selected nonexistent tests.test_quest_logic; run_tests.py refused discovery before execution (part-g/g4-repaired.log). Corrected selector to tests.test_quest_action_proofs.
+- 2026-10-20T23:44:00-07:00: Part G4 repaired hook refused apply_combat_burst_pure CCN 160 (was 158), cognitive 265 (was 262) after the same-tick kill-danger fix (part-g/g4-commit-repaired.log). Moved kill-boundary danger evaluation and its flee flag into the outcome owner with the existing task/bank checks.

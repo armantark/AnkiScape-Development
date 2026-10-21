@@ -41,6 +41,7 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
         equipment_data=EQUIPMENT_DATA,
         ticks=_combat_review_ticks(ctx),
         live_cadence=ctx.cadence_live_enabled,
+        stop_after_first_kill=ctx.cadence_live_enabled,
     )
     if not ok:
         ctx.deactivate_current_skill()

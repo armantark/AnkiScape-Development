@@ -13,6 +13,7 @@ from .logic_pure_combat_supplies import (
     _combat_advance_status_effects,
     _combat_consume_antipoison_if_needed,
     _combat_should_auto_flee,
+    _combat_bank_run_needed,
     _combat_void_shifter_escape_ready,
 )
 from .logic_pure_state import COMBAT_PVP_DEATH_KEPT_ITEMS, _non_negative_int, _positive_int
@@ -166,3 +167,17 @@ def _combat_result_stop_reason(reason, died, fled, familiar_escape, out_of_ammo,
         (fled, "fled" if live_cadence else "auto_flee"),
     )
     return next((name for stopped, name in stops if stopped), "")
+
+
+def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before):
+    """Settle a kill's danger, task and bank boundaries; return reason and flee."""
+    if not live_cadence:
+        return "", False
+    danger = _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before)
+    if danger:
+        return danger, danger == "fled"
+    if limit is not None and kills >= limit:
+        return "slayer_task_complete", False
+    if allow_bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
+        return "bank_trip", False
+    return "", False

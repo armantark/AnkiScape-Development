@@ -2,7 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 from .combat_lure import prepare_combat_lure_encounter_pure
-from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason
+from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop
 from .logic_pure_combat_setup import _combat_spell_enemy_state
 
 from ..logic.equipment_instance_logic import (
@@ -1053,14 +1053,12 @@ def _combat_apply_enemy_unequip_special(data, target_id):
     return data, {"kind": "unequip", "item": removed_item, "slot": removed_slot}
 
 
-def _combat_kill_stop_reason(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
+def _combat_fresh_enemy_effects(effect, value, prayers, uptime, prayer_effects, live_cadence, previous):
     if not live_cadence:
-        return ""
-    if limit is not None and kills >= limit:
-        return "slayer_task_complete"
-    if allow_bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
-        return "bank_trip"
-    return ""
+        return previous
+    applied, active, spell_attack, spell_defence = _combat_spell_enemy_state({}, False, True, effect, value)
+    attack, defence = _combat_curse_drains(prayers, 0, uptime, prayer_effects, spell_attack, spell_defence)
+    return applied, active, attack, defence, spell_attack, spell_defence, 0
 
 
 def apply_combat_burst_pure(
@@ -1351,22 +1349,17 @@ def apply_combat_burst_pure(
     stat_drains = {}
     enemy_specials = []
     automatic_finishers = 0
-    enemy_counts = {
-        "enemy_healing": 0,
-        "vampyre_bites": 0,
-        "vampyre_bite_healing": 0,
-        "dragonfire_attacks": 0,
-        "dragonfire_damage": 0,
-        "enemy_prayer_drain": 0,
-        "unprotected_attacks": 0,
-    }
+    enemy_counts = dict.fromkeys(
+        ("enemy_healing", "vampyre_bites", "vampyre_bite_healing", "dragonfire_attacks",
+         "dragonfire_damage", "enemy_prayer_drain", "unprotected_attacks"), 0,
+    )
     melee_recoil_damage = 0
     dragonfire_effect_tick = 0
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     clue_refusal_reason = ""
     kills = 0
-    stop_on_kill = live_cadence or stop_after_first_kill or not start_equipment_active
+    stop_on_kill = stop_after_first_kill or not start_equipment_active
     died = False
     fled = False
     familiar_escape = False
@@ -1507,19 +1500,21 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
-                # Chain into the next spawn of the same target for the remaining
-                # tick budget instead of ending the burst on the first kill (the
-                # old `break` wasted up to half of a ~30s review window). A fresh
-                # enemy respawns at full LP and re-engages after its normal attack
-                # delay, so it gets no free instant hit on the kill tick.
-                stop_reason = _combat_kill_stop_reason(
+                # A fresh enemy waits its attack delay; the player's weapon
+                # cooldown continues across kills.
+                stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before,
                 )
                 if stop_reason or stop_on_kill:
                     break
                 enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
                 next_enemy_attack = tick + 1 + enemy_attack_speed
+                magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
+                    spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
+                    (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
+                )
                 continue
 
         if (
@@ -1631,16 +1626,19 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
-                stop_reason = _combat_kill_stop_reason(
+                stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before,
                 )
                 if stop_reason or stop_on_kill:
                     break
-                enemy_lp = enemy_max_lp
-                enemy_regen_residual = 0
-                retaliation_stopped = False
+                enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
                 next_enemy_attack = tick + 1 + enemy_attack_speed
+                magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
+                    spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
+                    (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
+                )
                 continue
             player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
             if food_event:
