@@ -358,8 +358,8 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
         self.assertEqual([row["kind"] for row in events], ["announced"])
         self.assertEqual(player["goblin_raids"]["active_raid"]["site_id"], "farm")
         self.assertEqual(
-            player["goblin_raids"]["active_raid"]["reviews_remaining"],
-            GOBLIN_RAIDS_ACTIVE_REVIEWS,
+            player["goblin_raids"]["active_raid"]["ticks_remaining"],
+            GOBLIN_RAIDS_ACTIVE_REVIEWS * 600,
         )
 
     def test_every_site_kind_is_reachable_from_the_roll(self):
@@ -375,10 +375,10 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
     def test_a_raid_expires_and_takes_an_unfinished_session_with_it(self):
         player, ok, _ = join_goblin_raid_pure(_with_raid(), GOBLIN_RAIDS_RAID_MODE)
         self.assertTrue(ok)
-        player["shop_market_clock"] = {
-            "answered_cards": GOBLIN_RAIDS_SPAWN_REVIEWS
-            + GOBLIN_RAIDS_ACTIVE_REVIEWS
-        }
+        player["shop_market_clock"]["answered_cards"] = (
+            GOBLIN_RAIDS_SPAWN_REVIEWS + GOBLIN_RAIDS_ACTIVE_REVIEWS
+        )
+        player["goblin_raids"]["next_spawn_tick"] = 15_000
         player, events = advance_goblin_raids_world_clock_pure(player)
         self.assertEqual([row["kind"] for row in events], ["expired"])
         self.assertEqual(player["goblin_raids"]["active_raid"], {})
@@ -399,12 +399,11 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
                 current["goblin_raids"]["session"]["raiders_remaining"] == 9
             ),
         )
-        player["shop_market_clock"] = {
-            "answered_cards": (
-                GOBLIN_RAIDS_SPAWN_REVIEWS + GOBLIN_RAIDS_ACTIVE_REVIEWS
-            )
-        }
+        player["shop_market_clock"]["answered_cards"] = (
+            GOBLIN_RAIDS_SPAWN_REVIEWS + GOBLIN_RAIDS_ACTIVE_REVIEWS
+        )
 
+        player["goblin_raids"]["next_spawn_tick"] = 15_000
         expired, events = advance_goblin_raids_world_clock_pure(player)
 
         self.assertEqual([row["kind"] for row in events], ["expired"])
@@ -644,7 +643,7 @@ class GoblinRaidStagesTest(unittest.TestCase):
     def test_claiming_old_spoils_preserves_a_later_announced_raid(self):
         player = self.cleared
         player["shop_market_clock"] = {
-            "answered_cards": player["goblin_raids"]["next_spawn_card"]
+            "answered_cards": player["goblin_raids"]["next_spawn_tick"] // 600
         }
         player, events = advance_goblin_raids_world_clock_pure(
             player, site_roll=0.9
@@ -999,7 +998,7 @@ class GoblinRaidsPersistenceTest(unittest.TestCase):
                 "village_kills": -4,
                 "bosses_felled": "two",
                 "cower_shield_bonus_remaining": 99_999.0,
-                "next_spawn_card": 0,
+                "next_spawn_tick": 0,
             }
         )
         self.assertEqual(state["session"], {})
@@ -1009,7 +1008,7 @@ class GoblinRaidsPersistenceTest(unittest.TestCase):
             state["cower_shield_bonus_remaining"],
             GOBLIN_COWER_SHIELD_BONUS_BUDGET,
         )
-        self.assertEqual(state["next_spawn_card"], 1)
+        self.assertEqual(state["next_spawn_tick"], 1)
 
     def test_a_village_session_survives_without_any_raid(self):
         joined, ok, _ = join_goblin_raid_pure(

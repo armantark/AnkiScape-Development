@@ -8,17 +8,19 @@ from typing import Any, Mapping, Sequence
 from ..data.shooting_star_data import (
     SHOOTING_STAR_FIRST_FINDER_CHANCE,
     SHOOTING_STAR_POPULATION_BASE_CEILING,
-    SHOOTING_STAR_INTERVAL_REVIEWS,
+    SHOOTING_STAR_INTERVAL_TICKS,
     SHOOTING_STAR_LAYERS_BY_SIZE,
     SHOOTING_STAR_LEGACY_LOCATION_ALIASES,
     SHOOTING_STAR_LOCATIONS,
     SHOOTING_STAR_ORE_BONUS_TICKS,
     SHOOTING_STAR_REWARD_MAXIMA,
-    SHOOTING_STAR_SPRITE_REVIEWS,
+    SHOOTING_STAR_SPRITE_TICKS,
     SHOOTING_STAR_STARDUST,
     SHOOTING_STAR_STARDUST_CAP,
 )
-from .pace.world_clock import DEFAULT_WORLD_DAY_CARDS, world_day_index_pure
+from .pace.world_clock import answered_cards_pure, world_day_index_pure, calendar_ticks_pure
+from .pace.world_events import consumed_event_slot_pure, cards_until_event_pure, event_in_play_pure, event_slot_tick_pure, next_event_tick_pure
+from .pace.short_timers import cards_for_ticks_pure
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
@@ -43,25 +45,6 @@ def _signed_int(value: Any, default: int = 0) -> int:
         return int(default)
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
-def _current_slot_card(answered_cards: int) -> int:
-    return (
-        answered_cards // SHOOTING_STAR_INTERVAL_REVIEWS
-    ) * SHOOTING_STAR_INTERVAL_REVIEWS
-
-
-def _next_slot_card(answered_cards: int) -> int:
-    return (
-        answered_cards // SHOOTING_STAR_INTERVAL_REVIEWS + 1
-    ) * SHOOTING_STAR_INTERVAL_REVIEWS
-
-
 def _event_seed(slot_card: int) -> int:
     return (int(slot_card) * 1_664_525 + 1_013_904_223) & 0x7FFFFFFF
 
@@ -79,6 +62,7 @@ def default_shooting_star_state_pure() -> dict[str, Any]:
         "version": SHOOTING_STAR_STATE_VERSION,
         "active_event": {},
         "last_resolved_slot_card": 0,
+        "last_slot_tick": -1,
         "last_exchange_day": -1,
         "ore_bonus_ticks_remaining": 0,
         "last_result": "",
@@ -102,7 +86,7 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
     event_id = str(raw.get("event_id", ""))
     sprite_released = bool(raw.get("sprite_released", False))
     if (
-        slot_card < SHOOTING_STAR_INTERVAL_REVIEWS
+        slot_card < 0
         or not event_id
         or location not in SHOOTING_STAR_LOCATIONS
     ):
@@ -126,6 +110,7 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
     return {
         "event_id": event_id,
         "slot_card": slot_card,
+        "slot_tick": _int(raw.get("slot_tick"), slot_card * 600),
         "seed": _int(raw.get("seed"), _event_seed(slot_card)),
         "location": location,
         "starting_size": starting_size,
@@ -142,11 +127,7 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
         "tag_candidate": bool(raw.get("tag_candidate", False)),
         "tag_awarded": bool(raw.get("tag_awarded", False)),
         "sprite_released": sprite_released,
-        "sprite_expires_card": (
-            _int(raw.get("sprite_expires_card"))
-            if sprite_released
-            else 0
-        ),
+        "sprite_expires_tick": _int(raw.get("sprite_expires_tick"), _int(raw.get("sprite_expires_card")) * 600),
     }
 
 
@@ -177,6 +158,7 @@ def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
             }
     return {
         **defaults,
+        "last_slot_tick": _signed_int(source.get("last_slot_tick"), -1),
         "active_event": _sanitize_event(source.get("active_event")),
         "last_resolved_slot_card": _int(
             source.get("last_resolved_slot_card")
@@ -250,17 +232,15 @@ def _spawn_event(*, slot_card: int) -> dict[str, Any]:
         ),
         "tag_awarded": False,
         "sprite_released": False,
-        "sprite_expires_card": 0,
+        "sprite_expires_tick": 0,
     }
 
 
-def _release_sprite(event: dict[str, Any], answered_cards: int) -> None:
+def _release_sprite(event: dict[str, Any], answered_cards: int, calendar_tick: int) -> None:
     event["current_size"] = 0
     event["layer_remaining"] = 0
     event["sprite_released"] = True
-    event["sprite_expires_card"] = (
-        answered_cards + SHOOTING_STAR_SPRITE_REVIEWS
-    )
+    event["sprite_expires_tick"] = calendar_tick + SHOOTING_STAR_SPRITE_TICKS
 
 
 def _remove_dust(
@@ -268,6 +248,7 @@ def _remove_dust(
     quantity: int,
     *,
     answered_cards: int,
+    calendar_tick: int,
 ) -> int:
     removed = 0
     remaining = max(0, int(quantity))
@@ -281,7 +262,7 @@ def _remove_dust(
             break
         current_size = _int(event.get("current_size"))
         if current_size <= 1:
-            _release_sprite(event, answered_cards)
+            _release_sprite(event, answered_cards, calendar_tick)
             break
         next_size = current_size - 1
         event["current_size"] = next_size
@@ -295,16 +276,16 @@ def _apply_crowd_target(
     event: dict[str, Any],
     *,
     answered_cards: int,
+    calendar_tick: int,
 ) -> None:
     if event.get("sprite_released"):
         return
     phase = (
-        answered_cards - _int(event.get("slot_card"))
-    ) / SHOOTING_STAR_INTERVAL_REVIEWS
+        calendar_tick - _int(event.get("slot_tick"))
+    ) / (SHOOTING_STAR_INTERVAL_TICKS)
     target_bps = naturalized_population_target_bps_pure(
         phase=phase,
-        day_phase=(_int(event.get("slot_card")) % DEFAULT_WORLD_DAY_CARDS)
-        / DEFAULT_WORLD_DAY_CARDS,
+        day_phase=(_int(event.get("slot_tick")) % 144_000) / 144_000,
         seed=_int(event.get("seed")),
         base_ceiling=SHOOTING_STAR_POPULATION_BASE_CEILING,
     )
@@ -318,6 +299,7 @@ def _apply_crowd_target(
         event,
         quantity,
         answered_cards=answered_cards,
+        calendar_tick=calendar_tick,
     )
     event["crowd_dust_removed"] = current_removed + removed
 
@@ -386,24 +368,16 @@ def _resolve_event(
     return state
 
 
-def advance_shooting_star_world_clock_pure(
-    player_data: Mapping[str, Any],
-) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
-    """Advance one lazy star boundary without reading wall-clock time."""
-
-    data = ensure_shooting_star_state_pure(player_data)
-    answered = _answered_cards(data)
-    current_slot = _current_slot_card(answered)
-    state = dict(data["shooting_star"])
+def _age_active_star(data: Mapping[str, Any], state: dict[str, Any], current_slot: int) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    answered = answered_cards_pure(data)
     event = dict(state.get("active_event") or {})
     events: list[dict[str, Any]] = []
-
     if event:
-        event_slot = _int(event.get("slot_card"))
+        event_slot = _int(event.get("slot_tick"))
         sprite_expired = bool(event.get("sprite_released")) and (
-            answered >= _int(event.get("sprite_expires_card"))
+            calendar_ticks_pure(data) >= _int(event.get("sprite_expires_tick"))
         )
-        superseded = current_slot > event_slot
+        superseded = current_slot > event_slot or not event_in_play_pure(data)
         if sprite_expired or superseded:
             reason = "sprite_expired" if sprite_expired else "next_star"
             state = _resolve_event(state, reason=reason)
@@ -414,6 +388,7 @@ def advance_shooting_star_world_clock_pure(
             _apply_crowd_target(
                 event,
                 answered_cards=answered,
+                calendar_tick=calendar_ticks_pure(data),
             )
             state["active_event"] = event
             if not was_sprite_released and event.get("sprite_released"):
@@ -424,15 +399,32 @@ def advance_shooting_star_world_clock_pure(
                     }
                 )
 
+    return state, events
+
+
+def advance_shooting_star_world_clock_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
+    """Advance one lazy star boundary without reading wall-clock time."""
+
+    data = ensure_shooting_star_state_pure(player_data)
+    answered = answered_cards_pure(data)
+    current_slot = event_slot_tick_pure(data, SHOOTING_STAR_INTERVAL_TICKS)
+    state = dict(data["shooting_star"])
+    state, events = _age_active_star(data, state, current_slot)
+    event = state.get("active_event")
+
     if (
         not event
-        and current_slot >= SHOOTING_STAR_INTERVAL_REVIEWS
-        and current_slot > _int(state.get("last_resolved_slot_card"))
+        and event_in_play_pure(data)
+        and current_slot > state["last_slot_tick"]
     ):
-        event = _spawn_event(slot_card=current_slot)
+        event = _spawn_event(slot_card=answered)
+        event["slot_tick"] = current_slot
         _apply_crowd_target(
             event,
             answered_cards=answered,
+            calendar_tick=calendar_ticks_pure(data),
         )
         state["active_event"] = event
         state["event_log"] = (
@@ -441,6 +433,7 @@ def advance_shooting_star_world_clock_pure(
         )[-20:]
         events.append({"kind": "spawned", **event})
 
+    state["last_slot_tick"] = consumed_event_slot_pure(data, current_slot, state["last_slot_tick"])
     _refresh_watched_star_notice(
         state,
         mining_level=_int(data.get("mining_level"), 1, minimum=1),
@@ -593,7 +586,8 @@ def apply_shooting_star_review_pure(
     removed = _remove_dust(
         event,
         1,
-        answered_cards=_answered_cards(data),
+        answered_cards=answered_cards_pure(data),
+        calendar_tick=calendar_ticks_pure(data),
     )
     if removed <= 0:
         return data, False, {"reason": "The star has already been depleted."}
@@ -776,9 +770,10 @@ def shooting_star_view_pure(
     player_data: Mapping[str, Any],
     *,
     has_usable_pickaxe: bool = True,
+    speed: int = 1,
 ) -> dict[str, Any]:
     data = ensure_shooting_star_state_pure(player_data)
-    answered = _answered_cards(data)
+    answered = answered_cards_pure(data)
     state = data["shooting_star"]
     event = state["active_event"]
     sprite = bool(event and event.get("sprite_released"))
@@ -821,10 +816,10 @@ def shooting_star_view_pure(
         ),
         "has_usable_pickaxe": bool(has_usable_pickaxe),
         "next_reviews": (
-            0 if event else max(0, _next_slot_card(answered) - answered)
+            0 if event else cards_until_event_pure(data, next_event_tick_pure(data, SHOOTING_STAR_INTERVAL_TICKS), speed)
         ),
         "sprite_reviews_remaining": (
-            max(0, _int(event.get("sprite_expires_card")) - answered)
+            cards_for_ticks_pure(max(0, _int(event.get("sprite_expires_tick")) - calendar_ticks_pure(data)), speed)
             if sprite
             else 0
         ),

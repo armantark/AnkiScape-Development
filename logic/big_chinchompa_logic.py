@@ -6,8 +6,6 @@ from typing import Any, Mapping, Sequence
 
 from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_COMPETENCE_CAP,
-    BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW,
-    BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS,
     BIG_CHINCHOMPA_EVENT_MINUTES,
     BIG_CHINCHOMPA_JAR_CAPACITY,
     BIG_CHINCHOMPA_LOCATIONS,
@@ -17,9 +15,10 @@ from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_POPULATION_BASE_CEILING,
     BIG_CHINCHOMPA_REWARDS_BY_ID,
     BIG_CHINCHOMPA_TICKET_BY_TARGET,
-    BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
 )
-from .pace.world_clock import DEFAULT_WORLD_DAY_CARDS
+from .pace.world_clock import answered_cards_pure, calendar_ticks_pure
+from .pace.world_events import chinchompa_slot_card_pure, event_in_play_pure
+from .pace.short_timers import STEP_TICKS, cards_for_ticks_pure
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
@@ -35,47 +34,6 @@ def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
     except (TypeError, ValueError, OverflowError):
         parsed = default
     return max(minimum, parsed)
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
-def _next_slot_card(answered_cards: int) -> int:
-    if answered_cards < BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW:
-        return BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
-    elapsed = answered_cards - BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
-    return (
-        BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
-        + (elapsed // BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS + 1)
-        * BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS
-    )
-
-
-def _current_slot_card(answered_cards: int) -> int:
-    if answered_cards < BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW:
-        return 0
-    elapsed = answered_cards - BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
-    return (
-        BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
-        + (elapsed // BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS)
-        * BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS
-    )
-
-
-def _world_minutes(answered_cards: int) -> int:
-    return answered_cards * BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-
-
-def _has_future_review_window(answered_cards: int, end_world_minute: int) -> bool:
-    return (
-        _world_minutes(answered_cards)
-        + BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-        <= end_world_minute
-    )
 
 
 def _event_seed(slot_card: int) -> int:
@@ -103,16 +61,15 @@ def sanitize_big_chinchompa_state_pure(raw: Any) -> dict[str, Any]:
         event_id = str(raw_event.get("event_id", ""))
         location = str(raw_event.get("location", ""))
         if (
-            slot_card >= BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW
+            slot_card > 0
             and event_id
             and location in BIG_CHINCHOMPA_LOCATIONS
         ):
             active = {
                 "event_id": event_id,
                 "slot_card": slot_card,
-                "end_world_minute": slot_card
-                * BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-                + BIG_CHINCHOMPA_EVENT_MINUTES,
+                "start_tick": _int(raw_event.get("start_tick"), slot_card * 600),
+                "end_tick": _int(raw_event.get("end_tick"), (slot_card * 6 + BIG_CHINCHOMPA_EVENT_MINUTES) * 100),
                 "location": location,
                 "seed": _int(raw_event.get("seed"), _event_seed(slot_card)),
                 "crowd_fullness_bps": min(
@@ -179,25 +136,22 @@ def _event_total_fullness_bps(event: Mapping[str, Any]) -> int:
 
 def big_chinchompa_crowd_target_bps_pure(
     *,
-    slot_card: int,
-    answered_cards: int,
+    elapsed_ticks: int,
+    day_phase: float,
     seed: int,
 ) -> int:
     """Return one deterministic, monotonic aggregate crowd-pressure target."""
 
-    start_minute = slot_card * BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-    phase = (
-        _world_minutes(answered_cards) - start_minute
-    ) / BIG_CHINCHOMPA_EVENT_MINUTES
+    phase = elapsed_ticks / (BIG_CHINCHOMPA_EVENT_MINUTES * 100)
     return naturalized_population_target_bps_pure(
         phase=phase,
-        day_phase=(slot_card % DEFAULT_WORLD_DAY_CARDS) / DEFAULT_WORLD_DAY_CARDS,
+        day_phase=day_phase,
         seed=seed,
         base_ceiling=BIG_CHINCHOMPA_POPULATION_BASE_CEILING,
     )
 
 
-def _spawn_event(slot_card: int) -> dict[str, Any]:
+def _spawn_event(slot_card: int, start_tick: int) -> dict[str, Any]:
     seed = _event_seed(slot_card)
     location = BIG_CHINCHOMPA_LOCATIONS[
         int(seeded_unit_pure(seed, 0) * len(BIG_CHINCHOMPA_LOCATIONS))
@@ -206,9 +160,8 @@ def _spawn_event(slot_card: int) -> dict[str, Any]:
     return {
         "event_id": f"big-chinchompa-{slot_card}",
         "slot_card": slot_card,
-        "end_world_minute": slot_card
-        * BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-        + BIG_CHINCHOMPA_EVENT_MINUTES,
+        "start_tick": start_tick,
+        "end_tick": start_tick + BIG_CHINCHOMPA_EVENT_MINUTES * 100,
         "location": location,
         "seed": seed,
         "crowd_fullness_bps": 0,
@@ -243,7 +196,7 @@ def _resolve_active_event(
         "circuits_completed": _int(event.get("circuits_completed")),
     }
     state["competence_points"] = after
-    state["last_resolved_slot_card"] = _int(event.get("slot_card"))
+    state["last_resolved_slot_card"] = max(_int(state.get("last_resolved_slot_card")), _int(event.get("slot_card")))
     state["last_result"] = (
         f"Big Chinchompa ended: {earned:,} event points became "
         f"{after - before:,} Competence points."
@@ -254,22 +207,43 @@ def _resolve_active_event(
     return data
 
 
+def _advance_chinchompa_slot(data: dict[str, Any], card_ticks: int) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
+    answered = answered_cards_pure(data)
+    state = dict(data["big_chinchompa"])
+    event = state.get("active_event")
+    events: list[dict[str, Any]] = []
+    slot_card = chinchompa_slot_card_pure(data)
+    # Consume a slot even when the current event is still running.
+    if event and slot_card > _int(event.get("slot_card")):
+        state["last_resolved_slot_card"] = slot_card
+        data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(state)
+    if not event and slot_card > _int(state.get("last_resolved_slot_card")) and event_in_play_pure(data):
+        start_tick = calendar_ticks_pure(data) - (answered - slot_card) * card_ticks
+        if slot_card > 0 and calendar_ticks_pure(data) + card_ticks <= start_tick + BIG_CHINCHOMPA_EVENT_MINUTES * 100:
+            event = _spawn_event(slot_card, start_tick)
+            state["active_event"] = event
+            state["event_log"] = (list(state.get("event_log", [])) + [{"kind": "spawned", **event}])[-20:]
+            data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(state)
+            events.append({"kind": "spawned", **event})
+
+    return data, tuple(events)
+
+
 def advance_big_chinchompa_world_clock_pure(
-    player_data: Mapping[str, Any],
+    player_data: Mapping[str, Any], *, card_ticks: int = STEP_TICKS,
 ) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
     """Advance one lazy world boundary without reading wall-clock time."""
 
     data = ensure_big_chinchompa_state_pure(player_data)
-    answered = _answered_cards(data)
     state = dict(data["big_chinchompa"])
     events: list[dict[str, Any]] = []
     event = dict(state.get("active_event") or {})
 
     if event:
-        end_world_minute = _int(event.get("end_world_minute"))
+        end_tick = _int(event.get("end_tick"))
         expired = (
-            _world_minutes(answered) >= end_world_minute
-            or not _has_future_review_window(answered, end_world_minute)
+            calendar_ticks_pure(data) >= end_tick
+            or not event_in_play_pure(data)
         )
         already_full = _event_total_fullness_bps(event) >= 10_000
         if expired or already_full:
@@ -280,9 +254,9 @@ def advance_big_chinchompa_world_clock_pure(
             event = {}
         else:
             crowd_target = big_chinchompa_crowd_target_bps_pure(
-                slot_card=_int(event.get("slot_card")),
-                answered_cards=answered,
                 seed=_int(event.get("seed")),
+                elapsed_ticks=calendar_ticks_pure(data) - _int(event.get("start_tick")),
+                day_phase=(_int(event.get("start_tick")) % 144_000) / 144_000,
             )
             event["crowd_fullness_bps"] = max(
                 _int(event.get("crowd_fullness_bps")),
@@ -296,32 +270,8 @@ def advance_big_chinchompa_world_clock_pure(
                 state = dict(data["big_chinchompa"])
                 event = {}
 
-    if not event:
-        slot_card = _current_slot_card(answered)
-        within_window = (
-            slot_card > 0
-            and _has_future_review_window(
-                answered,
-                slot_card * BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW
-                + BIG_CHINCHOMPA_EVENT_MINUTES,
-            )
-        )
-        if (
-            within_window
-            and slot_card > _int(state.get("last_resolved_slot_card"))
-        ):
-            event = _spawn_event(slot_card)
-            state["active_event"] = event
-            state["event_log"] = (
-                list(state.get("event_log", []))
-                + [{"kind": "spawned", **event}]
-            )[-20:]
-            data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(
-                state
-            )
-            events.append({"kind": "spawned", **event})
-
-    return data, tuple(events)
+    data, spawned = _advance_chinchompa_slot(data, card_ticks)
+    return data, (*events, *spawned)
 
 
 def big_chinchompa_event_active_pure(player_data: Mapping[str, Any]) -> bool:
@@ -329,8 +279,8 @@ def big_chinchompa_event_active_pure(player_data: Mapping[str, Any]) -> bool:
     event = data["big_chinchompa"]["active_event"]
     return bool(
         event
-        and _world_minutes(_answered_cards(data))
-        < _int(event.get("end_world_minute"))
+        and event_in_play_pure(data)
+        and calendar_ticks_pure(data) < _int(event.get("end_tick"))
         and _event_total_fullness_bps(event) < 10_000
     )
 
@@ -579,10 +529,10 @@ def consume_hunter_quota_ticket_pure(
 
 
 def big_chinchompa_view_pure(
-    player_data: Mapping[str, Any],
+    player_data: Mapping[str, Any], *, speed: int = 1,
 ) -> dict[str, Any]:
     data = ensure_big_chinchompa_state_pure(player_data)
-    answered = _answered_cards(data)
+    answered = answered_cards_pure(data)
     state = data["big_chinchompa"]
     event = state["active_event"]
     active = big_chinchompa_event_active_pure(data)
@@ -592,16 +542,16 @@ def big_chinchompa_view_pure(
     if active:
         minutes = max(
             0,
-            _int(event.get("end_world_minute")) - _world_minutes(answered),
+            (_int(event.get("end_tick")) - calendar_ticks_pure(data)) / 100,
         )
         reviews = max(
             0,
-            minutes // BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
+            cards_for_ticks_pure(round(minutes * 100), speed),
         )
         fullness = _event_total_fullness_bps(event) / 100.0
     else:
         minutes = 0
-        reviews = max(0, _next_slot_card(answered) - answered)
+        reviews = max(0, chinchompa_slot_card_pure(data, next_slot=True) - answered)
         fullness = 0.0
     return {
         "active": active,

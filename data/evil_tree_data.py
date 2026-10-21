@@ -21,6 +21,11 @@ EVIL_TREE_KINDLING_ITEM_ID = 14666
 # Owner-settled review-clock translations. These are intentionally named
 # abstractions rather than presented as recovered RuneScape formulas.
 EVIL_TREE_SPAWN_REVIEWS = 20
+
+# World-day-phased calendar durations, in 0.6-second ticks.
+EVIL_TREE_INTERVAL_TICKS = 120 * 100
+EVIL_TREE_ACTIVE_TICKS = 30 * 100
+
 EVIL_TREE_ACTIVE_REVIEWS = 5
 EVIL_TREE_DAILY_INTERACTIONS = 2
 EVIL_TREE_NEST_MULTIPLIER = 2.0

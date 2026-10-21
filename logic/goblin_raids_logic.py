@@ -17,12 +17,13 @@ from ..data.goblin_raids_data import (
     GOBLIN_RAID_SITE_IDS,
     GOBLIN_RAID_VILLAGE_BOSS_IDS,
     GOBLIN_RAIDER,
-    GOBLIN_RAIDS_ACTIVE_REVIEWS,
+    GOBLIN_RAIDS_ACTIVE_TICKS,
     GOBLIN_RAIDS_ACTIVITY_ID,
     GOBLIN_RAIDS_INTIMIDATION_COMBAT_LEVEL,
     GOBLIN_RAIDS_RAIDER_COUNT,
     GOBLIN_RAIDS_RAID_MODE,
     GOBLIN_RAIDS_SOURCE,
+    GOBLIN_RAIDS_INTERVAL_TICKS,
     GOBLIN_RAIDS_SPAWN_REVIEWS,
     GOBLIN_RAIDS_VILLAGE_BOSS_KILLS,
     GOBLIN_RAIDS_VILLAGE_MODE,
@@ -36,6 +37,10 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     player_combat_level_pure,
 )
+
+from .pace.short_timers import cards_for_ticks_pure
+from .pace.world_clock import answered_cards_pure, calendar_ticks_pure
+from .pace.world_events import cards_until_event_pure, event_in_play_pure, next_event_tick_pure
 
 
 GOBLIN_RAIDS_STATE_VERSION = 1
@@ -77,18 +82,11 @@ def _roll(value: Any) -> float:
     return min(0.999999, max(0.0, parsed))
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
 def default_goblin_raids_state_pure() -> dict[str, Any]:
     return {
         "version": GOBLIN_RAIDS_STATE_VERSION,
         "last_world_card": 0,
-        "next_spawn_card": GOBLIN_RAIDS_SPAWN_REVIEWS,
+        "next_spawn_tick": 1,
         "active_raid": {},
         "session": {},
         "village_kills": 0,
@@ -170,20 +168,19 @@ def sanitize_goblin_raids_state_pure(raw: Any) -> dict[str, Any]:
     if isinstance(raw_raid, Mapping):
         raid_id = str(raw_raid.get("raid_id", ""))
         site_id = str(raw_raid.get("site_id", ""))
-        remaining = _int(raw_raid.get("reviews_remaining"))
+        remaining = _int(raw_raid.get("ticks_remaining"), _int(raw_raid.get("reviews_remaining")) * 600)
         if raid_id and site_id in GOBLIN_RAID_SITES_BY_ID and remaining > 0:
             raid = {
                 "raid_id": raid_id[:80],
                 "site_id": site_id,
                 "spawn_card": _int(raw_raid.get("spawn_card")),
-                "reviews_remaining": min(remaining, GOBLIN_RAIDS_ACTIVE_REVIEWS),
+                "ticks_remaining": min(remaining, GOBLIN_RAIDS_ACTIVE_TICKS),
+                "last_tick": _int(raw_raid.get("last_tick"), _int(source.get("last_world_card")) * 600),
             }
     return {
         **defaults,
         "last_world_card": _int(source.get("last_world_card")),
-        "next_spawn_card": max(
-            1, _int(source.get("next_spawn_card"), GOBLIN_RAIDS_SPAWN_REVIEWS)
-        ),
+        "next_spawn_tick": max(1, _int(source.get("next_spawn_tick"), 1)),
         "active_raid": raid,
         "session": _sanitize_session(source.get("session"), raid),
         "village_kills": _int(source.get("village_kills")),
@@ -217,9 +214,12 @@ def ensure_goblin_raids_state_pure(
 
 def goblin_raids_spawn_due_pure(player_data: Mapping[str, Any]) -> bool:
     state = ensure_goblin_raids_state_pure(player_data)["goblin_raids"]
+    event = state["active_raid"]
+    alive = event and calendar_ticks_pure(player_data) - event["last_tick"] < event["ticks_remaining"]
     return (
-        not state["active_raid"]
-        and _answered_cards(player_data) >= int(state["next_spawn_card"])
+        not alive
+        and event_in_play_pure(player_data)
+        and calendar_ticks_pure(player_data) >= state["next_spawn_tick"]
     )
 
 
@@ -231,22 +231,22 @@ def advance_goblin_raids_world_clock_pure(
     """Expire the standing raid and announce the next one.
 
     The host calls this once after every answered card. No wall-clock state is
-    read; the sourced half-hourly announcement is
-    `GOBLIN_RAIDS_SPAWN_REVIEWS` answered cards.
+    read; half-hourly notices are phased from the world-day start.
     """
     data = ensure_goblin_raids_state_pure(player_data)
     state = dict(data["goblin_raids"])
-    answered = _answered_cards(data)
+    answered = answered_cards_pure(data)
     previous = min(answered, int(state["last_world_card"]))
     elapsed = answered - previous
     events: list[dict[str, Any]] = []
 
     raid = dict(state["active_raid"])
     if raid and elapsed > 0:
-        raid["reviews_remaining"] = max(
-            0, int(raid["reviews_remaining"]) - elapsed
+        raid["ticks_remaining"] = max(
+            0, int(raid["ticks_remaining"]) - max(0, calendar_ticks_pure(data) - raid["last_tick"])
         )
-        if raid["reviews_remaining"] <= 0:
+        raid["last_tick"] = calendar_ticks_pure(data)
+        if raid["ticks_remaining"] <= 0:
             session = state["session"]
             if (
                 session
@@ -270,12 +270,11 @@ def advance_goblin_raids_world_clock_pure(
                         "fell and the goblins made off with their spoils.",
                     )
             state["active_raid"] = {}
-            state["next_spawn_card"] = answered + GOBLIN_RAIDS_SPAWN_REVIEWS
             events.append({"kind": "expired", "raid_id": raid["raid_id"]})
         else:
             state["active_raid"] = raid
 
-    if not state["active_raid"] and answered >= int(state["next_spawn_card"]):
+    if not state["active_raid"] and event_in_play_pure(data) and calendar_ticks_pure(data) >= state["next_spawn_tick"]:
         site_index = min(
             len(GOBLIN_RAID_SITE_IDS) - 1,
             int(_roll(site_roll) * len(GOBLIN_RAID_SITE_IDS)),
@@ -285,11 +284,12 @@ def advance_goblin_raids_world_clock_pure(
             "raid_id": f"raid-{answered}-{site_id}",
             "site_id": site_id,
             "spawn_card": answered,
-            "reviews_remaining": GOBLIN_RAIDS_ACTIVE_REVIEWS,
+            "ticks_remaining": GOBLIN_RAIDS_ACTIVE_TICKS,
+            "last_tick": calendar_ticks_pure(data),
         }
-        state["next_spawn_card"] = answered + GOBLIN_RAIDS_SPAWN_REVIEWS
         events.append({"kind": "announced", "site_id": site_id})
 
+    state["next_spawn_tick"] = next_event_tick_pure(data, GOBLIN_RAIDS_INTERVAL_TICKS)
     state["last_world_card"] = answered
     data["goblin_raids"] = state
     return data, tuple(events)
@@ -849,7 +849,7 @@ def apply_goblin_raids_command_pure(
     }
 
 
-def goblin_raids_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def goblin_raids_view_pure(player_data: Mapping[str, Any], *, speed: int = 1) -> dict[str, Any]:
     """Own every enable, visibility and warning decision the panel renders.
 
     The panel is a renderer: it reads these flags and never re-derives a rule.
@@ -862,7 +862,7 @@ def goblin_raids_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
     )
     encounter = player_data.get("combat_encounter")
-    answered = _answered_cards(player_data)
+    answered = answered_cards_pure(player_data)
     combat_level = player_combat_level_pure(player_data)
     reasons: list[str] = []
     if active_id and active_id != GOBLIN_RAIDS_ACTIVITY_ID:
@@ -898,11 +898,11 @@ def goblin_raids_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "raid_site": site.display_name if site else "",
         "raid_site_id": site.id if site else "",
         "raid_spoil_kind": site.spoil_kind if site else "",
-        "raid_reviews_remaining": int(raid["reviews_remaining"]) if raid else 0,
+        "raid_reviews_remaining": cards_for_ticks_pure(int(raid["ticks_remaining"]), speed) if raid else 0,
         "next_raid_reviews": (
-            0 if raid else max(0, int(state["next_spawn_card"]) - answered)
+            0 if raid else cards_until_event_pure(player_data, state["next_spawn_tick"], speed)
         ),
-        "announcement_interval": GOBLIN_RAIDS_SPAWN_REVIEWS,
+        "announcement_interval": cards_for_ticks_pure(GOBLIN_RAIDS_INTERVAL_TICKS, speed),
         "entry_reasons": tuple(reasons),
         "can_join_raid": bool(raid) and not session and not reasons,
         "can_join_village": not session and not reasons,

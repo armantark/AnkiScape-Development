@@ -5108,7 +5108,7 @@ def _advance_world_events_after_review() -> None:
     _state.player_data.update(updated)
 
     big_updated, _big_events = advance_big_chinchompa_world_clock_pure(
-        _state.player_data
+        _state.player_data, card_ticks=runtime_actions.card_ticks_pure(_review_action_multiplier())
     )
     _state.player_data.update(big_updated)
 

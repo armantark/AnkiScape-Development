@@ -7,17 +7,18 @@ import math
 from typing import Any, Mapping, Sequence
 
 from ..data.evil_tree_data import (
-    EVIL_TREE_ACTIVE_REVIEWS,
+    EVIL_TREE_ACTIVE_TICKS,
     EVIL_TREE_DAILY_INTERACTIONS,
     EVIL_TREE_KINDLING,
     EVIL_TREE_LOCATIONS,
     EVIL_TREE_REWARD_MINIMUM_SHARE,
-    EVIL_TREE_SPAWN_REVIEWS,
+    EVIL_TREE_INTERVAL_TICKS,
     EVIL_TREE_TIERS,
     EVIL_TREE_TIERS_BY_ID,
 )
 from .pace.short_timers import STEP_TICKS, TICKS_PER_SOURCE_MINUTE, cards_for_ticks_pure
-from .pace.world_clock import world_day_index_pure
+from .pace.world_clock import answered_cards_pure, calendar_ticks_pure, world_day_index_pure
+from .pace.world_events import cards_until_event_pure, event_in_play_pure, next_event_tick_pure
 
 
 EVIL_TREE_STATE_VERSION = 1
@@ -45,18 +46,11 @@ def _roll(value: Any) -> float:
     return max(0.0, min(parsed, math.nextafter(1.0, 0.0)))
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
 def default_evil_tree_state_pure() -> dict[str, Any]:
     return {
         "version": EVIL_TREE_STATE_VERSION,
         "last_world_card": 0,
-        "next_spawn_card": EVIL_TREE_SPAWN_REVIEWS,
+        "next_spawn_tick": 1,
         "active_event": {},
         "session": {},
         "participation_day": 0,
@@ -91,7 +85,7 @@ def sanitize_evil_tree_state_pure(raw: Any) -> dict[str, Any]:
         tier_id = str(raw_event.get("tier_id", ""))
         location = str(raw_event.get("location", ""))
         event_id = str(raw_event.get("event_id", ""))
-        remaining = _int(raw_event.get("reviews_remaining"))
+        remaining = _int(raw_event.get("ticks_remaining"), _int(raw_event.get("reviews_remaining")) * 600)
         if (
             tier_id in EVIL_TREE_TIERS_BY_ID
             and location in EVIL_TREE_LOCATIONS
@@ -103,7 +97,8 @@ def sanitize_evil_tree_state_pure(raw: Any) -> dict[str, Any]:
                 "tier_id": tier_id,
                 "location": location,
                 "spawn_card": _int(raw_event.get("spawn_card")),
-                "reviews_remaining": min(remaining, EVIL_TREE_ACTIVE_REVIEWS),
+                "ticks_remaining": min(remaining, EVIL_TREE_ACTIVE_TICKS),
+                "last_tick": _int(raw_event.get("last_tick"), _int(source.get("last_world_card")) * 600),
             }
 
     session: dict[str, Any] = {}
@@ -137,14 +132,7 @@ def sanitize_evil_tree_state_pure(raw: Any) -> dict[str, Any]:
     return {
         **defaults,
         "last_world_card": _int(source.get("last_world_card")),
-        "next_spawn_card": max(
-            1,
-            _int(
-                source.get("next_spawn_card"),
-                EVIL_TREE_SPAWN_REVIEWS,
-                minimum=1,
-            ),
-        ),
+        "next_spawn_tick": max(1, _int(source.get("next_spawn_tick"), 1)),
         "active_event": event,
         "session": session,
         "participation_day": day,
@@ -180,9 +168,12 @@ def ensure_evil_tree_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
 def evil_tree_spawn_due_pure(player_data: Mapping[str, Any]) -> bool:
     data = ensure_evil_tree_state_pure(player_data)
     state = data["evil_tree"]
+    event = state["active_event"]
+    alive = event and calendar_ticks_pure(data) - event["last_tick"] < event["ticks_remaining"]
     return (
-        not state["active_event"]
-        and _answered_cards(data) >= int(state["next_spawn_card"])
+        not alive
+        and event_in_play_pure(data)
+        and calendar_ticks_pure(data) >= state["next_spawn_tick"]
     )
 
 
@@ -201,7 +192,7 @@ def advance_evil_tree_world_clock_pure(
 
     data = ensure_evil_tree_state_pure(player_data)
     state = dict(data["evil_tree"])
-    answered = _answered_cards(data)
+    answered = answered_cards_pure(data)
     previous = min(answered, int(state["last_world_card"]))
     elapsed = answered - previous
     events: list[dict[str, Any]] = []
@@ -214,10 +205,11 @@ def advance_evil_tree_world_clock_pure(
 
     event = dict(state["active_event"])
     if event and elapsed > 0:
-        event["reviews_remaining"] = max(
-            0, int(event["reviews_remaining"]) - elapsed
+        event["ticks_remaining"] = max(
+            0, int(event["ticks_remaining"]) - max(0, calendar_ticks_pure(data) - event["last_tick"])
         )
-        if event["reviews_remaining"] <= 0:
+        event["last_tick"] = calendar_ticks_pure(data)
+        if event["ticks_remaining"] <= 0:
             expired_id = event["event_id"]
             if (
                 state["session"]
@@ -226,7 +218,6 @@ def advance_evil_tree_world_clock_pure(
                 state["session"] = {}
                 state["last_result"] = "The Evil Tree withered before the session finished."
             state["active_event"] = {}
-            state["next_spawn_card"] = answered + EVIL_TREE_SPAWN_REVIEWS
             events.append({"kind": "expired", "event_id": expired_id})
         else:
             state["active_event"] = event
@@ -246,10 +237,7 @@ def advance_evil_tree_world_clock_pure(
             state["blessing_granted_card"] = 0
             events.append({"kind": "blessing_expired"})
 
-    if (
-        not state["active_event"]
-        and answered >= int(state["next_spawn_card"])
-    ):
+    if not state["active_event"] and event_in_play_pure(data) and calendar_ticks_pure(data) >= state["next_spawn_tick"]:
         tier_index = min(
             len(EVIL_TREE_TIERS) - 1,
             int(_roll(tier_roll) * len(EVIL_TREE_TIERS)),
@@ -264,11 +252,13 @@ def advance_evil_tree_world_clock_pure(
             "tier_id": tier.id,
             "location": EVIL_TREE_LOCATIONS[location_index],
             "spawn_card": answered,
-            "reviews_remaining": EVIL_TREE_ACTIVE_REVIEWS,
+            "ticks_remaining": EVIL_TREE_ACTIVE_TICKS,
+            "last_tick": calendar_ticks_pure(data),
         }
         state["active_event"] = event
         events.append({"kind": "spawned", **event})
 
+    state["next_spawn_tick"] = next_event_tick_pure(data, EVIL_TREE_INTERVAL_TICKS)
     state["last_world_card"] = answered
     state["event_log"] = (
         list(state.get("event_log", [])) + events
@@ -308,7 +298,7 @@ def evil_tree_entry_mode_pure(
         full_reasons.append(f"{tier.firemaking_level} Firemaking")
     if not has_usable_hatchet:
         full_reasons.append("a usable hatchet")
-    if int(event["reviews_remaining"]) < len(EVIL_TREE_PHASES):
+    if int(event["ticks_remaining"]) < len(EVIL_TREE_PHASES) * STEP_TICKS:
         full_reasons.append("three remaining event reviews")
     if full_reasons:
         return "nurture_only", tuple(full_reasons)
@@ -325,12 +315,12 @@ def evil_tree_view_pure(
     state = data["evil_tree"]
     event = state["active_event"]
     session = state["session"]
-    answered = _answered_cards(data)
+    answered = answered_cards_pure(data)
     if not event:
         return {
             "active": False,
             "session_active": False,
-            "next_reviews": max(0, int(state["next_spawn_card"]) - answered),
+            "next_reviews": cards_until_event_pure(data, state["next_spawn_tick"], speed),
             "participations_today": int(state["participations_today"]),
             "interaction_limit": EVIL_TREE_DAILY_INTERACTIONS,
             "blessing_reviews_remaining": cards_for_ticks_pure(
@@ -353,7 +343,7 @@ def evil_tree_view_pure(
         "tier_id": tier.id,
         "tier_name": tier.display_name,
         "location": event["location"],
-        "reviews_remaining": int(event["reviews_remaining"]),
+        "reviews_remaining": cards_for_ticks_pure(int(event["ticks_remaining"]), speed),
         "requirements": {
             "Farming": tier.farming_level,
             "Woodcutting": tier.woodcutting_level,
@@ -525,10 +515,9 @@ def apply_evil_tree_review_pure(
         blessing_ticks = tier.blessing_minutes * TICKS_PER_SOURCE_MINUTE
         result["blessing_reviews"] = cards_for_ticks_pure(blessing_ticks, speed)
 
-        answered = _answered_cards(data)
+        answered = answered_cards_pure(data)
         state["session"] = {}
         state["active_event"] = {}
-        state["next_spawn_card"] = answered + EVIL_TREE_SPAWN_REVIEWS
         state["blessing_ticks_remaining"] = max(
             int(state["blessing_ticks_remaining"]), blessing_ticks
         )

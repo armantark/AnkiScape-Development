@@ -113,6 +113,11 @@ CRUCIBLE_POINTS_PER_CHAMPION_HIT = 1
 # fork 3.6 rather than left to be read out of these two constants, because
 # lengthening the event is a design call and not a source question.
 CRUCIBLE_EVENT_INTERVAL_REVIEWS = 5
+
+# World-day-phased calendar durations, in 0.6-second ticks.
+CRUCIBLE_INTERVAL_TICKS = 30 * 100
+CRUCIBLE_ACTIVE_TICKS = 6 * 100
+
 CRUCIBLE_EVENT_REVIEWS = 1
 
 # Rivals are other players, and the article says the Crucible matched a player

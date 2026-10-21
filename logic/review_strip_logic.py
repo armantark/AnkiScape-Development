@@ -433,10 +433,10 @@ def _evil_tree_notification_statuses(
 
 
 def _shooting_star_notification_statuses(
-    player_data: Mapping[str, Any],
+    player_data: Mapping[str, Any], speed: int,
 ) -> tuple[str, ...]:
     view = shooting_star_view_pure(
-        player_data,
+        player_data, speed=speed,
         has_usable_pickaxe=_has_usable_pickaxe(player_data),
     )
     if view["active"]:
@@ -495,9 +495,9 @@ def _fish_flingers_notification_statuses(
 
 
 def _goblin_raids_notification_statuses(
-    player_data: Mapping[str, Any],
+    player_data: Mapping[str, Any], speed: int,
 ) -> tuple[str, ...]:
-    view = goblin_raids_view_pure(player_data)
+    view = goblin_raids_view_pure(player_data, speed=speed)
     if view["active"]:
         return (f"{view['stage_label']} · {view['summary_text']}",)
     if view["raid_announced"]:
@@ -704,11 +704,11 @@ DND_NOTIFICATION_STATUS_PROJECTIONS: dict[
     EVIL_TREE_UTILITY_ID: _evil_tree_notification_statuses,
     FAMILIARISATION_ACTIVITY_ID: _familiarisation_notification_statuses,
     FISH_FLINGERS_ACTIVITY_ID: _at_every_speed(_fish_flingers_notification_statuses),
-    GOBLIN_RAIDS_ACTIVITY_ID: _at_every_speed(_goblin_raids_notification_statuses),
+    GOBLIN_RAIDS_ACTIVITY_ID: _goblin_raids_notification_statuses,
     PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID: _at_every_speed(_penguin_notification_statuses),
     PHOENIX_LAIR_ACTIVITY_ID: _at_every_speed(_phoenix_lair_notification_statuses),
     SHATTERED_HEART_ACTIVITY_ID: _at_every_speed(_shattered_heart_notification_statuses),
-    SHOOTING_STAR_ACTIVITY_ID: _at_every_speed(_shooting_star_notification_statuses),
+    SHOOTING_STAR_ACTIVITY_ID: _shooting_star_notification_statuses,
     SKELETAL_HORROR_ACTIVITY_ID: _at_every_speed(_skeletal_horror_notification_statuses),
     TEARS_OF_GUTHIX_ACTIVITY_ID: _at_every_speed(_tears_of_guthix_notification_statuses),
     TREASURE_TRAILS_ACTIVITY_ID: _at_every_speed(_treasure_trails_notification_statuses),

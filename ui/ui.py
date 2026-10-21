@@ -2641,15 +2641,15 @@ if HAS_QT:
                 )
                 is not None
             )
-            evil_tree_view = evil_tree_view_pure(player_data, has_usable_hatchet=has_hatchet)
+            evil_tree_view = evil_tree_view_pure(player_data, has_usable_hatchet=has_hatchet, speed=_game_speed())
             # All three review-clock world events (Evil Tree, Shooting Star,
             # Big Chinchompa) moved to the Activities hub's "Live world events"
             # strip and the D&D badge: none can be acted on from the reviewer,
             # so the overlay keeps only in-progress session counters.
             world_notices = []
-            big_chinchompa_view = big_chinchompa_view_pure(player_data)
+            big_chinchompa_view = big_chinchompa_view_pure(player_data, speed=_game_speed())
             star_view = shooting_star_view_pure(
-                player_data,
+                player_data, speed=_game_speed(),
                 has_usable_pickaxe=(
                     best_mining_pickaxe_pure(
                         int(player_data.get("mining_level", 1) or 1),
@@ -8875,7 +8875,7 @@ def show_main_menu(
             )
 
         def _refresh_big_chinchompa_panel() -> None:
-            view = big_chinchompa_view_pure(player_data)
+            view = big_chinchompa_view_pure(player_data, speed=_game_speed())
             active = bool(view["active"])
             selected = (
                 player_data.get("current_utility")
@@ -9083,7 +9083,7 @@ def show_main_menu(
 
         def _refresh_shooting_star_panel() -> None:
             view = shooting_star_view_pure(
-                player_data,
+                player_data, speed=_game_speed(),
                 has_usable_pickaxe=_shooting_star_has_pickaxe(),
             )
             selected = (
@@ -17192,7 +17192,7 @@ def show_main_menu(
         cards_stack.addWidget(crucible_box)
 
         goblin_raids_box = GoblinRaidsPanel(
-            player_data,
+            player_data, game_speed=_game_speed,
             on_command=on_goblin_raids_command,
             on_select=lambda activity_id: _request_utility_selection(activity_id),
             on_changed=lambda: _fit_current_activity_detail(),
@@ -20255,7 +20255,7 @@ def show_main_menu(
                             str((result or {}).get("message", "Could not abandon the trek.")),
                         )
                         return False
-            goblin_view = goblin_raids_view_pure(player_data)
+            goblin_view = goblin_raids_view_pure(player_data, speed=_game_speed())
             if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
                 question = "Switch activities and walk away from the goblins?"
                 if goblin_view["pending_spoils"]:

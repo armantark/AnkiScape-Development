@@ -40,6 +40,11 @@ GOBLIN_RAIDS_SOURCE = (
 # timer.
 GOBLIN_RAIDS_SPAWN_REVIEWS = 5
 
+# World-day-phased calendar durations, in 0.6-second ticks.
+GOBLIN_RAIDS_INTERVAL_TICKS = 30 * 100
+GOBLIN_RAIDS_ACTIVE_TICKS = 90 * 100
+
+
 # The period gives no solo raid duration. AnkiScape translates the lifecycle to
 # fifteen reviews—the smallest window that fits the sourced ten-raider-then-
 # Hollowtoof sequence—because the review loop has no wall-clock raid scheduler.

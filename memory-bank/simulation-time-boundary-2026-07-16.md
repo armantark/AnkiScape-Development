@@ -154,7 +154,12 @@ by the caller; a count of six-tick steps shows `ceil(steps / speed)` (root rulin
 | Court Cases Batch 2 cooldown | Fourteen days (`data/court_cases_data.py:9`); `14 ×` the default world day | Calendar duration | Unchanged here; belongs on world days with the calendar. |
 
 Bank trips, graves and rest healing count cards with no sourced trip length and stay
-in cards. World events that spawn and expire on the card clock follow the calendar.
+in cards. World events use calendar ticks for their intervals and expiry.
+Goblin Raids, Crucible, Shooting Star and Evil Tree phase from world-day start.
+The first event occurs on the first play card. No event occurs in the daily gap.
+Big Chinchompa uses the quarter-day and three-quarter-day card slots. Its event
+lasts 20 calendar minutes, skips occupied slots and ends at the day boundary.
+Crowd pressure uses elapsed calendar ticks, with six ticks per step.
 
 ## Chronology moved from systemPatterns.md — 2026-09-16
 

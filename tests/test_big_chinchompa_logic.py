@@ -34,52 +34,52 @@ def _player(answered_cards=0, hunter_level=1):
 class BigChinchompaLogicTests(unittest.TestCase):
     def test_two_review_day_slots_and_rational_twenty_minute_window(self):
         player = _player(59)
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events, ())
-        self.assertEqual(big_chinchompa_view_pure(player)["next_reviews"], 1)
+        self.assertEqual(big_chinchompa_view_pure(player, speed=100)["next_reviews"], 1)
 
         player["shop_market_clock"]["answered_cards"] = 60
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events[0]["kind"], "spawned")
-        view = big_chinchompa_view_pure(player)
+        view = big_chinchompa_view_pure(player, speed=100)
         self.assertEqual(view["minutes_remaining"], 20)
-        self.assertEqual(view["reviews_remaining"], 3)
+        self.assertEqual(view["reviews_remaining"], 4)
 
         player["shop_market_clock"]["answered_cards"] = 62
-        player, _ = advance_big_chinchompa_world_clock_pure(player)
-        self.assertTrue(big_chinchompa_view_pure(player)["active"])
-        self.assertEqual(big_chinchompa_view_pure(player)["reviews_remaining"], 1)
+        player, _ = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
+        self.assertTrue(big_chinchompa_view_pure(player, speed=100)["active"])
+        self.assertEqual(big_chinchompa_view_pure(player, speed=100)["reviews_remaining"], 2)
 
-        player["shop_market_clock"]["answered_cards"] = 63
-        player, events = advance_big_chinchompa_world_clock_pure(player)
-        self.assertFalse(big_chinchompa_view_pure(player)["active"])
+        player["shop_market_clock"]["answered_cards"] = 64
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
+        self.assertFalse(big_chinchompa_view_pure(player, speed=100)["active"])
         self.assertEqual(events[0], {"kind": "resolved", "reason": "expired"})
-        self.assertEqual(big_chinchompa_view_pure(player)["next_reviews"], 117)
+        self.assertEqual(big_chinchompa_view_pure(player, speed=100)["next_reviews"], 116)
 
         player["shop_market_clock"]["answered_cards"] = 180
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events[0]["kind"], "spawned")
 
     def test_late_entry_keeps_only_remaining_window(self):
         player = _player(62)
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events[0]["slot_card"], 60)
-        view = big_chinchompa_view_pure(player)
+        view = big_chinchompa_view_pure(player, speed=100)
         self.assertEqual(view["minutes_remaining"], 8)
-        self.assertEqual(view["reviews_remaining"], 1)
+        self.assertEqual(view["reviews_remaining"], 2)
 
     def test_late_entry_never_spawns_without_a_complete_review_quantum(self):
         player = _player(63)
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events, ())
-        self.assertFalse(big_chinchompa_view_pure(player)["active"])
-        self.assertEqual(big_chinchompa_view_pure(player)["next_reviews"], 117)
+        self.assertFalse(big_chinchompa_view_pure(player, speed=100)["active"])
+        self.assertEqual(big_chinchompa_view_pure(player, speed=100)["next_reviews"], 117)
 
     def test_crowd_curve_is_constant_work_deterministic_and_monotonic(self):
         values = [
             big_chinchompa_crowd_target_bps_pure(
-                slot_card=60,
-                answered_cards=card,
+                elapsed_ticks=(card - 60) * 600,
+                day_phase=0.25,
                 seed=12345,
             )
             for card in (60, 61, 62, 63, 64)
@@ -89,8 +89,8 @@ class BigChinchompaLogicTests(unittest.TestCase):
             values,
             [
                 big_chinchompa_crowd_target_bps_pure(
-                    slot_card=60,
-                    answered_cards=card,
+                    elapsed_ticks=(card - 60) * 600,
+                    day_phase=0.25,
                     seed=12345,
                     )
                 for card in (60, 61, 62, 63, 64)
@@ -99,7 +99,7 @@ class BigChinchompaLogicTests(unittest.TestCase):
 
     def test_one_review_resolves_whole_jars_and_stops_at_fullness(self):
         player = _player(60, hunter_level=91)
-        player, _ = advance_big_chinchompa_world_clock_pure(player)
+        player, _ = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         player["big_chinchompa"]["active_event"]["player_fullness_bps"] = 9_900
         player, ok, result = apply_big_chinchompa_review_pure(
             player,
@@ -114,7 +114,7 @@ class BigChinchompaLogicTests(unittest.TestCase):
 
     def test_personal_cap_stops_points_but_not_hunter_xp(self):
         player = _player(60, hunter_level=99)
-        player, _ = advance_big_chinchompa_world_clock_pure(player)
+        player, _ = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         event = player["big_chinchompa"]["active_event"]
         event["event_points"] = 1_490
         player, ok, result = apply_big_chinchompa_review_pure(player)
@@ -148,12 +148,12 @@ class BigChinchompaLogicTests(unittest.TestCase):
 
     def test_resolution_converts_points_one_for_one_and_caps_wallet(self):
         player = _player(60, hunter_level=99)
-        player, _ = advance_big_chinchompa_world_clock_pure(player)
+        player, _ = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         player["big_chinchompa"]["competence_points"] = 19_900
         player, _ok, _result = apply_big_chinchompa_review_pure(player)
         player["big_chinchompa"]["active_event"]["event_points"] = 315
         player["shop_market_clock"]["answered_cards"] = 64
-        player, events = advance_big_chinchompa_world_clock_pure(player)
+        player, events = advance_big_chinchompa_world_clock_pure(player, card_ticks=600)
         self.assertEqual(events[0]["reason"], "expired")
         self.assertEqual(
             player["big_chinchompa"]["competence_points"],

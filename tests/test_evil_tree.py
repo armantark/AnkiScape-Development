@@ -67,6 +67,7 @@ class TestEvilTreeData(unittest.TestCase):
 class TestEvilTreeWorldClock(unittest.TestCase):
     def test_spawn_and_expiry_use_only_answered_cards(self):
         player = _player(answered_cards=EVIL_TREE_SPAWN_REVIEWS - 1)
+        player["evil_tree"]["next_spawn_tick"] = EVIL_TREE_SPAWN_REVIEWS * 600
         self.assertFalse(evil_tree_spawn_due_pure(player))
 
         before, events = advance_evil_tree_world_clock_pure(player)
@@ -80,8 +81,8 @@ class TestEvilTreeWorldClock(unittest.TestCase):
         self.assertEqual(events[0]["kind"], "spawned")
         self.assertEqual(active["evil_tree"]["active_event"]["tier_id"], "normal")
         self.assertEqual(
-            active["evil_tree"]["active_event"]["reviews_remaining"],
-            EVIL_TREE_ACTIVE_REVIEWS,
+            active["evil_tree"]["active_event"]["ticks_remaining"],
+            EVIL_TREE_ACTIVE_REVIEWS * 600,
         )
 
         active["shop_market_clock"]["answered_cards"] += EVIL_TREE_ACTIVE_REVIEWS
@@ -89,9 +90,8 @@ class TestEvilTreeWorldClock(unittest.TestCase):
         self.assertEqual(events[0]["kind"], "expired")
         self.assertEqual(expired["evil_tree"]["active_event"], {})
         self.assertEqual(
-            expired["evil_tree"]["next_spawn_card"],
-            EVIL_TREE_SPAWN_REVIEWS + EVIL_TREE_ACTIVE_REVIEWS
-            + EVIL_TREE_SPAWN_REVIEWS,
+            expired["evil_tree"]["next_spawn_tick"],
+            EVIL_TREE_SPAWN_REVIEWS * 600 * 2,
         )
 
     def test_new_blessing_is_not_spent_on_its_grant_card(self):
@@ -192,8 +192,10 @@ class TestEvilTreeSession(unittest.TestCase):
         self.assertEqual(sanitized["participations_today"], 2)
         self.assertEqual(sanitized["blessing_ticks_remaining"], 3_000)
 
+        player = _player(answered_cards=7)
+        player["evil_tree"]["next_spawn_tick"] = 12_000
         view = evil_tree_view_pure(
-            _player(answered_cards=7), has_usable_hatchet=True
+            player, has_usable_hatchet=True, speed=100
         )
         self.assertFalse(view["active"])
         self.assertEqual(view["next_reviews"], 13)

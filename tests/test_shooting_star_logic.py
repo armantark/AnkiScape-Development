@@ -117,9 +117,10 @@ class TestShootingStarLogic(unittest.TestCase):
 
     def test_review_clock_spawns_a_period_layer_and_reports_next_star(self):
         waiting = _player(answered=19)
+        waiting["shooting_star"]["last_slot_tick"] = 0
         waiting, events = advance_shooting_star_world_clock_pure(waiting)
         self.assertEqual(events, ())
-        self.assertEqual(shooting_star_view_pure(waiting)["next_reviews"], 1)
+        self.assertEqual(shooting_star_view_pure(waiting, speed=100)["next_reviews"], 1)
 
         waiting["shop_market_clock"]["answered_cards"] = 20
         active, events = advance_shooting_star_world_clock_pure(waiting)
@@ -309,7 +310,7 @@ class TestShootingStarLogic(unittest.TestCase):
                 "current_size": 0,
                 "layer_remaining": 0,
                 "sprite_released": True,
-                "sprite_expires_card": 22,
+                "sprite_expires_tick": 13_200,
             }
         )
 
@@ -410,7 +411,7 @@ class TestShootingStarLogic(unittest.TestCase):
                 "current_size": 0,
                 "layer_remaining": 0,
                 "sprite_released": True,
-                "sprite_expires_card": 22,
+                "sprite_expires_tick": 13_200,
             }
         )
         player["shooting_star"]["active_event"] = event
@@ -430,7 +431,7 @@ class TestShootingStarLogic(unittest.TestCase):
                 "current_size": 0,
                 "layer_remaining": 0,
                 "sprite_released": True,
-                "sprite_expires_card": 22,
+                "sprite_expires_tick": 13_200,
             }
         )
         player["shooting_star"]["active_event"] = event

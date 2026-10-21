@@ -13,8 +13,8 @@ from ..data.crucible_data import (
     CRUCIBLE_COMBAT_TARGET_ID,
     CRUCIBLE_COMBAT_TICKS,
     CRUCIBLE_CURRENCY,
-    CRUCIBLE_EVENT_INTERVAL_REVIEWS,
-    CRUCIBLE_EVENT_REVIEWS,
+    CRUCIBLE_INTERVAL_TICKS,
+    CRUCIBLE_ACTIVE_TICKS,
     CRUCIBLE_LESSON_BONE_AWARD,
     CRUCIBLE_LESSONS,
     CRUCIBLE_MINIMUM_COMBAT_LEVEL,
@@ -43,6 +43,9 @@ from ..logic_pure.logic_pure import (
     player_combat_level_pure,
 )
 
+from .pace.world_clock import answered_cards_pure, calendar_ticks_pure
+from .pace.world_events import event_in_play_pure, event_slot_tick_pure
+
 
 CRUCIBLE_STATE_VERSION = 1
 _LESSONS = frozenset(CRUCIBLE_LESSONS)
@@ -70,20 +73,10 @@ def _empty_activity_session() -> dict[str, str]:
     return {"active_id": ""}
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
 def _supreme_event_active(player_data: Mapping[str, Any]) -> bool:
-    answered_cards = _answered_cards(player_data)
-    return (
-        answered_cards > 0
-        and answered_cards % CRUCIBLE_EVENT_INTERVAL_REVIEWS
-        < CRUCIBLE_EVENT_REVIEWS
-    )
+    return (event_in_play_pure(player_data)
+            and calendar_ticks_pure(player_data) - event_slot_tick_pure(player_data, CRUCIBLE_INTERVAL_TICKS)
+            < CRUCIBLE_ACTIVE_TICKS)
 
 
 def default_crucible_state_pure() -> dict[str, Any]:
@@ -190,6 +183,7 @@ def _sanitize_session(raw: Any) -> dict[str, Any]:
         )[:120],
         "boosts_clamped": bool(raw.get("boosts_clamped", False)),
         "event_card": _int(raw.get("event_card")),
+        "event_tick": _int(raw.get("event_tick"), -1, minimum=-1),
         "is_champion": bool(raw.get("is_champion", False)),
     }
 
@@ -699,9 +693,10 @@ def apply_crucible_review_pure(
     # must not pause while the player trains elsewhere or restart on re-entry.
     in_event = _supreme_event_active(data)
     rank = crucible_rank_pure(data.get("crucible_rank_points"))
-    world_card = _answered_cards(data)
-    if in_event and session["event_card"] != world_card:
-        session["event_card"] = world_card
+    world_card = event_slot_tick_pure(data, CRUCIBLE_INTERVAL_TICKS)
+    if in_event and session.get("event_tick", -1) != world_card:
+        session["event_card"] = answered_cards_pure(data)
+        session["event_tick"] = world_card
         session["is_champion"] = bool(rank["top_of_ladder"])
     elif not in_event:
         session["event_card"] = 0

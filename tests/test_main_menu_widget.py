@@ -12204,14 +12204,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("material prep", hud.sub_lbl.text())
 
     def test_evil_tree_panel_reports_countdown_and_starts_active_event(self) -> None:
-        from ankiscape.logic.evil_tree_logic import (
-            advance_evil_tree_world_clock_pure,
-            default_evil_tree_state_pure,
-        )
+        from ankiscape.logic.evil_tree_logic import advance_evil_tree_world_clock_pure, default_evil_tree_state_pure
 
         pd = _make_player_data()
-        pd["shop_market_clock"] = {"answered_cards": 0}
-        pd["evil_tree"] = default_evil_tree_state_pure()
+        pd["shop_market_clock"] = {"answered_cards": 100}
+        pd["world_clock"] = {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 11_880}
+        pd["evil_tree"] = {**default_evil_tree_state_pure(), "next_spawn_tick": 12_000}
         countdown_dialog = self._open(pd)
         self._open_activities(countdown_dialog)
         self.assertEqual(
@@ -12224,7 +12222,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ).isEnabled()
         )
         due = copy.deepcopy(pd)
-        due["shop_market_clock"]["answered_cards"] = 100
+        due["world_clock"]["in_day_ticks"] = 12_000
         due_dialog = self._open(due)
         self._open_activities(due_dialog)
         self.assertEqual(
@@ -12232,7 +12230,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Next review",
         )
 
-        pd["shop_market_clock"]["answered_cards"] = 20
+        pd["world_clock"]["in_day_ticks"] = 12_000
         active, _ = advance_evil_tree_world_clock_pure(pd)
         pd.clear()
         pd.update(active)

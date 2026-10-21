@@ -49,10 +49,12 @@ if HAS_QT:
             | None = None,
             on_select: Callable[[str], bool] | None = None,
             on_changed: Callable[[], None] | None = None,
+            game_speed: Callable[[], int] = lambda: 1,
             parent: QWidget | None = None,
         ) -> None:
             super().__init__(parent)
             self._player_data = player_data
+            self._game_speed = game_speed
             self._on_command = on_command
             self._on_select = on_select
             self._on_changed = on_changed
@@ -191,7 +193,7 @@ if HAS_QT:
             return result
 
         def _join_or_select(self) -> None:
-            view = goblin_raids_view_pure(self._player_data)
+            view = goblin_raids_view_pure(self._player_data, speed=self._game_speed())
             if not view["active"]:
                 mode = (
                     GOBLIN_RAIDS_RAID_MODE
@@ -205,7 +207,7 @@ if HAS_QT:
             self.refresh()
 
         def _confirm_leave(self) -> None:
-            view = goblin_raids_view_pure(self._player_data)
+            view = goblin_raids_view_pure(self._player_data, speed=self._game_speed())
             question = "Walk away from the goblins?"
             if view["pending_spoils"]:
                 question += " The spoils you have not claimed will be lost."
@@ -220,7 +222,7 @@ if HAS_QT:
                 self._run_command("leave")
 
         def refresh(self) -> None:
-            view = goblin_raids_view_pure(self._player_data)
+            view = goblin_raids_view_pure(self._player_data, speed=self._game_speed())
             enabled = self._on_command is not None
 
             self.status.setText(
