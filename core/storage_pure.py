@@ -91,6 +91,10 @@ from .constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
+from .persistence.quest_state import (
+    _migrate_quest_state,
+    ensure_cold_war_greeting_pure,
+)
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states, default_quest_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
@@ -704,6 +708,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["equipment"] = {}
     data.update(default_equipment_instance_state_pure())
     data["quests"] = default_quest_states()
+    data["cold_war_greeting"] = []
     data["quest_points"] = 0
     data["quest_combat_encounters"] = {}
     data["quest_combat_encounter_counts"] = {}
@@ -897,36 +902,6 @@ def _migrate_herblore_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_herblore, str) or current_herblore not in HERBLORE_TARGETS_BY_ID:
         current_herblore = DEFAULT_HERBLORE_TARGET
     data["current_herblore"] = current_herblore
-
-
-def _migrate_quest_state(data: Dict[str, Any]) -> None:
-    quests = data.get("quests")
-    clean_quests = default_quest_states()
-    if isinstance(quests, dict):
-        for quest_id, default_state in clean_quests.items():
-            raw_state = quests.get(quest_id)
-            if not isinstance(raw_state, dict):
-                continue
-            state = dict(default_state)
-            state["started"] = bool(raw_state.get("started", state["started"]))
-            state["completed"] = bool(raw_state.get("completed", state["completed"]))
-            try:
-                progress = int(raw_state.get("progress", state["progress"]))
-            except (TypeError, ValueError):
-                progress = int(state["progress"])
-            state["progress"] = max(0, progress)
-            if state["completed"] and state["progress"] < 1:
-                state["progress"] = 1
-            clean_quests[quest_id] = state
-    data["quests"] = clean_quests
-    try:
-        data["quest_points"] = max(0, int(data.get("quest_points", 0)))
-    except (TypeError, ValueError):
-        data["quest_points"] = 0
-    current_quest = data.get("current_quest")
-    if not isinstance(current_quest, str) or current_quest not in clean_quests:
-        current_quest = DEFAULT_QUEST_TARGET
-    data["current_quest"] = current_quest
 
 
 def _migrate_quest_flag_collection(data: Dict[str, Any], key: str) -> None:
@@ -1525,6 +1500,7 @@ def migrate_loaded_data(
     _migrate_runecrafting_target(data)
     _migrate_herblore_target(data)
     _migrate_quest_state(data)
+    data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     _migrate_quest_stage_side_state(data, loaded_config_version)
     _migrate_quest_action_proofs(data, loaded_config_version)
     _migrate_pending_skill_exp_rewards(data)

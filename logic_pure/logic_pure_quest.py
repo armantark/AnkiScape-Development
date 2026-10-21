@@ -2,6 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
@@ -1047,7 +1048,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     return bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
 
 
-def start_quest_pure(player_data, quest_id, quest_data):
+def start_quest_pure(player_data, quest_id, quest_data, *, assign_greeting=True):
     if not can_start_quest_pure(player_data, quest_id, quest_data):
         return player_data, False
     data = _copy_player_data_with_nested(player_data)
@@ -1063,6 +1064,8 @@ def start_quest_pure(player_data, quest_id, quest_data):
         state["progress"] = 0
         state["completed"] = False
     data.setdefault("quests", {})[quest_id] = state
+    if quest_id == "cold_war" and assign_greeting:
+        data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     data["current_quest"] = quest_id
     return data, True
 
@@ -1328,21 +1331,15 @@ def apply_quest_combat_encounter_pure(
 def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
-    data, ok = start_quest_pure(player_data, quest_id, quest_data)
-    if not ok:
+    data, ok = start_quest_pure(player_data, quest_id, quest_data, assign_greeting=False)
+    if not ok or quest_current_stage_blockers_pure(data, quest_id, quest_data):
         if include_clue_refusal:
             return player_data, False, False, ""
         return player_data, False, False
     quest = quest_data[quest_id]
     state = quest_state_pure(data, quest_id)
-    if state["completed"]:
-        if include_clue_refusal:
-            return data, False, False, ""
-        return data, False, False
-    if quest_current_stage_blockers_pure(data, quest_id, quest_data):
-        if include_clue_refusal:
-            return player_data, False, False, ""
-        return player_data, False, False
+    if quest_id == "cold_war":
+        data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     current_stage = quest_current_stage_pure(data, quest_id, quest_data)
     if _produce_repeatable_quest_stage_items(data, quest_id, quest):
         state["progress"] = current_stage
@@ -1446,7 +1443,7 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         rows.append(
             {
                 "stage": stage,
-                "lines": tuple(journal_stages.get(stage, ())),
+                "lines": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),
                 "completed": state["completed"] or stage < progress,
                 "current": (not state["completed"] and stage == progress),
             }

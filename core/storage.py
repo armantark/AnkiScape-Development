@@ -43,6 +43,11 @@ def load_player_data():
         loaded = mw.col.get_config(_PLAYER_DATA_RECOVERY_KEY)
     if loaded:
         player_data = migrate_loaded_data(dict(loaded), ORE_DATA, ITEM_DEFINITIONS)
+        greeting = player_data["cold_war_greeting"]
+        if greeting and greeting != loaded.get("cold_war_greeting"):
+            backfill = dict(loaded)
+            backfill["cold_war_greeting"] = list(greeting)
+            _save_player_data_config(backfill)
     else:
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
     current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
