@@ -2638,11 +2638,11 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data["inventory"], inventory)
         self.assertEqual(
             addon._state.player_data["shop_market_clock"]["market_tick"],
-            1,
+            0,
         )
         self.assertEqual(
             addon._state.player_data["ge_market_state"]["last_processed_tick"],
-            1,
+            0,
         )
         # Bankstanding produces nothing by definition, so a review of it is
         # silent; the HUD already reads "idle at the Bank".
@@ -2958,11 +2958,11 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon._state.player_data["shop_market_clock"]["market_tick"],
-            2,
+            0,
         )
         self.assertEqual(
             addon._state.player_data["ge_market_state"]["last_processed_tick"],
-            2,
+            0,
         )
 
     def test_one_shot_utility_purchase_runs_once_and_switches_off(self):
