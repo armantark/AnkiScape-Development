@@ -455,7 +455,7 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
         world_events = []
 
         for _ in range(GOBLIN_RAIDS_ACTIVE_REVIEWS):
-            player = advance_shop_market_clock_pure(player)
+            player = advance_shop_market_clock_pure(player, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
             player, ok, result = apply_goblin_raids_review_pure(
                 player,
                 draws,

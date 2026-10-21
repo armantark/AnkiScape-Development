@@ -548,7 +548,7 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
 
         # A real simulated week of answered cards is what re-opens the lair.
         for _ in range(skeletal_horror_view_pure(data)["reviews_to_entry"]):
-            data.update(advance_shop_market_clock_pure(data))
+            data.update(advance_shop_market_clock_pure(data, calendar_ticks_before=0, calendar_ticks_after=600 * (1)))
         self.assertTrue(skeletal_horror_view_pure(data)["entry_ready"])
 
         for data, result, _phase in self._fight_one(data, rng):

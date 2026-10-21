@@ -46,6 +46,7 @@ from .shop.state import (
     ensure_shop_state_pure,
     migrate_shop_diary_transaction_counts_pure as migrate_shop_diary_transaction_counts_pure,
     advance_shop_market_clock_pure as advance_shop_market_clock_pure,
+    count_answered_cards_pure as count_answered_cards_pure,
     shop_access_lock_reason_pure,
     resolve_shop_id,
     _clean_int,

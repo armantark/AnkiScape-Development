@@ -234,9 +234,9 @@ class TestShopLogic(unittest.TestCase):
 
     def test_market_clock_advances_on_answered_cards(self):
         data = build_shop_fixture_player_data()
-        advanced = advance_shop_market_clock_pure(data, answered_cards=10)
+        advanced = advance_shop_market_clock_pure(data, answered_cards=10, calendar_ticks_before=0, calendar_ticks_after=60)
         self.assertEqual(advanced["shop_market_clock"]["answered_cards"], 10)
-        self.assertEqual(advanced["shop_market_clock"]["market_tick"], 10)
+        self.assertEqual(advanced["shop_market_clock"]["market_tick"], 0)
         self.assertEqual(data["shop_market_clock"]["market_tick"], 0)
 
     def test_market_clock_shallow_path_matches_the_sanitized_deepcopy_result(self):
@@ -250,7 +250,7 @@ class TestShopLogic(unittest.TestCase):
         expected_clock["market_tick"] += 3
         expected["shop_market_clock"] = expected_clock
 
-        advanced = advance_shop_market_clock_pure(data, answered_cards=3)
+        advanced = advance_shop_market_clock_pure(data, answered_cards=3, calendar_ticks_before=0, calendar_ticks_after=600 * (3))
 
         self.assertEqual(advanced, expected)
         self.assertEqual(data["shop_market_clock"]["market_tick"], 0)
@@ -416,7 +416,7 @@ class TestShopLogic(unittest.TestCase):
         data = build_shop_fixture_player_data()
         updated, result = apply_shop_buy_pure(data, shop["id"], row["id"], 2)
         self.assertTrue(result["allowed"])
-        advanced = advance_shop_market_clock_pure(updated, answered_cards=row["restock_ticks"])
+        advanced = advance_shop_market_clock_pure(updated, answered_cards=row["restock_ticks"], calendar_ticks_before=0, calendar_ticks_after=600 * (row["restock_ticks"]))
         view = shop_view_model_pure(advanced, shop["id"])
         restocked_row = next(view_row for view_row in view["rows"] if view_row["id"] == row["id"])
         self.assertGreaterEqual(restocked_row["current_quantity"], row["default_quantity"] - result["quantity"] + 1)
@@ -1158,7 +1158,7 @@ class TestShopLogic(unittest.TestCase):
         view = shop_view_model_pure(data, shop["id"])
         sold_row = next(v for v in view["rows"] if v["id"] == row["id"])
         self.assertEqual(sold_row["current_quantity"], row["default_quantity"] + 5)
-        advanced = advance_shop_market_clock_pure(data, answered_cards=row["restock_ticks"])
+        advanced = advance_shop_market_clock_pure(data, answered_cards=row["restock_ticks"], calendar_ticks_before=0, calendar_ticks_after=600 * (row["restock_ticks"]))
         decayed = next(v for v in shop_view_model_pure(advanced, shop["id"])["rows"] if v["id"] == row["id"])
         self.assertEqual(decayed["current_quantity"], row["default_quantity"] + 4)
 

@@ -62,7 +62,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon._state.card_turned = True
         addon._state.answer_shown = True
         addon._state.exp_awarded = False
-        addon.advance_shop_market_clock_pure = lambda data: order.append("shop") or dict(data)
+        addon.advance_shop_market_clock_pure = lambda data, *_args, **_kwargs: order.append("shop") or dict(data)
         addon.advance_ge_market_tick_pure = (
             lambda data, **_kwargs: (order.append("ge") or dict(data), {})
         )
@@ -130,7 +130,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
             return original_tick(data, **kwargs)
 
         addon.advance_shop_market_clock_pure = (
-            lambda data: order.append("shop") or dict(data)
+            lambda data, *_args, **_kwargs: order.append("shop") or dict(data)
         )
         addon.advance_summoning_world_tick_pure = tracked_tick
         addon.runtime_actions.advance_farming_clock_for_review = (
@@ -141,7 +141,6 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(order, ["shop", "summoning", "farm"])
         follower = addon._state.player_data["summoning_state"]["active_follower"]
-        # The saved three cards migrate to 600 ticks; one speed-1 Again spends 6.
         self.assertEqual(follower["remaining_ticks"], 594)
         self.assertEqual(
             addon._state.player_data["summoning_state"]["summoning_points_current"],
@@ -222,6 +221,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
             **ge_logic.default_ge_state_pure(),
             "inventory": {"Coins": 1_000},
             "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "world_clock": {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 4794},
             "completed_achievements": [],
         }
         initial["ge_market_state"]["last_processed_tick"] = 7

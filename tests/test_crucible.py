@@ -131,7 +131,7 @@ def _play(player, seed, *, limit=200, until=None, reenter=False):
     draws = random.Random(seed).random
     results = []
     for _ in range(limit):
-        player = advance_shop_market_clock_pure(player)
+        player = advance_shop_market_clock_pure(player, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
         player, ok, result = apply_crucible_review_pure(
             player,
             draws,
@@ -438,7 +438,7 @@ class CrucibleArenaTest(unittest.TestCase):
         entered["shop_market_clock"]["answered_cards"] = (
             CRUCIBLE_EVENT_INTERVAL_REVIEWS - 1
         )
-        entered = advance_shop_market_clock_pure(entered)
+        entered = advance_shop_market_clock_pure(entered, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
 
         played, ok, result = apply_crucible_review_pure(
             entered,

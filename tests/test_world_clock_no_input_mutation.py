@@ -154,7 +154,7 @@ _CASES = (
     ),
     (
         "advance_shop_market_clock_pure",
-        lambda d: advance_shop_market_clock_pure(d),
+        lambda d: advance_shop_market_clock_pure(d, calendar_ticks_before=0, calendar_ticks_after=600 * (1)),
         ("shop_market_clock",),
     ),
     (

@@ -60,7 +60,7 @@ class MiningHelmetRatPoleTest(unittest.TestCase):
     def _fill(self):
         addon = self.addon
         shop = sys.modules[f"{addon.__name__}.logic.shop_logic"]
-        clocked = shop.advance_shop_market_clock_pure(addon._state.player_data)
+        clocked = shop.advance_shop_market_clock_pure(addon._state.player_data, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
         addon._state.player_data, result = self.ge.advance_ge_market_tick_pure(
             clocked, item_catalog=addon.GE_ITEM_CATALOG, random_draw=lambda: 0.0)
         self.assertEqual(len(result["fills"]), 1)

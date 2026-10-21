@@ -30,13 +30,13 @@ class TestShopRestock(unittest.TestCase):
         return next((row["current_quantity"] for row in view["rows"] if row["item_name"] == item_name), 0)
 
     def advance_and_buy_bait(self, reviews):
-        self.player = advance_shop_market_clock_pure(self.player, answered_cards=reviews)
+        self.player = advance_shop_market_clock_pure(self.player, answered_cards=reviews, calendar_ticks_before=0, calendar_ticks_after=600 * (reviews))
         self.buy("Fishing bait")
         self.player = json.loads(json.dumps(self.player))
 
     def test_purchases_preserve_accumulated_restock_time(self):
         self.buy("Small fishing net", 5)
-        control = advance_shop_market_clock_pure(self.player, answered_cards=50)
+        control = advance_shop_market_clock_pure(self.player, answered_cards=50, calendar_ticks_before=0, calendar_ticks_after=600 * (50))
         self.assertEqual(self.stock("Small fishing net", control), 1)
         for expected in (0, 1, 1, 2):
             self.advance_and_buy_bait(25)
@@ -54,7 +54,7 @@ class TestShopRestock(unittest.TestCase):
         self.buy("Bronze sword", 20)
         self.buy("Bronze arrows", 200)
         for reviews, swords, arrows in ((5, 0, 5), (5, 1, 10), (5, 1, 15), (5, 2, 20)):
-            self.player = advance_shop_market_clock_pure(self.player, answered_cards=reviews)
+            self.player = advance_shop_market_clock_pure(self.player, answered_cards=reviews, calendar_ticks_before=0, calendar_ticks_after=600 * (reviews))
             self.buy("Air rune")
             self.assertEqual(self.stock("Bronze sword"), swords)
             self.assertEqual(self.stock("Bronze arrows"), arrows)
@@ -73,13 +73,13 @@ class TestShopRestock(unittest.TestCase):
         self.assertTrue(result["allowed"], result)
         self.assertTrue(result["temporary_stock"])
         for expected in (1, 0):
-            self.player = advance_shop_market_clock_pure(self.player, answered_cards=25)
+            self.player = advance_shop_market_clock_pure(self.player, answered_cards=25, calendar_ticks_before=0, calendar_ticks_after=600 * (25))
             self.buy("Empty pot")
             self.assertEqual(self.stock("Beer"), expected)
 
     def test_undo_preserves_the_purchased_rows_restock_progress(self):
         self.buy("Small fishing net", 2)
-        self.player = advance_shop_market_clock_pure(self.player, answered_cards=25)
+        self.player = advance_shop_market_clock_pure(self.player, answered_cards=25, calendar_ticks_before=0, calendar_ticks_after=600 * (25))
         bought = self.buy("Small fishing net")
         self.player, result = rollback_shop_event_pure(self.player, bought["event_id"])
         self.assertTrue(result["allowed"], result)
@@ -89,14 +89,14 @@ class TestShopRestock(unittest.TestCase):
 
     def test_full_stock_does_not_bank_time_for_later_purchases(self):
         self.buy("Small fishing net", 5)
-        self.player = advance_shop_market_clock_pure(self.player, answered_cards=275)
+        self.player = advance_shop_market_clock_pure(self.player, answered_cards=275, calendar_ticks_before=0, calendar_ticks_after=600 * (275))
         self.buy("Small fishing net", 5)
         self.advance_and_buy_bait(25)
         self.assertEqual(self.stock("Small fishing net"), 0)
 
     def test_selling_past_default_does_not_carry_shortage_time_into_decay(self):
         self.buy("Small fishing net", 2)
-        self.player = advance_shop_market_clock_pure(self.player, answered_cards=40)
+        self.player = advance_shop_market_clock_pure(self.player, answered_cards=40, calendar_ticks_before=0, calendar_ticks_after=600 * (40))
         self.player["inventory"]["Small fishing net"] = 3
         self.player, result = apply_shop_sell_pure(self.player, self.shop_id, "Small fishing net", 3)
         self.assertTrue(result["allowed"], result)
@@ -107,7 +107,7 @@ class TestShopRestock(unittest.TestCase):
         self.player["inventory"]["Small fishing net"] = 1
         self.player, result = apply_shop_sell_pure(self.player, self.shop_id, "Small fishing net", 1)
         self.assertTrue(result["allowed"], result)
-        self.player = advance_shop_market_clock_pure(self.player, answered_cards=49)
+        self.player = advance_shop_market_clock_pure(self.player, answered_cards=49, calendar_ticks_before=0, calendar_ticks_after=600 * (49))
         self.buy("Small fishing net", 6)
         self.advance_and_buy_bait(1)
         self.assertEqual(self.stock("Small fishing net"), 0)

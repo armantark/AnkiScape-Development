@@ -79,7 +79,7 @@ class PiratesHookTradeabilityTest(unittest.TestCase):
         self.assertEqual(addon._state.player_data["ge_player_orders"][0]["escrow_items"], 1)
         ge_logic = sys.modules[f"{addon.__name__}.logic.grand_exchange_logic"]
         shop_logic = sys.modules[f"{addon.__name__}.logic.shop_logic"]
-        clocked = shop_logic.advance_shop_market_clock_pure(addon._state.player_data)
+        clocked = shop_logic.advance_shop_market_clock_pure(addon._state.player_data, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
         addon._state.player_data, filled = ge_logic.advance_ge_market_tick_pure(
             clocked, item_catalog=addon.GE_ITEM_CATALOG, random_draw=lambda: 0.0)
         self.assertEqual(len(filled["fills"]), 1, filled)

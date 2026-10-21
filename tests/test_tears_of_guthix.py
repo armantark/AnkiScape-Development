@@ -85,7 +85,7 @@ def _drain(data, rng, *, limit=200):
 
 def _advance_a_week(data):
     for _ in range(tears_of_guthix_view_pure(data)["reviews_to_entry"]):
-        data.update(advance_shop_market_clock_pure(data))
+        data.update(advance_shop_market_clock_pure(data, calendar_ticks_before=0, calendar_ticks_after=600 * (1)))
     return data
 
 
@@ -534,7 +534,7 @@ class TearsOfGuthixRealRewardPathTests(unittest.TestCase):
             pass
         for _ in range(TEARS_OF_GUTHIX_ENTRY_CAP + 3):
             for _card in range(TEARS_OF_GUTHIX_WEEK_REVIEWS):
-                data.update(advance_shop_market_clock_pure(data))
+                data.update(advance_shop_market_clock_pure(data, calendar_ticks_before=0, calendar_ticks_after=600 * (1)))
         self.assertEqual(
             tears_of_guthix_view_pure(data)["available_entries"],
             TEARS_OF_GUTHIX_ENTRY_CAP,
