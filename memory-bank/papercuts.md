@@ -755,3 +755,5 @@
 - 2026-10-21: The answered-card stun probe used `_summoned("spirit_wolf", "Spirit wolf pouch")`; its fixture raised `AssertionError` at `tests/pace/test_short_timers.py:47` because the ID was not accepted. Use the existing known `bunyip` fixture for this timer case.
 
 - 2026-10-21: The Settings hook reported `tools/maintenance/pace_close_visuals.py: E302 x1 (was 0)` after the helper split. Restored two blank lines between top-level definitions. The earlier successful UI proof stays valid.
+
+- 2026-10-21T11:49:48-07:00: The Settings geometry selector covered checkboxes and push buttons but omitted Widget Position radio buttons. Changed it to `QAbstractButton` in the test and capture utility; the all-button geometry case passes.

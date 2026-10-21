@@ -5,7 +5,7 @@ from unittest.mock import patch
 from tests.pace import test_pace_settings_qt as pace
 
 if pace.HAS_AQT:
-    from aqt.qt import QApplication, QCheckBox, QComboBox, QLabel, QPushButton, QScrollArea, QSpinBox, QWidget
+    from aqt.qt import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QScrollArea, QSpinBox, QWidget
     from tests import test_main_menu_widget as menu
 
 
@@ -17,7 +17,7 @@ class SettingsGeometryTests(pace.PaceQtCase):
         self.addCleanup(self.menu.tearDown)
 
     def _assert_settings_control_heights(self, page) -> None:
-        controls = (QLabel, QCheckBox, QPushButton, QSpinBox, QComboBox)
+        controls = (QLabel, QAbstractButton, QSpinBox, QComboBox)
         for control in page.findChildren(QWidget):
             if not control.isVisible() or not isinstance(control, controls):
                 continue

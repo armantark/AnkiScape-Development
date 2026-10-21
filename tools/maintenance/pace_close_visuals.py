@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from aqt.qt import QApplication, QCheckBox, QComboBox, QLabel, QPushButton, QSpinBox, QWidget
+from aqt.qt import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QSpinBox, QWidget
 from tests import test_main_menu_widget as menu
 from tests.pace.test_pace_settings_qt import _cut_off, _dark_palette
 from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
@@ -23,7 +23,7 @@ def settle():
 def control_clipped(control, text):
     if control.height() < control.minimumSizeHint().height():
         return True
-    if isinstance(control, (QCheckBox, QPushButton, QSpinBox, QComboBox)):
+    if isinstance(control, (QAbstractButton, QSpinBox, QComboBox)):
         return control.width() < control.minimumSizeHint().width()
     if not isinstance(control, QLabel) or not text:
         return False
@@ -35,7 +35,7 @@ def control_clipped(control, text):
 def control_geometry(page):
     rows = []
     for control in page.findChildren(QWidget):
-        if not control.isVisible() or not isinstance(control, (QLabel, QCheckBox, QPushButton, QSpinBox, QComboBox)):
+        if not control.isVisible() or not isinstance(control, (QLabel, QAbstractButton, QSpinBox, QComboBox)):
             continue
         text = getattr(control, "text", lambda: "")()
         rows.append({"name": control.objectName() or text, "text": text,
