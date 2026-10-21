@@ -29,6 +29,7 @@ class ParallelResultTests(unittest.TestCase):
         self.assertFalse(result.wasSuccessful())
         self.assertIn("worker ran 0 tests; assigned 1", output.getvalue())
         self.assertIn("FAILED (errors=1)", output.getvalue())
+        self.assertRegex(output.getvalue(), r"ERROR: test_missing \(tests.probe.Case.test_missing\)")
 
     def test_worker_failure_reaches_combined_report_with_rerunnable_id(self):
         class FailureProbe(unittest.TestCase):

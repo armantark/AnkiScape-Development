@@ -226,7 +226,7 @@ class ParallelSuite:
         except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.TimeoutExpired) as exc:
             ParallelSuite.stop_worker(process)
             log.seek(0)
-            test = ReportedTest(ids[0], f"parallel worker ({ids[0]})")
+            test = ReportedTest(ids[0], f"{ids[0].rsplit('.', 1)[-1]} ({ids[0]})")
             result.errors.append((test, f"{exc}\n{log.read()}"))
 
 
