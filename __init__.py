@@ -278,7 +278,6 @@ from .core.review_context import (
 from .data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
 from .logic.agility_travel import agility_carried_weight_pure
 from .logic.summoning_logic import (
-    advance_summoning_world_tick_pure,
     claim_familiarisation_reward_pure,
     dismiss_familiar_pure,
     reclaim_familiar_cargo_pure,
@@ -1140,6 +1139,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         switch_to_bankstanding=_switch_runtime_action,
         select_review_action=_select_review_action,
         review_action_multiplier=_review_action_multiplier(),
+        familiar_ticks_before=_state.familiar_ticks_before,
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
@@ -5198,6 +5198,7 @@ def _active_review_carried_target():
 
 
 def _advance_clocks_for_answer(successful_answer) -> None:
+    _state.familiar_ticks_before = None
     card_ticks = runtime_actions.card_ticks_pure(_review_action_multiplier())
     _state.player_data.update(advance_gnome_restaurant_clock_pure(
         _state.player_data, successful_answer=successful_answer,
@@ -5236,13 +5237,9 @@ def _advance_clocks_for_answer(successful_answer) -> None:
         _state.player_data.update(ge_updated)
     except Exception:
         pass
-    summoning_updated, _events = advance_summoning_world_tick_pure(
-        _state.player_data,
-        successful_answer=successful_answer,
-        active_carried_target=_active_review_carried_target(),
-        card_ticks=card_ticks,
+    _state.familiar_ticks_before = runtime_actions.advance_summoning_for_answer(
+        _runtime_action_context(), successful_answer, _active_review_carried_target(),
     )
-    _state.player_data.update(summoning_updated)
 
 
 def _advance_effects_for_answer(successful_answer) -> None:
@@ -5309,6 +5306,7 @@ def on_answer_card(self, ease, _old):
         _advance_effects_for_answer(successful_answer)
         _advance_farming_for_answer(answers_farm_step)
         _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, before_state)
+        _state.familiar_ticks_before = None
     _state.card_turned = False
     _state.answer_shown = False  # Reset for the next card
     try:

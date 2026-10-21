@@ -301,6 +301,7 @@ from ..logic.cadence_live import (
 )
 from ..data.summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
 from ..logic.summoning_logic import (
+    advance_summoning_world_tick_pure,
     apply_summoning_training_action_pure,
     familiar_effective_roll_level_pure,
     restore_summoning_points_pure,
@@ -393,6 +394,7 @@ from .runtime_actions_context import (
     RuntimeActionContext,
     stop_card,
     stun_card,
+    card_ticks_pure,
 )
 
 
@@ -965,3 +967,14 @@ def _award_skill_xp_rows(
         gained += ctx.award_skill_exp(exp_key, float(amount))
         ctx.level_up_check(display_name, ctx.player_data)
     return gained
+
+
+def advance_summoning_for_answer(ctx: RuntimeActionContext, successful_answer: bool, active_carried_target: Optional[str]) -> Optional[int]:
+    """Return the familiar's pre-drain lifetime, before expiry removes its state."""
+    updated, events = advance_summoning_world_tick_pure(
+        ctx.player_data, successful_answer=successful_answer,
+        active_carried_target=active_carried_target,
+        card_ticks=card_ticks_pure(ctx.review_action_multiplier),
+    )
+    ctx.player_data.update(updated)
+    return events["familiar_ticks_before"]

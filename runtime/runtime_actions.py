@@ -592,6 +592,7 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
     _award_action_xp_rewards,
     _charge_urn_for_action,
     _combat_review_ticks,
+    advance_summoning_for_answer,
     _combined_success_probability,
     _farming_levels_before_answer,
     _record_action,

@@ -588,7 +588,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    ctx.card.stop_reason = result.get("stop_reason", "")
+    result["stop_reason"] = ctx.card.record_tick_stop(result.get("ticks_elapsed", 0), result.get("stop_reason", ""))
     guild_result = {}
     if (
         target_id in {"cyclops", "cyclossus"}

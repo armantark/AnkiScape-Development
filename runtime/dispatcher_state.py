@@ -13,6 +13,7 @@ class DispatcherState:
     answer_shown: bool = False
     card_turned: bool = False
     exp_awarded: bool = False
+    familiar_ticks_before: int | None = None
     review_undo_stack: list = field(default_factory=list)
     direct_action_undo_stack: list = field(default_factory=list)
     review_feedback_context: dict | None = None

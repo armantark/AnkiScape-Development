@@ -909,6 +909,8 @@ def advance_summoning_world_tick_pure(
         updated.get("summoning_state"), summoning_level=level
     )
     result: dict[str, Any] = {
+        "familiar_ticks_before": (state["active_follower"].get("remaining_ticks")
+                                  if state["active_follower"].get("kind") == "familiar" else None),
         "expired_familiar": None,
         "expired_cargo_event": None,
         "lost_cargo_events": [],

@@ -720,3 +720,5 @@
 - 2026-10-20T23:23:52-07:00: Part G2 normal commit hook refused runtime handle_combat_answer CCN 136 (was 135), new spell helper cognitive 18, engine fan-out 27 (was 26), and a new danger_stops/combat-model import cycle; narrowed the LP helper dependency and moved tick settlement into the existing outcome owner.
 
 - 2026-10-20T23:24:49-07:00: Part G2 hook caught E303 x1 in logic_pure/logic_pure_combat_model.py after the LP helper move left excess blank lines; removed the redundant blank lines.
+
+- 2026-10-20T23:28:03-07:00: Part G3 preflight measured spend_card_budget cognitive 16 > 15; moved final stop settlement into CardBudget, its state owner. diff --check then caught runtime/runtime_actions_context.py:205: new blank line at EOF; trimmed the extra newline.

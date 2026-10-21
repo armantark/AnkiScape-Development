@@ -38,6 +38,17 @@ class CardBudget:
 
     ticks_remaining: int
     stop_reason: str = ""
+    exhaustion_reason: str = ""
+
+    def record_tick_stop(self, ticks_elapsed: int, reason: str) -> str:
+        self.stop_reason = reason
+        if not reason and ticks_elapsed >= self.ticks_remaining:
+            self.stop_reason = self.exhaustion_reason
+        return self.stop_reason
+
+    def record_step_stop(self, handler_key: str = "") -> None:
+        if handler_key != "combat" and self.ticks_remaining == 0 and not self.stop_reason:
+            self.stop_reason = self.exhaustion_reason
 
 
 @dataclass
@@ -72,10 +83,14 @@ class RuntimeActionContext:
     select_review_action: Optional[Callable[[str], bool]] = None
     refresh_carried_inventory: Optional[Callable[[], None]] = None
     card: Optional[CardBudget] = None
+    familiar_ticks_before: Optional[int] = None
 
     def __post_init__(self) -> None:
         if self.card is None:
             self.card = CardBudget(card_ticks_pure(self.review_action_multiplier))
+        if self.familiar_ticks_before is not None and 0 < self.familiar_ticks_before < self.card.ticks_remaining:
+            self.card.ticks_remaining = self.familiar_ticks_before
+            self.card.exhaustion_reason = "familiar_ended"
 
 
 def stop_card(ctx: RuntimeActionContext, reason: str) -> None:
@@ -147,6 +162,7 @@ def spend_card_on_farm_queue(
         ctx.card.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
         step = next_step
     _settle_card_tick_debt(ctx)
+    ctx.card.record_step_stop()
     return step is next_step
 
 
@@ -184,4 +200,5 @@ def spend_card_budget(
         if activity_session_cleared(before_session, ctx.player_data.get("activity_session")):
             break
     _settle_card_tick_debt(ctx)
+    budget.record_step_stop(handler_key)
     return progressed
