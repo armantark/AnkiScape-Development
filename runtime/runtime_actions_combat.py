@@ -594,46 +594,21 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         target_id in {"cyclops", "cyclossus"}
         and result.get("reason") == "combat_burst"
     ):
-        payment_state = sanitize_warriors_guild_state_pure(
-            new_data.get("warriors_guild")
-        )
         new_data, token_result = consume_warriors_guild_cyclops_tokens_pure(
             new_data,
             int(result.get("ticks_elapsed", 0) or 0),
         )
-        if target_id == "cyclops":
-            new_data, defender_result = apply_warriors_guild_cyclops_kills_pure(
-                new_data,
-                int(result.get("kills", 0) or 0),
-                ctx.random_random,
-            )
-            if defender_result.get("cyclossus_spawned"):
-                new_data["current_combat_target"] = "cyclossus"
-        else:
-            new_data, defender_result = apply_warriors_guild_cyclossus_kills_pure(
-                new_data,
-                int(result.get("kills", 0) or 0),
-            )
-            if defender_result.get("cleared"):
-                new_data["current_combat_target"] = "cyclops"
+        defender_result = result.get("guild_kill_rewards", {})
+        if token_result.get("ejected"):
+            defender_result["cyclossus_spawned"] = False
+        if defender_result.get("cyclossus_spawned"):
+            new_data["current_combat_target"] = "cyclossus"
+        elif defender_result.get("cleared"):
+            new_data["current_combat_target"] = "cyclops"
         guild_result = {
             "tokens": token_result,
             "defenders": defender_result,
         }
-        if payment_state["payment_mode"] == "multi" and int(result.get("kills", 0) or 0) > 0:
-            extra_bones = int(result.get("kills", 0) or 0)
-            inventory = dict(new_data.get("inventory", {}) or {})
-            inventory["Big bones"] = int(inventory.get("Big bones", 0) or 0) + extra_bones
-            new_data["inventory"] = inventory
-            result_drops = dict(result.get("drops", {}) or {})
-            result_drops["Big bones"] = int(result_drops.get("Big bones", 0) or 0) + extra_bones
-            result["drops"] = result_drops
-        defender_drops = dict(defender_result.get("drops", {}) or {})
-        if defender_drops:
-            result_drops = dict(result.get("drops", {}) or {})
-            for item_name, amount in defender_drops.items():
-                result_drops[item_name] = int(result_drops.get(item_name, 0) or 0) + int(amount)
-            result["drops"] = result_drops
         if result.get("died") or result.get("fled"):
             guild_state = sanitize_warriors_guild_state_pure(
                 new_data.get("warriors_guild")
@@ -669,13 +644,6 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data["loot_overrides"] = overrides
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
-        if target_id in {"cyclops", "cyclossus"}:
-            for item_name in (
-                guild_result.get("defenders", {}).get("drops", {})
-                if isinstance(guild_result, dict)
-                else {}
-            ):
-                overrides[str(item_name)] = "keep"
         drops, left = inventory_pure.filter_loot_pure(
             drops, ITEM_VALUES, threshold, STACKABLE_ITEM_NAMES, overrides
         )

@@ -6,10 +6,21 @@ that can follow a burst the player survived."""
 from ..data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
 from ..data.prayer_data import COMBAT_PRAYERS_BY_ID
 from ..logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD, carried_fold_gains_pure, filter_loot_pure
-from .logic_pure_combat_model import combat_observed_drop_item_names_pure
+from .logic_pure_combat_model import (
+    _combat_apply_triple_charm_reward,
+    _combat_roll_drops,
+    _record_combat_observed_drops_pure,
+    combat_observed_drop_item_names_pure,
+)
+from .logic_pure_urns import resolve_prayer_kill_effects_pure
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.pace.danger_stops import low_lifepoints_without_food_pure
 from ..logic.equipment_instance_logic import advance_equipped_condition_pure
+from ..logic.warriors_guild_logic import (
+    apply_warriors_guild_cyclops_kills_pure,
+    apply_warriors_guild_cyclossus_kills_pure,
+    sanitize_warriors_guild_state_pure,
+)
 from .logic_pure_combat_food import _combat_consume_auto_food
 from .logic_pure_combat_model import _combat_apply_pvm_death, _combat_apply_wilderness_ambush
 from .logic_pure_combat_specials import _combat_death_prayer_damage
@@ -84,6 +95,61 @@ def _combat_pending_bank_view(data, target_id, drops, observed_before):
     carried[target_id] = carried_fold_gains_pure(carried.get(target_id), kept, STACKABLE_ITEM_NAMES)
     view["carried_inventory"] = carried
     return view
+
+
+def _combat_collect_guild_kill_rewards(data, target_id, rng, pending_drops, guild_rewards):
+    if target_id not in {"cyclops", "cyclossus"}:
+        return {}
+    ownership = _combat_drop_ownership_view(data, pending_drops)
+    if target_id == "cyclops":
+        rewarded, event = apply_warriors_guild_cyclops_kills_pure(ownership, 1, rng)
+        guild_rewards["cyclossus_spawned"] = bool(
+            guild_rewards.get("cyclossus_spawned") or event["cyclossus_spawned"]
+        )
+        guild_rewards["chance"] = event["chance"]
+        guild_rewards["cyclossus_chance"] = event["cyclossus_chance"]
+    else:
+        rewarded, event = apply_warriors_guild_cyclossus_kills_pure(ownership, 1)
+        guild_rewards["kills"] = guild_rewards.get("kills", 0) + 1
+        guild_rewards["cleared"] = event["cleared"]
+    data["warriors_guild"] = rewarded["warriors_guild"]
+    defender_drops = event.get("drops", {})
+    recorded_drops = guild_rewards.setdefault("drops", {})
+    overrides = dict(data.get("loot_overrides") or {})
+    for item, amount in defender_drops.items():
+        recorded_drops[item] = recorded_drops.get(item, 0) + amount
+        overrides[item] = "keep"
+    data["loot_overrides"] = overrides
+    drops = dict(defender_drops)
+    if sanitize_warriors_guild_state_pure(data.get("warriors_guild"))["payment_mode"] == "multi":
+        drops["Big bones"] = drops.get("Big bones", 0) + 1
+    return drops
+
+
+def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards, guild_rewards):
+    rolled_drops, refused_clue = _combat_roll_drops(
+        enemy,
+        rng,
+        _combat_drop_ownership_view(data, drops),
+        include_clue_refusal=True,
+    )
+    kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+    _record_combat_observed_drops_pure(data, target_id, kill_drops)
+    data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
+        data,
+        target_id,
+        kill_drops,
+        bool(data.get("combat_auto_prayer_training")),
+    )
+    if passive_prayer_xp > 0:
+        xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+    # Every item source joins this bundle before the kill's continuation check.
+    guild_drops = _combat_collect_guild_kill_rewards(data, target_id, rng, drops, guild_rewards)
+    for item, amount in guild_drops.items():
+        kill_drops[item] = kill_drops.get(item, 0) + amount
+    for drop_name, drop_amount in kill_drops.items():
+        drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+    return data, refused_clue, prayer_ticks
 
 
 def _combat_bank_burst_rewards(data, ticks_elapsed, drops, xp_rewards):

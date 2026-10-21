@@ -486,11 +486,16 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
             "kills": 1,
             "died": False,
             "fled": False,
-            "drops": {"Big bones": 1},
+            "drops": {"Big bones": 2, "Bronze defender": 1},
+            "guild_kill_rewards": {"drops": {"Bronze defender": 1}},
             "xp_rewards": {"attack_exp": 300.0, "constitution_exp": 99.75},
         }
         burst_state = copy.deepcopy(player)
-        burst_state["inventory"]["Big bones"] = 1
+        burst_state["inventory"]["Big bones"] = 2
+        burst_state["inventory"]["Bronze defender"] = 1
+        burst_state["loot_overrides"]["Bronze defender"] = "keep"
+        burst_state["warriors_guild"]["cyclops_kills"] = 1
+        burst_state["warriors_guild"]["defender_drops"] = 1
         burst_state["attack_exp"] += 300.0
         burst_state["constitution_exp"] += 99.75
 
@@ -534,11 +539,15 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
             "died": False,
             "fled": False,
             "drops": {},
+            "guild_kill_rewards": {"cyclossus_spawned": True},
             "xp_rewards": {},
         }
+        burst_state = copy.deepcopy(player)
+        burst_state["warriors_guild"]["cyclops_kills"] = 1
+        burst_state["warriors_guild"]["cyclossus_pending"] = True
         with patch(
             "ankiscape.runtime.runtime_actions_combat.apply_combat_burst_pure",
-            return_value=(copy.deepcopy(player), True, result),
+            return_value=(burst_state, True, result),
         ):
             self.assertTrue(handle_combat_answer(ctx))
         self.assertEqual(player["current_combat_target"], "cyclossus")

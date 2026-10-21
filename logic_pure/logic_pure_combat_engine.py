@@ -2,7 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 from .combat_lure import prepare_combat_lure_encounter_pure
-from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop, _combat_drop_ownership_view
+from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop, _combat_drop_ownership_view, _combat_settle_kill_rewards
 from .logic_pure_combat_setup import _combat_spell_enemy_state
 
 from ..logic.equipment_instance_logic import (
@@ -889,28 +889,6 @@ def reclaim_death_office_items_pure(player_data):
     return data, True, ""
 
 
-def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards):
-    rolled_drops, refused_clue = _combat_roll_drops(
-        enemy,
-        rng,
-        _combat_drop_ownership_view(data, drops),
-        include_clue_refusal=True,
-    )
-    kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
-    _record_combat_observed_drops_pure(data, target_id, kill_drops)
-    data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
-        data,
-        target_id,
-        kill_drops,
-        bool(data.get("combat_auto_prayer_training")),
-    )
-    if passive_prayer_xp > 0:
-        xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
-    for drop_name, drop_amount in kill_drops.items():
-        drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
-    return data, refused_clue, prayer_ticks
-
-
 def _combat_enemy_attack_rolls(
     data,
     enemy,
@@ -1344,6 +1322,7 @@ def apply_combat_burst_pure(
     dragonfire_effect_tick = 0
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
+    guild_rewards = {}
     observed_before = set(combat_observed_drop_item_names_pure(data, target_id))
     clue_refusal_reason = ""
     kills = 0
@@ -1484,7 +1463,7 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
-                    data, enemy, target_id, rng, drops, xp_rewards
+                    data, enemy, target_id, rng, drops, xp_rewards, guild_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
@@ -1610,7 +1589,7 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
-                    data, enemy, target_id, rng, drops, xp_rewards
+                    data, enemy, target_id, rng, drops, xp_rewards, guild_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
@@ -1761,6 +1740,7 @@ def apply_combat_burst_pure(
             else ""
         ),
         "drops": drops,
+        "guild_kill_rewards": guild_rewards,
         "clue_refusal_reason": clue_refusal_reason,
         "xp_rewards": xp_rewards,
         "prayer_points_before": prayer_points_before,
