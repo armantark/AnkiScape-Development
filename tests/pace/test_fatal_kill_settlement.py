@@ -174,6 +174,24 @@ class FatalKillSettlementTests(unittest.TestCase):
                 self.assertEqual(result["drops"], {"Cowhide": 1, "Raw beef": 1})
                 self.assertEqual(updated["combat_encounter"], {})
 
+        with self.subTest(legacy_direct_mutual_death=True):
+            player = _player(current_combat_target="cow", combat_auto_flee=False,
+                             equipment={"weapon": "Bronze sword"}, combat_lifepoints=10)
+            enemy = deepcopy(COMBAT_ENEMY_DATA["cow"])
+            enemy.update(melee_recoil_damage=10, drops={"guaranteed": (("Bones", 1),), "tables": ()})
+            enemy["stats"]["hitpoints"] = 1
+            with patch.object(engine, "_combat_roll_hit", side_effect=lambda *_args, **kw: (True, 1) if "blocked" in kw else (False, 0)):
+                _updated, ok, result = engine.apply_combat_burst_pure(
+                    player, {"cow": enemy}, EQUIPMENT_DATA, ticks=10,
+                    rng=lambda: 0.999999, live_cadence=False,
+                )
+            self.assertTrue(ok, result)
+            self.assertEqual((result["kills"], result["ticks_elapsed"], result["enemy_lifepoints"]), (3, 10, 1))
+            self.assertTrue(result["died"])
+            self.assertEqual(result["stop_reason"], "")
+            self.assertEqual(result["drops"], {"Bones": 3})
+            self.assertEqual(result["xp_rewards"], {"attack_exp": 1.17, "constitution_exp": 0.38902500000000007})
+
     def test_safe_death_and_no_grave_keep_their_cleanup_when_a_death_prayer_kills(self):
         for live in (False, True):
             for flags in ({"safe_death": True}, {"no_grave": True}):

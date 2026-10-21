@@ -151,6 +151,36 @@ def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards, 
     return data, refused_clue, prayer_ticks
 
 
+class _CombatKillSettlement:
+    """One reward owner per burst; only respawn rearms the defeated-enemy guard."""
+
+    def __init__(self, enemy, target_id, rng, drops, xp_rewards, guild_rewards):
+        self.enemy = enemy
+        self.target_id = target_id
+        self.rng = rng
+        self.drops = drops
+        self.xp_rewards = xp_rewards
+        self.guild_rewards = guild_rewards
+        self.kills = 0
+        self.clue_refusal_reason = ""
+        self._enemy_settled = False
+
+    def settle(self, data, enemy_lp):
+        if enemy_lp > 0 or self._enemy_settled:
+            return data, 0
+        data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
+            data, self.enemy, self.target_id, self.rng,
+            self.drops, self.xp_rewards, self.guild_rewards,
+        )
+        self.kills += 1
+        self.clue_refusal_reason = self.clue_refusal_reason or refused_clue
+        self._enemy_settled = True
+        return data, prayer_ticks
+
+    def respawn(self):
+        self._enemy_settled = False
+
+
 def _combat_bank_burst_rewards(data, ticks_elapsed, drops, xp_rewards):
     """Wear the equipped items for the ticks the burst ran, then bank its drops
     and experience. Returns the player data and the equipment wear events."""

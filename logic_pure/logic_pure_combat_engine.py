@@ -2,7 +2,6 @@
 
 from typing import Iterable, Mapping, Optional
 from .combat_lure import prepare_combat_lure_encounter_pure
-from .logic_pure_combat_outcome import _combat_tick_stop_reason, _combat_result_stop_reason, _combat_kill_boundary_stop, _combat_drop_ownership_view, _combat_settle_kill_rewards
 from .logic_pure_combat_setup import _combat_spell_enemy_state
 
 from ..logic.equipment_instance_logic import (
@@ -487,6 +486,11 @@ from .logic_pure_combat_risk import (
     _combat_preview_with_risk,
 )
 from .logic_pure_combat_outcome import (
+    _CombatKillSettlement,
+    _combat_drop_ownership_view,
+    _combat_kill_boundary_stop,
+    _combat_result_stop_reason,
+    _combat_tick_stop_reason,
     _combat_advance_status_tick,
     _combat_bank_burst_rewards,
     _combat_settle_burst_outcome,
@@ -1324,8 +1328,7 @@ def apply_combat_burst_pure(
     drops = {}
     guild_rewards = {}
     observed_before = set(combat_observed_drop_item_names_pure(data, target_id))
-    clue_refusal_reason = ""
-    kills = 0
+    kill_rewards = _CombatKillSettlement(enemy, target_id, rng, drops, xp_rewards, guild_rewards)
     stop_on_kill = stop_after_first_kill or not start_equipment_active
     died = False
     fled = False
@@ -1460,7 +1463,7 @@ def apply_combat_burst_pure(
                     _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
                 elif damage > 0:
                     _combat_apply_xp(xp_rewards, melee_xp_style_id, damage, npc_xp_multiplier)
-                if died:
+                if died and enemy_lp > 0:
                     break
 
             if 0 < enemy_lp <= retaliation_stop_lifepoints:
@@ -1573,31 +1576,20 @@ def apply_combat_burst_pure(
                     if potion_event:
                         potions_used.append(potion_event)
         finally:
-            # Every tick exit passes here before rewards are banked or a grave is made.
-            if died and ("wrath" in selected_prayers or "retribution" in selected_prayers):
-                death_burst, _automatic_finisher = _combat_death_prayer_damage(
-                    data, selected_prayers, finisher, enemy_lp, rng
-                )
-                enemy_lp -= death_burst
-                player_damage += death_burst
-            if enemy_lp <= 0:
-                kills += 1
-                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
-                    data, enemy, target_id, rng, drops, xp_rewards, guild_rewards
-                )
-                clue_refusal_reason = clue_refusal_reason or refused_clue
-                next_player_attack += prayer_ticks
+            data, prayer_ticks = kill_rewards.settle(data, enemy_lp)
+            next_player_attack += prayer_ticks
         if enemy_lp <= 0:
             # A fresh enemy waits its attack delay; the player's weapon
             # cooldown continues across kills.
             stop_reason, fled = _combat_kill_boundary_stop(
-                data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
+                data, live_cadence and stop_on_danger, kill_rewards.kills, stop_after_kills, allow_bank_run,
                 target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
                 player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
             )
             if stop_reason or stop_on_kill:
                 break
             enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
+            kill_rewards.respawn()
             next_enemy_attack = tick + 1 + enemy_attack_speed
             magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
                 spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
@@ -1609,11 +1601,19 @@ def apply_combat_burst_pure(
             fled = stop_reason == "fled"
             break
 
+    if died and ("wrath" in selected_prayers or "retribution" in selected_prayers):
+        death_burst, _automatic_finisher = _combat_death_prayer_damage(
+            data, selected_prayers, finisher, enemy_lp, rng
+        )
+        enemy_lp -= death_burst
+        player_damage += death_burst
+    data, _prayer_ticks = kill_rewards.settle(data, enemy_lp)
+
     data, equipment_condition_events = _combat_bank_burst_rewards(
         data, ticks_elapsed, drops, xp_rewards
     )
     player_lp, carry_encounter = _combat_settle_burst_outcome(
-        data, target_id, kills, died, fled, player_lp, max_player_lp,
+        data, target_id, kill_rewards.kills, died, fled, player_lp, max_player_lp,
         enemy_lp, enemy_max_lp,
         live_cadence=live_cadence, safe_death=safe_death, no_grave=no_grave, enemy=enemy,
     )
@@ -1695,8 +1695,8 @@ def apply_combat_burst_pure(
         "enemy_retaliation_stopped": retaliation_stopped,
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,
-        "killed": kills > 0,
-        "kills": kills,
+        "killed": kill_rewards.kills > 0,
+        "kills": kill_rewards.kills,
         "died": died,
         "fled": fled,
         "familiar_escape": familiar_escape,
@@ -1727,7 +1727,7 @@ def apply_combat_burst_pure(
         ),
         "drops": drops,
         "guild_kill_rewards": guild_rewards,
-        "clue_refusal_reason": clue_refusal_reason,
+        "clue_refusal_reason": kill_rewards.clue_refusal_reason,
         "xp_rewards": xp_rewards,
         "prayer_points_before": prayer_points_before,
         "prayer_points_after": prayer_points_after,
