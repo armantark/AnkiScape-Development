@@ -34,6 +34,7 @@ class DiaryLamp:
     minimum_level: int = 1
     # Empty means the player may point the lamp at any skill above the minimum.
     skills: Tuple[str, ...] = ()
+    source: str = ""
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,11 @@ class DiaryTier:
     # while the pinned source roster is incomplete; zero keeps small synthetic
     # tiers and old callers using their explicit task tuple as the denominator.
     designed_task_count: int = 0
+    extra_lamps: Tuple[DiaryLamp, ...] = ()
+
+    @property
+    def lamps(self) -> Tuple[DiaryLamp, ...]:
+        return ((self.lamp,) if self.lamp is not None else ()) + self.extra_lamps
 
     @property
     def total_tasks(self) -> int:

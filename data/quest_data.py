@@ -14,7 +14,7 @@ from .quest.catalog_overrides import *
 from .quest.stage_requirements import *
 from .quest.stage_additions import *
 from .quest.stage_cleanups import *
-from .quest.combat_replacements import *
+from .quest.combat_replacements import QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID
 from .quest.catalog import *
 from .quest.ledger import *
 from .quest.serializers import *
@@ -701,6 +701,7 @@ __all__ = (
     'TREE_GNOME_VILLAGE_STAGES',
     'QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID',
     'QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID',
+    'QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID',
     'QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID',
     'QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID',
     'QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID',

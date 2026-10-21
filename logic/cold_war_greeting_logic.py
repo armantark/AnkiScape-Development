@@ -3,7 +3,7 @@
 import random
 from collections.abc import Mapping
 
-from ...data.cold_war_greeting_data import COLD_WAR_GREETING_EMOTES, COLD_WAR_GREETING_LENGTH
+from ..data.cold_war_greeting_data import COLD_WAR_GREETING_EMOTES, COLD_WAR_GREETING_LENGTH
 
 
 def sanitize_cold_war_greeting_pure(raw):

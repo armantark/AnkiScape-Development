@@ -91,11 +91,7 @@ from .constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
-from .persistence.quest_state import (
-    _migrate_quest_state,
-    ensure_cold_war_greeting_pure,
-)
-from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states, default_quest_states
+from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
 from ..logic.wicked_hood_logic import (
@@ -108,14 +104,13 @@ from ..data.fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
 from ..data.hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
 from ..data.herblore_data import DEFAULT_HERBLORE_TARGET, HERBLORE_TARGETS_BY_ID
 from ..data.fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
-from ..logic_pure.quest_action_proofs import sanitize_quest_action_proofs_pure
+from .quest_storage import default_quest_side_state, migrate_quest_data
 from ..logic_pure.logic_pure import (
     default_action_telemetry_pure,
     default_achievement_progress_pure,
     default_combat_state_pure,
     default_mage_arena_state_pure,
     MAGE_ARENA_GOD_DATA,
-    default_quest_combat_active_encounters_pure,
     default_red_sandstone_daily_state_pure,
     default_stronghold_state_pure,
     calculate_new_level,
@@ -126,7 +121,6 @@ from ..logic_pure.logic_pure import (
     sanitize_achievement_progress_pure,
     sanitize_combat_state_pure,
     sanitize_mage_arena_state_pure,
-    sanitize_quest_combat_active_encounters_pure,
     red_sandstone_daily_state_pure,
     sanitize_stronghold_state_pure,
 )
@@ -228,7 +222,8 @@ from ..logic.shades_of_mortton_logic import (
     default_shades_of_mortton_state_pure,
     sanitize_shades_of_mortton_state_pure,
 )
-from ..data.achievement_diary_data import DIARY_LAMP_CLAIM_IDS_BY_TIER
+from ..data.achievement_diary_data import DIARY_LAMP_CLAIM_IDS_BY_TIER, DIARY_ALL_LAMP_CLAIM_IDS_BY_TIER
+from ..logic.achievement_diaries.lamp_migration import migrate_missing_diary_lamps_pure
 from ..logic.achievement_diary_logic import (
     default_achievement_diary_state_pure,
     refresh_achievement_diaries_pure,
@@ -363,7 +358,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 124
+CURRENT_CONFIG_VERSION = 125
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -707,14 +702,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
     data.update(default_equipment_instance_state_pure())
-    data["quests"] = default_quest_states()
+    data.update(default_quest_side_state())
     data["cold_war_greeting"] = []
-    data["quest_points"] = 0
-    data["quest_combat_encounters"] = {}
-    data["quest_combat_encounter_counts"] = {}
-    data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
-    data["quest_action_proofs"] = []
-    data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
     data["wicked_hood"] = default_wicked_hood_state_pure(0)
@@ -904,67 +893,6 @@ def _migrate_herblore_target(data: Dict[str, Any]) -> None:
     data["current_herblore"] = current_herblore
 
 
-def _migrate_quest_flag_collection(data: Dict[str, Any], key: str) -> None:
-    raw_collection = data.get(key)
-    clean: Dict[str, list[str]] = {}
-    if isinstance(raw_collection, dict):
-        for quest_id, raw_flags in raw_collection.items():
-            if not isinstance(quest_id, str):
-                continue
-            if isinstance(raw_flags, str):
-                flags = [raw_flags]
-            elif isinstance(raw_flags, dict):
-                flags = [flag for flag, enabled in raw_flags.items() if isinstance(flag, str) and bool(enabled)]
-            elif isinstance(raw_flags, (list, tuple, set)):
-                flags = [flag for flag in raw_flags if isinstance(flag, str)]
-            else:
-                flags = []
-            if flags:
-                clean[quest_id] = sorted(set(flags))
-    data[key] = clean
-
-
-def _migrate_quest_combat_encounter_counts(data: Dict[str, Any]) -> None:
-    raw_collection = data.get("quest_combat_encounter_counts")
-    clean: Dict[str, Dict[str, int]] = {}
-    if isinstance(raw_collection, dict):
-        for quest_id, raw_counts in raw_collection.items():
-            if not isinstance(quest_id, str) or not isinstance(raw_counts, dict):
-                continue
-            quest_counts: Dict[str, int] = {}
-            for encounter_id, raw_count in raw_counts.items():
-                if not isinstance(encounter_id, str):
-                    continue
-                try:
-                    count = int(raw_count)
-                except (TypeError, ValueError):
-                    continue
-                if count > 0:
-                    quest_counts[encounter_id] = count
-            if quest_counts:
-                clean[quest_id] = quest_counts
-    data["quest_combat_encounter_counts"] = clean
-
-
-def _migrate_quest_stage_side_state(data: Dict[str, Any], version: int) -> None:
-    if version < 124:
-        data.pop("quest_combat_config", None)
-    _migrate_quest_flag_collection(data, "quest_combat_encounters")
-    _migrate_quest_combat_encounter_counts(data)
-    data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
-        data.get("quest_combat_active_encounters")
-    )
-    data.pop("quest_stage_actions", None)
-    _migrate_quest_flag_collection(data, "quest_route_states")
-
-
-def _migrate_quest_action_proofs(data: Dict[str, Any], loaded_config_version: int) -> None:
-    proofs = sanitize_quest_action_proofs_pure(data.get("quest_action_proofs")) if loaded_config_version >= 122 else []
-    if loaded_config_version < CURRENT_CONFIG_VERSION:
-        proofs = [proof for proof in proofs if proof not in RETIRED_QUEST_ACTION_PROOFS]
-    data["quest_action_proofs"] = proofs
-
-
 def _migrate_druidic_ritual_rework(
     data: Dict[str, Any], loaded_config_version: int
 ) -> None:
@@ -1078,7 +1006,7 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
     if isinstance(claims, dict):
         for claim_id, default_state in clean_claims.items():
             clean_claims[claim_id] = _clean_claim_state(claims.get(claim_id), default_state)
-        for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
+        for claim_id in (claim_id for ids in DIARY_ALL_LAMP_CLAIM_IDS_BY_TIER.values() for claim_id in ids):
             if isinstance(claims.get(claim_id), (bool, dict)):
                 clean_claims[claim_id] = _clean_claim_state(claims[claim_id], {"claimed": False})
     data["claims"] = clean_claims
@@ -1144,7 +1072,7 @@ def _migrate_legacy_claimed_diary_lamps(data: Dict[str, Any]) -> None:
         for tier_id in claimed_tiers:
             claim_id = DIARY_LAMP_CLAIM_IDS_BY_TIER.get(tier_id)
             if claim_id is not None:
-                clean_claims[claim_id] = {"claimed": True}
+                clean_claims.setdefault(claim_id, {})["claimed"] = True
     data["claims"] = clean_claims
 
 
@@ -1499,10 +1427,7 @@ def migrate_loaded_data(
     _migrate_cooking_target(data)
     _migrate_runecrafting_target(data)
     _migrate_herblore_target(data)
-    _migrate_quest_state(data)
-    data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
-    _migrate_quest_stage_side_state(data, loaded_config_version)
-    _migrate_quest_action_proofs(data, loaded_config_version)
+    migrate_quest_data(data, loaded_config_version, CURRENT_CONFIG_VERSION, RETIRED_QUEST_ACTION_PROOFS)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     # v118 moves two guaranteed completion items behind later Bill Teach
@@ -2348,7 +2273,7 @@ def migrate_loaded_data(
             data.setdefault(key, value)
     # v103: the quest ledger grows its first two miniquest rows, The Hunt for
     # Surok and The Lair of Tarn Razorlor. They are ordinary quest rows, so
-    # `_migrate_quest_state` above already adds their unstarted state to every
+    # Quest migration already adds their unstarted state to every
     # existing save; nothing else in the payload changes.
     # v104: D&D notifications become strictly opt-in. The old world-clock trio
     # was an implicit projection default, never stored in this list, so the
@@ -2390,11 +2315,10 @@ def migrate_loaded_data(
     # migration above attaches tools already owned under the old auto-resolution
     # contract once; tools bought after this version remain in the Bank until the
     # player explicitly attaches them.
-    # v107: diary tier claims stop applying XP directly and create Bank Claims.
-    # Older claimed tiers already received that XP, so their generated claim is
-    # retired during migration rather than paying the same lamp twice.
+    # v107 retires original direct XP payments before v125 adds missing lamps.
     if loaded_config_version < 107:
         _migrate_legacy_claimed_diary_lamps(data)
+    migrate_missing_diary_lamps_pure(data, loaded_config_version)
     # v108 activates ledger-output and exact shop-transaction diary predicates.
     # Newly relevant held outputs seed once under the semantics contract; the
     # shop seed preserves durable counters beyond the bounded event history.

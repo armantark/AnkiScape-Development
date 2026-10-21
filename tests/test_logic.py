@@ -8501,11 +8501,11 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(ernest["inventory"]["Feather"], 300)
 
         black = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        black["quest_points"] = 11
-        self.assertFalse(can_start_quest_pure(black, "black_knights_fortress", QUEST_DATA))
-        self.assertEqual(quest_locked_reasons_pure(black, "black_knights_fortress", QUEST_DATA), ("12 quest points",))
-
         black["quest_points"] = 12
+        self.assertFalse(can_start_quest_pure(black, "black_knights_fortress", QUEST_DATA))
+        self.assertEqual(quest_locked_reasons_pure(black, "black_knights_fortress", QUEST_DATA), ("13 quest points",))
+
+        black["quest_points"] = 13
         black["equipment"] = {"body": "Iron chainbody", "head": "Bronze med helm"}
         black, ok = start_quest_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
@@ -8556,7 +8556,7 @@ class TestLogic(unittest.TestCase):
                 "Report the ruined potion to Sir Amik Varze",
             ),
         )
-        self.assertEqual(black["quest_points"], 15)
+        self.assertEqual(black["quest_points"], 16)
         self.assertEqual(black["inventory"]["Coins"], 2500)
 
     def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
