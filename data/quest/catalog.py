@@ -7,6 +7,7 @@ from .sources import *
 from .item_names import *
 from .choices import *
 from .catalog_overrides import *
+from .catalog_overrides import QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID
 from .stage_requirements import *
 from .stage_additions import *
 from .stage_cleanups import *
@@ -286,6 +287,18 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
     lamp_rewards = _catalog_lamp_rewards(row, quest_id)
     unlocks = tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ()))
     unlocks = QUEST_UNLOCK_REPLACEMENTS_BY_ID.get(quest_id, unlocks)
+    if quest_id == "legends_quest":
+        row = dict(row)
+        row["required_quest_points"] = 108
+        row["requirements"] = (
+            ("108 quest points",)
+            + tuple(requirement.display_name for requirement in required_quests)
+            + tuple(requirement for requirement in row.get("requirements", ()) if requirement != "Regicide")
+        )
+        row["source"] = (
+            f"{row.get('source', '')}; https://runescape.wiki/w/index.php?title=Template%3AQuestreq&oldid=6552449"
+            "; https://web.archive.org/web/20121018050049id_/http://runescape.salmoneus.net/quests/legends-quest.html"
+        )
     return QuestDefinition(
         id=quest_id,
         display_name=display_name,
