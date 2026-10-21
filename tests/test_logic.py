@@ -3883,8 +3883,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed)
         self.assertEqual(progressed_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            quest_action_proofs_for_quest(progressed_data, quest_id, QUEST_DATA)[-1:],
-            ("Mine the Lumbridge cellar rubble and squeeze through the resulting hole",),
+            quest_action_proofs_for_quest(progressed_data, quest_id, QUEST_DATA),
+            next(row["auto_actions"] for row in quest["stage_requirements"] if row["stage"] == 1),
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(

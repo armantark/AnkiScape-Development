@@ -150,6 +150,31 @@ class TestLostTribeStageContract(unittest.TestCase):
                 self.assertEqual(result["quests"][QUEST_ID]["progress"], 2)
                 self.assertEqual(result["quest_action_proofs"], sorted(OPENING_ACTIONS))
 
+    def test_existing_lost_tribe_progress_does_not_backfill_opening(self):
+        for progress, completed in ((2, False), (6, True)):
+            with self.subTest(progress=progress, completed=completed):
+                player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                player["quests"][QUEST_ID] = {
+                    "started": True,
+                    "progress": progress,
+                    "completed": completed,
+                }
+                # Legacy saves retain their excavation proof, without the new investigation.
+                player["quest_action_proofs"] = [OPENING_ACTIONS[-1]]
+                before = copy.deepcopy(player)
+
+                result, selected = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+
+                self.assertEqual(selected, not completed)
+                expected = copy.deepcopy(before)
+                if not completed:
+                    expected["current_quest"] = QUEST_ID
+                self.assertEqual(result, expected)
+                self.assertEqual(player, before)
+                self.assertEqual(result["quests"][QUEST_ID]["progress"], progress)
+                self.assertEqual(result["quest_action_proofs"], before["quest_action_proofs"])
+                self.assertFalse(set(OPENING_ACTIONS[:-1]) & set(result["quest_action_proofs"]))
+
     def test_pure_quest_flow_reaches_and_enforces_the_thieving_gate(self):
         player = _ready_lost_tribe_player(thieving_level=12)
 

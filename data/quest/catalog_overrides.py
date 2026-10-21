@@ -46,9 +46,33 @@ QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]
 }
 
 
-# Clears generated acceptance gates; the source-backed skills live on quest stages.
+# Replace generated start gates with the source-backed required levels.
 QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, ...]] = {
+    "horror_from_the_deep": (QuestSkillRequirement("agility", "Agility", 35),),
+    "monkey_madness": (),
+    "enakhras_lament": (
+        QuestSkillRequirement("crafting", "Crafting", 50),
+        QuestSkillRequirement("firemaking", "Firemaking", 45),
+        QuestSkillRequirement("magic", "Magic", 39),
+        QuestSkillRequirement("prayer", "Prayer", 43),
+    ),
+    "eadgars_ruse": (
+        QuestSkillRequirement("agility", "Agility", 15),
+        QuestSkillRequirement("herblore", "Herblore", 31),
+    ),
+    "nature_spirit": (),
     "the_lost_tribe": (),
+}
+
+
+QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
+    "horror_from_the_deep": ("Alfred Grimhand's Barcrawl", "Agility 35"),
+    "monkey_madness": ("The Grand Tree", "Tree Gnome Village"),
+    "enakhras_lament": ("Crafting 50", "Firemaking 45", "Magic 39", "Prayer 43"),
+    "eadgars_ruse": (
+        "Druidic Ritual", "Troll Stronghold", "Death Plateau", "Agility 15", "Herblore 31",
+    ),
+    "nature_spirit": ("Priest in Peril", "The Restless Ghost"),
 }
 
 

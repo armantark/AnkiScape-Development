@@ -7,6 +7,7 @@ from .sources import *
 from .item_names import *
 from .choices import *
 from .catalog_overrides import *
+from .catalog_overrides import QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID
 from .stage_requirements import *
 from .stage_additions import *
 from .stage_cleanups import *
@@ -305,7 +306,10 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         point_reward=_catalog_int(row, "point_reward", 0),
         rewards=item_rewards,
         start_point=str(row.get("start_point", "See the source guide for the start location.")),
-        requirements=tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
+        requirements=QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID.get(
+            quest_id,
+            tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
+        ),
         required_items=(),
         combat=str(row.get("combat", "See the source guide.")),
         source=f"{row.get('source', '')}; {row.get('release_source', '')}",
