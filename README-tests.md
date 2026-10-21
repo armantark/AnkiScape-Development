@@ -29,6 +29,8 @@ Each maintenance test checks its prerequisites and fails with the missing paths 
 
 ## How to run
 
+Add `--processes 8` to run whole test modules in parallel worker processes.
+
 Use the helper at repo root:
 
 ```
