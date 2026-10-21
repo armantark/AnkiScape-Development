@@ -9,7 +9,6 @@ agree within four standard errors.
 """
 
 import random
-import sys
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -20,13 +19,7 @@ from ankiscape.logic.evil_tree_logic import ensure_evil_tree_state_pure
 from ankiscape.logic.penguin_hide_and_seek_logic import apply_penguin_command_pure, penguin_view_pure
 from tests.pace.rates.rate_property import MAX_STANDARD_ERRORS, SEEDS, standard_errors_apart
 from tests.pace.test_fish_flingers_length import _entered_player as _fish_flingers_entered
-from tests.test_integration_smoke import (
-    _DummyCol,
-    _DummyMW,
-    _FakeReviewer,
-    _install_runtime_fakes,
-    _load_addon_as_package,
-)
+from tests.pace.test_short_timers import _HostCase
 from tests.test_tears_of_guthix import _entered as _tears_entered
 
 _ACTIVITIES = "Utility / Activities"
@@ -54,50 +47,33 @@ def _tears_visit() -> dict:
     return {**_tears_entered(), "current_utility": "tears_of_guthix"}
 
 
-class LumpRewardTests(unittest.TestCase):
+def _xp(addon) -> float:
+    return sum(addon._implemented_exp_keys_snapshot().values())
+
+
+class LumpRewardTests(_HostCase):
     def setUp(self):
-        self._orig_modules = dict(sys.modules)
-        self._random_state = random.getstate()
-        _install_runtime_fakes()
-        self.addon = _load_addon_as_package("ankiscape_lump_rewards")
-        for name in ("level_up_check", "check_achievements", "save_player_data", "_refresh_skill_availability"):
-            setattr(self.addon, name, lambda *_args: None)
-        self.addon.update_review_hud = lambda *_args: None
-        self.addon.update_review_status_badge = lambda *_args: None
-        self.messages = []
-        self.addon.show_error_message = lambda title, _message: self.messages.append(title)
+        super().setUp()
+        # addon.random is the process-wide module; the seeds must not leak out.
+        self.addCleanup(random.setstate, random.getstate())
 
-    def tearDown(self):
-        random.setstate(self._random_state)
-        sys.modules.clear()
-        sys.modules.update(self._orig_modules)
-
-    def _start(self, speed: int, player: dict, skill: str) -> None:
-        self.messages.clear()
-        self.addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": speed}))
-        self.addon._state.player_data = player
-        self.addon._state.current_skill = skill
-
-    def _answer(self) -> dict:
-        state = self.addon._state
-        state.card_turned = state.answer_shown = True
-        state.exp_awarded = False
-        self.addon.on_answer_card(_FakeReviewer(), 3, lambda _self, _ease: "answered")
-        return state.player_data
-
-    def _xp(self) -> float:
-        return sum(self.addon._implemented_exp_keys_snapshot().values())
+    def _start(self, speed: int, player: dict, skill: str):
+        addon = self._addon(speed, player)
+        addon._state.current_skill = skill
+        return addon
 
     def _quest_xp(self, speed: int) -> float:
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player["inventory"].update({"Bucket": 1, "Empty pot": 1})
         player["current_quest"] = "cooks_assistant"
-        self._start(speed, player, "Quests")
-        before = self._xp()
+        addon = self._start(speed, player, "Quests")
+        titles = []
+        addon.show_error_message = lambda title, _message: titles.append(title)
+        before = _xp(addon)
         for _card in range(20):
-            if self._answer()["quests"]["cooks_assistant"].get("completed"):
-                self.assertEqual(self.messages, ["Quest complete"])
-                return self._xp() - before
+            if self._answer(addon, 3)["quests"]["cooks_assistant"].get("completed"):
+                self.assertEqual(titles, ["Quest complete"])
+                return _xp(addon) - before
         self.fail(f"Cook's Assistant did not finish within 20 cards at x{speed}")
 
     def test_a_quest_pays_exactly_the_same_xp(self):
@@ -109,10 +85,10 @@ class LumpRewardTests(unittest.TestCase):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player["quests"]["troll_stronghold"] = {"started": True, "progress": 99, "completed": True}
         player["mining_level"] = 30
-        self._start(speed, player, "Mining")
-        before = self._xp()
-        self.assertTrue(self.addon.on_claim_reward("troll_stronghold_xp_lamp_1", "mining"))
-        return self._xp() - before
+        addon = self._start(speed, player, "Mining")
+        before = _xp(addon)
+        self.assertTrue(addon.on_claim_reward("troll_stronghold_xp_lamp_1", "mining"))
+        return _xp(addon) - before
 
     def test_an_xp_lamp_pays_exactly_the_same_xp(self):
         xp = {speed: self._lamp_xp(speed) for speed in (1, 10)}
@@ -121,22 +97,21 @@ class LumpRewardTests(unittest.TestCase):
 
     def _penguin_xp(self, speed: int) -> float:
         player = {**default_player_data(ORE_DATA, ITEM_DEFINITIONS), "current_utility": "penguin_hide_and_seek"}
-        self._start(speed, player, _ACTIVITIES)
+        addon = self._start(speed, player, _ACTIVITIES)
         for row in penguin_view_pure(player)["roster"]:
             player, selected, info = apply_penguin_command_pure(
-                self.addon._state.player_data, "select_spy", {"spawn_id": row["id"]}
+                addon._state.player_data, "select_spy", {"spawn_id": row["id"]}
             )
             self.assertTrue(selected, info)
-            self.addon._state.player_data = player
-            self._answer()
-        self.assertEqual(self.messages, [])
-        before = self._xp()
+            addon._state.player_data = player
+            self._answer(addon, 3)
+        before = _xp(addon)
         player, redeemed, info = apply_penguin_command_pure(
-            self.addon._state.player_data, "redeem_xp", {"skill_id": "mining"}
+            addon._state.player_data, "redeem_xp", {"skill_id": "mining"}
         )
         self.assertTrue(redeemed, info)
-        self.addon._state.player_data = player
-        return self._xp() - before
+        addon._state.player_data = player
+        return _xp(addon) - before
 
     def test_a_week_of_penguin_points_pays_exactly_the_same_xp(self):
         xp = {speed: self._penguin_xp(speed) for speed in (1, 10)}
@@ -144,15 +119,14 @@ class LumpRewardTests(unittest.TestCase):
         self.assertEqual(xp[10], xp[1])
 
     def _random_lump_xp(self, speed: int, seed: int, player: dict, finished) -> float:
-        self._start(speed, player, _ACTIVITIES)
+        addon = self._start(speed, player, _ACTIVITIES)
         random.seed(seed)
-        before = self._xp()
+        before = _xp(addon)
         for _card in range(400):
-            player = self._answer()
-            if finished(player, self.addon._state.current_skill):
+            player = self._answer(addon, 3)
+            if finished(player, addon._state.current_skill):
                 self.assertTrue(player["evil_tree"]["active_event"], "the Evil Tree spawn did not interleave")
-                self.assertEqual(self.messages, [])
-                return self._xp() - before
+                return _xp(addon) - before
         self.fail(f"the game at x{speed} did not finish within 400 cards")
 
     def _assert_random_lump_agrees(self, make_player, finished, spawn_ticks: int) -> None:
