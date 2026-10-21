@@ -25,6 +25,7 @@ from ankiscape.logic_pure.logic_pure_quest import (
     quest_locked_reasons_pure,
     start_quest_pure,
 )
+from tests.reachability.live_report import live_reachability_report
 from tests.test_combat_quest_gate import _answer_review
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
@@ -208,6 +209,17 @@ class TestColdWarSuit(unittest.TestCase):
                 unchanged, progressed, _ = _advance(dressed)
                 self.assertFalse(progressed)
                 self.assertEqual(unchanged, dressed)
+
+    def test_suit_is_reachable_from_stage_two_without_finishing_cold_war(self):
+        report = live_reachability_report()
+
+        self.assertEqual(report["routes"].get("Clockwork suit"), "quest-stage:cold_war:2")
+        self.assertIn(SUIT_ACTION, report["earned_quest_action_proofs"])
+        self.assertNotIn(RETIRED_ACTION, report["earned_quest_action_proofs"])
+        self.assertFalse(any(
+            "Clockwork suit" in row["products"]
+            for row in report["blocked_quest_stage_products"]
+        ))
 
     def test_activated_ring_still_advances_after_suit_grant(self):
         player, progressed, _ = _advance(_player())
