@@ -113,6 +113,18 @@ class FishFlingersGameLengthTests(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon._state.player_data, before)
 
+    def test_undo_restores_a_card_that_lands_no_catch(self):
+        addon = self._addon(10, seed=3)
+        for _card in range(3):
+            self._answer(addon)
+        before = copy.deepcopy(addon._state.player_data)
+        # The fourth x10 card plays ticks 180 to 240, short of the second catch at 250.
+        after = self._answer(addon)
+        self.assertEqual(after["fish_flingers"]["ticks_elapsed"], 240)
+        self.assertEqual(after["fish_flingers"]["fish_caught"], before["fish_flingers"]["fish_caught"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(addon._state.player_data, before)
+
 
 class FishFlingersSaveMigrationTests(unittest.TestCase):
     def test_an_active_version_2_game_resumes_at_its_next_catch(self):
@@ -146,6 +158,33 @@ class FishFlingersSaveMigrationTests(unittest.TestCase):
         self.assertEqual(resumed_catches, list(range(4, FISH_FLINGERS_EVENT_CATCHES + 1)))
         self.assertEqual(resumed_catches, uninterrupted_catches)
         self.assertEqual(resumed_record, uninterrupted_record)
+
+    def test_a_version_2_save_resumes_on_its_catch_mark_one_step_behind_live_play(self):
+        """A live game lands catch 5 on the step to tick 630; its version-2 save resumes at 625."""
+        rolls = random.Random(11)
+        live = _entered_player()
+        landed = 0
+        while landed < 5:
+            live, result = apply_fish_flingers_review_pure(live, rolls.random)
+            landed += int(result["catch_landed"])
+        self.assertEqual(live["fish_flingers"]["ticks_elapsed"], 630)
+        legacy = copy.deepcopy(live)
+        del legacy["fish_flingers"]["ticks_elapsed"]
+        legacy["fish_flingers"].update(version=2, review=5)
+        resumed = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(resumed["fish_flingers"]["ticks_elapsed"], 625)
+
+        def steps_to_the_next_catch(game: dict, game_rolls: random.Random) -> tuple[int, int]:
+            for step in range(1, 100):
+                game, result = apply_fish_flingers_review_pure(game, game_rolls.random)
+                if result["catch_landed"]:
+                    return step, _catch_number(result)
+            self.fail("no catch within 100 steps")
+
+        live_steps, live_catch = steps_to_the_next_catch(live, copy.deepcopy(rolls))
+        resumed_steps, resumed_catch = steps_to_the_next_catch(resumed, rolls)
+        self.assertEqual((live_catch, resumed_catch), (6, 6))
+        self.assertEqual(resumed_steps, live_steps + 1)
 
 
 if __name__ == "__main__":
