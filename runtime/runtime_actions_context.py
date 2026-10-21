@@ -144,6 +144,15 @@ def activity_session_cleared(
     return bool(before_active) and not after_active
 
 
+def _step_with_danger_stop(ctx: RuntimeActionContext, step: Callable[[RuntimeActionContext], Any]) -> Any:
+    before = card_danger_state_pure(ctx.player_data)
+    result = step(ctx)
+    danger = card_danger_stop_pure(before, card_danger_state_pure(ctx.player_data))
+    if danger and not ctx.card.stop_reason:
+        stop_card(ctx, danger)
+    return result
+
+
 def spend_card_on_farm_queue(
     ctx: RuntimeActionContext,
     first_step: Callable[[RuntimeActionContext], Any],
@@ -158,7 +167,7 @@ def spend_card_on_farm_queue(
     """
     step = first_step
     while ctx.player_data.get("farm_queue") and _settle_card_tick_debt(ctx):
-        step(ctx)
+        _step_with_danger_stop(ctx, step)
         ctx.card.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
         step = next_step
     _settle_card_tick_debt(ctx)
@@ -184,11 +193,7 @@ def spend_card_budget(
         if progressed and not can_continue():
             break
         before_session = dict(ctx.player_data.get("activity_session") or {})
-        before_danger = card_danger_state_pure(ctx.player_data)
-        result = step(ctx)
-        danger = card_danger_stop_pure(before_danger, card_danger_state_pure(ctx.player_data))
-        if danger and not budget.stop_reason:
-            stop_card(ctx, danger)
+        result = _step_with_danger_stop(ctx, step)
         budget.ticks_remaining = (
             0
             if handler_key == "combat" or handler_key in ONE_PER_CARD_HANDLER_KEYS

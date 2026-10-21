@@ -701,6 +701,15 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
     def test_a_death_ends_the_card_before_the_selected_skill_runs(self):
         addon = self._fight_wild_jade_vine(5)
+        addon._state.player_data["farm_patches"]["handelmort_jade_vine"]["jade_combat_encounter"] = {
+            "target_id": "wild_jade_vine", "enemy_lifepoints": 2500,
+            "enemy_attack_ticks_remaining": 0,
+        }
+        engine = sys.modules[f"{addon.__name__}.logic_pure.logic_pure_combat_engine"]
+        self.enterContext(patch.object(
+            engine, "_combat_roll_hit",
+            side_effect=lambda *_args, **kw: (False, 0) if "blocked" in kw else (True, 10),
+        ))
 
         data = self._answer_card(addon)
 
