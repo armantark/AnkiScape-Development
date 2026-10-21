@@ -158,9 +158,9 @@ class FishFlingersDataTests(unittest.TestCase):
 
 
 class FishFlingersLogicTests(unittest.TestCase):
-    def test_darkan_score_mapping_and_event_payout(self):
-        # 70 catches trigger one Darkan catch-band point; the other components
-        # exercise the capped local weight proxies and map to score 44.
+    def test_provisional_score_mapping_and_event_payout(self):
+        # Regression for the registered approximation, not a period payout proof:
+        # the retained catch bands and weight proxies produce score 44.
         self.assertEqual(
             fish_flingers_score_pure(
                 {

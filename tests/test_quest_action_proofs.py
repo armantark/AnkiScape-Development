@@ -874,8 +874,6 @@ def _retired_store_write_sites(path, root, source):
 # its record in memory-bank/source-audits/shared-quest-action-proofs-2026-08-31.md
 # (design-thread queue 3.31). Remove a triple in the change that wires its emitter.
 _UNEMITTED_CLEANUP_ACTIONS = frozenset({
-    # Audit: no Oronwen service action.
-    ("mournings_end_part_i", 3, "Have Oronwen repair the mourner trousers"),
     # Audit: the furniture exists, but the clockwork-penguin action does not.
     ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
     # Audit: no Silvthrill-rod enchant target.
@@ -969,22 +967,24 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic/shop_logic.py", "rollback_shop_event_pure", "retract_shop_event_quest_action_proofs_pure"),
                 ("logic_pure/logic_pure_quest.py", "_consume_quest_current_stage_items", "record_quest_stage_action_proofs_pure"),
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/oronwen.py", "apply_oronwen_review_pure", "record_runtime_quest_action_proofs_pure"),
             },
         )
         self.assertEqual(
             mention_counts,
             {
-                "core/storage_pure.py": 8,
+                "core/quest_storage.py": 8,
                 "logic/shop_logic.py": 5,
                 "logic/shop/services.py": 3,
                 "logic_pure/logic_pure_quest.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
+                "logic_pure/quest/oronwen.py": 3,
                 "logic_pure/quest_action_proofs.py": 25,
                 "runtime/runtime_actions_shared.py": 3,
             },
         )
         self.assertEqual(retired_writes, set())
-        self.assertEqual(retired_mentions, {"core/storage_pure.py": 1})
+        self.assertEqual(retired_mentions, {"core/quest_storage.py": 1})
 
 
 if __name__ == "__main__":

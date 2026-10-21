@@ -160,6 +160,8 @@ Qt behavior suite through the checked-in offscreen environment:
 QT_QPA_PLATFORM=offscreen .venv-qt/bin/python run_tests.py
 ```
 
+Add `--processes 8` to run whole test modules in parallel worker processes.
+
 See `README-tests.md` for layout and conventions.
 
 ### Documentation audit

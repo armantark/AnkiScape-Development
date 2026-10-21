@@ -1,7 +1,7 @@
 """logic_pure_quest.py - split out of logic_pure.py; see that module's header."""
 
 from typing import Iterable, Mapping, Optional
-
+from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
@@ -671,6 +671,7 @@ def _quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirem
 
 
 def _quest_requirement_blockers(player_data, quest_id, requirement):
+    requirement = oronwen_requirement_pure(player_data, quest_id, requirement)
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
     inventory = player_data.get("inventory", {}) or {}
@@ -1044,7 +1045,8 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
 def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
-    return bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
+    blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
+    return oronwen_review_ready_pure(player_data, quest_id, blockers) or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
 
 
 def start_quest_pure(player_data, quest_id, quest_data):
@@ -1328,28 +1330,25 @@ def apply_quest_combat_encounter_pure(
 def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
+    empty_refusal = ("",) if include_clue_refusal else ()
     data, ok = start_quest_pure(player_data, quest_id, quest_data)
-    if not ok:
-        if include_clue_refusal:
-            return player_data, False, False, ""
-        return player_data, False, False
-    quest = quest_data[quest_id]
     state = quest_state_pure(data, quest_id)
-    if state["completed"]:
-        if include_clue_refusal:
-            return data, False, False, ""
-        return data, False, False
-    if quest_current_stage_blockers_pure(data, quest_id, quest_data):
-        if include_clue_refusal:
-            return player_data, False, False, ""
-        return player_data, False, False
+    if not ok or state["completed"]:
+        return (data, False, False, *empty_refusal)
+    blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    data, repair_result = apply_oronwen_review_pure(data, quest_id, blockers)
+    if repair_result == "handed_in":
+        return (data, True, False, *empty_refusal)
+    if repair_result == "collected":
+        blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    if blockers:
+        return (player_data, False, False, *empty_refusal)
+    quest = quest_data[quest_id]
     current_stage = quest_current_stage_pure(data, quest_id, quest_data)
     if _produce_repeatable_quest_stage_items(data, quest_id, quest):
         state["progress"] = current_stage
         data.setdefault("quests", {})[quest_id] = state
-        if include_clue_refusal:
-            return data, True, False, ""
-        return data, True, False
+        return (data, True, False, *empty_refusal)
     _consume_quest_current_stage_items(data, quest_id, quest)
     total_stages = _positive_int(quest.get("stages", 1), 1)
     state["progress"] = min(total_stages, current_stage + 1)

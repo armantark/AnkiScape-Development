@@ -500,6 +500,8 @@ def _remote_lane_command(
         arguments.extend(("--count", "--", *selectors))
     elif selectors:
         arguments.extend(("--quiet", "--", *selectors))
+    else:
+        arguments.extend(("--processes", "8"))
     run_tests = shlex.join(arguments)
     if lane == "plain":
         return (
