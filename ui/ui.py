@@ -27146,9 +27146,9 @@ def show_main_menu(
     dev_layout.addWidget(dev_inner)
     set_layout.addWidget(dev_block)
 
-    tabs.addTab(settings_tab, "Settings")
-    _set_global_tab_icon(settings_tab, "settings_icon.png")
-    tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
+    settings_index = tabs.addTab(vertical_scroll(settings_tab), "Settings")
+    _set_global_tab_icon(tabs.widget(settings_index), "settings_icon.png")
+    tabs.setTabToolTip(settings_index, "Configure widget, experience HUD, notifications, and developer tools")
 
     desired_tab_order = (
         "Skills",

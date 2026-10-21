@@ -12,7 +12,7 @@ from tests.pace.test_fish_flingers_length import _entered_player
 
 
 class FishFlingersProgressFeedbackTests(_HostCase):
-    def _answer_and_check_feedback(self, addon, speed, card):
+    def _assert_card_feedback(self, addon, speed, card):
         before = copy.deepcopy(addon._state.player_data["fish_flingers"])
         addon._state.player_data["review_event_log"] = []
         player = self._answer(addon, 3)
@@ -25,19 +25,19 @@ class FishFlingersProgressFeedbackTests(_HostCase):
             self.assertEqual(lines, waiting)
         return bool(after)
 
-    def _play_game(self, speed):
+    def _assert_game_feedback(self, speed):
         addon = self._addon(speed, _entered_player())
         addon._state.current_skill = "Utility / Activities"
         with patch.object(addon.random, "random", random.Random(2012).random):
             for card in range(1, 200):
-                if not self._answer_and_check_feedback(addon, speed, card):
+                if not self._assert_card_feedback(addon, speed, card):
                     return
         self.fail(f"Fish Flingers did not end at speed {speed}")
 
     def test_only_a_card_without_a_catch_shows_one_waiting_line(self):
         for speed in (1, 10, 20):
             with self.subTest(speed=speed):
-                self._play_game(speed)
+                self._assert_game_feedback(speed)
 
 
 class ThievingRecoveryFeedbackTests(_ThievingCardCase):

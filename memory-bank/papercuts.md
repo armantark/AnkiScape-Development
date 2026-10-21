@@ -747,3 +747,11 @@
 - 2026-10-21: Copy-2 commit hook rejected cognitive complexity 18, oversized-file growth (5541/5535, 1044/1040, 27825/27824) and unused `GOBLIN_RAIDS_SPAWN_REVIEWS`. Kept the entrypoint unchanged, extracted reviewer clock text, split the new test, and removed the import. The normal hook must pass before commit.
 
 - 2026-10-21: The copy-2 retry failed the normal hook with `ui/ui.py: fan-out 170 (was 169)`. Kept the UI import path and put the clock formatter in the existing world-clock module. The cap stays fixed.
+
+- 2026-10-21: The tool wrapper for the Settings note/audit call failed before execution with `SyntaxError: missing ) after argument list`. Retried with the direct tool-result form. No command or file write ran on the failed call.
+
+- 2026-10-21: The test-quality audit reported `assertion_free_test` for `FishFlingersProgressFeedbackTests.test_only_a_card_without_a_catch_shows_one_waiting_line` after the loop split. Renamed the actual assertion helpers with `_assert_` prefixes; no assertion changed. The Settings hook also rejected `control_geometry 16 (new)`; split the bounds check from the list walk.
+
+- 2026-10-21: The answered-card stun probe used `_summoned("spirit_wolf", "Spirit wolf pouch")`; its fixture raised `AssertionError` at `tests/pace/test_short_timers.py:47` because the ID was not accepted. Use the existing known `bunyip` fixture for this timer case.
+
+- 2026-10-21: The Settings hook reported `tools/maintenance/pace_close_visuals.py: E302 x1 (was 0)` after the helper split. Restored two blank lines between top-level definitions. The earlier successful UI proof stays valid.

@@ -459,3 +459,9 @@ Exact69a22761 officially landed after independent Astra/Zhipu source acceptance 
 ## 2026-10-21: Part J check record closed
 
 The Qt lane at `e0b73a675` ran 5,792 tests. No pace test failed. The lane had four missing-source errors and one source-audit failure without the gate source paths. Both affected modules passed all 16 tests with those paths. The Parts I/J final checks must use the gate environment. The evidence is in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p4-pace-build/part-ij-close/`. Q-J1 moved to `0350-aura-system-slice`. Part K stays for 2026-10-24.
+
+## 2026-10-21: Pace copy and Settings fit
+
+The pace branch has the approved copy-2 and copy-3 texts. Fish Flingers shows progress once when a whole card lands no catch. Thieving recovery text uses the saved debt cause, so a Wild jade vine bind cannot show it. Undo restores the cause with the debt. Big Chinchompa rounds remaining world minutes up.
+
+Settings uses the existing `ui/ui_text_fit.py::vertical_scroll` helper. Its controls meet their minimum heights at 720x540 and 720x560, with Developer Mode open and either hint state. The manual captures show no cut text in light or Fusion dark. The scroll bar hides when the page fits. The review votes and final full checks belong to the closure evidence at `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p4-pace-build/part-ij-close/`. Part K remains on 2026-10-24.
