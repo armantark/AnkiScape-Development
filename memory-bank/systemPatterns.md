@@ -651,12 +651,22 @@ receive one authentic attempt with no second gate. Source-blocked routes retain
 their existing handler unit until a compatible row is proven.
 
 Combat consumes `6 × M` immediate ticks per successful card and persists the
-same encounter across cards. Again advances world consumers only and marks an
-active encounter disengaged for safe automation without granting either side a
-combat beat. Kill, death, flee, and bank boundaries stop the current review.
+unfinished encounter across cards. Ordinary Combat chains kills until the budget
+is spent or a danger stop fires. Both kill branches reset the new enemy's LP,
+regeneration, retaliation, attack delay, Magic effects and Curse ramp while
+preserving the player's weapon cooldown. The engine reports the exact tick and
+stop reason; the runtime passes the matching Slayer assignment's remaining count
+so the chain cannot overshoot its last kill. Banking is checked after each kill;
+the next card starts the trip. Step handlers compare shared danger projections
+after each step. The world tick exposes a familiar's pre-drain lifetime through
+transient dispatcher state, which caps the foreground budget with
+`familiar_ended`; an earlier danger keeps its own reason. Again advances world
+consumers only and marks an active encounter disengaged for safe automation
+without granting either side a combat beat.
 Quest combat takes the same `6 × M` slice and carries its own encounter,
-attack clocks included, from card to card, so a boss fight spans reviews; an
-explicit cadence rollback retains the legacy 50-tick quest-combat burst.
+attack clocks included, from card to card, so a boss fight spans reviews. Its
+explicit first-kill boundary preserves the quest roster. The cadence rollback
+retains the legacy 50-tick quest-combat burst and its existing kill boundaries.
 
 Utility/Activity exemption is an owning contract, not a cadence bypass.
 Activity routes must declare whether one review is a world-clock tick, live

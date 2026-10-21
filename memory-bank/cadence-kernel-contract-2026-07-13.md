@@ -74,16 +74,22 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
   levels unless a compatible level curve exists. This is a bounded,
   source-visible abstraction and can make a newly unlocked route more generous
   than its real low-level throughput; do not invent a hidden level scaler.
-- **Combat feels meaningfully slower per card, and this is unavoidable.** One card
-  currently buys 50 ticks (30s); under the kernel it buys ~6 ticks (3.6s), and
-  combat XP/card falls ~8×. *Any* design that preserves the current combat feel
-  **is** the 8× bug.
-- **Combat advances six immediate game ticks per kernel step.** Encounters,
+- **Each card buys the same play time for every action.** A successful card buys
+  `6 × speed` immediate game ticks. Combat spends that budget in its tick loop;
+  other actions spend six ticks per kernel step. Speed changes play time, not
+  sourced XP per action.
+- **Ordinary Combat chains kills within the card's budget.** Encounters,
   attack countdowns, enemy LP, prayers, curses, statuses, special regeneration,
-  and RNG phase persist between reviews. The player may change preset, flee, or
-  swap target between reviews; there is no hidden 50-tick tactical tranche.
-  Kill, death, flee, or bank boundaries end the review without starting a second
-  enemy.
+  and RNG phase persist between reviews. Each fresh enemy resets its Magic
+  effects and Curse ramp; the player's weapon cooldown continues. Unfinished
+  fights carry to the next card. Danger stops end the card at the danger tick:
+  low LP without food, new poison that remains after auto-antipoison, empty
+  prayer, exhausted ammunition or runes, death, flee, a bank trip due after a
+  kill, or the final assigned Slayer kill. A departing familiar caps the card
+  at its remaining lifetime. Step actions check danger after each step, including
+  a new stun and a skilling bank trip. Unspent ticks lapse, except that stun and
+  partial-step debt follow the running budget. Activities and quest combat keep
+  their explicit kill and terminal boundaries.
 
 ## 4. The kernel
 
