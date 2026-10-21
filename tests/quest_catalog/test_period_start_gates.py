@@ -3,7 +3,8 @@ import unittest
 import pkg_alias  # noqa: F401
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data
-from ankiscape.data.quest_data import quests_as_dict
+from ankiscape.data.quest_data import QUEST_OVERRIDES_BY_ID, quests_as_dict
+from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from ankiscape.logic_pure.logic_pure import quest_locked_reasons_pure, start_quest_pure
 
 
@@ -95,11 +96,43 @@ class TestPeriodStartGates(unittest.TestCase):
                     kept_skills,
                 )
 
+    def test_prerequisite_quests_still_block_starting(self):
+        prerequisites = {
+            "horror_from_the_deep": ("bar_crawl",),
+            "monkey_madness": ("the_grand_tree", "tree_gnome_village"),
+            "enakhras_lament": (),
+            "eadgars_ruse": ("druidic_ritual", "troll_stronghold", "death_plateau"),
+            "nature_spirit": ("priest_in_peril", "the_restless_ghost"),
+        }
+        for quest_id, required_ids in prerequisites.items():
+            for required_id in required_ids:
+                with self.subTest(quest_id=quest_id, prerequisite=required_id):
+                    player = _player_ready_to_start(quest_id)
+                    player["quests"].pop(required_id, None)
+                    self.assertEqual(
+                        quest_locked_reasons_pure(player, quest_id, QUEST_DATA),
+                        (QUEST_DATA[required_id]["display_name"],),
+                    )
+
+                    updated, started = start_quest_pure(player, quest_id, QUEST_DATA)
+
+                    self.assertFalse(started)
+                    self.assertEqual(updated, player)
+
     def test_readout_lists_only_required_quests_and_levels(self):
         quests = quests_as_dict()
         for quest_id, (_, _, requirements) in PERIOD_START_GATES.items():
             with self.subTest(quest_id=quest_id):
                 self.assertEqual(quests[quest_id]["requirements"], requirements)
+
+    def test_other_generated_quest_readouts_keep_the_source_requirements(self):
+        quests = quests_as_dict()
+        for row in PRE_EOC_QUEST_CATALOG:
+            quest_id = row["id"]
+            if quest_id in PERIOD_START_GATES or quest_id in QUEST_OVERRIDES_BY_ID:
+                continue
+            with self.subTest(quest_id=quest_id):
+                self.assertEqual(quests[quest_id]["requirements"], row["requirements"])
 
 
 if __name__ == "__main__":
