@@ -58,12 +58,13 @@ CARDS_SUFFIX = " cards"
 WORLD_DAY_SUGGESTION_HINT = "Suggested: {cards} cards."
 PACE_DIALOG_TITLE = "Pick your game speed and world day"
 # A new player has no earlier pace; an existing save keeps its pace unless the new one is applied.
+# Both quote the keep button's label, so the words read as its name and not as an order.
 PACE_DIALOG_REASON_NEW = (
-    "We recommend 10x with the world day following your study volume. Keep my current settings gives 1x"
+    "We recommend 10x with the world day following your study volume. “Keep my current settings” gives 1x"
     " and a fixed 240-card day. Closing this window applies the recommendation. Change it in Settings."
 )
 PACE_DIALOG_REASON_EXISTING = (
-    "The recommended speed changed from 1x to 10x, so the game asks once. Keep my current settings and"
+    "The recommended speed changed from 1x to 10x, so the game asks once. “Keep my current settings” and"
     " closing the window keep your pace. Recommended: 10x with the world day following your study volume."
 )
 PACE_DIALOG_CURRENT_LINE = (

@@ -204,7 +204,8 @@ class OnboardingPathTests(PaceQtCase):
 
         def act():
             dialog = QApplication.activeModalWidget()
-            seen.append(tuple(dialog.findChild(QLabel, name).text() for name in ("paceDialogReason", "paceDialogCurrentLine")))
+            names = ("paceDialogReason", "paceDialogCurrentLine", "paceDialogKeepButton")
+            seen.append({name: dialog.findChild(QWidget, name).text() for name in names})
             action(dialog)
 
         QTimer.singleShot(0, act)
@@ -232,15 +233,17 @@ class OnboardingPathTests(PaceQtCase):
         _, seen = self.answer({**A_SAVE, LEGACY_SPEED_KEY: 4}, _escape)
         self.assertEqual(len(seen), 1)
         self.assertEqual(
-            seen[0][1],
+            seen[0]["paceDialogCurrentLine"],
             "Your current pace: 4x, 240 cards per world day, 0.96 h (57.6 min) of play."
             " One Fish Flingers game takes 42 cards.",
         )
 
-    def test_the_reason_is_written_for_a_new_or_an_existing_player(self):
+    def test_the_reason_is_written_for_a_new_or_an_existing_player_and_quotes_the_keep_button(self):
         for store, opening in (({}, "We recommend 10x"), (A_SAVE, "The recommended speed changed from 1x to 10x")):
             with self.subTest(opening):
-                self.assertTrue(self.answer(store, _escape)[1][0][0].startswith(opening))
+                [shown] = self.answer(store, _escape)[1]
+                self.assertTrue(shown["paceDialogReason"].startswith(opening))
+                self.assertIn(f"“{shown['paceDialogKeepButton']}”", shown["paceDialogReason"])
 
     def test_an_answered_profile_is_never_asked_again(self):
         from ankiscape.ui import ui_pace_settings
