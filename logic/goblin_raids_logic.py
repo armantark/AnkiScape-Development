@@ -974,7 +974,7 @@ def goblin_raids_view_pure(player_data: Mapping[str, Any], *, speed: int = 1) ->
             if in_raid
             else f"{int(state['village_kills'])} village goblins felled"
             if session
-            else 'Notices arrive at 30-minute marks when no raid is under way'
+            else 'Notices arrive at 30 world-minute marks when no raid runs'
         ),
         "primary_label": (
             "Active for reviews"

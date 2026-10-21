@@ -144,7 +144,7 @@ def _settle_card_tick_debt(ctx: RuntimeActionContext) -> bool:
         budget.ticks_remaining > 0 and balance <= 0 and not budget.stop_reason
         and ctx.player_data.get("card_tick_debt_source") == "thieving"
     ):
-        ctx.show_activity_gain("Stun recovery took this card; play resumes on the next card")
+        ctx.show_activity_gain("Stun recovery took this card")
     budget.ticks_remaining = max(balance, 0)
     if balance < 0:
         ctx.player_data[CARD_TICK_DEBT_KEY] = -balance

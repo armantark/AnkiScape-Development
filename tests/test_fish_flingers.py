@@ -459,7 +459,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertEqual(view["stock_label"], "Rich")
         self.assertEqual(view["rotation"], "1/6")
         self.assertEqual(view["communal_pressure"], FISH_FLINGERS_COMMUNAL_DEPLETION)
-        self.assertIn("per review", view["communal_pressure_label"])
+        self.assertIn("stock lost per catch", view["communal_pressure_label"])
 
         player, result = _catch(
             player, 0.5, 0.999, 0.999

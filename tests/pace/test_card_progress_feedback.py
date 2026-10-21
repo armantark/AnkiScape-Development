@@ -6,7 +6,7 @@ import random
 import types
 from unittest.mock import patch
 
-from tests.pace.test_short_timers import _HostCase
+from tests.pace.test_short_timers import _HostCase, _summoned
 from tests.pace.test_stun_debt import _ThievingCardCase
 from tests.pace.test_fish_flingers_length import _entered_player
 
@@ -18,7 +18,7 @@ class FishFlingersProgressFeedbackTests(_HostCase):
         player = self._answer(addon, 3)
         after = player["fish_flingers"]
         lines = [row["text"] for row in player["review_event_log"] if row["kind"] == "activity"]
-        waiting = [line for line in lines if line.startswith("Working on catch ")]
+        waiting = [line for line in lines if line.startswith("No catch; ")]
         no_catch = bool(after) and after["fish_caught"] == before["fish_caught"]
         self.assertEqual(len(waiting), int(no_catch), (speed, card, lines))
         if no_catch:
@@ -46,7 +46,7 @@ class ThievingRecoveryFeedbackTests(_ThievingCardCase):
         self._answer(addon)
         before = copy.deepcopy(addon._state.player_data)
         self._answer(addon)
-        line = "Stun recovery took this card; play resumes on the next card"
+        line = "Stun recovery took this card"
         self.assertEqual(addon._state.player_data["review_event_log"][-1]["text"], line)
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon._state.player_data, before)
@@ -69,3 +69,19 @@ class ThievingRecoveryFeedbackTests(_ThievingCardCase):
                 self.assertEqual(self._attempts(addon._state.player_data), (0, 0))
                 lines = [row["text"] for row in addon._state.player_data.get("review_event_log", [])]
                 self.assertFalse(any("Stun recovery" in line for line in lines), lines)
+
+    def test_recovery_reports_each_card_when_a_familiar_expiry_holds_two_cards(self):
+        addon = self._addon(1, {1})
+        summoning = _summoned("bunyip", "Bunyip pouch")["summoning_state"]
+        summoning["active_follower"]["remaining_ticks"] = 14
+        addon._state.player_data.update(summoning_level=99, summoning_state=summoning)
+        self._answer(addon)
+        line = "Stun recovery took this card"
+        for debt, expected_line in ((2, line), (0, line + " · Ended early: familiar ran out")):
+            addon._state.player_data["review_event_log"] = []
+            player = self._answer(addon)
+            self.assertEqual(self._attempts(player), (1, 1))
+            self.assertEqual(player.get("card_tick_debt", 0), debt)
+            messages = [row["text"] for row in player["review_event_log"] if row["kind"] == "activity"]
+            self.assertEqual(messages, [expected_line])
+        self.assertEqual(self._attempts(self._answer(addon)), (2, 1))

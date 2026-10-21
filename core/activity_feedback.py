@@ -99,4 +99,4 @@ def fish_flingers_card_feedback(before, after) -> str:
     ):
         return ""
     catch_number = after["ticks_elapsed"] // FISH_FLINGERS_CATCH_TICKS + 1
-    return f"Working on catch {catch_number} of {FISH_FLINGERS_EVENT_CATCHES}; no catch landed on this card yet"
+    return f"No catch; on {catch_number} of {FISH_FLINGERS_EVENT_CATCHES}"
