@@ -13,7 +13,20 @@ from unittest.mock import patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
-    from aqt.qt import QApplication, QCheckBox, QLabel, QPushButton, QSpinBox, Qt, QTimer, QWidget
+    from aqt.qt import (
+        QAbstractButton,
+        QAbstractSpinBox,
+        QApplication,
+        QCheckBox,
+        QColor,
+        QLabel,
+        QPalette,
+        QPushButton,
+        QSpinBox,
+        Qt,
+        QTimer,
+        QWidget,
+    )
     from PyQt6.QtTest import QTest
 
     HAS_AQT = True
@@ -86,6 +99,73 @@ class SettingsRowsTests(PaceQtCase):
         follow.setChecked(True)
         self.assertEqual((cards.value(), cards.isEnabled(), hint.isVisible()), (300, False, False))
         self.assertEqual((col.store[FOLLOW_KEY], col.store[CARDS_KEY]), (True, 650))
+
+
+def _dark_palette():
+    palette = QApplication.style().standardPalette()
+    for role, color in (
+        (QPalette.ColorRole.Window, QColor(40, 40, 40)),
+        (QPalette.ColorRole.Base, QColor(24, 24, 24)),
+        (QPalette.ColorRole.Button, QColor(48, 48, 48)),
+        (QPalette.ColorRole.Text, QColor(238, 238, 238)),
+        (QPalette.ColorRole.WindowText, QColor(238, 238, 238)),
+        (QPalette.ColorRole.ButtonText, QColor(238, 238, 238)),
+        (QPalette.ColorRole.Mid, QColor(8, 8, 8)),
+    ):
+        palette.setColor(role, color)
+    return palette
+
+
+def _label_is_cut_off(label):
+    if label.wordWrap():
+        return label.height() < label.heightForWidth(label.width())
+    too_narrow = label.fontMetrics().horizontalAdvance(label.text()) > label.width()
+    return too_narrow or label.height() < label.minimumSizeHint().height()
+
+
+def _control_is_cut_off(control):
+    return control.width() < control.sizeHint().width() or control.height() < control.minimumSizeHint().height()
+
+
+def _cut_off(widget):
+    """The visible texts and controls given less room than they need."""
+    labels = [label for label in widget.findChildren(QLabel) if label.isVisible() and label.text()]
+    controls = widget.findChildren(QAbstractSpinBox) + widget.findChildren(QAbstractButton)
+    return [label.objectName() or label.text() for label in labels if _label_is_cut_off(label)] + [
+        control.objectName() for control in controls if control.isVisible() and _control_is_cut_off(control)
+    ]
+
+
+class PaceDialogFitTests(PaceQtCase):
+    """Plan 8.2 and AGENTS.md: nothing is cut off at the dialog's own size or 560 points tall, light or dark."""
+
+    def setUp(self):
+        self.addCleanup(QApplication.setStyle, QApplication.style().objectName())
+        self.addCleanup(QApplication.setPalette, QApplication.palette())
+        QApplication.setStyle("Fusion")
+
+    def test_every_text_and_control_has_room_with_or_without_the_hint(self):
+        from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
+        from ankiscape.ui.ui_pace_settings import PaceDialog
+
+        plan = pace_onboarding_plan_pure(
+            existing_player=True, speed=None, legacy_speed=4, follow_study_volume=None, world_day_cards=None, suggestion=300
+        )
+        for theme, palette in (("light", QApplication.style().standardPalette()), ("dark", _dark_palette())):
+            QApplication.setPalette(palette)
+            for follow in (True, False):
+                dialog = self.shown(PaceDialog(plan, 300))
+                dialog.findChild(QCheckBox, "settingsWorldDayFollowToggle").setChecked(follow)
+                for height in ("own", 560):
+                    if height == 560:
+                        dialog.resize(dialog.width(), 560)
+                    for _ in range(3):
+                        QApplication.processEvents()
+                    with self.subTest(theme=theme, follow=follow, height=height):
+                        self.assertEqual(_cut_off(dialog), [])
+        hint = dialog.findChild(QLabel, "settingsWorldDaySuggestionHint")
+        # Dimmed from the dark theme's own text colour, never palette(mid).
+        self.assertIn("rgba(238, 238, 238,", hint.styleSheet())
 
 
 def _click(name):

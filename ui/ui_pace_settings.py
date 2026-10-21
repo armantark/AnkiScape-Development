@@ -259,6 +259,8 @@ if HAS_QT:
 
             for widget in (reason, current, self.rows, self.hours_line):
                 layout.addWidget(widget)
+            # A taller window keeps the text together above the buttons.
+            layout.addStretch(1)
             layout.addLayout(buttons)
 
         def choice(self) -> PaceSettings:
@@ -266,6 +268,11 @@ if HAS_QT:
 
         def _show_hours(self, settings: PaceSettings) -> None:
             self.hours_line.setText(PACE_DIALOG_HOURS_LINE.format(**pace_text_fields_pure(settings, self._suggestion)))
+            # An open window does not grow by itself when the suggestion hint
+            # appears or the hours line wraps again, so the rows would be squeezed.
+            if self.isVisible():
+                self.layout().activate()
+                self.resize(self.width(), max(self.height(), self.heightForWidth(self.width())))
 
         def _choose(self, settings: PaceSettings) -> None:
             self._choice = settings
