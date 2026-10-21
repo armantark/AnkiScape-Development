@@ -5,11 +5,12 @@ counter shows ceil(ticks / (6 x speed)) cards; a counter of six-tick steps shows
 ceil(steps / speed). At x1 each count is the one shown before ticks.
 """
 
+import re
 import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.logic.agility_logic import agility_aura_rows_pure
+from ankiscape.logic.agility_logic import agility_aura_rows_pure, apply_agility_command_pure
 from ankiscape.logic.evil_tree_logic import advance_evil_tree_world_clock_pure, apply_evil_tree_review_pure
 from ankiscape.logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
 from ankiscape.logic.pace.more_planks import more_planks_reviews_left_pure
@@ -18,10 +19,13 @@ from ankiscape.logic.summoning_logic import (
     default_summoning_state_pure,
     familiar_reviews_remaining_pure,
     familiarisation_view_pure,
+    triple_charms_active_pure,
 )
 from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from tests.test_evil_tree import _player as _evil_tree_player
+from tests.pace.rates.rate_property import _FED, skilling
 from tests.pace.test_card_budget import _ReviewDispatcherCase
+from tests.pace.test_short_timers import _HostCase, _summoned
 from tests.test_gnome_restaurant import _on_job, _rng
 from tests.test_integration_smoke import _DummyCol, _DummyMW
 
@@ -89,6 +93,81 @@ class CountersAtSpeedTests(unittest.TestCase):
         self.assertEqual(state_text({"surefooted_cooldown_reviews": 2_000}, 1), "Recharging · 2,000 reviews")
         self.assertEqual(state_text({"surefooted_reviews": 333}, 10), "Active · 34 reviews left")
         self.assertEqual(state_text({"surefooted_reviews": 333}, 1), "Active · 333 reviews left")
+
+
+class AnsweringTheShownCardsEndsTheWaitTests(_HostCase):
+    """Answering the number of cards a counter shows ends its wait; one card fewer does not."""
+
+    def _assert_wait_ends_on_the_shown_card(self, start, ended, skill: str = "None", speeds=(10, 1)) -> None:
+        """``start(speed)`` returns a save and the count it shows; ``ended(save)`` reads the gate."""
+        for speed in speeds:
+            player, shown = start(speed)
+            addon = self._addon(speed, player)
+            addon._state.current_skill = skill
+            with self.subTest(speed=speed, shown=shown):
+                for card in range(1, shown + 1):
+                    self.assertEqual(ended(self._answer(addon, 3)), card == shown, f"card {card}")
+
+    def test_a_declined_hard_order(self):
+        def start(speed):
+            player, ok, info = apply_gnome_restaurant_command_pure(
+                _on_job("hard"), "decline_order", {}, _rng([0.0]), speed=speed
+            )
+            self.assertTrue(ok, info)
+            return player, int(re.search(r"for (\d+) more review", info["message"]).group(1))
+
+        def ended(player):
+            return apply_gnome_restaurant_command_pure(player, "accept_order", {"difficulty": "hard"}, _rng([0.0]))[1]
+
+        self._assert_wait_ends_on_the_shown_card(start, ended)
+
+    def test_the_evil_tree_blessing(self):
+        def start(speed):
+            player, felled = _blessed(speed)
+            return player, felled["blessing_reviews"]
+
+        self._assert_wait_ends_on_the_shown_card(start, lambda player: not player["evil_tree"]["blessing_ticks_remaining"])
+
+    def test_triple_charms(self):
+        def start(speed):
+            player = {
+                "inventory": {},
+                "summoning_level": 99,
+                "summoning_state": {**default_summoning_state_pure(), "triple_charm_ticks_remaining": 4_000},
+            }
+            return player, familiarisation_view_pure(player, speed)["triple_charm_reviews_remaining"]
+
+        self._assert_wait_ends_on_the_shown_card(start, lambda player: not triple_charms_active_pure(player))
+
+    def test_a_familiar(self):
+        def start(speed):
+            player = _summoned("spiritwolf", "Spirit wolf pouch")
+            return player, familiar_reviews_remaining_pure(player["summoning_state"]["active_follower"], speed)
+
+        self._assert_wait_ends_on_the_shown_card(start, lambda player: not player["summoning_state"]["active_follower"])
+
+    def test_more_planks(self):
+        def start(speed):
+            player = {"inventory": {}, "livid_farm": {"more_planks_ticks_remaining": 2_000}}
+            return player, more_planks_reviews_left_pure(player["livid_farm"], speed)
+
+        self._assert_wait_ends_on_the_shown_card(start, lambda player: not player["livid_farm"]["more_planks_ticks_remaining"])
+
+    def test_the_surefooted_recharge(self):
+        def start(speed):
+            player = skilling("agility", "barbarian_normal", **_FED).player()
+            player["inventory"]["Surefooted aura"] = 1
+            player, command = apply_agility_command_pure(player, "activate_surefooted")
+            self.assertTrue(command["allowed"], command)
+            shown = agility_aura_rows_pure(player, speed)[0]["state"]
+            return player, int(re.fullmatch(r"Recharging · ([\d,]+) reviews", shown).group(1).replace(",", ""))
+
+        def ended(player):
+            return apply_agility_command_pure(player, "activate_surefooted")[1]["allowed"]
+
+        # At speed 1 the count is the 2,000 steps themselves: 2,000 Agility cards
+        # take 20 seconds and check nothing the speed-10 run does not.
+        self._assert_wait_ends_on_the_shown_card(start, ended, skill="Agility", speeds=(10,))
 
 
 class TheCallersPassThePlayedSpeedTests(_ReviewDispatcherCase):
