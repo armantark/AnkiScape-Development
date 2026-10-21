@@ -6,6 +6,7 @@ from .ids import *
 from .sources import *
 from .stage_additions import CAT_FOLLOWER_STATE_NAMES
 from .cold_war import COLD_WAR_STAGE_CLEANUPS
+from .stage_overrides.members.later.mournings_end_part_i import MOURNINGS_END_PART_I_CLEANUPS
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_CLEANUPS
 from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_STAGE_CLEANUPS
 from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_CLEANUPS
@@ -70,36 +71,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_inventory=("Mourner gear",),
         ),
     ),
-    "mournings_end_part_i": (
-        QuestStageRequirementCleanup(
-            stage=1,
-            remove_required_inventory=(
-                "Lletya",
-                "Elf teleport crystal",
-                "Bow",
-                "Rope",
-                "Plank",
-                "Barrel of coal-tar",
-                "Barrel",
-            ),
-            remove_required_actions=("Complete Mourning's End Part I stage 1 objective",),
-            add_auto_actions=("Reach Lletya",),
-        ),
-        QuestStageRequirementCleanup(
-            stage=3,
-            remove_required_inventory=("Oronwen", "Dye"),
-            add_required_actions=("Have Oronwen repair the mourner trousers",),
-        ),
-        QuestStageRequirementCleanup(
-            stage=4,
-            remove_required_inventory=("Arrows",),
-        ),
-        QuestStageRequirementCleanup(
-            stage=5,
-            remove_required_inventory=("Rotten apple",),
-            add_required_actions=("Use the rotten apple to sabotage the mourner food stores",),
-        ),
-    ),
+    "mournings_end_part_i": MOURNINGS_END_PART_I_CLEANUPS,
     "icthlarins_little_helper": (
         QuestStageRequirementCleanup(
             stage=1,

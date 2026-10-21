@@ -4,6 +4,7 @@ from .dependencies import *
 from .catalog_overrides import *
 from .catalog import _quest_reward_item_name
 
+from .oronwen_repair_data import ORONWEN_REPAIR_ITEMS
 from . import definitions as _definitions
 from . import stage_overrides as _stage_overrides
 
@@ -53,6 +54,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     _EAGLES_PEAK_FRAGMENT,
     _RATCATCHERS_FRAGMENT,
     COLD_WAR_SUIT_ITEMS,
+    ORONWEN_REPAIR_ITEMS,
 )
 
 

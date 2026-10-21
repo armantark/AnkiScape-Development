@@ -171,7 +171,7 @@ class RemoteTestHostTests(unittest.TestCase):
                 self.assertEqual(inventory[-5:], ["run_tests.py", "--count", "--", *selectors])
                 full = run_remote_tests._remote_lane_command(lane)
                 self.assertNotIn("--quiet", full)
-                self.assertTrue(full.endswith("run_tests.py"))
+                self.assertEqual(shlex.split(full)[-3:], ["run_tests.py", "--processes", "8"])
 
     def setUp(self):
         temporary = self.enterContext(tempfile.TemporaryDirectory())

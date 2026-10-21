@@ -1,5 +1,7 @@
 """Bindings from genuine player actions to durable quest proofs."""
 
+ORONWEN_REPAIR_PROOF = "Have Oronwen repair the mourner trousers"
+
 DO_NO_EVIL_MAMULET_MOULD_PROOF = (
     "Recover an m'amulet mould before making the monkeyspeak amulet"
 )
@@ -13,6 +15,7 @@ SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
 QUEST_ACTION_PROOF_RULES = {
+    ("quest_service", "oronwen_repair"): ((), (ORONWEN_REPAIR_PROOF,)),
     ("magic", "crumble_undead_first_boneguard"): (
         (), ("Cast Crumble Undead during the boneguard fight",),
     ),
