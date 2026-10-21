@@ -475,7 +475,7 @@ from .logic_pure_state import (
 )
 
 
-from .logic_pure_combat_specials import _combat_enemy_poison_application
+from .logic_pure_combat_specials import _combat_death_prayer_damage, _combat_enemy_poison_application
 from .logic_pure_combat_hud import (
     _combat_hud_enemy_bar,
     _combat_hud_last_fight,
@@ -1334,6 +1334,7 @@ def apply_combat_burst_pure(
     out_of_runes = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
+    death_burst = 0
     stop_reason = ""
     # This is a live combat review, so the out-of-combat rest window restarts from
     # zero; the next non-combat review begins healing you back toward full.
@@ -1341,251 +1342,244 @@ def apply_combat_burst_pure(
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
-        poison_before = bool((data.get("combat_status_effects") or {}).get("poison"))
-        enemy_lp, enemy_regen_residual = _combat_regenerate_enemy(
-            enemy_lp, enemy_max_lp, enemy_regen_residual,
-            enemy_regen_numerator, enemy_regen_denominator, enemy_counts,
-        )
-        prayer_points_after, prayer_counter, tick_prayer_uptime, prayer_scale = (
-            _combat_prayer_tick(
-                data, live_cadence, prayer_points_after, prayer_counter,
-                prayer_uptime, selected_prayers, prayer_bonus,
-                requested_prayer_uptime, halo_drain_multipliers,
+        try:
+            poison_before = bool((data.get("combat_status_effects") or {}).get("poison"))
+            enemy_lp, enemy_regen_residual = _combat_regenerate_enemy(
+                enemy_lp, enemy_max_lp, enemy_regen_residual,
+                enemy_regen_numerator, enemy_regen_denominator, enemy_counts,
             )
-        )
-        player_lp, status_stop = _combat_advance_status_tick(
-            data, player_lp, max_player_lp, rng,
-            potions_used, food_used, status_damage, status_expired,
-        )
-        if status_stop == "died":
-            died = True
-            break
-        if status_stop:
-            fled = True
-            familiar_escape = status_stop == "void_shifter"
-            break
-        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
-        if stop_reason:
-            fled = stop_reason == "fled"
-            break
-
-        if tick >= next_player_attack and enemy_lp > 0:
-            next_player_attack += player_attack_speed
-            if combat_class == "ranged":
-                ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id)
-                if ammo_name is None:
-                    out_of_ammo = True
-                    break
-                selected_ammo = ammo_name
-                ammo_used[ammo_name] = _non_negative_int(ammo_used.get(ammo_name, 0), 0) + 1
-            elif combat_class == "magic":
-                used = _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data)
-                if used is None:
-                    out_of_runes = True
-                    break
-                for rune_name, amount in used.items():
-                    runes_used[rune_name] = _non_negative_int(runes_used.get(rune_name, 0), 0) + amount
-                if borrowed_manual_cast:
-                    from ..logic.livid_farm_logic import consume_arcane_capacitor_charge_pure
-                    data, charge_used, _charge_info = (
-                        consume_arcane_capacitor_charge_pure(
-                            data,
-                            spell_spec["borrowed_spell_id"],
-                        )
-                    )
-                    if not charge_used:
-                        out_of_runes = True
-                        break
-                    data["combat_borrowed_power_spell"] = ""
-            live_player_accuracy, live_player_max_hit = (
-                _combat_live_player_rolls(
-                    combat_class, player_attack_roll, player_max_hit,
-                    enemy_defence_roll, enemy_defence_factor,
-                    spell_enemy_defence_factor, prayer_effects, prayer_uptime,
-                    tick_prayer_uptime, selected_prayers, curse_attack_count,
-                )
-                if live_cadence
-                else (player_accuracy, player_max_hit)
-            )
-            landed, damage = _combat_roll_hit(
-                live_player_accuracy, live_player_max_hit, rng,
-                blocked=enemy.get("protect_from_player_class") == combat_class,
-            )
-            player_hits_landed += landed
-            if live_cadence:
-                curse_attack_count += 1
-            damage, automatic_finisher, recoil = _combat_land_player_hit(
-                data, enemy, finisher, combat_class, damage,
-                player_damage_multiplier, enemy_lp, player_lp,
-            )
-            automatic_finishers += automatic_finisher
-            if damage > 0:
-                enemy_lp -= damage
-                player_damage += damage
-                player_lp -= recoil
-                melee_recoil_damage += recoil
-                if recoil > 0 and player_lp <= 0:
-                    died = True
-                if combat_class == "magic" and landed:
-                    if spell_effect == "blood_heal":
-                        player_lp = min(max_player_lp, player_lp + int(damage * spell_effect_value))
-                    elif spell_effect == "freeze":
-                        next_enemy_attack += max(0, int(spell_effect_value / .6))
-                    elif spell_effect == "poison" and not magic_effect_applied:
-                        if not bool(enemy.get("poison_immune", False)):
-                            poison_ev, automatic_finisher = _combat_cap_damage_for_finisher(
-                                data,
-                                finisher,
-                                enemy_lp,
-                                max(0, int(spell_effect_value)),
-                            )
-                            if automatic_finisher:
-                                automatic_finishers += 1
-                            enemy_lp -= poison_ev
-                            player_damage += poison_ev
-                        magic_effect_applied = True
-                        magic_effects_applied.add(spell_effect)
-                    elif spell_effect == "defence_flat" and not magic_effect_applied:
-                        enemy_defence_factor = max(.01, enemy_defence_factor - spell_effect_value / 100.0)
-                        spell_enemy_defence_factor = enemy_defence_factor
-                        magic_effect_applied = True
-                        magic_effects_applied.add(spell_effect)
-                player_lp = _combat_soul_split_heal(
-                    player_lp, max_player_lp, damage, prayer_effects,
-                    prayer_uptime, tick_prayer_uptime,
-                )
-            if combat_class == "magic":
-                _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
-            elif damage > 0:
-                _combat_apply_xp(xp_rewards, melee_xp_style_id, damage, npc_xp_multiplier)
-            if died and enemy_lp > 0:
-                break
-            if enemy_lp <= 0:
-                kills += 1
-                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
-                    data, enemy, target_id, rng, drops, xp_rewards, guild_rewards
-                )
-                clue_refusal_reason = clue_refusal_reason or refused_clue
-                next_player_attack += prayer_ticks
-                # A fresh enemy waits its attack delay; the player's weapon
-                # cooldown continues across kills.
-                stop_reason, fled = _combat_kill_boundary_stop(
-                    data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
-                    target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
-                )
-                if stop_reason or stop_on_kill:
-                    break
-                enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
-                next_enemy_attack = tick + 1 + enemy_attack_speed
-                magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
-                    spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
-                    (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
-                )
-                continue
-
-        if (
-            retaliation_stop_lifepoints > 0
-            and enemy_lp <= retaliation_stop_lifepoints
-        ):
-            retaliation_stopped = True
-        if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
-            next_enemy_attack += enemy_attack_speed
-            attack_spec = _combat_select_enemy_attack_pure(enemy, rng)
-            attack_kind, attack_enemy, player_delay = _combat_prepare_enemy_attack(
-                enemy, attack_spec, enemy_specials
-            )
-            next_player_attack += player_delay
-            if attack_kind == "unequip":
-                data, unequip_event = _combat_apply_enemy_unequip_special(
-                    data, target_id
-                )
-                enemy_specials.append(unequip_event)
-            if attack_enemy is None:
-                break
-            enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
-                _combat_enemy_attack_rolls(
-                    data, attack_enemy, combat_class, style_id, player_totals, enemy_totals,
-                    prayer_effects, enemy_attack_factor, weakening_equipment,
-                    weakening_active,
+            prayer_points_after, prayer_counter, tick_prayer_uptime, prayer_scale = (
+                _combat_prayer_tick(
+                    data, live_cadence, prayer_points_after, prayer_counter,
+                    prayer_uptime, selected_prayers, prayer_bonus,
+                    requested_prayer_uptime, halo_drain_multipliers,
                 )
             )
-            dragonfire_attack = _combat_enemy_breathes_dragonfire(
-                data, enemy, tick - dragonfire_effect_tick, rng, potions_used
+            player_lp, status_stop = _combat_advance_status_tick(
+                data, player_lp, max_player_lp, rng,
+                potions_used, food_used, status_damage, status_expired,
             )
-            dragonfire_effect_tick = tick
-            damage, ignores_protection, player_delay, attack_drained = _combat_enemy_special_damage(
-                data, enemy, attack_kind, dragonfire_attack, protective_equipment,
-                protection_active, unprotected_effect, prayer_effects,
-                tick_prayer_uptime, max_player_lp, rng, enemy_counts,
-                enemy_specials, stat_drains,
-            )
-            next_player_attack += player_delay
-            if attack_drained:
-                player_attack_roll, player_max_hit = _combat_player_attack_rolls(
-                    data, combat_class, style_id, melee_style_type, player_totals,
-                    prayer_effects, selected_ammo, spell_spec, spell_id,
-                )
-                player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
-            if damage is None:
-                live_enemy_accuracy = (
-                    _combat_live_enemy_accuracy(
-                        enemy_attack_roll, player_defence_roll,
-                        enemy_attack_factor, spell_enemy_attack_factor,
-                        prayer_effects, prayer_uptime, tick_prayer_uptime,
-                        selected_prayers, curse_attack_count,
-                    )
-                    if live_cadence
-                    else enemy_accuracy
-                )
-                _landed, damage = _combat_roll_hit(live_enemy_accuracy, enemy_max_hit, rng)
-            raw_enemy_damage = damage
-            damage, prayer_points_after = _combat_enemy_damage_after_prayers(
-                data, enemy, attack_enemy, combat_class, raw_enemy_damage,
-                ignores_protection, unprotected_effect, prayer_effects, prayer_scale, player_lp,
-                max_player_lp, prayer_points_after, rng, enemy_counts,
-            )
-            if dragonfire_attack:
-                enemy_counts["dragonfire_damage"] += damage
-            if damage > 0:
-                player_lp -= damage
-                enemy_damage += damage
-                if vengeance_pending:
-                    (
-                        reflected_vengeance,
-                        automatic_finisher,
-                    ) = _combat_cap_damage_for_finisher(
-                        data,
-                        finisher,
-                        enemy_lp,
-                        int(raw_enemy_damage * .75),
-                    )
-                    if automatic_finisher:
-                        automatic_finishers += 1
-                    if reflected_vengeance > 0:
-                        enemy_lp -= reflected_vengeance
-                        player_damage += reflected_vengeance
-                    vengeance_pending = False
-                enemy_lp, reflected, automatic_finisher = _combat_rebound_enemy_hit(
-                    data, enemy, finisher, raw_enemy_damage, damage,
-                    prayer_effects, prayer_scale, enemy_lp, enemy_max_lp, rng,
-                    enemy_counts, stat_drains,
-                )
-                automatic_finishers += automatic_finisher
-                player_damage += reflected
-            player_lp, prayer_points_after, prayer_counter = _combat_apply_redemption(
-                data, player_lp, max_player_lp, prayer_effects,
-                tick_prayer_uptime, prayer_points_after, prayer_counter,
-            )
-            if player_lp <= 0:
+            if status_stop == "died":
                 died = True
                 break
-            if _combat_void_shifter_escape_ready(
-                data, player_lp, max_player_lp
-            ):
+            if status_stop:
                 fled = True
-                familiar_escape = True
+                familiar_escape = status_stop == "void_shifter"
                 break
+            stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
+            if stop_reason:
+                fled = stop_reason == "fled"
+                break
+
+            if tick >= next_player_attack and enemy_lp > 0:
+                next_player_attack += player_attack_speed
+                if combat_class == "ranged":
+                    ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id)
+                    if ammo_name is None:
+                        out_of_ammo = True
+                        break
+                    selected_ammo = ammo_name
+                    ammo_used[ammo_name] = _non_negative_int(ammo_used.get(ammo_name, 0), 0) + 1
+                elif combat_class == "magic":
+                    used = _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data)
+                    if used is None:
+                        out_of_runes = True
+                        break
+                    for rune_name, amount in used.items():
+                        runes_used[rune_name] = _non_negative_int(runes_used.get(rune_name, 0), 0) + amount
+                    if borrowed_manual_cast:
+                        from ..logic.livid_farm_logic import consume_arcane_capacitor_charge_pure
+                        data, charge_used, _charge_info = (
+                            consume_arcane_capacitor_charge_pure(
+                                data,
+                                spell_spec["borrowed_spell_id"],
+                            )
+                        )
+                        if not charge_used:
+                            out_of_runes = True
+                            break
+                        data["combat_borrowed_power_spell"] = ""
+                live_player_accuracy, live_player_max_hit = (
+                    _combat_live_player_rolls(
+                        combat_class, player_attack_roll, player_max_hit,
+                        enemy_defence_roll, enemy_defence_factor,
+                        spell_enemy_defence_factor, prayer_effects, prayer_uptime,
+                        tick_prayer_uptime, selected_prayers, curse_attack_count,
+                    )
+                    if live_cadence
+                    else (player_accuracy, player_max_hit)
+                )
+                landed, damage = _combat_roll_hit(
+                    live_player_accuracy, live_player_max_hit, rng,
+                    blocked=enemy.get("protect_from_player_class") == combat_class,
+                )
+                player_hits_landed += landed
+                if live_cadence:
+                    curse_attack_count += 1
+                damage, automatic_finisher, recoil = _combat_land_player_hit(
+                    data, enemy, finisher, combat_class, damage,
+                    player_damage_multiplier, enemy_lp, player_lp,
+                )
+                automatic_finishers += automatic_finisher
+                if damage > 0:
+                    enemy_lp -= damage
+                    player_damage += damage
+                    player_lp -= recoil
+                    melee_recoil_damage += recoil
+                    if recoil > 0 and player_lp <= 0:
+                        died = True
+                    if combat_class == "magic" and landed:
+                        if spell_effect == "blood_heal":
+                            player_lp = min(max_player_lp, player_lp + int(damage * spell_effect_value))
+                        elif spell_effect == "freeze":
+                            next_enemy_attack += max(0, int(spell_effect_value / .6))
+                        elif spell_effect == "poison" and not magic_effect_applied:
+                            if not bool(enemy.get("poison_immune", False)):
+                                poison_ev, automatic_finisher = _combat_cap_damage_for_finisher(
+                                    data,
+                                    finisher,
+                                    enemy_lp,
+                                    max(0, int(spell_effect_value)),
+                                )
+                                if automatic_finisher:
+                                    automatic_finishers += 1
+                                enemy_lp -= poison_ev
+                                player_damage += poison_ev
+                            magic_effect_applied = True
+                            magic_effects_applied.add(spell_effect)
+                        elif spell_effect == "defence_flat" and not magic_effect_applied:
+                            enemy_defence_factor = max(.01, enemy_defence_factor - spell_effect_value / 100.0)
+                            spell_enemy_defence_factor = enemy_defence_factor
+                            magic_effect_applied = True
+                            magic_effects_applied.add(spell_effect)
+                    player_lp = _combat_soul_split_heal(
+                        player_lp, max_player_lp, damage, prayer_effects,
+                        prayer_uptime, tick_prayer_uptime,
+                    )
+                if combat_class == "magic":
+                    _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
+                elif damage > 0:
+                    _combat_apply_xp(xp_rewards, melee_xp_style_id, damage, npc_xp_multiplier)
+                if died:
+                    break
+
+            if 0 < enemy_lp <= retaliation_stop_lifepoints:
+                retaliation_stopped = True
+            if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
+                next_enemy_attack += enemy_attack_speed
+                attack_spec = _combat_select_enemy_attack_pure(enemy, rng)
+                attack_kind, attack_enemy, player_delay = _combat_prepare_enemy_attack(
+                    enemy, attack_spec, enemy_specials
+                )
+                next_player_attack += player_delay
+                if attack_kind == "unequip":
+                    data, unequip_event = _combat_apply_enemy_unequip_special(
+                        data, target_id
+                    )
+                    enemy_specials.append(unequip_event)
+                if attack_enemy is None:
+                    break
+                enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
+                    _combat_enemy_attack_rolls(
+                        data, attack_enemy, combat_class, style_id, player_totals, enemy_totals,
+                        prayer_effects, enemy_attack_factor, weakening_equipment,
+                        weakening_active,
+                    )
+                )
+                dragonfire_attack = _combat_enemy_breathes_dragonfire(
+                    data, enemy, tick - dragonfire_effect_tick, rng, potions_used
+                )
+                dragonfire_effect_tick = tick
+                damage, ignores_protection, player_delay, attack_drained = _combat_enemy_special_damage(
+                    data, enemy, attack_kind, dragonfire_attack, protective_equipment,
+                    protection_active, unprotected_effect, prayer_effects,
+                    tick_prayer_uptime, max_player_lp, rng, enemy_counts,
+                    enemy_specials, stat_drains,
+                )
+                next_player_attack += player_delay
+                if attack_drained:
+                    player_attack_roll, player_max_hit = _combat_player_attack_rolls(
+                        data, combat_class, style_id, melee_style_type, player_totals,
+                        prayer_effects, selected_ammo, spell_spec, spell_id,
+                    )
+                    player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+                if damage is None:
+                    live_enemy_accuracy = (
+                        _combat_live_enemy_accuracy(
+                            enemy_attack_roll, player_defence_roll,
+                            enemy_attack_factor, spell_enemy_attack_factor,
+                            prayer_effects, prayer_uptime, tick_prayer_uptime,
+                            selected_prayers, curse_attack_count,
+                        )
+                        if live_cadence
+                        else enemy_accuracy
+                    )
+                    _landed, damage = _combat_roll_hit(live_enemy_accuracy, enemy_max_hit, rng)
+                raw_enemy_damage = damage
+                damage, prayer_points_after = _combat_enemy_damage_after_prayers(
+                    data, enemy, attack_enemy, combat_class, raw_enemy_damage,
+                    ignores_protection, unprotected_effect, prayer_effects, prayer_scale, player_lp,
+                    max_player_lp, prayer_points_after, rng, enemy_counts,
+                )
+                if dragonfire_attack:
+                    enemy_counts["dragonfire_damage"] += damage
+                if damage > 0:
+                    player_lp -= damage
+                    enemy_damage += damage
+                    if vengeance_pending:
+                        (
+                            reflected_vengeance,
+                            automatic_finisher,
+                        ) = _combat_cap_damage_for_finisher(
+                            data,
+                            finisher,
+                            enemy_lp,
+                            int(raw_enemy_damage * .75),
+                        )
+                        if automatic_finisher:
+                            automatic_finishers += 1
+                        if reflected_vengeance > 0:
+                            enemy_lp -= reflected_vengeance
+                            player_damage += reflected_vengeance
+                        vengeance_pending = False
+                    enemy_lp, reflected, automatic_finisher = _combat_rebound_enemy_hit(
+                        data, enemy, finisher, raw_enemy_damage, damage,
+                        prayer_effects, prayer_scale, enemy_lp, enemy_max_lp, rng,
+                        enemy_counts, stat_drains,
+                    )
+                    automatic_finishers += automatic_finisher
+                    player_damage += reflected
+                player_lp, prayer_points_after, prayer_counter = _combat_apply_redemption(
+                    data, player_lp, max_player_lp, prayer_effects,
+                    tick_prayer_uptime, prayer_points_after, prayer_counter,
+                )
+                if player_lp <= 0:
+                    died = True
+                    break
+                if _combat_void_shifter_escape_ready(
+                    data, player_lp, max_player_lp
+                ):
+                    fled = True
+                    familiar_escape = True
+                    break
+                if enemy_lp > 0:
+                    player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
+                    if food_event:
+                        food_used.append(food_event)
+                    poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
+                    potion_event = _combat_enemy_poison_application(
+                        data, poison_damage, rng, status_applied
+                    )
+                    if potion_event:
+                        potions_used.append(potion_event)
+        finally:
+            # Every tick exit passes here before rewards are banked or a grave is made.
+            if died and ("wrath" in selected_prayers or "retribution" in selected_prayers):
+                death_burst, _automatic_finisher = _combat_death_prayer_damage(
+                    data, selected_prayers, finisher, enemy_lp, rng
+                )
+                enemy_lp -= death_burst
+                player_damage += death_burst
             if enemy_lp <= 0:
                 kills += 1
                 data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
@@ -1593,29 +1587,23 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
-                stop_reason, fled = _combat_kill_boundary_stop(
-                    data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
-                    target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
-                )
-                if stop_reason or stop_on_kill:
-                    break
-                enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
-                next_enemy_attack = tick + 1 + enemy_attack_speed
-                magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
-                    spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
-                    (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
-                )
-                continue
-            player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
-            if food_event:
-                food_used.append(food_event)
-            poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
-            potion_event = _combat_enemy_poison_application(
-                data, poison_damage, rng, status_applied
+        if enemy_lp <= 0:
+            # A fresh enemy waits its attack delay; the player's weapon
+            # cooldown continues across kills.
+            stop_reason, fled = _combat_kill_boundary_stop(
+                data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
+                target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
+                player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
             )
-            if potion_event:
-                potions_used.append(potion_event)
+            if stop_reason or stop_on_kill:
+                break
+            enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
+            next_enemy_attack = tick + 1 + enemy_attack_speed
+            magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count = _combat_fresh_enemy_effects(
+                spell_effect, spell_effect_value, selected_prayers, prayer_uptime, prayer_effects, live_cadence,
+                (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
+            )
+            continue
         stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
         if stop_reason:
             fled = stop_reason == "fled"
@@ -1624,13 +1612,11 @@ def apply_combat_burst_pure(
     data, equipment_condition_events = _combat_bank_burst_rewards(
         data, ticks_elapsed, drops, xp_rewards
     )
-    player_lp, death_burst, carry_encounter = _combat_settle_burst_outcome(
+    player_lp, carry_encounter = _combat_settle_burst_outcome(
         data, target_id, kills, died, fled, player_lp, max_player_lp,
-        enemy_lp, enemy_max_lp, selected_prayers, finisher, rng,
+        enemy_lp, enemy_max_lp,
         live_cadence=live_cadence, safe_death=safe_death, no_grave=no_grave, enemy=enemy,
     )
-    enemy_lp -= death_burst
-    player_damage += death_burst
     if carry_encounter:
         next_encounter = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
         if live_cadence:

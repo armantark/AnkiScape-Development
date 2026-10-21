@@ -737,3 +737,15 @@
 - 2026-10-21T00:45:51-07:00 Part G death fixture: forcing a lethal roll alone still fails test_a_death_ends_the_card_before_the_selected_skill_runs (32 tests, failures=1); fresh Wild jade vine first attacks after the six-tick slice. Seed jade_combat_encounter.enemy_attack_ticks_remaining=0 to exercise first-slice death.
 - 2026-10-21T00:50:26-07:00 Part G Magic focused command accidentally set ANKISCAPE_DARKAN_WORLD_SERVER=/Users/armantarkhanian/ankiscape-remote-test-host/plain-site instead of /Users/armantarkhanian/ankiscape-remote-test-host/sources/darkan-world-server; 48 tests passed but receipt is not accepted as gate-environment proof. Repeat with exact gate environment.
 - 2026-10-21T01:06:00-07:00 Part G final documentation audit: memory-bank/papercuts.md:737 and :738 returned papercut_without_bullet; prefix both timestamped notes with the required Markdown bullet. Product B–G proof on 5b812c893f8cb5ffc9db00d9bd1756f3706feae0 stays accepted: Ran 4950 tests in 793.855s, OK (skipped=605).
+
+- 2026-10-21T01:56:27-07:00: Fatal-kill investigation: combined source reads exceeded tool output limits; bounded reads used. A zsh search with unmatched data/generated/combat* stopped with "zsh:1: no matches found: data/generated/combat*"; replaced with exact source paths. Initial new legacy regression let the player attack first because legacy ignores carried attack clocks; corrected the new fixture to miss player hits.
+
+- 2026-10-21T01:58:05-07:00: Fatal-kill first green attempt (r7-fatal-green-first.log) failed with "NameError: name '_combat_death_prayer_damage' is not defined" after moving the helper call; added its import. New legacy fixture needed five ticks to reach the first enemy attack; loaded food is consumed by death cleanup rather than graved, so the new test compares full grave and supply state against the same death without a kill. No existing test changed.
+
+- 2026-10-21T01:59:02-07:00: Round 7 read-only archive command accidentally used /tmp as cwd: "fatal: not a git repository (or any of the parent directories): .git" and "can't open file '/private/tmp/run_tests.py': [Errno 2] No such file or directory". Re-ran archive from the assigned worktree and tests from each extracted archive.
+
+- 2026-10-21T02:03:06-07:00: New round-7 recoil XP assertions assumed an NPC multiplier of 1; real Cow xp_multiplier is 0.975, giving 0.39 Attack and 0.129675 Constitution XP. Corrected only the new expectations and the premature progress-note claim. Failed run retained as r7-fatal-xp-fixture.log (418 tests, failures=2).
+
+- 2026-10-21T02:04:11-07:00: Normal round-7 commit hook refused engine cyclomatic complexity 158 (was 157) and new death-prayer test cognitive complexity 21. Replaced the retaliation guard with the equivalent chained range comparison and flattened the two scenario loops with itertools.product. Hook retained; no assertion removed or existing test changed.
+
+- 2026-10-21T02:04:56-07:00: Round-7 hook retry refused tests/pace/test_fatal_kill_settlement.py E301 x1 after loop flattening removed the blank line between methods; restored it. Receipt r7-fatal-commit-final.log retained.

@@ -23,7 +23,6 @@ from ..logic.warriors_guild_logic import (
 )
 from .logic_pure_combat_food import _combat_consume_auto_food
 from .logic_pure_combat_model import _combat_apply_pvm_death, _combat_apply_wilderness_ambush
-from .logic_pure_combat_specials import _combat_death_prayer_damage
 from .logic_pure_combat_supplies import (
     _combat_advance_status_effects,
     _combat_consume_antipoison_if_needed,
@@ -177,9 +176,6 @@ def _combat_settle_burst_outcome(
     max_player_lp,
     enemy_lp,
     enemy_max_lp,
-    selected_prayers,
-    finisher,
-    rng,
     *,
     live_cadence,
     safe_death,
@@ -187,8 +183,8 @@ def _combat_settle_burst_outcome(
     enemy,
 ):
     """Record the burst's kills, then settle a death or drop an encounter that
-    has nothing to carry. Returns the player's lifepoints, the death-prayer
-    damage dealt to the enemy, and whether the caller carries the encounter."""
+    has nothing to carry. Returns the player's lifepoints and whether the caller
+    carries the encounter."""
     # Chaining means a single burst can defeat several enemies and still end in
     # a partial survivor or a death, so kills, death, and the carried encounter
     # are independent rather than mutually exclusive branches.
@@ -201,24 +197,17 @@ def _combat_settle_burst_outcome(
         # burst ended right after a kill respawned a fresh full-LP enemy.
         if fled or enemy_lp <= 0 or (enemy_lp >= enemy_max_lp and not live_cadence):
             data["combat_encounter"] = {}
-            return player_lp, 0, False
-        return player_lp, 0, True
-    death_burst = 0
-    if "wrath" in selected_prayers or "retribution" in selected_prayers:
-        # Death prayers cap with allow_automatic=False, so they never count as
-        # an automatic finisher.
-        death_burst, _automatic_finisher = _combat_death_prayer_damage(
-            data, selected_prayers, finisher, enemy_lp, rng
-        )
+            return player_lp, False
+        return player_lp, True
     if safe_death:
         data["combat_encounter"] = {}
         data["combat_status_effects"] = {}
-        return max_player_lp, death_burst, False
+        return max_player_lp, False
     kept_items = enemy.get("pvp_death_kept_items", COMBAT_PVP_DEATH_KEPT_ITEMS)
     player_lp = _combat_apply_pvm_death(
         data, max_player_lp, no_grave=no_grave, kept_items=kept_items
     )
-    return player_lp, death_burst, False
+    return player_lp, False
 
 
 def _combat_settle_wilderness_ambush(
