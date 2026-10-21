@@ -393,7 +393,10 @@ class SkeletalWyvernKernelTests(unittest.TestCase):
         self.assertEqual(loaded["combat_kill_counts"]["skeletal_wyvern"], 1)
         self.assertEqual(loaded["slayer_assignment"]["remaining"], 39)
         self.assertEqual(loaded["slayer_exp"], 210.0)
-        self.assertEqual(loaded["combat_encounter"], {})
+        self.assertEqual(
+            (loaded["combat_encounter"]["target_id"], loaded["combat_encounter"]["enemy_lifepoints"]),
+            ("skeletal_wyvern", 1999),
+        )
 
 
 class SkeletalWyvernReviewUndoTests(unittest.TestCase):

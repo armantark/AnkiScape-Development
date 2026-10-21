@@ -728,3 +728,5 @@
 - 2026-10-20T23:44:00-07:00: Part G4 repaired hook refused apply_combat_burst_pure CCN 160 (was 158), cognitive 265 (was 262) after the same-tick kill-danger fix (part-g/g4-commit-repaired.log). Moved kill-boundary danger evaluation and its flee flag into the outcome owner with the existing task/bank checks.
 
 - 2026-10-21T00:01:40-07:00: Part G3 neighbour-repair hook refused unused import card_ticks_pure in runtime/runtime_actions_shared.py (part-g/g3-neighbours-commit.log). The first removal patch assumed a standalone import and failed; removed the name from its grouped import.
+
+- 2026-10-21T00:09:39-07:00: Part G verification: plan section 1.2 names runtime/runtime_actions_budget.py, but the implemented budget lives in runtime/runtime_actions_context.py; a chained read stopped at the missing planned path.

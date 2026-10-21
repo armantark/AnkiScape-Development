@@ -3946,8 +3946,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon._state.player_data["inventory"]["Logs"], 0)
-        self.assertEqual(addon._state.player_data["inventory"]["Arrow shafts"], 30)
+        self.assertEqual(addon._state.player_data["inventory"]["Logs"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Arrow shafts"], 15)
         self.assertEqual(addon._state.player_data["inventory"]["Shark"], 30)
         self.assertEqual(addon._state.player_data["inventory"]["Bronze arrows"], 10)
         # One leave-combat rest review heals a ceil-share of the missing 80 LP
@@ -3962,6 +3962,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon._state.player_data["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
         self.assertEqual(addon._state.player_data["combat_last_result"]["reason"], "combat_bank_run")
+        self.assertEqual(addon._state.player_data["combat_last_result"]["stop_reason"], "bank_trip")
         self.assertEqual(len(addon._state.review_undo_stack), 1)
 
         changes = types.SimpleNamespace(
@@ -8750,15 +8751,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(addon._state.direct_action_undo_stack, [])
 
-    def test_a_speed_ten_card_plays_clan_wars_beats_until_the_match_ends(self):
+    def test_a_speed_ten_clan_wars_card_stops_at_low_lp_without_food_and_keeps_the_match_active(self):
         addon = _load_addon_as_package("ankiscape_clan_wars_multiplier")
         logic = sys.modules[f"{addon.__name__}.logic.clan_wars_logic"]
         storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
         constants = sys.modules[f"{addon.__name__}.core.constants"]
-        player = storage.default_player_data(
-            constants.ORE_DATA,
-            constants.ITEM_DEFINITIONS,
-        )
+        player = storage.default_player_data(constants.ORE_DATA, constants.ITEM_DEFINITIONS)
         player, ok, _info = logic.enter_clan_wars_pure(player, "white_ffa")
         self.assertTrue(ok)
         addon._state.player_data = player
@@ -8775,10 +8773,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
         before = copy.deepcopy(addon._state.player_data)
-
+        review_ctx = addon._runtime_action_context()
+        addon._runtime_action_context = lambda: review_ctx
         addon.on_good_answer(before)
-
-        self.assertEqual(addon._state.player_data["clan_wars_losses"], 1)
+        self.assertEqual(review_ctx.card.stop_reason, "low_lp_no_food")
+        self.assertEqual(addon._state.player_data["clan_wars_losses"], 0)
+        self.assertEqual(addon._state.player_data["activity_session"]["active_id"], "clan_wars")
 
     def test_phoenix_lair_loaded_addon_chain_rewards_daily_charge_and_review_undo(self):
         addon = _load_addon_as_package("ankiscape_phoenix_lair_e2e")
