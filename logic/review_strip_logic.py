@@ -26,6 +26,7 @@ from ..core.action_registry import (
     review_handler_target_key,
 )
 from ..core.constants import (
+    BORK_ACTIVITY_ID,
     BIRD_NEST_OPEN_TABLES,
     COOKING_ITEM_IMAGES,
     DEFAULT_UTILITY_ACTIVITY,
@@ -39,7 +40,6 @@ from ..core.constants import (
 )
 from ..core.target_metadata import utility_activity_rows
 from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
-from ..data.bork_data import BORK_ACTIVITY_ID
 from ..data.circus_data import CIRCUS_ACTIVITY_ID
 from ..data.court_cases_data import COURT_CASES_ACTIVITY_ID
 from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
@@ -68,6 +68,11 @@ from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
 from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
+from .pace.world_clock import (
+    answered_cards_pure as _answered_reviews_pure,
+    calendar_ticks_pure,
+    world_day_start_ticks_pure,
+)
 from ..logic.big_chinchompa_logic import big_chinchompa_view_pure
 from ..logic.bork_logic import bork_view_pure
 from ..logic.circus_logic import circus_view_pure
@@ -156,18 +161,9 @@ REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
 )
 
 
-def _answered_reviews_pure(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    try:
-        return max(0, int(clock.get("answered_cards", 0) or 0))
-    except (TypeError, ValueError, OverflowError):
-        return 0
-
-
 def simulated_clock_text_pure(player_data: Mapping[str, Any]) -> str:
-    hour = (SIMULATED_CLOCK_START_HOUR + _answered_reviews_pure(player_data) // 10) % 24
+    ticks = calendar_ticks_pure(player_data) - world_day_start_ticks_pure(player_data)
+    hour = (SIMULATED_CLOCK_START_HOUR + ticks // 6_000) % 24
     suffix = "AM" if hour < 12 else "PM"
     display_hour = hour % 12 or 12
     return f"{display_hour}:00 {suffix}"

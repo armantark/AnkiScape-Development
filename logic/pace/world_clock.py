@@ -30,7 +30,7 @@ def _int(value: Any) -> int:
         return 0
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
+def answered_cards_pure(player_data: Mapping[str, Any]) -> int:
     clock = player_data.get("shop_market_clock")
     return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
 
@@ -68,7 +68,7 @@ def _clock_at(player_data: Mapping[str, Any], card: int) -> dict[str, int]:
 
 
 def _current_clock(player_data: Mapping[str, Any]) -> dict[str, int]:
-    return _clock_at(player_data, _answered_cards(player_data))
+    return _clock_at(player_data, answered_cards_pure(player_data))
 
 
 def advance_world_clock_pure(
@@ -80,7 +80,7 @@ def advance_world_clock_pure(
     The host calls this once after every answered card, Again included.
     """
     data = dict(player_data)
-    card = _answered_cards(data)
+    card = answered_cards_pure(data)
     clock = _clock_at(data, max(0, card - 1))
     before_ticks = clock["day"] * CALENDAR_TICKS_PER_DAY + clock["in_day_ticks"]
     clock["in_day_ticks"] += card_ticks_pure(speed)
@@ -125,7 +125,7 @@ def cards_until_world_day_pure(player_data: Mapping[str, Any], day: int) -> int:
     """
     clock = _current_clock(player_data)
     day_start_card = clock["day_start_card"] + (day - clock["day"]) * clock["day_length"]
-    return day_start_card - _answered_cards(player_data)
+    return day_start_card - answered_cards_pure(player_data)
 
 
 def cards_to_next_world_day_pure(player_data: Mapping[str, Any]) -> int:
