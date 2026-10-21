@@ -12,6 +12,16 @@ def player_hits_only(*_args, **kwargs):
 
 
 class CombatChainTests(unittest.TestCase):
+    def test_a_killing_hit_that_also_kills_the_player_reports_death(self):
+        enemy = {**ENEMY, "melee_recoil_damage": 100, "stats": {**ENEMY["stats"], "hitpoints": 1}}
+        ctx, _calls, ok = answer_combat(enemy=enemy, hits=player_hits_only)
+        self.assertTrue(ok)
+        result = ctx.player_data["combat_last_result"]
+        self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 1))
+        self.assertTrue(result["died"])
+        self.assertEqual(ctx.card.stop_reason, "died")
+        self.assertEqual(ctx.player_data["combat_encounter"], {})
+
     def test_a_reflected_kill_keeps_the_same_tick_low_lifepoint_stop(self):
         player = _player(combat_auto_flee=False, combat_attack_style="magic_standard",
                          current_combat_spell="confuse", equipment={"weapon": "Staff"},

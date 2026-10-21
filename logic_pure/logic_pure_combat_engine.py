@@ -1505,7 +1505,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died,
                 )
                 if stop_reason or stop_on_kill:
                     break
@@ -1629,7 +1629,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died,
                 )
                 if stop_reason or stop_on_kill:
                     break

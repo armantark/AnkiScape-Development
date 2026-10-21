@@ -169,10 +169,12 @@ def _combat_result_stop_reason(reason, died, fled, familiar_escape, out_of_ammo,
     return next((name for stopped, name in stops if stopped), "")
 
 
-def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before):
+def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before, died):
     """Settle a kill's danger, task and bank boundaries; return reason and flee."""
     if not live_cadence:
         return "", False
+    if died:
+        return "died", False
     danger = _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before)
     if danger:
         return danger, danger == "fled"
