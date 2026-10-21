@@ -278,7 +278,7 @@ from .core.review_context import (
 from .data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
 from .logic.agility_travel import agility_carried_weight_pure
 from .logic.summoning_logic import (
-    claim_familiarisation_reward_pure,
+    advance_summoning_world_tick_pure, claim_familiarisation_reward_pure,
     dismiss_familiar_pure,
     reclaim_familiar_cargo_pure,
     renew_familiar_pure,
@@ -5238,7 +5238,7 @@ def _advance_clocks_for_answer(successful_answer) -> None:
     except Exception:
         pass
     _state.familiar_ticks_before = runtime_actions.advance_summoning_for_answer(
-        _runtime_action_context(), successful_answer, _active_review_carried_target(),
+        _state.player_data, successful_answer, _active_review_carried_target(), card_ticks, advance_summoning_world_tick_pure,
     )
 
 
