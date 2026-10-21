@@ -2,6 +2,8 @@
 
 from typing import Any, Dict
 
+from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
+
 from ..data.quest_data import DEFAULT_QUEST_TARGET, default_quest_states
 from ..data.quest.oronwen_repair_data import PENDING_KEY
 from ..logic_pure.logic_pure_quest import default_quest_combat_active_encounters_pure
@@ -25,6 +27,7 @@ def default_quest_side_state():
 
 def migrate_quest_data(data, loaded_config_version, current_config_version, retired_proofs):
     _migrate_quest_state(data)
+    data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     _migrate_quest_stage_side_state(data, loaded_config_version)
     _migrate_quest_action_proofs(data, loaded_config_version, current_config_version, retired_proofs)
     migrate_oronwen_repair_state(data, loaded_config_version)

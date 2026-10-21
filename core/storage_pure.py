@@ -703,6 +703,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["equipment"] = {}
     data.update(default_equipment_instance_state_pure())
     data.update(default_quest_side_state())
+    data["cold_war_greeting"] = []
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
     data["wicked_hood"] = default_wicked_hood_state_pure(0)

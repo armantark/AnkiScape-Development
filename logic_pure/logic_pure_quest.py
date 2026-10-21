@@ -1,6 +1,8 @@
 """logic_pure_quest.py - split out of logic_pure.py; see that module's header."""
 
 from typing import Iterable, Mapping, Optional
+
+from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
 from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
@@ -104,10 +106,8 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
-
 
 def _skill_requirement_reason(player_data, requirement):
     if not isinstance(requirement, Mapping):
@@ -129,7 +129,6 @@ def _skill_requirement_reason(player_data, requirement):
     if _positive_int(player_data.get(level_key, 1), 1) < level_required:
         return f"{label} {level_required}"
     return None
-
 
 def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
@@ -170,7 +169,6 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
             reasons.append(f"{item_name} x{amount}")
     return tuple(dict.fromkeys(reasons))
 
-
 def quest_current_stage_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
     if not quest:
@@ -182,7 +180,6 @@ def quest_current_stage_pure(player_data, quest_id, quest_data):
     if state["completed"]:
         return total_stages
     return min(total_stages, max(1, state["progress"]))
-
 
 def _quest_stage_item_pairs(requirement, key):
     raw_items = requirement.get(key, {}) if isinstance(requirement, Mapping) else {}
@@ -202,7 +199,6 @@ def _quest_stage_item_pairs(requirement, key):
                 pairs.append((name, _positive_int(amount, 1)))
         return tuple(pairs)
     return tuple()
-
 
 def _quest_stage_item_option_groups(requirement, key):
     raw_groups = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
@@ -236,15 +232,12 @@ def _quest_stage_item_option_groups(requirement, key):
             groups.append(pairs)
     return tuple(groups)
 
-
 def _quest_item_requirement_text(item_name, amount):
     quantity = f" x{amount}" if amount > 1 else " x1"
     return f"{item_name}{quantity}"
 
-
 def _quest_item_option_reason(options):
     return "Needs " + " or ".join(_quest_item_requirement_text(item_name, amount) for item_name, amount in options)
-
 
 def _quest_stage_strings(requirement, key):
     raw_values = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
@@ -260,7 +253,6 @@ _QUEST_ROUTE_INHERITANCE = {
     ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
 }
 
-
 def _quest_route_completed(player_data, quest_id, route_id):
     if _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
         return True
@@ -269,10 +261,8 @@ def _quest_route_completed(player_data, quest_id, route_id):
             return True
     return False
 
-
 def _quest_choice_stage(choice):
     return _positive_int(choice.get("stage", 0), 0) if isinstance(choice, Mapping) else 0
-
 
 def _quest_choice_options(choice):
     if not isinstance(choice, Mapping):
@@ -294,7 +284,6 @@ def _quest_choice_options(choice):
         )
     return tuple(rows)
 
-
 def _quest_choice_current_stage(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if state["completed"]:
@@ -303,13 +292,11 @@ def _quest_choice_current_stage(player_data, quest_id, quest_data):
         return quest_current_stage_pure(player_data, quest_id, quest_data)
     return 0
 
-
 def _quest_choice_selected(player_data, quest_id, options):
     return tuple(
         option for option in options
         if _quest_route_completed(player_data, quest_id, option["route_id"])
     )
-
 
 def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
     quest = quest_data.get(quest_id)
@@ -332,7 +319,6 @@ def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
             }
         )
     return tuple(rows)
-
 
 def quest_current_stage_choices_pure(player_data, quest_id, quest_data):
     """Return unresolved player choices for the visible quest stage."""
@@ -1049,7 +1035,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     return oronwen_review_ready_pure(player_data, quest_id, blockers) or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
 
 
-def start_quest_pure(player_data, quest_id, quest_data):
+def start_quest_pure(player_data, quest_id, quest_data, *, assign_greeting=True):
     if not can_start_quest_pure(player_data, quest_id, quest_data):
         return player_data, False
     data = _copy_player_data_with_nested(player_data)
@@ -1065,6 +1051,8 @@ def start_quest_pure(player_data, quest_id, quest_data):
         state["progress"] = 0
         state["completed"] = False
     data.setdefault("quests", {})[quest_id] = state
+    if quest_id == "cold_war" and assign_greeting:
+        data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     data["current_quest"] = quest_id
     return data, True
 
@@ -1331,7 +1319,7 @@ def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
     empty_refusal = ("",) if include_clue_refusal else ()
-    data, ok = start_quest_pure(player_data, quest_id, quest_data)
+    data, ok = start_quest_pure(player_data, quest_id, quest_data, assign_greeting=False)
     state = quest_state_pure(data, quest_id)
     if not ok or state["completed"]:
         return (data, False, False, *empty_refusal)
@@ -1344,6 +1332,8 @@ def apply_quest_progress_pure(
     if blockers:
         return (player_data, False, False, *empty_refusal)
     quest = quest_data[quest_id]
+    if quest_id == "cold_war":
+        data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     current_stage = quest_current_stage_pure(data, quest_id, quest_data)
     if _produce_repeatable_quest_stage_items(data, quest_id, quest):
         state["progress"] = current_stage
@@ -1445,7 +1435,7 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         rows.append(
             {
                 "stage": stage,
-                "lines": tuple(journal_stages.get(stage, ())),
+                "lines": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),
                 "completed": state["completed"] or stage < progress,
                 "current": (not state["completed"] and stage == progress),
             }
