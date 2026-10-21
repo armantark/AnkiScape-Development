@@ -30,3 +30,17 @@
   Resolved on2026-10-14: the exact quota command now lives in continuation.json; every later normal commit writes its complete transcript outside the checkout and is verified against Git. Resumes no longer depend on a volatile functions store or a live PTY handle.
 
 - 2026-10-20T10:32:15-07:00: Deadline fix full selection under Seatbelt ran 72 tests with 2 errors, exit 1; `os.killpg(group, stop)` raised `PermissionError: [Errno 1] Operation not permitted` in both existing FIFO deadline cases. A separate owned-process canary must separate a sandbox limit from a source failure. Resolution: the owned-process canary reproduced the same error without Seatbelt. Treat `PermissionError` as no eligible member in this owned group. Retain the unreaped leader until all signal requests end, then reap it. The zombie process reserves the launch ID until that final reap.
+
+
+## Part G complete kill rewards — 2026-10-21
+
+- 2026-10-21 Part G reward audit: zsh rejected runtime/runtime_combat* and logic/quest_action* with "no matches found"; two guessed exact file paths also did not exist. Use rg directory searches before choosing paths.
+- 2026-10-21 Part G Cyclops red fixture: the shared context defaults RNG to 0.0, which awards Long bone and Limpwurt root before the bank check. Set real table rolls to 0.999999 and set the defender roll separately to isolate the missing reward.
+
+- 2026-10-21 Part G expanded fixtures: reflected Cyclops failed with "Melee only inside the Warriors' Guild Cyclops room."; real Vengeance is Magic-only, so no Guild reflection fixture is reachable. Court summons also needs court_cases_completed_ids=["mugger"] before a guaranteed drop survives the ownership filter.
+
+- 2026-10-21 Part G normal commit failed: "slop-gate: code files above 1000 lines were grown:"; logic_pure/logic_pure_combat_engine.py: 2150 lines (was 2144). Move the cohesive kill-reward collector to logic_pure_combat_outcome.py before retrying; no hook bypass or amend.
+
+- 2026-10-21T01:42:10-07:00: Part G documentation audit failed: "startup_line_budget_exceeded: 3006 startup lines must stay under 3000: memory-bank/activeContext.md=50, memory-bank/progress.md=457, memory-bank/future-work-kanban.md=1568, memory-bank/goal-priority-matrix.md=185, memory-bank/loop-queue.md=0, memory-bank/papercuts.md=746". Move the resolved round-6 friction records to memory-bank/papercuts-fixed.md; preserve the complete product proof.
+
+Resolution: directory searches located the files; corrected table rolls and Court summons prerequisites isolated the real cases. The unreachable reflected Guild fixture was removed before commit. Moving the kill-reward collector to the outcome module cleared the normal hook. Moving these resolved records out of startup memory cleared its line limit. Product proof remains on d91bd7b0d9f9e011e94c2673e2d77c05508e67b0.
