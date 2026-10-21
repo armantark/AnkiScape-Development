@@ -26,6 +26,7 @@ from ..data.achievement_diary_data import (
     BASE_CONDITION_KINDS,
     DiaryCondition,
     DiaryFamily,
+    DiaryLamp,
     DiaryTask,
     DiaryTier,
     diary_lamp_claim_id,
@@ -424,12 +425,44 @@ def tier_claim_state_pure(
     }
 
 
+def _lamp_entries(tier: DiaryTier) -> str:
+    return "; ".join(
+        f"{lamp.experience:,} XP (level {lamp.minimum_level}+)" for lamp in tier.lamps
+    )
+
+
+def _individual_lamp_view(tier: DiaryTier, lamp: DiaryLamp, index: int) -> dict[str, Any]:
+    return {
+        "claim_id": diary_lamp_claim_id(tier.id, index),
+        "experience": lamp.experience,
+        "minimum_level": lamp.minimum_level,
+        "description": (
+            f"A {lamp.experience:,} XP reward lamp for an"
+            f" eligible level {lamp.minimum_level}+ skill will"
+            " be placed in Bank Claims."
+        ),
+    }
+
+
+def _tier_lamp_view(tier: DiaryTier) -> dict[str, Any] | None:
+    if tier.lamp is None:
+        return None
+    view = _individual_lamp_view(tier, tier.lamp, 1)
+    if len(tier.lamps) > 1:
+        view["description"] = (
+            f"{len(tier.lamps)} reward lamps will be placed in Bank Claims: "
+            f"{_lamp_entries(tier)}."
+        )
+    return view
+
+
 def _create_tier_lamp_claim(data: dict[str, Any], tier: DiaryTier) -> str:
     if tier.lamp is None:
         return ""
     claim_id = diary_lamp_claim_id(tier.id)
     claims = dict(_mapping(data.get("claims")))
-    claims.setdefault(claim_id, {"claimed": False})
+    for index, _lamp in enumerate(tier.lamps, 1):
+        claims.setdefault(diary_lamp_claim_id(tier.id, index), {"claimed": False})
     data["claims"] = claims
     return claim_id
 
@@ -469,7 +502,12 @@ def claim_diary_tier_pure(
         if granted
         else f"{family.name}: {tier.name} claimed."
     )
-    if tier.lamp is not None:
+    if len(tier.lamps) > 1:
+        message += (
+            f" {len(tier.lamps)} reward lamps are waiting in Bank Claims: "
+            f"{_lamp_entries(tier)}."
+        )
+    elif tier.lamp is not None:
         message += f" A {tier.lamp.experience:,} XP reward lamp is waiting in Bank Claims."
     return (
         data,
@@ -480,6 +518,10 @@ def claim_diary_tier_pure(
             "items": granted,
             "lamp_claim_id": lamp_claim_id,
             "lamp_experience": tier.lamp.experience if tier.lamp else 0,
+            "lamp_claim_ids": tuple(
+                diary_lamp_claim_id(tier.id, i) for i in range(1, len(tier.lamps) + 1)
+            ),
+            "lamp_experiences": tuple(lamp.experience for lamp in tier.lamps),
         },
     )
 
@@ -700,19 +742,10 @@ def achievement_cabinet_view_pure(
                     "reward_item": tier.reward_item,
                     "reward_items": tier_reward_names_pure(tier),
                     "reward_summary": tier.reward_summary,
-                    "lamp": (
-                        {
-                            "claim_id": diary_lamp_claim_id(tier.id),
-                            "experience": tier.lamp.experience,
-                            "minimum_level": tier.lamp.minimum_level,
-                            "description": (
-                                f"A {tier.lamp.experience:,} XP reward lamp for an"
-                                f" eligible level {tier.lamp.minimum_level}+ skill will"
-                                " be placed in Bank Claims."
-                            ),
-                        }
-                        if tier.lamp is not None
-                        else None
+                    "lamp": _tier_lamp_view(tier),
+                    "lamps": tuple(
+                        _individual_lamp_view(tier, lamp, index)
+                        for index, lamp in enumerate(tier.lamps, 1)
                     ),
                     "tasks": tuple(rows),
                     "source": tier.source,

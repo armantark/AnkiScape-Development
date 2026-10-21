@@ -10321,7 +10321,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             diary_lamp_claim_id,
         )
 
-        pd = _make_player_data()
+        pd = dict(_make_player_data(), agility_level=30)
         family = next(family for family in ACHIEVEMENT_DIARY_CATALOG if family.id == "varrock")
         tier = family.tiers[0]
         pd["achievement_diaries"] = {"claimed_tiers": [tier.id]}
