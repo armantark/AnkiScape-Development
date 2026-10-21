@@ -231,13 +231,16 @@ class OnboardingPathTests(PaceQtCase):
     def test_the_current_line_quotes_the_current_pace(self):
         _, seen = self.answer({**A_SAVE, LEGACY_SPEED_KEY: 4}, _escape)
         self.assertEqual(len(seen), 1)
-        for field in ("speed=4", "cards=240", "hours=0.96", "fish_flingers_cards=42"):
-            self.assertIn(field, seen[0][1])
+        self.assertEqual(
+            seen[0][1],
+            "Your current pace: 4x, 240 cards per world day, 0.96 h (57.6 min) of play."
+            " One Fish Flingers game takes 42 cards.",
+        )
 
     def test_the_reason_is_written_for_a_new_or_an_existing_player(self):
-        for store, reason in (({}, "<<COPY:pace_dialog_reason_new>>"), (A_SAVE, "<<COPY:pace_dialog_reason_existing>>")):
-            with self.subTest(reason):
-                self.assertEqual(self.answer(store, _escape)[1][0][0], reason)
+        for store, opening in (({}, "We recommend 10x"), (A_SAVE, "The recommended speed changed from 1x to 10x")):
+            with self.subTest(opening):
+                self.assertTrue(self.answer(store, _escape)[1][0][0].startswith(opening))
 
     def test_an_answered_profile_is_never_asked_again(self):
         from ankiscape.ui import ui_pace_settings

@@ -1,8 +1,8 @@
 """A card that a danger stop ends early says why at the end of its last line.
 
-Plan 2.1 shows the stop reason in the card's existing feedback lines; owner Q8
-gives the words to the copy model, so the lines end with its placeholders.
-These cards run through the review dispatcher of a freshly loaded add-on.
+Plan 2.1 shows the stop reason in the card's existing feedback lines, in the
+copy model's words (owner Q8). These cards run through the review dispatcher of
+a freshly loaded add-on.
 """
 
 import sys
@@ -18,19 +18,19 @@ from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_
 
 PACKAGE = "ankiscape_danger_stop_feedback"
 # Every reason Part G records except the Thieving stun, which has its own line.
-DANGER_STOPS = (
-    "died",
-    "fled",
-    "low_lp_no_food",
-    "poison_started",
-    "prayer_empty",
-    "familiar_ended",
-    "void_shifter",
-    "out_of_ammo",
-    "out_of_runes",
-    "bank_trip",
-    "slayer_task_complete",
-)
+DANGER_STOPS = {
+    "died": "Ended early: you died",
+    "fled": "Ended early: you fled",
+    "low_lp_no_food": "Ended early: low LP, no food",
+    "poison_started": "Ended early: new poison",
+    "prayer_empty": "Ended early: prayer ran out",
+    "familiar_ended": "Ended early: familiar ran out",
+    "void_shifter": "Ended early: Void shifter",
+    "out_of_ammo": "Ended early: out of ammo",
+    "out_of_runes": "Ended early: out of runes",
+    "bank_trip": "Ended early: bank trip",
+    "slayer_task_complete": "Ended early: Slayer task done",
+}
 
 
 def _card(*lines, stop_reason="", xp=0):
@@ -83,14 +83,14 @@ class DangerStopFeedbackTests(unittest.TestCase):
         return self.answer(default_player_data(ORE_DATA, ITEM_DEFINITIONS), "Combat", handler)
 
     def test_each_danger_stop_ends_the_cards_last_line_with_its_reason(self):
-        for reason in DANGER_STOPS:
+        for reason, text in DANGER_STOPS.items():
             with self.subTest(reason):
                 lines = self.answer_combat_card(_card("First line", "Last line", stop_reason=reason))
-                self.assertEqual(lines, [f"Last line · <<COPY:danger_stop_{reason}>>"])
+                self.assertEqual(lines, [f"Last line · {text}"])
 
     def test_with_xp_every_line_is_logged_and_only_the_last_carries_the_reason(self):
         lines = self.answer_combat_card(_card("First line", "Last line", stop_reason="died", xp=50))
-        self.assertEqual(lines, ["First line", "Last line · <<COPY:danger_stop_died>>"])
+        self.assertEqual(lines, ["First line", "Last line · Ended early: you died"])
 
     def test_a_stun_a_planned_boundary_or_a_card_without_lines_gets_no_reason(self):
         for reason in ("stun", "kill", "wave_completed"):
@@ -100,7 +100,7 @@ class DangerStopFeedbackTests(unittest.TestCase):
 
     def test_repeated_item_gains_keep_their_total_before_the_reason(self):
         lines = self.answer_combat_card(_card("+1 Flax", "+1 Flax", "+1 Flax", stop_reason="bank_trip"))
-        self.assertEqual(lines, ["+3 Flax · <<COPY:danger_stop_bank_trip>>"])
+        self.assertEqual(lines, ["+3 Flax · Ended early: bank trip"])
 
     def test_a_fight_caves_death_at_speed_ten_says_why_the_card_ended(self):
         caves = sys.modules[f"{PACKAGE}.logic.fight_caves_logic"]
@@ -108,8 +108,8 @@ class DangerStopFeedbackTests(unittest.TestCase):
             lines = self.answer(_entered(), "Utility / Activities")
         # The switch to Bankstanding is logged first; the card's own last line says why it ended.
         self.assertTrue(lines[-1].startswith("Safe defeat on wave 1"), lines)
-        self.assertTrue(lines[-1].endswith(" · <<COPY:danger_stop_died>>"), lines)
-        self.assertEqual([line for line in lines if "<<COPY:" in line], lines[-1:])
+        self.assertTrue(lines[-1].endswith(" · Ended early: you died"), lines)
+        self.assertEqual([line for line in lines if "Ended early" in line], lines[-1:])
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@
 
 The rows render ``world_day_setting_view_pure``; whether the length is editable,
 which number it shows and when the suggestion hint appears are decided there.
-Strings marked ``<<COPY:...>>`` are written by the copy model (owner Q8); the
-fixed texts come from owner decisions 2 and 8.
+The copy model wrote the texts below (owner Q8); "Game speed", "Follow my study
+volume" and "Keep my current settings" come from owner decisions 2 and 8.
 """
 
 from __future__ import annotations
@@ -49,23 +49,32 @@ _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _PACE_DIALOG_ANSWERED_CONFIG_KEY = "ankiscape_pace_dialog_answered"
 
-GAME_SPEED_TOOLTIP = "<<COPY:game_speed_tooltip>>"
-GAME_SPEED_HELP = "<<COPY:game_speed_help>>"
-CARDS_SUFFIX = "<<COPY:cards_suffix>>"
-WORLD_DAY_SUGGESTION_HINT = "<<COPY:world_day_suggestion_hint|cards={cards}>>"
-PACE_DIALOG_TITLE = "<<COPY:pace_dialog_title>>"
+GAME_SPEED_TOOLTIP = (
+    "One card buys 3.6 seconds of play per point of game speed (1x = 3.6 seconds, 10x = 36 seconds,"
+    " 20x = 72 seconds).\n10x is recommended. A speed change applies from the next card."
+)
+GAME_SPEED_HELP = "Speed sets how much game time each card buys; a world day is a number of cards."
+CARDS_SUFFIX = " cards"
+WORLD_DAY_SUGGESTION_HINT = "Suggested: {cards} cards."
+PACE_DIALOG_TITLE = "Pick your game speed and world day"
 # A new player has no earlier pace; an existing save keeps its pace unless the new one is applied.
-PACE_DIALOG_REASON_NEW = "<<COPY:pace_dialog_reason_new>>"
-PACE_DIALOG_REASON_EXISTING = "<<COPY:pace_dialog_reason_existing>>"
+PACE_DIALOG_REASON_NEW = (
+    "We recommend 10x with the world day following your study volume. Keep my current settings gives 1x"
+    " and a fixed 240-card day. Closing this window applies the recommendation. Change it in Settings."
+)
+PACE_DIALOG_REASON_EXISTING = (
+    "The recommended speed changed from 1x to 10x, so the game asks once. Keep my current settings and"
+    " closing the window keep your pace. Recommended: 10x with the world day following your study volume."
+)
 PACE_DIALOG_CURRENT_LINE = (
-    "<<COPY:pace_dialog_current_line|speed={speed} cards={cards} hours={hours}"
-    " minutes={minutes} fish_flingers_cards={fish_flingers_cards}>>"
+    "Your current pace: {speed}x, {cards} cards per world day, {hours} h ({minutes} min) of play."
+    " One Fish Flingers game takes {fish_flingers_cards} cards."
 )
 PACE_DIALOG_HOURS_LINE = (
-    "<<COPY:pace_dialog_hours_line|speed={speed} cards={cards} hours={hours}"
-    " minutes={minutes} fish_flingers_cards={fish_flingers_cards}>>"
+    "Selected settings: {speed}x, {cards} cards per world day, {hours} h ({minutes} min) of play."
+    " One Fish Flingers game takes {fish_flingers_cards} cards."
 )
-PACE_DIALOG_APPLY = "<<COPY:pace_dialog_apply>>"
+PACE_DIALOG_APPLY = "Apply these settings"
 
 
 def stored_pace_settings(collection) -> tuple[PaceSettings, int]:

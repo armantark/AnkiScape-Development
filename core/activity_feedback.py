@@ -7,17 +7,17 @@ the reason a danger stop ended it early (plan 2.1, owner Q8).
 # explains. The Thieving stun already says so on its own line, and a kill, wave
 # or round ends an activity card by design, so neither gets a text.
 _DANGER_STOP_TEXTS = {
-    "died": "<<COPY:danger_stop_died>>",
-    "fled": "<<COPY:danger_stop_fled>>",
-    "low_lp_no_food": "<<COPY:danger_stop_low_lp_no_food>>",
-    "poison_started": "<<COPY:danger_stop_poison_started>>",
-    "prayer_empty": "<<COPY:danger_stop_prayer_empty>>",
-    "familiar_ended": "<<COPY:danger_stop_familiar_ended>>",
-    "void_shifter": "<<COPY:danger_stop_void_shifter>>",
-    "out_of_ammo": "<<COPY:danger_stop_out_of_ammo>>",
-    "out_of_runes": "<<COPY:danger_stop_out_of_runes>>",
-    "bank_trip": "<<COPY:danger_stop_bank_trip>>",
-    "slayer_task_complete": "<<COPY:danger_stop_slayer_task_complete>>",
+    "died": "Ended early: you died",
+    "fled": "Ended early: you fled",
+    "low_lp_no_food": "Ended early: low LP, no food",
+    "poison_started": "Ended early: new poison",
+    "prayer_empty": "Ended early: prayer ran out",
+    "familiar_ended": "Ended early: familiar ran out",
+    "void_shifter": "Ended early: Void shifter",
+    "out_of_ammo": "Ended early: out of ammo",
+    "out_of_runes": "Ended early: out of runes",
+    "bank_trip": "Ended early: bank trip",
+    "slayer_task_complete": "Ended early: Slayer task done",
 }
 
 
