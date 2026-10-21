@@ -12,7 +12,7 @@ at the day's boundary.
 from __future__ import annotations
 
 from statistics import median
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, NamedTuple
 
 from .short_timers import card_ticks_pure
 
@@ -167,3 +167,21 @@ def suggested_world_day_cards_pure(daily_counts: Iterable[int]) -> int:
     if len(counts) < 7:
         return DEFAULT_WORLD_DAY_CARDS
     return sanitize_world_day_cards_pure(median(counts))
+
+
+def hours_of_play_per_world_day_pure(cards: int, speed: int) -> float:
+    """The 2012 play time inside one world day of ``cards`` cards at ``speed``."""
+    return cards * card_ticks_pure(speed) * 24 / CALENDAR_TICKS_PER_DAY
+
+
+class WorldDaySettingView(NamedTuple):
+    cards_value: int
+    # The suggestion hint shows exactly when the player sets the length.
+    cards_editable: bool
+
+
+def world_day_setting_view_pure(follow_study_volume: bool, world_day_cards: int, suggestion: int) -> WorldDaySettingView:
+    """A followed day shows the suggestion it will use; a fixed day shows its own length."""
+    if follow_study_volume:
+        return WorldDaySettingView(suggestion, False)
+    return WorldDaySettingView(world_day_cards, True)

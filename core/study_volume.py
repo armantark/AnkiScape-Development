@@ -40,9 +40,20 @@ def next_world_day_length(collection, player_data) -> int:
         return world_day_length_pure(player_data)
     if collection is None:
         return DEFAULT_WORLD_DAY_CARDS
-    if collection.get_config(WORLD_DAY_FOLLOW_CONFIG_KEY, False) is True:
-        return suggested_world_day_cards_pure(daily_study_counts(collection))
-    return sanitize_world_day_cards_pure(collection.get_config(WORLD_DAY_CARDS_CONFIG_KEY, DEFAULT_WORLD_DAY_CARDS))
+    follow_study_volume, world_day_cards = world_day_settings(collection)
+    return suggested_world_day_cards(collection) if follow_study_volume else world_day_cards
+
+
+def world_day_settings(collection) -> tuple[bool, int]:
+    """Following study volume is opt-in; a fixed length outside 100 to 1,000 is clamped."""
+    return (
+        collection.get_config(WORLD_DAY_FOLLOW_CONFIG_KEY, False) is True,
+        sanitize_world_day_cards_pure(collection.get_config(WORLD_DAY_CARDS_CONFIG_KEY, DEFAULT_WORLD_DAY_CARDS)),
+    )
+
+
+def suggested_world_day_cards(collection) -> int:
+    return suggested_world_day_cards_pure(daily_study_counts(collection))
 
 
 def advance_world_clock_for_answer(player_data, collection, *, speed):
