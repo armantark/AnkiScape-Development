@@ -5,6 +5,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.quest_data import quests_as_dict
 from ankiscape.logic_pure.logic_pure import (
+    can_start_quest_pure,
     quest_locked_reasons_pure,
     start_quest_pure,
 )
@@ -21,6 +22,7 @@ class TestBlackKnightsFortressRequirements(unittest.TestCase):
         player["equipment"] = {"body": "Iron chainbody", "head": "Bronze med helm"}
         player["quest_points"] = 12
 
+        self.assertFalse(can_start_quest_pure(player, "black_knights_fortress", quests))
         self.assertEqual(
             quest_locked_reasons_pure(player, "black_knights_fortress", quests),
             ("13 quest points",),
@@ -31,6 +33,7 @@ class TestBlackKnightsFortressRequirements(unittest.TestCase):
         self.assertNotEqual(player.get("current_quest"), "black_knights_fortress")
 
         player["quest_points"] = 13
+        self.assertTrue(can_start_quest_pure(player, "black_knights_fortress", quests))
         self.assertEqual(quest_locked_reasons_pure(player, "black_knights_fortress", quests), ())
         player, started = start_quest_pure(player, "black_knights_fortress", quests)
         self.assertTrue(started)
