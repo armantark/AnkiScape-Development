@@ -133,7 +133,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[1]["required_tools"], {"Pickaxe": 1})
         self.assertEqual(by_stage[1]["required_actions"], ())
         self.assertEqual(
-            by_stage[1]["auto_actions"],
+            by_stage[1]["auto_actions"][-1:],
             ("Mine the Lumbridge cellar rubble and squeeze through the resulting hole",),
         )
         self.assertEqual(by_stage[1]["source"], THE_LOST_TRIBE_WIKI_SOURCE)

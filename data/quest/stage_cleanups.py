@@ -31,6 +31,10 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 QuestSkillRequirement("mining", "Mining", 17),
             ),
             add_auto_actions=(
+                "Ask Sigmund about the hole in the Lumbridge cellar",
+                "Question Duke Horacio, the Cook, Hans, Father Aereck or Bob until one reports a goblin with huge eyes in the Lumbridge cellar",
+                "Report the witness account to Sigmund",
+                "Obtain Duke Horacio's permission to investigate the Lumbridge cellar",
                 "Mine the Lumbridge cellar rubble and squeeze through the resulting hole",
             ),
             source=THE_LOST_TRIBE_WIKI_SOURCE,
