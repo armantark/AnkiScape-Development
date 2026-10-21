@@ -411,10 +411,10 @@ def _run_gate_checks(
         qt_environment = None
     else:
         canonical = main_worktree(source_worktree)
-        plain_command = ("/opt/homebrew/bin/python3", "run_tests.py")
+        plain_command = ("/opt/homebrew/bin/python3", "run_tests.py", "--processes", "8")
         qt_command = (
             str(canonical / ".venv-qt" / "bin" / "python"),
-            "run_tests.py",
+            "run_tests.py", "--processes", "8",
         )
         qt_environment = {"QT_QPA_PLATFORM": "offscreen"}
     lane_checks: list[GateCheck] = [

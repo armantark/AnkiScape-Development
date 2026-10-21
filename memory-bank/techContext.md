@@ -42,6 +42,7 @@
 - Use `python3 -m tools.maintenance.retain_evidence retain <repo> <revision> <destination> <sources>` for bounded retention. Its `compact <manifest> <source-root>` command, where `<source-root>` contains the manifest's original source files and only files of 64 MiB or more are eligible, defaults to a metadata dry-run; `--apply` verifies both existing copies against the original manifest before independently cloning duplicate storage. Receipt paths and bytes remain unchanged.
 - `tools/audit_docs.py` reads the Git index and runs only in a Git checkout; the Git-free MacBook mirror's `git ls-files ... exit status 128` is a runner failure, not an audit result.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
+- Add `--processes 8` to run selections in separate processes with whole modules kept together; full promotion lanes use eight workers and remain sequential.
 - `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
 
 ### Bounded operator commands
