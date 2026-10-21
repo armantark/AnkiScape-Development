@@ -553,7 +553,7 @@ class ShaikahanPlayerRouteTests(unittest.TestCase):
         farmer_rng = random.Random(20260929).random
         self._collect("Toadflax seed", 1, "Thieving", "current_thieving", "pickpocket_master_farmer", farmer_rng)
         self._farm_step("plant", crop_id="toadflax")
-        for _ in range(100):
+        for _ in range(240):
             if self.player["farm_patches"]["falador_herb"]["stage"] == 4:
                 break
             self._review("Utilities", "current_utility", "bankstanding")

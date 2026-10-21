@@ -18,7 +18,7 @@ from ..data.evil_tree_data import (
 )
 from .pace.short_timers import STEP_TICKS, TICKS_PER_SOURCE_MINUTE, cards_for_ticks_pure
 from .pace.world_clock import answered_cards_pure, calendar_ticks_pure, world_day_index_pure
-from .pace.world_events import cards_until_event_pure, event_in_play_pure, next_event_tick_pure
+from .pace.world_events import cards_until_event_pure, event_ticks_remaining_pure, next_event_tick_pure
 
 
 EVIL_TREE_STATE_VERSION = 1
@@ -172,7 +172,7 @@ def evil_tree_spawn_due_pure(player_data: Mapping[str, Any]) -> bool:
     alive = event and calendar_ticks_pure(data) - event["last_tick"] < event["ticks_remaining"]
     return (
         not alive
-        and event_in_play_pure(data)
+        and event_ticks_remaining_pure(data, EVIL_TREE_INTERVAL_TICKS, EVIL_TREE_ACTIVE_TICKS) > 0
         and calendar_ticks_pure(data) >= state["next_spawn_tick"]
     )
 
@@ -237,7 +237,7 @@ def advance_evil_tree_world_clock_pure(
             state["blessing_granted_card"] = 0
             events.append({"kind": "blessing_expired"})
 
-    if not state["active_event"] and event_in_play_pure(data) and calendar_ticks_pure(data) >= state["next_spawn_tick"]:
+    if not state["active_event"] and evil_tree_spawn_due_pure(data):
         tier_index = min(
             len(EVIL_TREE_TIERS) - 1,
             int(_roll(tier_roll) * len(EVIL_TREE_TIERS)),
@@ -252,7 +252,7 @@ def advance_evil_tree_world_clock_pure(
             "tier_id": tier.id,
             "location": EVIL_TREE_LOCATIONS[location_index],
             "spawn_card": answered,
-            "ticks_remaining": EVIL_TREE_ACTIVE_TICKS,
+            "ticks_remaining": event_ticks_remaining_pure(data, EVIL_TREE_INTERVAL_TICKS, EVIL_TREE_ACTIVE_TICKS),
             "last_tick": calendar_ticks_pure(data),
         }
         state["active_event"] = event

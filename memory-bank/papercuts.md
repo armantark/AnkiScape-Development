@@ -728,7 +728,6 @@
 - 2026-10-20T23:44:00-07:00: Part G4 repaired hook refused apply_combat_burst_pure CCN 160 (was 158), cognitive 265 (was 262) after the same-tick kill-danger fix (part-g/g4-commit-repaired.log). Moved kill-boundary danger evaluation and its flee flag into the outcome owner with the existing task/bank checks.
 
 - 2026-10-21T00:01:40-07:00: Part G3 neighbour-repair hook refused unused import card_ticks_pure in runtime/runtime_actions_shared.py (part-g/g3-neighbours-commit.log). The first removal patch assumed a standalone import and failed; removed the name from its grouped import.
-
 - 2026-10-21T00:09:39-07:00: Part G verification: plan section 1.2 names runtime/runtime_actions_budget.py, but the implemented budget lives in runtime/runtime_actions_context.py; a chained read stopped at the missing planned path.
 - 2026-10-21T00:35:36-07:00: Part G review-fix startup: broad context read exceeded tool output budget; bounded follow-up reads restored relevant context. A zsh search with tests/test_pace* failed with "zsh:1: no matches found: tests/test_pace*"; use quoted rg globs or existing paths.
 - 2026-10-21T01:06:00-07:00 Part G final documentation audit: memory-bank/papercuts.md:737 and :738 returned papercut_without_bullet; prefix both timestamped notes with the required Markdown bullet. Product B–G proof on 5b812c893f8cb5ffc9db00d9bd1756f3706feae0 stays accepted: Ran 4950 tests in 793.855s, OK (skipped=605).
@@ -737,3 +736,4 @@
 - 2026-10-21 PDT — Part H round 2: initial context read used nonexistent logic/world_clock.py (actual logic/pace/world_clock.py); bounded reads avoid combined evidence output truncation.
 - 2026-10-21 PDT — Part H round 2 preflight: hook rejected E305/E303 spacing, complexity growth and files over 1000 lines; reducers now separate active-star ageing and Chinchompa slot advancement.
 - 2026-10-21 PDT — Part H round 2 audits: assertion_free_test for _jump_and_resume assertion helper, papercut_without_bullet at line 741 and startup_line_budget_exceeded: 3001; use an _assert_ helper name, bullet the log and remove blank separators between recent entries without removing evidence.
+- 2026-10-21 PDT — Part H union: Winter Storage raised StopIteration in random.random after first-play event draws; Shaikahan route raised AssertionError: 0 not greater than or equal to 2 for Grimy toadflax. Extend only the fixed roll tuple and the crop wait; preserve all assertions.

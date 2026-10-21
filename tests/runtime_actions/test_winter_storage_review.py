@@ -46,7 +46,7 @@ class TestWinterStorageReview(unittest.TestCase):
         addon._state.answer_shown = True
         addon._state.exp_awarded = False
 
-        with patch.object(addon.random, "random", side_effect=(85 / 255, 0.0)):
+        with patch.object(addon.random, "random", side_effect=(85 / 255, 0.0, 0.0, 0.0, 0.0)):
             addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
         player = addon._state.player_data

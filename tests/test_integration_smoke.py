@@ -2436,7 +2436,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.exp_awarded = False
 
         original_random = addon.random.random
-        rolls = iter((0.999, 0.0))
+        rolls = iter((0.999, 0.0, 0.0, 0.0, 0.0))
         addon.random.random = lambda: next(rolls)
         try:
             addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
@@ -2666,11 +2666,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda *_args: None
         initial = {
             "inventory": {},
-            "shop_market_clock": {
-                "answered_cards": 19,
-                "market_tick": 19,
-            },
-            "evil_tree": default_evil_tree_state_pure(),
+            "shop_market_clock": {"answered_cards": 19, "market_tick": 19},
+            "world_clock": {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 11_994},
+            "evil_tree": {**default_evil_tree_state_pure(), "next_spawn_tick": 12_000},
         }
         addon._state.player_data = copy.deepcopy(initial)
         addon._state.current_skill = "None"
@@ -2690,7 +2688,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         event = addon._state.player_data["evil_tree"]["active_event"]
         self.assertEqual(event["tier_id"], "normal")
-        self.assertEqual(event["reviews_remaining"], 5)
+        self.assertEqual(event["ticks_remaining"], 3_000)
         self.assertEqual(
             addon._state.player_data["shop_market_clock"]["answered_cards"], 20
         )

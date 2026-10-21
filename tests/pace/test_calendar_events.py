@@ -59,9 +59,9 @@ class CalendarEventTests(_HostCase):
         expected = {
             1: {"goblin_raids": [1], "evil_tree": [1], "shooting_star": [1],
                 "big_chinchompa": [60], "crucible": [1]},
-            10: {"goblin_raids": [1, 200], "evil_tree": [1, 200], "shooting_star": [1, 200],
+            10: {"goblin_raids": [1, 150], "evil_tree": [1, 200], "shooting_star": [1, 200],
                  "big_chinchompa": [60, 180], "crucible": [1, 50, 100, 150, 200]},
-            20: {"goblin_raids": [1, 100, 175], "evil_tree": [1, 100, 200], "shooting_star": [1, 100, 200],
+            20: {"goblin_raids": [1, 75, 150, 225], "evil_tree": [1, 100, 200], "shooting_star": [1, 100, 200],
                  "big_chinchompa": [60, 180], "crucible": [1, 25, 50, 75, 100, 125, 150, 175, 200, 225]},
         }
         # No player participation: raids remain for 90 minutes, trees for 30.

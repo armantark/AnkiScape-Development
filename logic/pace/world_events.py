@@ -44,3 +44,9 @@ def cards_until_event_pure(data: Mapping[str, Any], tick: int, speed: int) -> in
 
 def consumed_event_slot_pure(data: Mapping[str, Any], slot: int, previous: int) -> int:
     return slot if event_in_play_pure(data) else previous
+
+
+def event_ticks_remaining_pure(data: Mapping[str, Any], interval: int, lifetime: int) -> int:
+    if not event_in_play_pure(data):
+        return 0
+    return max(0, lifetime - (calendar_ticks_pure(data) - event_slot_tick_pure(data, interval)))
