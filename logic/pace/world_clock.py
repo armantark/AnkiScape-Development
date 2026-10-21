@@ -23,6 +23,11 @@ CARD_CALENDAR_TICKS = CALENDAR_TICKS_PER_DAY // DEFAULT_WORLD_DAY_CARDS
 DAYS_PER_WEEK = 7
 DAYS_PER_MONTH = 30
 
+SIMULATED_CLOCK_TOOLTIP = (
+    'Each answered card moves the world clock by 3.6 seconds times your game speed.\nOne world hour: 1,000 cards at 1x, 100 at 10x, 50 at 20x. The rest of the day passes at once when the world day ends.'
+)
+SIMULATED_CLOCK_START_HOUR = 12
+
 
 def _int(value: Any) -> int:
     try:
@@ -185,3 +190,11 @@ def world_day_setting_view_pure(follow_study_volume: bool, world_day_cards: int,
     if follow_study_volume:
         return WorldDaySettingView(suggestion, False)
     return WorldDaySettingView(world_day_cards, True)
+
+
+def simulated_clock_text_pure(player_data: Mapping[str, Any]) -> str:
+    ticks = calendar_ticks_pure(player_data) - world_day_start_ticks_pure(player_data)
+    hour = (SIMULATED_CLOCK_START_HOUR + ticks // 6_000) % 24
+    suffix = "AM" if hour < 12 else "PM"
+    display_hour = hour % 12 or 12
+    return f"{display_hour}:00 {suffix}"

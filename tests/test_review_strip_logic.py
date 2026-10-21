@@ -501,7 +501,7 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertEqual(active["count"], 1)
         self.assertEqual(active["rows"][0]["activity_id"], FISH_FLINGERS_ACTIVITY_ID)
         self.assertTrue(active["rows"][0]["live"])
-        self.assertIn("Review 1/8", active["rows"][0]["status"])
+        self.assertIn("Catch 1/8", active["rows"][0]["status"])
         self.assertIn("stock", active["rows"][0]["status"])
         self.assertIn("tickets remaining", active["rows"][0]["status"])
 

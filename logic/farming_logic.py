@@ -2817,7 +2817,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any], *, speed: i
             "produce_count": _int(record.get("produce_count")),
             "produce_capacity": crop.fixed_yield if crop else fixed_crop.fixed_yield if fixed_crop else None,
             "fixed_crop_note": (
-                "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit regrows per answered card."
+                "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit per 6 world minutes, up to 4."
                 if patch.fixed_crop_id is not None
                 else ""
             ),

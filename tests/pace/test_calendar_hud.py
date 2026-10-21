@@ -3,7 +3,7 @@
 import unittest
 
 import pkg_alias  # noqa: F401
-from ankiscape.logic.review_strip_logic import simulated_clock_text_pure
+from ankiscape.logic.pace.world_clock import simulated_clock_text_pure
 
 
 class CalendarHudTests(unittest.TestCase):

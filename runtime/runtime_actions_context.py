@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 from typing import Any, Callable, Mapping, Optional
 
+from ..core.activity_feedback import fish_flingers_card_feedback
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 from ..logic.pace.short_timers import STEP_TICKS, card_ticks_pure
 from ..logic.pace.world_clock import calendar_ticks_pure
@@ -117,13 +118,17 @@ def _card_tick_debt(player_data: Mapping[str, Any]) -> int:
     return debt if type(debt) is int and debt > 0 else 0
 
 
-def stun_card(ctx: RuntimeActionContext, ticks: int) -> None:
+def stun_card(ctx: RuntimeActionContext, ticks: int, *, source: str = "") -> None:
     """A stun ends the card and owes its ticks to the running budget (decision 5).
 
     Once the stunning step is charged, the card's unspent ticks pay the stun
     first; only the rest carries to the next card.
     """
     ctx.player_data[CARD_TICK_DEBT_KEY] = _card_tick_debt(ctx.player_data) + ticks
+    if source:
+        ctx.player_data["card_tick_debt_source"] = source
+    else:
+        ctx.player_data.pop("card_tick_debt_source", None)
     stop_card(ctx, "stun")
 
 
@@ -135,11 +140,17 @@ def _settle_card_tick_debt(ctx: RuntimeActionContext) -> bool:
     """
     budget = ctx.card
     balance = budget.ticks_remaining - _card_tick_debt(ctx.player_data)
+    if (
+        budget.ticks_remaining > 0 and balance <= 0 and not budget.stop_reason
+        and ctx.player_data.get("card_tick_debt_source") == "thieving"
+    ):
+        ctx.show_activity_gain("Stun recovery took this card; play resumes on the next card")
     budget.ticks_remaining = max(balance, 0)
     if balance < 0:
         ctx.player_data[CARD_TICK_DEBT_KEY] = -balance
     else:
         ctx.player_data.pop(CARD_TICK_DEBT_KEY, None)
+        ctx.player_data.pop("card_tick_debt_source", None)
     return budget.ticks_remaining > 0 and not budget.stop_reason
 
 
@@ -203,6 +214,7 @@ def spend_card_budget(
     """
     budget = ctx.card
     progressed = False
+    fish_before = dict(ctx.player_data.get("fish_flingers") or {})
     while _settle_card_tick_debt(ctx):
         if progressed and not can_continue():
             break
@@ -220,4 +232,7 @@ def spend_card_budget(
             break
     _settle_card_tick_debt(ctx)
     budget.record_step_stop(handler_key)
+    waiting = fish_flingers_card_feedback(fish_before, ctx.player_data.get("fish_flingers"))
+    if waiting:
+        ctx.show_activity_gain(waiting)
     return progressed

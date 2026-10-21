@@ -18,6 +18,8 @@ The native row below Anki's answer bar contains:
 """
 from __future__ import annotations
 
+import math
+
 from typing import Any, Callable, Collection, Mapping
 
 from ..core.action_registry import (
@@ -69,9 +71,9 @@ from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
 from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
 from .pace.world_clock import (
+    SIMULATED_CLOCK_TOOLTIP as SIMULATED_CLOCK_TOOLTIP,
+    simulated_clock_text_pure as simulated_clock_text_pure,
     answered_cards_pure as _answered_reviews_pure,
-    calendar_ticks_pure,
-    world_day_start_ticks_pure,
 )
 from ..logic.big_chinchompa_logic import big_chinchompa_view_pure
 from ..logic.bork_logic import bork_view_pure
@@ -129,8 +131,6 @@ REVIEW_STRIP_HEIGHT = 128
 REVIEW_STRIP_WIDTH = 684
 REVIEW_BANK_RUN_LABEL = "Bank run"
 REVIEW_BANK_RUN_TOOLTIP = "Deposit inventory and restock same supplies"
-SIMULATED_CLOCK_TOOLTIP = "10 cards = 1 hour"
-SIMULATED_CLOCK_START_HOUR = 12
 
 # These handlers refill a target-specific carried pack. Every other registered
 # review action still gets the button and spends one review on the standard
@@ -159,14 +159,6 @@ REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
     for name in review_action_display_names()
     if (handler := review_action_handler_key(name)) is not None
 )
-
-
-def simulated_clock_text_pure(player_data: Mapping[str, Any]) -> str:
-    ticks = calendar_ticks_pure(player_data) - world_day_start_ticks_pure(player_data)
-    hour = (SIMULATED_CLOCK_START_HOUR + ticks // 6_000) % 24
-    suffix = "AM" if hour < 12 else "PM"
-    display_hour = hour % 12 or 12
-    return f"{display_hour}:00 {suffix}"
 
 
 def sanitize_review_event_log_pure(value: Any) -> list[dict[str, Any]]:
@@ -461,7 +453,7 @@ def _big_chinchompa_notification_statuses(
     if view["active"]:
         return (
             "Big Chinchompa · "
-            f"{int(view['minutes_remaining'])} source min left · "
+            f"{math.ceil(view['minutes_remaining'])} world min left · "
             f"{int(view['fullness_percent'])}% full",
         )
     try:
@@ -482,7 +474,7 @@ def _fish_flingers_notification_statuses(
     view = fish_flingers_view_pure(player_data)
     if view["active"]:
         return (
-            f"Review {int(view['catch_number'])}/{FISH_FLINGERS_EVENT_CATCHES} · "
+            f"Catch {int(view['catch_number'])}/{FISH_FLINGERS_EVENT_CATCHES} · "
             f"{view['location']} · {int(view['stock'])}/{int(view['stock_max'])} stock · "
             f"{int(view['tickets'])} tickets remaining",
         )

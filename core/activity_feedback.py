@@ -2,6 +2,8 @@
 the reason a danger stop ended it early (plan 2.1, owner Q8).
 """
 
+from ..data.fish_flingers_data import FISH_FLINGERS_CATCH_TICKS, FISH_FLINGERS_EVENT_CATCHES
+
 # The reason rides on the card's last line rather than a line of its own: with
 # no XP the popup keeps one line, so a separate line would hide the result it
 # explains. The Thieving stun already says so on its own line, and a kill, wave
@@ -86,3 +88,15 @@ def combine_activity_feedback(messages, stop_reason: str = "") -> str:
     else:
         line = messages[-1] if messages else ""
     return _with_stop_reason(line, stop_reason)
+
+
+def fish_flingers_card_feedback(before, after) -> str:
+    """Describe a card that advanced the game without landing a catch."""
+    if (
+        not before or not after
+        or after.get("ticks_elapsed", 0) <= before.get("ticks_elapsed", 0)
+        or after["fish_caught"] != before["fish_caught"]
+    ):
+        return ""
+    catch_number = after["ticks_elapsed"] // FISH_FLINGERS_CATCH_TICKS + 1
+    return f"Working on catch {catch_number} of {FISH_FLINGERS_EVENT_CATCHES}; no catch landed on this card yet"

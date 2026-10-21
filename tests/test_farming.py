@@ -2255,7 +2255,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         self.assertEqual(patch["primary_action"]["id"], "harvest")
         self.assertEqual(
             patch["fixed_crop_note"],
-            "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit regrows per answered card.",
+            "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit per 6 world minutes, up to 4.",
         )
 
         state.update(sanitize_farming_state_pure(state))

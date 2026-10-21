@@ -741,3 +741,9 @@
 - 2026-10-21T10:25:33-07:00: Parts I/J startup: combined memory-bank reads exceeded tool output limits; use bounded reads. The guessed paths `tests/pace/test_answer_card_harness.py`, `tests/pace/answer_harness.py` and `pace-list/plan.md` do not exist; use `rg --files` before reads.
 
 - 2026-10-21T10:35:02-07:00: Part J Qt command omitted source variables: four `FileNotFoundError` errors under `/Users/ArmanTarkhanian1/Downloads/game-main` and one audit mismatch `no_local_source_match` vs `darkan_same_name_wrong_level`. Both modules pass with the gate source paths (16 tests, exit 0).
+
+- 2026-10-21T10:36:24-07:00: Copy-2 focused check refused selector `test_farming_logic` with exit 2; the module is `test_farming`. The runner refused before tests ran. Discover selectors from file names before each new selection.
+
+- 2026-10-21: Copy-2 commit hook rejected cognitive complexity 18, oversized-file growth (5541/5535, 1044/1040, 27825/27824) and unused `GOBLIN_RAIDS_SPAWN_REVIEWS`. Kept the entrypoint unchanged, extracted reviewer clock text, split the new test, and removed the import. The normal hook must pass before commit.
+
+- 2026-10-21: The copy-2 retry failed the normal hook with `ui/ui.py: fan-out 170 (was 169)`. Kept the UI import path and put the clock formatter in the existing world-clock module. The cap stays fixed.

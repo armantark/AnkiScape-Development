@@ -24,7 +24,6 @@ from ..data.goblin_raids_data import (
     GOBLIN_RAIDS_RAID_MODE,
     GOBLIN_RAIDS_SOURCE,
     GOBLIN_RAIDS_INTERVAL_TICKS,
-    GOBLIN_RAIDS_SPAWN_REVIEWS,
     GOBLIN_RAIDS_VILLAGE_BOSS_KILLS,
     GOBLIN_RAIDS_VILLAGE_MODE,
     GOBLIN_RAIDS_YODRI_ITEMS_PER_GOBLIN,
@@ -975,7 +974,7 @@ def goblin_raids_view_pure(player_data: Mapping[str, Any], *, speed: int = 1) ->
             if in_raid
             else f"{int(state['village_kills'])} village goblins felled"
             if session
-            else f"Notices arrive every {GOBLIN_RAIDS_SPAWN_REVIEWS} reviews"
+            else 'Notices arrive at 30-minute marks when no raid is under way'
         ),
         "primary_label": (
             "Active for reviews"

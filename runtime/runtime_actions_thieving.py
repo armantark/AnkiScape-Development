@@ -476,9 +476,9 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
         ctx.show_activity_gain("☠ YOU DIED — Thieving failure; gear moved to grave")
     else:
         # Only a player still thieving is stunned; the thug fight or a death replaces it.
-        stun_card(ctx, spec.get("stun_ticks", PLACEHOLDER_STUN_TICKS_BY_KIND.get(spec["kind"])))
+        stun_card(ctx, spec.get("stun_ticks", PLACEHOLDER_STUN_TICKS_BY_KIND.get(spec["kind"])), source="thieving")
         caught = _FAILURE_LABELS.get(spec["kind"], "Caught")
-        ctx.show_activity_gain(f"{caught} — {damage_result['damage']} LP damage; next review clears the stun")
+        ctx.show_activity_gain(f"{caught} — {damage_result['damage']} LP damage; the stun ends this card")
     food_used = damage_result.get("food_used")
     if food_used:
         ctx.show_activity_gain(
@@ -574,7 +574,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
         phase = str(player_data.get("thieving_blackjack_phase", "needs_lure"))
         if phase == "needs_lure":
             player_data["thieving_blackjack_phase"] = "ready_to_knockout"
-            ctx.show_activity_gain("Menaphite thug lured — next review attempts the knockout")
+            ctx.show_activity_gain("Menaphite thug lured — the knockout attempt comes next")
             ctx.save_player_data()
             return True
         if phase == "knocked_out":

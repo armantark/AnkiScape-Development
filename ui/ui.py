@@ -1,6 +1,7 @@
 # ui.py - UI components and dialogs for AnkiScape
 
 import html
+import math
 import os
 import re
 from collections.abc import Mapping
@@ -8891,9 +8892,7 @@ def show_main_menu(
                 big_status.setStyleSheet(
                     f"color: {accent}; font-size: 11px; font-weight: 700;"
                 )
-                big_status.setText(
-                    f"{int(view['minutes_remaining'])} source min left"
-                )
+                big_status.setText(f"{math.ceil(view['minutes_remaining'])} world min left")
                 big_summary.setText(
                     f"{view['location']} · {view['tier_name']} · "
                     f"{int(view['reviews_remaining'])} review opportunities"
@@ -13384,8 +13383,8 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    f"{FISH_FLINGERS_EVENT_CATCHES} successful reviews · tackle discovery improves every catch · "
-                    "fish stocks rotate automatically · big-fish help and rewards at the finish"
+                    f"{FISH_FLINGERS_EVENT_CATCHES} catches over 1,000 ticks · tackle discovery improves every catch · "
+                    "stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])
                 history = str(view["last_result"])

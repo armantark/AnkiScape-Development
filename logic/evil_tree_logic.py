@@ -299,7 +299,7 @@ def evil_tree_entry_mode_pure(
     if not has_usable_hatchet:
         full_reasons.append("a usable hatchet")
     if int(event["ticks_remaining"]) < len(EVIL_TREE_PHASES) * STEP_TICKS:
-        full_reasons.append("three remaining event reviews")
+        full_reasons.append("10.8 seconds of event time left")
     if full_reasons:
         return "nurture_only", tuple(full_reasons)
     return "full", ()

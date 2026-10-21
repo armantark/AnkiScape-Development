@@ -692,7 +692,7 @@ def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "communal_pressure": FISH_FLINGERS_COMMUNAL_DEPLETION,
         "communal_pressure_label": (
-            f"{FISH_FLINGERS_COMMUNAL_DEPLETION} stock per review"
+            f"{FISH_FLINGERS_COMMUNAL_DEPLETION} stock per catch"
         ),
         "efficiency": float(FISH_FLINGERS_EFFICIENCY[catches]) if session else 0.5,
         "next_discovery": str(FISH_FLINGERS_DISCOVERY_LABELS[catches]) if session else "Best bait",
