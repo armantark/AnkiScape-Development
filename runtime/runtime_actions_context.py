@@ -112,6 +112,19 @@ def stop_card(ctx: RuntimeActionContext, reason: str) -> None:
     ctx.card.stop_reason = reason
 
 
+_DANGER_STOP_TEXTS = {"died": "<<COPY:danger_stop_died>>", "fled": "<<COPY:danger_stop_fled>>"}
+
+
+def danger_stop_suffix(reason: str) -> str:
+    """Why a death or flee ended the card early, for the end of the line that reports it.
+
+    With no XP gained, the review popup keeps only the card's last line, so a
+    line of its own would hide the death or flee it explains.
+    """
+    text = _DANGER_STOP_TEXTS.get(reason)
+    return f" · {text}" if text else ""
+
+
 def _card_tick_debt(player_data: Mapping[str, Any]) -> int:
     debt = player_data.get(CARD_TICK_DEBT_KEY, 0)
     return debt if type(debt) is int and debt > 0 else 0

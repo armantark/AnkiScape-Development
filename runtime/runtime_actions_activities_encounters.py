@@ -28,7 +28,7 @@ from .runtime_actions_shared import (
     _award_action_xp_rewards,
     _record_action,
     _refresh_combat_levels,
-    _stop_card_at_slice_boundary,
+    _show_slice_result,
     _switch_material_failure_to_bankstanding,
 )
 from .runtime_actions_context import RuntimeActionContext
@@ -70,8 +70,7 @@ def _handle_fight_caves_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("outcome"):
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(str(result.get("status", "Fight Cave review complete")))
-    _stop_card_at_slice_boundary(ctx, result)
+    _show_slice_result(ctx, str(result.get("status", "Fight Cave review complete")), result)
     return True
 
 
@@ -171,8 +170,7 @@ def _handle_phoenix_lair_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("outcome"):
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(str(result.get("status", "Phoenix Lair review complete")))
-    _stop_card_at_slice_boundary(ctx, result)
+    _show_slice_result(ctx, str(result.get("status", "Phoenix Lair review complete")), result)
     return True
 
 
@@ -221,10 +219,11 @@ def _handle_skeletal_horror_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("outcome"):
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(
-        str(result.get("status", "Skeletal Horror review complete"))
+    _show_slice_result(
+        ctx,
+        str(result.get("status", "Skeletal Horror review complete")),
+        result,
     )
-    _stop_card_at_slice_boundary(ctx, result)
     return True
 
 
@@ -270,8 +269,7 @@ def _handle_bork_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("outcome"):
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(str(result.get("status", "Bork review complete")))
-    _stop_card_at_slice_boundary(ctx, result)
+    _show_slice_result(ctx, str(result.get("status", "Bork review complete")), result)
     return True
 
 
@@ -309,8 +307,7 @@ def _handle_barrows_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("complete") or result.get("outcome") == "death":
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(str(result.get("status", "Barrows review complete")))
-    _stop_card_at_slice_boundary(ctx, result)
+    _show_slice_result(ctx, str(result.get("status", "Barrows review complete")), result)
     return True
 
 

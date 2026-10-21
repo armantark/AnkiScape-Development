@@ -449,7 +449,7 @@ from .runtime_actions_shared import (
     _award_action_xp_rewards,
     _record_action,
     _refresh_combat_levels,
-    _stop_card_at_slice_boundary,
+    _show_slice_result,
     _switch_material_failure_to_bankstanding,
 )
 
@@ -527,25 +527,25 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
 
     if result.get("match_complete"):
         match = result.get("match_result", {}) or {}
-        ctx.show_activity_gain(
+        message = (
             f"Fist of Guthix {str(match.get('outcome', 'complete'))} · "
             f"{int(match.get('player_charges', 0)):,}–"
             f"{int(match.get('opponent_charges', 0)):,} charges · "
             f"+{int(match.get('tokens', 0))} tokens"
         )
     elif result.get("round_complete"):
-        ctx.show_activity_gain(
+        message = (
             f"Round {int(result.get('round', 0))} complete · "
             f"{int(result.get('charges', 0)):,} charges · "
             f"now {str(result.get('next_role', '')).title()}"
         )
     else:
-        ctx.show_activity_gain(
+        message = (
             f"FoG {str(result.get('player_role', '')).title()} · "
             f"+{int(result.get('charge_gained', 0))} charges · "
             f"{int(result.get('charge_total', 0)):,}/5,000"
         )
-    _stop_card_at_slice_boundary(ctx, result, "round_complete")
+    _show_slice_result(ctx, message, result, "round_complete")
     return True
 
 
@@ -587,10 +587,11 @@ def _handle_dagannoth_kings_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(total_xp)
     if result.get("outcome"):
         ctx.deactivate_current_skill()
-    ctx.show_activity_gain(
-        str(result.get("status", "Dagannoth Kings review complete"))
+    _show_slice_result(
+        ctx,
+        str(result.get("status", "Dagannoth Kings review complete")),
+        result,
     )
-    _stop_card_at_slice_boundary(ctx, result)
     return True
 
 
@@ -697,8 +698,11 @@ def handle_castle_wars_answer(
     xp_total = sum(float(amount or 0.0) for amount in xp_rewards.values())
     if xp_total > 0:
         ctx.show_exp(xp_total)
-    ctx.show_activity_gain(str(result.get("message") or result.get("status") or "Castle Wars beat resolved"))
-    _stop_card_at_slice_boundary(ctx, result)
+    _show_slice_result(
+        ctx,
+        str(result.get("message") or result.get("status") or "Castle Wars beat resolved"),
+        result,
+    )
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

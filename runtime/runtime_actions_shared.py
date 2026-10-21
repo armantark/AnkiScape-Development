@@ -392,6 +392,7 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
 
 from .runtime_actions_context import (
     RuntimeActionContext,
+    danger_stop_suffix,
     stop_card,
     stun_card,
     card_ticks_pure,
@@ -925,12 +926,13 @@ def _combat_review_ticks(ctx: RuntimeActionContext) -> int:
 _COMBAT_SLICE_STOPS = (("killed", "kill"), ("died", "died"), ("fled", "fled"))
 
 
-def _stop_card_at_slice_boundary(
+def _show_slice_result(
     ctx: RuntimeActionContext,
+    message: str,
     result: Mapping[str, Any],
     *activity_boundaries: str,
 ) -> None:
-    """End the card at an activity's kill, death, flee, wave or round.
+    """Show a slice's line and end the card at an activity's kill, death, flee, wave or round.
 
     A slice reports the Combat engine's flags at the top level or under
     ``"combat"``; ``activity_boundaries`` name the activity's own terminal
@@ -940,8 +942,10 @@ def _stop_card_at_slice_boundary(
     flags = combat if isinstance(combat, Mapping) else result
     reasons = [reason for flag, reason in _COMBAT_SLICE_STOPS if flags.get(flag)]
     reasons += [flag for flag in activity_boundaries if result.get(flag)]
-    if reasons:
-        stop_card(ctx, reasons[0])
+    reason = next(iter(reasons), "")
+    if reason:
+        stop_card(ctx, reason)
+    ctx.show_activity_gain(f"{message}{danger_stop_suffix(reason)}")
 
 
 def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
