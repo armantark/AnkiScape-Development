@@ -876,8 +876,6 @@ def _retired_store_write_sites(path, root, source):
 _UNEMITTED_CLEANUP_ACTIONS = frozenset({
     # Audit: no Oronwen service action.
     ("mournings_end_part_i", 3, "Have Oronwen repair the mourner trousers"),
-    # Audit: the furniture exists, but the clockwork-penguin action does not.
-    ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
     # Audit: no Silvthrill-rod enchant target.
     ("in_aid_of_the_myreque", 6, "Enchant sapphire for the Myreque preparations"),
     # Audit: no quest-specific emerald preparation target.

@@ -148,11 +148,11 @@ from ankiscape.core.constants import (
     RUNECRAFTING_POUCH_DATA,
     UTILITY_ACTIVITY_DATA,
 )
-
 # Exact unlock sets only for quests with a QUEST_UNLOCK_REPLACEMENTS_BY_ID
 # entry. Item-replacement quests outside this dictionary are intentionally not
 # claimed as unlock coverage.
 QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
+    "cold_war": frozenset({"Penguin disguise changes are handled automatically during Cold War.", "Ability to use the Penguin Agility Course", "Ability to contact Larry through the NPC Contact spell."}),
     "a_fairy_tale_iii_battle_at_orks_rift": frozenset({
         "Ability to fetch teeth to get a Tooth creature by speaking to the Tooth Fairy after the quest.",
         "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
