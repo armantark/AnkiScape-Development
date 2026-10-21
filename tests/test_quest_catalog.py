@@ -891,7 +891,7 @@ class TestQuestCatalog(unittest.TestCase):
 
         black_knights = data["black_knights_fortress"]
         self.assertEqual(black_knights["stages"], 5)
-        self.assertEqual(black_knights["required_quest_points"], 12)
+        self.assertEqual(black_knights["required_quest_points"], 13)
         black_by_stage = {row["stage"]: row for row in black_knights["stage_requirements"]}
         self.assertEqual(black_by_stage[1]["required_tools"], {"Iron chainbody": 1, "Bronze med helm": 1})
         self.assertEqual(black_by_stage[3]["consumed_inventory"], {"Cabbage": 1})

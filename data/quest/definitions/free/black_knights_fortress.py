@@ -22,7 +22,7 @@ QUEST = QuestDefinition(
         point_reward=3,
         rewards=(("Coins", 2500),),
         start_point="Speak to Sir Amik Varze on the 3rd floor of the White Knights' Castle's western tower.",
-        requirements=("12 Quest Points", "Used during quest: Iron chainbody x1, Bronze med helm x1, Cabbage x1"),
+        requirements=("13 Quest Points", "Used during quest: Iron chainbody x1, Bronze med helm x1, Cabbage x1"),
         required_items=(),
         combat="Ability to evade level 33 Black Knights; no required kill.",
         source=f"{DARKAN_BLACK_KNIGHTS_SOURCE}; {DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
@@ -32,7 +32,7 @@ QUEST = QuestDefinition(
         difficulty="Novice",
         length="Short",
         timeline="Fifth Age",
-        required_quest_points=12,
+        required_quest_points=13,
     )
 
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {

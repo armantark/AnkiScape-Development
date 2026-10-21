@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import types
 import unittest
 from contextlib import nullcontext, redirect_stderr, redirect_stdout
 from pathlib import Path
@@ -18,6 +19,14 @@ from unittest.mock import Mock, patch
 
 from tools.native import session_guard as native
 from tools.native import freeze_source
+
+import pkg_alias  # noqa: F401
+from ankiscape.tools.native import player_data as fixtures
+
+try:
+    from anki.collection import Collection
+except ImportError:
+    Collection = None
 
 
 def fixture_environment():
@@ -226,6 +235,113 @@ class NativeSessionGuardTest(unittest.TestCase):
         with patch.object(native, "prepare") as prepare:
             self.assertEqual(native.main(["prepare"]), 0)
         prepare.assert_called_once_with(Path(__file__).resolve().parents[2])
+
+    def test_invalid_player_data_is_refused_before_any_session_is_created(self):
+        path = self.root / "seed.json"
+        with patch.object(native, "player_data_helpers", return_value=fixtures):
+            for contents, message in (("[]", "JSON object"), ("{broken", "Expecting"),
+                                      ('{"firemaking_levl": 10}', "firemaking_level")):
+                with self.subTest(contents=contents):
+                    path.write_text(contents)
+                    with self.assertRaisesRegex(ValueError, message):
+                        native.prepare(self.repo, player_data=path)
+                    self.assertEqual(list(self.root.glob("ankiscape-native-*")), [])
+        self.assertEqual(self.collection.read_bytes(), b"original collection")
+
+    def test_player_data_copy_is_bound_to_receipt_and_changed_copy_blocks_startup(self):
+        path = self.root / "seed.json"
+        path.write_text('{"inventory": {"Logs": 10}, "firemaking_level": 10}')
+        with patch.object(native, "player_data_helpers", return_value=fixtures), \
+                redirect_stdout(io.StringIO()):
+            base = native.prepare(self.repo, player_data=path)
+        self.assertEqual((base / native.PLAYER_DATA).read_bytes(), path.read_bytes())
+        receipt = json.loads((base / native.RECEIPT).read_text())
+        self.assertEqual(receipt["player_data_sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
+        (base / native.PLAYER_DATA).write_text("{}")
+        module = base / native.TEST_APP / "Contents/Resources/app" / (native.BOOTSTRAP + ".py")
+        digest = hashlib.sha256((base / native.RECEIPT).read_bytes()).hexdigest()
+        with patch.object(sys, "argv", ["Anki"]), \
+                patch.object(native.runpy, "_run_module_as_main") as start, \
+                redirect_stderr(io.StringIO()) as diagnostic:
+            with self.assertRaises(SystemExit) as stopped:
+                native.bootstrap(str(module), str(base), str(self.collection), digest)
+        self.assertEqual(stopped.exception.code, 2)
+        self.assertIn("prepared player data changed after preparation", diagnostic.getvalue())
+        start.assert_not_called()
+
+    def test_without_player_data_keeps_receipt_and_profile_unseeded(self):
+        base, _ = self.prepare_session()
+        self.assertNotIn("player_data_sha256", json.loads((base / native.RECEIPT).read_text()))
+        self.assertFalse((base / native.PLAYER_DATA).exists())
+        self.assertFalse((base / native.PLAYER_DATA_APPLIED).exists())
+        self.assertFalse((base / "User 1").exists())
+
+    def test_nested_merge_preserves_siblings_and_allows_new_nested_keys(self):
+        seed = fixtures.merge_player_data({
+            "inventory": {"Logs": 10, "fixture item": 3},
+            "firemaking_level": 10,
+            "completed_achievements": ["fixture"],
+        })
+        defaults = fixtures.merge_player_data({})
+        self.assertEqual(seed["inventory"], {**defaults["inventory"], "Logs": 10, "fixture item": 3})
+        self.assertEqual(seed["firemaking_level"], 10)
+        self.assertEqual(seed["completed_achievements"], ["fixture"])
+        self.assertEqual(fixtures.merge_player_data({}), defaults)
+        self.assertEqual(fixtures._merge({"a": {"b": {"c": 1, "d": 2}}},
+                                         {"a": {"b": {"c": 3, "e": 4}}}),
+                         {"a": {"b": {"c": 3, "d": 2, "e": 4}}})
+        self.assertIsNone(fixtures.merge_player_data({"inventory": None})["inventory"])
+
+    @unittest.skipIf(Collection is None, "Anki Collection is unavailable")
+    def test_seed_stores_migrated_value_once_and_preserves_later_tester_state(self):
+        base, _ = self.prepare_session()
+        profile = base / "User 1"
+        profile.mkdir()
+        collection_path = profile / "collection.anki2"
+        overrides = {"inventory": {"Logs": 10}, "firemaking_level": 10, "firemaking_exp": 1154}
+        (base / native.PLAYER_DATA).write_text(json.dumps(overrides))
+        collection = Collection(str(collection_path))
+        try:
+            with patch.object(native, "player_data_helpers", return_value=fixtures):
+                native.seed_player_data(base, collection)
+            expected = fixtures.migrate_loaded_data(fixtures.merge_player_data(overrides),
+                                                    fixtures.ORE_DATA, fixtures.ITEM_DEFINITIONS)
+            self.assertEqual(collection.get_config("ankiscape_player_data"),
+                             json.loads(json.dumps(expected)))
+            self.assertEqual(collection.get_config("ankiscape_current_skill"), "None")
+            collection.set_config("ankiscape_player_data", {"tester_progress": 123})
+        finally:
+            collection.close()
+        collection = Collection(str(collection_path))
+        try:
+            native.seed_player_data(base, collection)
+            self.assertEqual(collection.get_config("ankiscape_player_data"), {"tester_progress": 123})
+        finally:
+            collection.close()
+        self.assertEqual(self.collection.read_bytes(), b"original collection")
+
+    def test_seed_failure_exits_instead_of_allowing_anki_to_continue_with_defaults(self):
+        base, _ = self.prepare_session()
+        callbacks = []
+        main = Mock()
+        app = types.SimpleNamespace(main=main)
+        aqt = types.SimpleNamespace(gui_hooks=types.SimpleNamespace(collection_did_load=callbacks))
+        with patch.dict(sys.modules, {"anki": types.SimpleNamespace(app=app), "aqt": aqt}):
+            native.register_player_data_seed(base)
+            app.main()
+        main.assert_called_once_with()
+        with redirect_stderr(io.StringIO()) as diagnostic:
+            with self.assertRaises(SystemExit) as stopped:
+                callbacks[0](Mock(path=str(self.collection)))
+        self.assertEqual(stopped.exception.code, 2)
+        self.assertIn("outside the disposable base", diagnostic.getvalue())
+
+    def test_seed_refuses_outside_collection_before_config_access(self):
+        base, _ = self.prepare_session()
+        collection = Mock(path=str(self.collection))
+        with self.assertRaisesRegex(RuntimeError, "outside the disposable base"):
+            native.seed_player_data(base, collection)
+        collection.set_config.assert_not_called()
 
     def test_prepare_keeps_original_app_and_framework_links_unchanged(self):
         app = native.ANKI_APP

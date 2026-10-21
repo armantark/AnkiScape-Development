@@ -37,6 +37,21 @@ _DREAM_MENTOR_COMBAT_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/the_illusive (nostats) (noanims).json"
 )
 
+# The owner accepted the mother's 1,000 life points on 2026-10-20 at 19:04 PDT
+# and the baby's identification and 350 life points that date at 19:59 PDT.
+# These are life-point overrides only; they do not qualify other combat fields.
+HORROR_FROM_THE_DEEP_LIFEPOINT_OVERRIDES = {
+    "horror_from_the_deep_dagannoth_100": (
+        350,
+        "https://web.archive.org/web/20121105084853id_/http://www.runehq.com:80/monster/dagannoth-baby",
+    ),
+    "horror_from_the_deep_dagannoth_mother_horror_from_the_deep_100": (
+        1000,
+        "https://runescape.wiki/w/index.php?title=Dagannoth_mother_(Horror_from_the_Deep)&oldid=6448031; "
+        "https://web.archive.org/web/20100824081504id_/http://www.tip.it:80/runescape/?rs2monster_id=377",
+    ),
+}
+
 QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
     "underground_pass": {
         "underground_pass_othanian_91": _combat(
@@ -493,4 +508,55 @@ QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncoun
 
 __all__ = (
     'QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID',
+    'HORROR_FROM_THE_DEEP_LIFEPOINT_OVERRIDES',
+    'apply_horror_from_the_deep_lifepoints',
 )
+
+
+def _horror_from_the_deep_encounter_lifepoints(
+    encounter: QuestCombatEncounter,
+    hitpoints: int,
+    source: str,
+) -> QuestCombatEncounter:
+    if sum(key == "hitpoints" for key, _value in encounter.npc_stats) != 1:
+        raise ValueError("Horror from the Deep life-point override target changed")
+    return replace(
+        encounter,
+        npc_stats=tuple(
+            (key, hitpoints) if key == "hitpoints" else (key, value)
+            for key, value in encounter.npc_stats
+        ),
+        npc_stats_source=(
+            f"hitpoints: {source}; owner accepted 2026-10-20; "
+            "other combat fields retain restoration provenance, not period qualification: "
+            f"{encounter.npc_stats_source}"
+        ),
+    )
+
+
+def apply_horror_from_the_deep_lifepoints(
+    quest_id: str,
+    requirements: Tuple[QuestStageRequirement, ...],
+) -> Tuple[QuestStageRequirement, ...]:
+    if quest_id != "horror_from_the_deep":
+        return requirements
+    occurrences = dict.fromkeys(HORROR_FROM_THE_DEEP_LIFEPOINT_OVERRIDES, 0)
+    error = "Horror from the Deep life-point override target changed"
+    rows = []
+    for requirement in requirements:
+        encounters = []
+        changed = False
+        for encounter in requirement.combat_encounters:
+            override = HORROR_FROM_THE_DEEP_LIFEPOINT_OVERRIDES.get(encounter.encounter_id)
+            if override is not None:
+                occurrences[encounter.encounter_id] += 1
+                hitpoints, source = override
+                encounter = _horror_from_the_deep_encounter_lifepoints(encounter, hitpoints, source)
+                changed = True
+            encounters.append(encounter)
+        if changed:
+            requirement = replace(requirement, combat_encounters=tuple(encounters))
+        rows.append(requirement)
+    if any(count != 1 for count in occurrences.values()):
+        raise ValueError(error)
+    return tuple(rows)
