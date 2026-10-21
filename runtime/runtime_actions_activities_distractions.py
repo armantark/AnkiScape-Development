@@ -173,7 +173,7 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
 
 def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_big_chinchompa_review_pure(
-        ctx.player_data,
+        ctx.player_data, calendar_tick=ctx.step_calendar_tick(),
     )
     if not ok:
         ctx.deactivate_current_skill()
@@ -295,7 +295,7 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
         else INCIDENTAL_GEM_DROP_CHANCE
     )
     updated, ok, result = apply_shooting_star_review_pure(
-        ctx.player_data,
+        ctx.player_data, calendar_tick=ctx.step_calendar_tick(),
         has_usable_pickaxe=pickaxe is not None,
         gem_roll=ctx.random_random(),
         gem_pick_roll=ctx.random_random(),

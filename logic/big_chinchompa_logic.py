@@ -151,6 +151,15 @@ def big_chinchompa_crowd_target_bps_pure(
     )
 
 
+def _apply_crowd_target(event: dict[str, Any], calendar_tick: int) -> None:
+    target = big_chinchompa_crowd_target_bps_pure(
+        seed=_int(event.get("seed")),
+        elapsed_ticks=calendar_tick - _int(event.get("start_tick")),
+        day_phase=(_int(event.get("start_tick")) % 144_000) / 144_000,
+    )
+    event["crowd_fullness_bps"] = max(_int(event.get("crowd_fullness_bps")), target)
+
+
 def _spawn_event(slot_card: int, start_tick: int) -> dict[str, Any]:
     seed = _event_seed(slot_card)
     location = BIG_CHINCHOMPA_LOCATIONS[
@@ -253,15 +262,7 @@ def advance_big_chinchompa_world_clock_pure(
             state = dict(data["big_chinchompa"])
             event = {}
         else:
-            crowd_target = big_chinchompa_crowd_target_bps_pure(
-                seed=_int(event.get("seed")),
-                elapsed_ticks=calendar_ticks_pure(data) - _int(event.get("start_tick")),
-                day_phase=(_int(event.get("start_tick")) % 144_000) / 144_000,
-            )
-            event["crowd_fullness_bps"] = max(
-                _int(event.get("crowd_fullness_bps")),
-                crowd_target,
-            )
+            _apply_crowd_target(event, calendar_ticks_pure(data))
             state["active_event"] = event
             data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(state)
             if _event_total_fullness_bps(event) >= 10_000:
@@ -301,6 +302,7 @@ def apply_big_chinchompa_review_pure(
     player_data: Mapping[str, Any],
     *,
     circuits: int = 1,
+    calendar_tick: int | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = ensure_big_chinchompa_state_pure(player_data)
     if not big_chinchompa_event_active_pure(data):
@@ -341,6 +343,7 @@ def apply_big_chinchompa_review_pure(
     if completed <= 0:
         return data, False, {"reason": "The Big Chinchompa is already full."}
 
+    _apply_crowd_target(event, calendar_ticks_pure(data) if calendar_tick is None else calendar_tick)
     state["active_event"] = event
     state["last_result"] = (
         f"Released {completed * BIG_CHINCHOMPA_JAR_CAPACITY} "

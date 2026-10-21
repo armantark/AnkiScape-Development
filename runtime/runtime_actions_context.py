@@ -15,7 +15,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping, Optional
 
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
-from ..logic.pace.short_timers import card_ticks_pure
+from ..logic.pace.short_timers import STEP_TICKS, card_ticks_pure
+from ..logic.pace.world_clock import calendar_ticks_pure
 from ..logic.pace.danger_stops import card_danger_state_pure, card_danger_stop_pure
 
 # Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
@@ -92,6 +93,18 @@ class RuntimeActionContext:
         if self.familiar_ticks_before is not None and 0 < self.familiar_ticks_before < self.card.ticks_remaining:
             self.card.ticks_remaining = self.familiar_ticks_before
             self.card.exhaustion_reason = "familiar_ended"
+
+    def step_calendar_tick(self) -> int:
+        """The end of this step, before the card's remaining time and daily gap."""
+        now = calendar_ticks_pure(self.player_data)
+        if self.calendar_ticks_for_answer is None:
+            return now
+        budget = card_ticks_pure(self.review_action_multiplier)
+        available = budget
+        if self.familiar_ticks_before is not None and self.familiar_ticks_before > 0:
+            available = min(available, self.familiar_ticks_before)
+        spent = min(budget, available - self.card.ticks_remaining + STEP_TICKS)
+        return now - self.calendar_ticks_for_answer + spent
 
 
 def stop_card(ctx: RuntimeActionContext, reason: str) -> None:

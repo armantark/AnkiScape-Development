@@ -536,12 +536,14 @@ def apply_shooting_star_review_pure(
     player_data: Mapping[str, Any],
     *,
     has_usable_pickaxe: bool,
+    calendar_tick: int | None = None,
     gem_roll: float = 1.0,
     gem_pick_roll: float = 0.0,
     gem_drop_chance: float = 0.0,
     gem_drop_table: Sequence[Mapping[str, Any]] = (),
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = ensure_shooting_star_state_pure(player_data)
+    step_tick = calendar_ticks_pure(data) if calendar_tick is None else calendar_tick
     state = dict(data["shooting_star"])
     event = dict(state.get("active_event") or {})
     if not event or event.get("sprite_released"):
@@ -587,7 +589,7 @@ def apply_shooting_star_review_pure(
         event,
         1,
         answered_cards=answered_cards_pure(data),
-        calendar_tick=calendar_ticks_pure(data),
+        calendar_tick=step_tick,
     )
     if removed <= 0:
         return data, False, {"reason": "The star has already been depleted."}
@@ -603,15 +605,13 @@ def apply_shooting_star_review_pure(
     )
     inventory[SHOOTING_STAR_STARDUST] = dust_before + dust_added
     gem = ""
-    if (
-        gem_drop_table
-        and float(gem_roll) < max(0.0, min(1.0, float(gem_drop_chance)))
-    ):
+    if float(gem_roll) < max(0.0, min(1.0, float(gem_drop_chance))):
         gem = _pick_gem(gem_drop_table, gem_pick_roll)
         if gem:
             inventory[gem] = _int(inventory.get(gem)) + 1
     data["inventory"] = inventory
 
+    _apply_crowd_target(event, answered_cards=answered_cards_pure(data), calendar_tick=step_tick)
     state["active_event"] = event
     state["last_result"] = (
         f"Mined size {current_size} stardust."
