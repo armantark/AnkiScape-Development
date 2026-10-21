@@ -60,6 +60,16 @@ class TestColdWarRingOption(unittest.TestCase):
     def test_raw_cod_accepts_stage_without_ring(self):
         self._assert_accepted(self._player({"Raw cod": 1}))
 
+    def test_raw_cod_accepts_stage_with_unactivated_ring(self):
+        for location in ("inventory", "equipment"):
+            with self.subTest(location=location):
+                player = self._player(
+                    {"Raw cod": 1, "Ring of Charos": 1}
+                    if location == "inventory" else {"Raw cod": 1},
+                    {"ring": "Ring of Charos"} if location == "equipment" else {},
+                )
+                self._assert_accepted(player)
+
     def test_unactivated_ring_refuses_stage_in_inventory_or_equipped(self):
         for location in ("inventory", "equipment"):
             with self.subTest(location=location):
