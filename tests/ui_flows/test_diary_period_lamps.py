@@ -59,7 +59,7 @@ class DiaryPeriodLampsUITest(unittest.TestCase):
     def _diary_rows(self, dialog):
         return {title: row for title, row in bank._rows(dialog).items() if title.startswith("Falador Elite:")}
 
-    def _exercise(self, dark):
+    def _assert_falador_lamp_flow(self, dark):
         from ankiscape.ui.ui_tab_achievements import build_achievements_tab
         from tests.test_achievement_diaries_ui import _Ctx
 
@@ -116,7 +116,7 @@ class DiaryPeriodLampsUITest(unittest.TestCase):
         bank._pump()
 
     def test_falador_rows_boundaries_spend_and_cabinet_with_explicit_light_palette(self):
-        self._exercise(False)
+        self._assert_falador_lamp_flow(False)
 
     def test_falador_rows_boundaries_spend_and_cabinet_with_fusion_dark_palette(self):
-        self._exercise(True)
+        self._assert_falador_lamp_flow(True)
