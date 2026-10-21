@@ -3883,7 +3883,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed)
         self.assertEqual(progressed_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            quest_action_proofs_for_quest(progressed_data, quest_id, QUEST_DATA),
+            quest_action_proofs_for_quest(progressed_data, quest_id, QUEST_DATA)[-1:],
             ("Mine the Lumbridge cellar rubble and squeeze through the resulting hole",),
         )
         self.assertEqual(
