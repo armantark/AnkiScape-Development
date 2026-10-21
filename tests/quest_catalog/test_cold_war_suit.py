@@ -123,6 +123,23 @@ class TestColdWarSuit(unittest.TestCase):
                     self.assertEqual(reopened["inventory"]["Clockwork suit"], prior_quantity + 1)
                     self.assertEqual(reopened["quest_action_proofs"].count(SUIT_ACTION), 1)
 
+        # Stage advancement owns the grant; an existing proof is not a grant ledger.
+        player = _player()
+        player["quest_action_proofs"] = [SUIT_ACTION]
+        after, progressed, _ = _advance(player)
+        self.assertTrue(progressed)
+        self.assertEqual(after["inventory"]["Clockwork suit"], 1)
+        self.assertEqual(after["quest_action_proofs"], [SUIT_ACTION])
+
+        # Losing the Bank item after stage 2 must not trigger a replacement.
+        after["inventory"].pop("Clockwork suit")
+        loaded = migrate_loaded_data(json.loads(json.dumps(after)), ORE_DATA, ITEM_DEFINITIONS)
+        unchanged, progressed, _ = _advance(loaded)
+        self.assertFalse(progressed)
+        self.assertEqual(unchanged["inventory"].get("Clockwork suit", 0), 0)
+        self.assertEqual(unchanged["quests"][QUEST_ID]["progress"], 3)
+        self.assertEqual(unchanged["quest_action_proofs"], [SUIT_ACTION])
+
         for stage in range(3, 8):
             with self.subTest(existing_save_stage=stage):
                 player = _player(stage)
