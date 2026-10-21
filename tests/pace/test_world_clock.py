@@ -34,7 +34,7 @@ def _answer(player: dict) -> dict:
     """Count one card the way the answer hook does: the card counter first, then the clock."""
     counted = copy.deepcopy(player)
     counted["shop_market_clock"]["answered_cards"] += 1
-    return advance_world_clock_pure(counted)
+    return advance_world_clock_pure(counted)[0]
 
 
 def _readings(player: dict) -> tuple:
@@ -103,7 +103,7 @@ class WorldClockTest(unittest.TestCase):
         player["world_clock"] = {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 143_400}
         player["shop_market_clock"]["answered_cards"] = 240
         baseline = copy.deepcopy(player)
-        advanced = advance_world_clock_pure(player)
+        advanced, _ = advance_world_clock_pure(player)
         self.assertEqual(player, baseline)
         self.assertEqual(advanced["world_clock"]["day"], 1)
         self.assertIsNot(advanced["world_clock"], player["world_clock"])

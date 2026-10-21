@@ -5209,7 +5209,9 @@ def _advance_clocks_for_answer(successful_answer) -> None:
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
     _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, card_ticks))
     _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
-    _state.player_data.update(advance_world_clock_pure(_state.player_data))
+    clock_data, calendar = advance_world_clock_pure(_state.player_data, speed=_review_action_multiplier())
+    _state.player_data.update(clock_data)
+    _state.calendar_ticks_for_answer = calendar["after_ticks"] - calendar["before_ticks"]
     try:
         _state.player_data.update(advance_wicked_hood_review_day_pure(_state.player_data))
     except Exception:
@@ -5229,8 +5231,7 @@ def _advance_clocks_for_answer(successful_answer) -> None:
     except Exception:
         pass
     try:
-        # Fills wait in the offer's collection box; only the player's own
-        # place and collect actions cost a bank trip.
+        # Fills wait in the offer's collection box until collected.
         ge_updated, _events = advance_ge_market_tick_pure(
             _state.player_data, item_catalog=GE_ITEM_CATALOG
         )
@@ -5258,8 +5259,7 @@ def _advance_effects_for_answer(successful_answer) -> None:
 
 
 def _advance_farming_for_answer(answers_farm_step) -> None:
-    # A card whose queued Farming step answers it moves the farm clock with
-    # that first step, inside the card's budget (on_good_answer).
+    # The Farming queue advances its clock with its first budget step.
     if not answers_farm_step:
         runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
 

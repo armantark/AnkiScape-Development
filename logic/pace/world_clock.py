@@ -5,7 +5,7 @@ that count into world days, weeks and months, so daily and weekly content no
 longer divide the count by a private day length of their own.
 
 A world day spans ``day_length`` answered cards. Inside the day the calendar
-runs ``CARD_CALENDAR_TICKS`` per card; whatever is left of the 24 hours passes
+runs six ticks per unit of game speed per card; the rest of the 24 hours passes
 at the day's boundary.
 """
 
@@ -13,10 +13,11 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from .short_timers import card_ticks_pure
 
 CALENDAR_TICKS_PER_DAY = 144_000  # 24 hours of 0.6-second game ticks
 DEFAULT_WORLD_DAY_CARDS = 240
-# Six calendar minutes per card, so a default world day fills its 24 hours.
+# Migration alone retains the old six calendar minutes per card.
 CARD_CALENDAR_TICKS = CALENDAR_TICKS_PER_DAY // DEFAULT_WORLD_DAY_CARDS
 DAYS_PER_WEEK = 7
 DAYS_PER_MONTH = 30
@@ -70,7 +71,10 @@ def _current_clock(player_data: Mapping[str, Any]) -> dict[str, int]:
     return _clock_at(player_data, _answered_cards(player_data))
 
 
-def advance_world_clock_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def advance_world_clock_pure(
+    player_data: Mapping[str, Any], *, speed: int = 1,
+    next_day_length: int = DEFAULT_WORLD_DAY_CARDS,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Move the clock over the card that ``shop_market_clock`` just counted.
 
     The host calls this once after every answered card, Again included.
@@ -78,17 +82,27 @@ def advance_world_clock_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     data = dict(player_data)
     card = _answered_cards(data)
     clock = _clock_at(data, max(0, card - 1))
-    clock["in_day_ticks"] += CARD_CALENDAR_TICKS
+    before_ticks = clock["day"] * CALENDAR_TICKS_PER_DAY + clock["in_day_ticks"]
+    clock["in_day_ticks"] += card_ticks_pure(speed)
     day_end_card = clock["day_start_card"] + clock["day_length"]
-    if card >= day_end_card:
+    day_rolled = card >= day_end_card
+    if day_rolled:
         clock = {
             "day": clock["day"] + 1,
             "day_start_card": day_end_card,
-            "day_length": DEFAULT_WORLD_DAY_CARDS,
+            "day_length": max(100, min(1_000, int(next_day_length))),
             "in_day_ticks": 0,
         }
     data["world_clock"] = clock
-    return data
+    return data, {
+        "before_ticks": before_ticks,
+        "after_ticks": calendar_ticks_pure(data),
+        "day_rolled": day_rolled,
+    }
+
+
+def calendar_minutes_pure(player_data: Mapping[str, Any]) -> float:
+    return calendar_ticks_pure(player_data) / 100
 
 
 def world_day_index_pure(player_data: Mapping[str, Any]) -> int:

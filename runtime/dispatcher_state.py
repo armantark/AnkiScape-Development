@@ -14,6 +14,7 @@ class DispatcherState:
     card_turned: bool = False
     exp_awarded: bool = False
     familiar_ticks_before: int | None = None
+    calendar_ticks_for_answer: int | None = None
     review_undo_stack: list = field(default_factory=list)
     direct_action_undo_stack: list = field(default_factory=list)
     review_feedback_context: dict | None = None
