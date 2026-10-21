@@ -14,7 +14,7 @@ from .quest.catalog_overrides import *
 from .quest.stage_requirements import *
 from .quest.stage_additions import *
 from .quest.stage_cleanups import *
-from .quest.combat_replacements import *
+from .quest.combat_replacements import QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID
 from .quest.catalog import *
 from .quest.ledger import *
 from .quest.serializers import *
