@@ -452,22 +452,4 @@ The original pruning proofs are preserved in [the Rulesync history](archive/work
 ## Source depth and exact opening holds — 2026-10-14
 Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved. The later tooling-only main is[812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md); its complete closed summary stays in[the landed archive](archive/progress-landed-test-cleanup-2026-10-14.md).
 
-## MediaWiki warning diagnostic landed — 2026-10-14
-
-Exact69a22761 officially landed after independent Astra/Zhipu source acceptance and all9 full remote checks. [The source record](source-audits/mediawiki-warning-landed-2026-10-14.md) binds original focused/full receipts and retained evidence. Shared asset warnings are visible on stderr without changing successful results.
-
-## 2026-10-21: Part J check record closed
-
-The Qt lane at `e0b73a675` ran 5,792 tests. No pace test failed. The lane had four missing-source errors and one source-audit failure without the gate source paths. Both affected modules passed all 16 tests with those paths. The Parts I/J final checks must use the gate environment. The evidence is in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p4-pace-build/part-ij-close/`. Q-J1 moved to `0350-aura-system-slice`. Part K stays for 2026-10-24.
-
-## 2026-10-21: Pace copy and Settings fit
-
-The pace branch has the approved copy-2 and copy-3 texts. Fish Flingers shows progress once when a whole card lands no catch. Thieving recovery text uses the saved debt cause, so a Wild jade vine bind cannot show it. Undo restores the cause with the debt. Big Chinchompa rounds remaining world minutes up.
-
-Settings uses the existing `ui/ui_text_fit.py::vertical_scroll` helper. Its controls meet their minimum heights at 720x540 and 720x560, with Developer Mode open and either hint state. The manual captures show no cut text in light or Fusion dark. The scroll bar hides when the page fits. The review votes and final full checks belong to the closure evidence at `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p4-pace-build/part-ij-close/`. Part K remains on 2026-10-24.
-
-The stun copy must not promise an action on the next card. A measured 1x sequence starts with 14 Bunyip ticks. The failed pickpocket leaves 8 stun ticks and 8 familiar ticks. The next card leaves 2 of each. The following card pays those 2 ticks and expires the familiar; no action runs. Card 4 acts. The copy model corrected the line to `Stun recovery took this card`. The final Fish Flingers line reports `No catch` for the finished card. Goblin Raids names world-minute marks, and communal pressure names stock lost per catch.
-
-Grok 4.7 gave the final Part I taste vote `SHIP` on 2026-10-21. It accepted the dialog, Settings rows and scroll, danger-stop texts, and final copy. The closure used three taste attempts (overall rounds 2, 3 and 4). Code review and final full checks remain in the external closure record. The geometry selector now uses `QAbstractButton`, so the existing Widget Position radio buttons share the minimum-height proof.
-
-Part J uses the per-seed differences for its paired standard error. Both speed runs close at the same measured tick after all owed action and stun time is paid. This prevents action credit outside the sample from changing the comparison. The regression fails on the original independent-sample formula and unequal Thieving endpoints. The original assertions, samples, seeds, tolerances and card cap stay fixed. The repaired rate, lump and daily-share selection passes.
+Pace Parts I and J have a [closure record](audits/pace-ij-closure-2026-10-21.md). Part K waits for 2026-10-24.

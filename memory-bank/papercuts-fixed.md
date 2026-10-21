@@ -83,3 +83,32 @@ Resolution: use literal rg paths and final-selectors.txt; move these resolved re
 - 2026-10-21: Review-fix preflight refused apply_shooting_star_review_pure cyclomatic complexity 17 (was 16), cognitive 19 (was 18).
 Resolution: remove the redundant nonempty gem-table guard; _pick_gem already returns an empty name for an empty table.
 - 2026-10-21T05:15:37-07:00: Review-fix union status read failed with SyntaxError: unmatched ')' in the inline Python print expression; use tail to read the existing log.
+
+
+## 2026-10-21: Pace Parts I/J closure fixes
+
+- 2026-10-21T10:25:33-07:00: Parts I/J startup: combined memory-bank reads exceeded tool output limits; use bounded reads. The guessed paths `tests/pace/test_answer_card_harness.py`, `tests/pace/answer_harness.py` and `pace-list/plan.md` do not exist; use `rg --files` before reads.
+
+- 2026-10-21T10:35:02-07:00: Part J Qt command omitted source variables: four `FileNotFoundError` errors under `/Users/ArmanTarkhanian1/Downloads/game-main` and one audit mismatch `no_local_source_match` vs `darkan_same_name_wrong_level`. Both modules pass with the gate source paths (16 tests, exit 0).
+
+- 2026-10-21T10:36:24-07:00: Copy-2 focused check refused selector `test_farming_logic` with exit 2; the module is `test_farming`. The runner refused before tests ran. Discover selectors from file names before each new selection.
+
+- 2026-10-21: Copy-2 commit hook rejected cognitive complexity 18, oversized-file growth (5541/5535, 1044/1040, 27825/27824) and unused `GOBLIN_RAIDS_SPAWN_REVIEWS`. Kept the entrypoint unchanged, extracted reviewer clock text, split the new test, and removed the import. The normal hook must pass before commit.
+
+- 2026-10-21: The copy-2 retry failed the normal hook with `ui/ui.py: fan-out 170 (was 169)`. Kept the UI import path and put the clock formatter in the existing world-clock module. The cap stays fixed.
+
+- 2026-10-21: The tool wrapper for the Settings note/audit call failed before execution with `SyntaxError: missing ) after argument list`. Retried with the direct tool-result form. No command or file write ran on the failed call.
+
+- 2026-10-21: The test-quality audit reported `assertion_free_test` for `FishFlingersProgressFeedbackTests.test_only_a_card_without_a_catch_shows_one_waiting_line` after the loop split. Renamed the actual assertion helpers with `_assert_` prefixes; no assertion changed. The Settings hook also rejected `control_geometry 16 (new)`; split the bounds check from the list walk.
+
+- 2026-10-21: The answered-card stun probe used `_summoned("spirit_wolf", "Spirit wolf pouch")`; its fixture raised `AssertionError` at `tests/pace/test_short_timers.py:47` because the ID was not accepted. Use the existing known `bunyip` fixture for this timer case.
+
+- 2026-10-21: The Settings hook reported `tools/maintenance/pace_close_visuals.py: E302 x1 (was 0)` after the helper split. Restored two blank lines between top-level definitions. The earlier successful UI proof stays valid.
+
+- 2026-10-21T11:49:48-07:00: The Settings geometry selector covered checkboxes and push buttons but omitted Widget Position radio buttons. Changed it to `QAbstractButton` in the test and capture utility; the all-button geometry case passes.
+
+- 2026-10-21T12:03:11-07:00: Astra found two Part J measurement defects: independent-sample standard error for paired seeds, and unequal measured endpoints after Thieving stun. Add a paired constant-offset regression and equal-window guard before repairing the measurement; keep seeds, sample, thresholds and caps fixed.
+
+- 2026-10-21T12:17:54-07:00: The final branch-range whitespace check reported `tests/pace/test_settings_geometry.py:51: new blank line at EOF.` Removed the extra end line. The Python syntax tree matches the accepted review head exactly.
+
+- 2026-10-21T12:22:45-07:00: The docs audit reported `startup_line_budget_exceeded: 3037 startup lines must stay under 3000` after the pace closure appended records. Move only this closure's fixed papercuts and detailed progress out of startup, preserve all records, and keep the 3000-line cap. Resolved: the unchanged-cap audit passes after the record move.
