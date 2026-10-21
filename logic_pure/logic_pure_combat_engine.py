@@ -1385,7 +1385,7 @@ def apply_combat_burst_pure(
             fled = True
             familiar_escape = status_stop == "void_shifter"
             break
-        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before)
+        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
         if stop_reason:
             fled = stop_reason == "fled"
             break
@@ -1493,7 +1493,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
                 )
                 if stop_reason or stop_on_kill:
                     break
@@ -1617,7 +1617,7 @@ def apply_combat_burst_pure(
                 stop_reason, fled = _combat_kill_boundary_stop(
                     data, live_cadence and stop_on_danger, kills, stop_after_kills, allow_bank_run,
                     target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before,
+                    player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
                 )
                 if stop_reason or stop_on_kill:
                     break
@@ -1637,7 +1637,7 @@ def apply_combat_burst_pure(
             )
             if potion_event:
                 potions_used.append(potion_event)
-        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before)
+        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
         if stop_reason:
             fled = stop_reason == "fled"
             break
