@@ -209,6 +209,23 @@ class TestColdWarSuit(unittest.TestCase):
                 self.assertFalse(progressed)
                 self.assertEqual(unchanged, dressed)
 
+    def test_activated_ring_still_advances_after_suit_grant(self):
+        player, progressed, _ = _advance(_player())
+        self.assertTrue(progressed)
+        player["equipment"] = {"ring": "Ring of charos (a)"}
+        player["quest_action_proofs"].append("Complete Cold War stage 3 objective")
+        self.assertEqual(quest_current_stage_blockers_pure(player, QUEST_ID, QUEST_DATA), ())
+
+        after, progressed, completed = _advance(player)
+
+        self.assertTrue(progressed)
+        self.assertFalse(completed)
+        self.assertEqual(after["quests"][QUEST_ID]["progress"], 4)
+        self.assertEqual(after["inventory"], {"Clockwork suit": 1})
+        self.assertEqual(after["equipment"], player["equipment"])
+        self.assertEqual(after["quest_action_proofs"].count(SUIT_ACTION), 1)
+        self.assertEqual(player["quests"][QUEST_ID]["progress"], 3)
+
     def test_journal_and_unlocks_match_automatic_suit_flow(self):
         # Contract replacements are keyed by original paragraph indexes. All
         # surrounding prose (including greetings and passwords) must survive.
