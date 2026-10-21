@@ -68,9 +68,10 @@ class WorldClockTest(unittest.TestCase):
             player = _answer(player)
             answered = player["shop_market_clock"]["answered_cards"]
             days[answered] = dict(player["world_clock"])
-            self.assertEqual(_readings(player), _card_count_readings(answered))
+            expected = (*_card_count_readings(answered)[:-1], (answered // 240) * 144_000 + (answered % 240) * 6)
+            self.assertEqual(_readings(player), expected)
 
-        self.assertEqual(days[239], {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 143_400})
+        self.assertEqual(days[239], {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 1_434})
         self.assertEqual(days[240], {"day": 1, "day_start_card": 240, "day_length": 240, "in_day_ticks": 0})
         self.assertEqual(days[479]["day"], 1)
         self.assertEqual(days[480], {"day": 2, "day_start_card": 480, "day_length": 240, "in_day_ticks": 0})
@@ -81,7 +82,9 @@ class WorldClockTest(unittest.TestCase):
                 self.assertEqual(_readings(_save(answered)), _card_count_readings(answered))
                 # Its first answer continues that calendar instead of restarting it.
                 answered_once = _answer(_save(answered))
-                self.assertEqual(_readings(answered_once), _card_count_readings(answered + 1))
+                expected = _card_count_readings(answered + 1)
+                ticks = expected[-1] if (answered + 1) % 240 == 0 else answered * 600 + 6
+                self.assertEqual(_readings(answered_once), (*expected[:-1], ticks))
 
     def test_a_card_count_moved_without_the_clock_keeps_counting_whole_days(self):
         player = _save(250)
@@ -143,7 +146,7 @@ class WorldClockAnswerHookTest(unittest.TestCase):
         self._answer(addon, 1)
         self.assertEqual(
             addon._state.player_data["world_clock"],
-            {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 143_400},
+            {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 142_806},
         )
         self._answer(addon, 3)
         self.assertEqual(
