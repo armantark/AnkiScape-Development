@@ -1782,8 +1782,8 @@ def utility_activity_rows(
         elif spec.get("no_op"):
             tooltip = (
                 "Stand at the Bank. Nothing is produced or consumed; no skill XP.\n"
-                "Grand Exchange offers advance once per answered card, just as "
-                "with every activity."
+                "Actions move the world clock. Offers advance every 6 world minutes; "
+                "Bankstanding does not accelerate them."
             )
             locked_reasons = utility_activity_locked_reasons_pure(
                 player_data,

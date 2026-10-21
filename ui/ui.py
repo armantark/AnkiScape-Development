@@ -13169,7 +13169,7 @@ def show_main_menu(
                 )
             elif locked:
                 gnome_ball_summary.setText(
-                    "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
+                    "Three beats; speed sets the card count · five goals · 52 Agility + 52 Ranged XP · "
                     f"{int(view['runs_completed'])} completed matches\nEntry: "
                     + ", ".join(str(reason) for reason in locked)
                     + reward_notice
@@ -13177,7 +13177,7 @@ def show_main_menu(
                 )
             else:
                 gnome_ball_summary.setText(
-                    "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
+                    "Three beats; speed sets the card count · five goals · 52 Agility + 52 Ranged XP · "
                     f"{float(view['tackle_chance']) * 100:.1f}% tackle risk · "
                     f"{int(view['runs_completed'])} completed matches"
                     + reward_notice
@@ -14809,7 +14809,7 @@ def show_main_menu(
                 else f"{int(view['remaining_count'])} left this answered-card week"
             )
             circus_summary.setText(
-                f"{row['max_attempts']} tricks resolve one per answered card · "
+                f"{row['max_attempts']} tricks per performance; speed sets tricks per card · "
                 f"{CIRCUS_PERFORMANCES[performance_id].skill_id.title()} XP · "
                 "failures award 0 XP"
             )
@@ -23242,7 +23242,7 @@ def show_main_menu(
             ge_status.setText("Offer proceeds ready to collect.")
         else:
             ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
-            ge_status.setText("Offers advance once per answered card. Bankstanding does not accelerate them.")
+            ge_status.setText("Offers advance on the world clock, once every 6 world minutes. Bankstanding does not accelerate them.")
 
     def _run_ge_action(action_id, payload):
         if not callable(on_ge_action):
