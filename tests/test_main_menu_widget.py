@@ -32,7 +32,7 @@ if _ADDON_DIR not in sys.path:
 try:
     import aqt  # noqa: F401
     from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
-    from PyQt6.QtTest import QSignalSpy, QTest
+    from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -10511,7 +10511,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         summary = _find_named_label(dialog, "bankSearchInputSummary")
 
         search.setText("arrow shafts")
-        self.assertTrue(QSignalSpy(search.findChild(QTimer).timeout).wait(2000))
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Fletched", texts)
         self.assertIn("Arrow shafts x30", texts)
@@ -10521,19 +10521,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"], original_inventory)
 
         search.setText("materials")
-        self.assertTrue(QSignalSpy(search.findChild(QTimer).timeout).wait(2000))
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Materials", texts)
         self.assertIn("Feather x50", texts)
         self.assertNotIn("Arrow shafts x30", texts)
 
         search.setText("nothing-here")
-        self.assertTrue(QSignalSpy(search.findChild(QTimer).timeout).wait(2000))
+        QTest.qWait(180)
         self.assertEqual(_bank_grid_texts(dialog), ["No Bank items match your search."])
         self.assertEqual(summary.text(), "Showing 0/5")
 
         search.clear()
-        self.assertTrue(QSignalSpy(search.findChild(QTimer).timeout).wait(2000))
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Logs x5", texts)
         self.assertIn("Arrow shafts x30", texts)
