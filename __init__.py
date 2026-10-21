@@ -5059,9 +5059,9 @@ def on_convert_rogue_kit(output_item):
     return info
 
 
-def _can_start_current_action() -> bool:
+def _can_start_current_action(review_ctx=None) -> bool:
     handler_key = review_action_handler_key(_state.current_skill)
-    return runtime_actions.can_start_action(_runtime_action_context(), handler_key)
+    return runtime_actions.can_start_action(review_ctx if review_ctx is not None else _runtime_action_context(), handler_key)
 
 
 def _registered_answer_handler(skill):
@@ -5141,7 +5141,7 @@ def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
         handler_key,
         step,
         can_continue=lambda: _selected_review_action() == reviewed_action
-        and _can_start_current_action(),
+        and _can_start_current_action(review_ctx),
     )
     if progressed and handler_key not in ("combat", "quest", "thieving", "agility"):
         _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
