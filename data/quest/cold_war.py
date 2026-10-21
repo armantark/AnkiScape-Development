@@ -3,13 +3,14 @@ from ...generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
 
 COLD_WAR_SOURCE = "https://runescape.wiki/w/index.php?title=Cold_War&oldid=6579802"
-# AnkiScape owner decisions, 2026-10-20: 18:35 removes book reading and
-# possession gates; 19:00 supplies one Bank suit and automatic disguise changes.
-# This automatic grant supersedes manufacture; it is an AnkiScape adaptation.
+COLD_WAR_SUIT_NAME = "Clockwork suit"
+COLD_WAR_SUIT_ACTION = "Receive the Clockwork suit and test the penguin disguise with Larry"
+COLD_WAR_SUIT_BACKFILL_KEY = "cold_war_suit_backfill_checked"
 COLD_WAR_ADAPTATION_SOURCE = (
     COLD_WAR_SOURCE
-    + "; AnkiScape owner decisions 2026-10-20 18:35 PDT and 19:00 PDT: "
-    "automatic suit grant and disguise changes; no book reading or possession gate"
+    + "; AnkiScape owner decisions 2026-10-20 18:35 PDT and 19:00 PDT, "
+    "2026-10-21 08:51 PDT: automatic bankable suit and disguise changes; "
+    "no book reading or possession gate; one-time older-save grant"
 )
 COLD_WAR_STAGE_CLEANUPS = (
     QuestStageRequirementCleanup(
@@ -23,8 +24,8 @@ COLD_WAR_STAGE_CLEANUPS = (
         stage=2,
         remove_required_inventory=("Crafting table 3",),
         remove_required_actions=("Complete Cold War stage 2 objective",),
-        add_auto_actions=("Receive the Clockwork suit and test the penguin disguise with Larry",),
-        add_produced_inventory=(("Clockwork suit", 1),),
+        add_auto_actions=(COLD_WAR_SUIT_ACTION,),
+        add_produced_inventory=((COLD_WAR_SUIT_NAME, 1),),
         source=COLD_WAR_ADAPTATION_SOURCE,
     ),
 )
@@ -39,7 +40,7 @@ COLD_WAR_SUIT_ITEMS = {
         "source": (
             "https://runescape.wiki/w/index.php?title=Clockwork_suit&oldid=6424777; "
             "OpenRS2 cache 544/build 742 definitions 10595 and 10596; "
-            "AnkiScape owner's combined representation, 2026-10-20 19:00 PDT"
+            "AnkiScape owner decision 2026-10-20 19:00 PDT: combined bankable suit"
         ),
     },
 }

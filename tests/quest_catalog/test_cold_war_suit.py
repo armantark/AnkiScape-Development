@@ -1,8 +1,8 @@
 import copy
 import json
 import sys
-import types
 import unittest
+from itertools import product
 
 import pkg_alias  # noqa: F401
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
@@ -12,6 +12,8 @@ from ankiscape.data.quest.catalog import (
     _catalog_stage_requirements,
 )
 from ankiscape.data.quest.serializers import _stage_requirement_dict
+from ankiscape.data.quest.cold_war import COLD_WAR_SUIT_BACKFILL_KEY
+from ankiscape.logic.cold_war_suit_logic import migrate_cold_war_suit_pure
 from ankiscape.generated.item_values_generated import ITEM_VALUES_GENERATED
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from ankiscape.logic.bank_layout_logic import (
@@ -27,7 +29,13 @@ from ankiscape.logic_pure.logic_pure_quest import (
 )
 from tests.reachability.live_report import live_reachability_report
 from tests.test_combat_quest_gate import _answer_review
-from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
+from tests.runtime_actions.test_cold_war_greeting import (
+    PLAYER_KEY, RECOVERY_KEY, SKILL_KEY, review_session,
+)
+from tests.test_cold_war_greeting import GREETING, SAMPLER
+from tests.test_storage_runtime import _LegacyTextCollection, _load_storage_module
+from types import SimpleNamespace
+from unittest.mock import patch
 
 
 QUEST_ID = "cold_war"
@@ -86,21 +94,22 @@ class TestColdWarSuit(unittest.TestCase):
     def test_stage_two_grants_one_suit_without_manufacture(self):
         sentinels = {"Plank": 7, "Silk": 8, "Steel bar": 9, "Clockwork": 10,
                      "Clockwork mechanism": 11}
-        for inventory in ({}, sentinels):
+        for inventory in ({}, sentinels, {**sentinels, "Clockwork suit": 2}):
             with self.subTest(inventory=inventory):
                 player = _player()
                 player["inventory"] = dict(inventory)
                 player["crafting_exp"] = 123.0
+                before = copy.deepcopy(player)
                 self.assertEqual(quest_current_stage_blockers_pure(player, QUEST_ID, QUEST_DATA), ())
                 after, progressed, completed = _advance(player)
                 self.assertTrue(progressed)
                 self.assertFalse(completed)
                 self.assertEqual(after["quests"][QUEST_ID]["progress"], 3)
-                self.assertEqual(after["inventory"], {**inventory, "Clockwork suit": 1})
+                self.assertEqual(after["inventory"], {**inventory, "Clockwork suit": inventory.get("Clockwork suit", 0) + 1})
                 self.assertEqual(after["quest_action_proofs"], [SUIT_ACTION])
                 self.assertNotIn(RETIRED_ACTION, after["quest_action_proofs"])
                 self.assertEqual(after["crafting_exp"], player["crafting_exp"])
-                self.assertEqual(player["inventory"], inventory)
+                self.assertEqual(player, before)
 
     def test_suit_grant_does_not_repeat(self):
         for prior_quantity in (0, 2):
@@ -147,9 +156,10 @@ class TestColdWarSuit(unittest.TestCase):
                 if stage == 7:
                     player["quests"][QUEST_ID]["completed"] = True
                 loaded = migrate_loaded_data(json.loads(json.dumps(player)), ORE_DATA, ITEM_DEFINITIONS)
-                self.assertEqual(loaded["inventory"].get("Clockwork suit", 0), 0)
+                self.assertEqual(loaded["inventory"].get("Clockwork suit", 0), 1)
+                self.assertIs(loaded["cold_war_suit_backfill_checked"], True)
                 after, _, _ = _advance(loaded)
-                self.assertEqual(after["inventory"].get("Clockwork suit", 0), 0)
+                self.assertEqual(after["inventory"].get("Clockwork suit", 0), 1)
                 self.assertNotIn(SUIT_ACTION, after["quest_action_proofs"])
 
     def test_suit_registry_bank_and_reload(self):
@@ -165,7 +175,7 @@ class TestColdWarSuit(unittest.TestCase):
         self.assertIsNone(item.asset_path)
         self.assertEqual(ITEM_VALUES_GENERATED["Clockwork suit"], 1)
         for provenance in ("oldid=6424777", "OpenRS2 cache 544/build 742", "10595", "10596",
-                           "owner's combined representation"):
+                           "owner decision 2026-10-20 19:00 PDT: combined bankable suit"):
             self.assertIn(provenance, item.source)
 
         player, progressed, _ = _advance(_player())
@@ -338,60 +348,315 @@ class TestColdWarSuit(unittest.TestCase):
         self.assertFalse(started)
         self.assertEqual(unchanged, player)
 
+    def test_completion_does_not_grant_another_suit(self):
+        player, progressed, _ = _advance(_player())
+        self.assertTrue(progressed)
+        player["quests"][QUEST_ID]["progress"] = 6
+        player["inventory"].update({"Leather": 1, "Mahogany plank": 1})
+        player["quest_action_proofs"].append("Complete Cold War stage 6 objective")
+        before = copy.deepcopy(player)
+        after, progressed, completed = _advance(player)
+        self.assertTrue(progressed)
+        self.assertTrue(completed)
+        self.assertEqual(after["quests"][QUEST_ID], dict(started=True, completed=True, progress=7))
+        self.assertEqual(after["inventory"], before["inventory"])
+        self.assertEqual(after["quest_points"], before["quest_points"] + 1)
+        self.assertEqual(after["crafting_exp"], before["crafting_exp"] + 2000)
+        self.assertEqual(after["construction_exp"], before["construction_exp"] + 1500)
+        self.assertEqual(after["agility_exp"], before["agility_exp"] + 5000)
+        loaded = migrate_loaded_data(json.loads(json.dumps(after)), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(loaded["inventory"]["Clockwork suit"], 1)
+        after_again, progressed, completed = _advance(loaded)
+        self.assertFalse(progressed)
+        self.assertFalse(completed)
+        self.assertEqual(after_again["inventory"]["Clockwork suit"], 1)
+
+
+class TestColdWarSuitBackfill(unittest.TestCase):
+    def test_default_marker_is_false(self):
+        self.assertIs(default_player_data(ORE_DATA, ITEM_DEFINITIONS)[COLD_WAR_SUIT_BACKFILL_KEY], False)
+
+    def test_eligibility_quantities_and_exact_boolean_marker(self):
+        states = (
+            (False, False, 0, False), (False, False, 99, False),
+            (True, False, 0, False), (True, False, 1, False), (True, False, 2, False),
+            (True, False, 3, True), (True, False, 6, True),
+            (False, True, 0, True), (False, True, 7, True),
+        )
+        for state, marker, quantity in product(
+            states, ("missing", False, True, 1, "true", None),
+            ("missing", 0, 2, "3", -1, "bad", True),
+        ):
+            started, completed, progress, eligible = state
+            with self.subTest(state=(started, completed, progress), marker=marker, quantity=quantity):
+                data = {
+                    "quests": {QUEST_ID: dict(started=started, completed=completed, progress=progress)},
+                    "inventory": {"Unrelated": {"nested": [1]}},
+                    "carried_inventory": {"chicken": {"Clockwork suit": 99}},
+                    "quest_action_proofs": ["Unrelated proof"],
+                    "equipment": {"cape": "Red cape"}, "cold_war_greeting": list(GREETING),
+                    "crafting_exp": 123, "quest_points": 4,
+                }
+                if marker != "missing":
+                    data[COLD_WAR_SUIT_BACKFILL_KEY] = marker
+                if quantity != "missing":
+                    data["inventory"]["Clockwork suit"] = quantity
+                original_inventory = data["inventory"]
+                before = copy.deepcopy(data)
+                expected = copy.deepcopy(data)
+                expected[COLD_WAR_SUIT_BACKFILL_KEY] = marker is True or eligible
+                grant = eligible and marker is not True and quantity not in (2, "3")
+                if grant:
+                    expected["inventory"]["Clockwork suit"] = 1
+                migrate_cold_war_suit_pure(data)
+                self.assertEqual(data, expected)
+                self.assertEqual(original_inventory, before["inventory"])
+                if grant:
+                    self.assertIsNot(data["inventory"], original_inventory)
+                else:
+                    self.assertIs(data["inventory"], original_inventory)
+
+    def test_missing_and_malformed_inventory_and_receipt_proof(self):
+        for inventory in ("missing", None, [], "invalid"):
+            for proof in (False, True):
+                with self.subTest(inventory=inventory, receipt_proof=proof):
+                    data = {"quests": {QUEST_ID: dict(started=True, progress=3, completed=False)},
+                            "quest_action_proofs": [SUIT_ACTION] if proof else []}
+                    if inventory != "missing":
+                        data["inventory"] = inventory
+                    expected = copy.deepcopy(data)
+                    expected[COLD_WAR_SUIT_BACKFILL_KEY] = True
+                    if not proof:
+                        expected["inventory"] = {"Clockwork suit": 1}
+                    migrate_cold_war_suit_pure(data)
+                    self.assertEqual(data, expected)
+
+    def test_migration_is_one_time_after_json_reload_and_removal(self):
+        old = _player(3)
+        old.pop(COLD_WAR_SUIT_BACKFILL_KEY)
+        repaired = migrate_loaded_data(json.loads(json.dumps(old)), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(repaired["inventory"]["Clockwork suit"], 1)
+        self.assertIs(repaired[COLD_WAR_SUIT_BACKFILL_KEY], True)
+        self.assertEqual(repaired["quest_action_proofs"], [])
+        reopened = migrate_loaded_data(json.loads(json.dumps(repaired)), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(reopened, repaired)
+        reopened["inventory"].pop("Clockwork suit")
+        removed = migrate_loaded_data(json.loads(json.dumps(reopened)), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(removed["inventory"].get("Clockwork suit", 0), 0)
+        self.assertIs(removed[COLD_WAR_SUIT_BACKFILL_KEY], True)
+
+        # A normal stage receipt protects removal even before the first load.
+        delivered, progressed, _ = _advance(_player())
+        self.assertTrue(progressed)
+        self.assertIs(delivered[COLD_WAR_SUIT_BACKFILL_KEY], False)
+        delivered["inventory"].pop("Clockwork suit")
+        removed = migrate_loaded_data(json.loads(json.dumps(delivered)), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(removed["inventory"].get("Clockwork suit", 0), 0)
+        self.assertIs(removed[COLD_WAR_SUIT_BACKFILL_KEY], True)
+        self.assertEqual(removed["quest_action_proofs"], [SUIT_ACTION])
+
+
+class TestColdWarSuitStorage(unittest.TestCase):
+    def setUp(self):
+        original_modules = dict(sys.modules)
+        self.addCleanup(sys.modules.update, original_modules)
+        self.addCleanup(sys.modules.clear)
+
+    def _raw(self, version=125):
+        return {
+            "config_version": version,
+            "quests": {QUEST_ID: dict(started=True, completed=False, progress=3)},
+            "cold_war_greeting": list(GREETING),
+            "inventory": {"Unknown legacy item": 2, "oak_logs": 5},
+            "quest_action_proofs": ["Untouched proof"],
+            "unknown": {"nested": [1, {"keep": True}]},
+            "equipment": {"cape": "Red cape"}, "quest_points": 3, "crafting_exp": 123,
+        }
+
+    def _collection(self, raw, key=PLAYER_KEY, legacy=False):
+        collection = _LegacyTextCollection()
+        collection.legacy_row = legacy
+        collection.values = {key: raw, SKILL_KEY: "Hunter", "other_config": {"keep": [7]}}
+        return collection
+
+    def test_targeted_patch_coalesces_repairs_preserves_raw_and_reopens_without_write(self):
+        for version, key, greeting, quantity in product(
+            (1, 125), (PLAYER_KEY, RECOVERY_KEY), (False, True), (None, 0, 2),
+        ):
+            with self.subTest(version=version, key=key, greeting=greeting, quantity=quantity):
+                raw = self._raw(version)
+                if not greeting:
+                    raw.pop("cold_war_greeting")
+                if quantity is not None:
+                    raw["inventory"]["Clockwork suit"] = quantity
+                before = copy.deepcopy(raw)
+                expected = copy.deepcopy(raw)
+                expected["cold_war_greeting"] = list(GREETING)
+                expected[COLD_WAR_SUIT_BACKFILL_KEY] = True
+                if quantity != 2:
+                    expected["inventory"]["Clockwork suit"] = 1
+                collection = self._collection(raw, key)
+                storage = _load_storage_module(collection)
+                with patch(SAMPLER, return_value=list(GREETING)) as sample, patch.object(
+                    collection, "set_config", wraps=collection.set_config,
+                ) as save:
+                    loaded, skill = storage.load_player_data()
+                    self.assertEqual(raw, before)
+                    self.assertEqual(skill, "Hunter")
+                    self.assertEqual(loaded["inventory"]["Clockwork suit"], quantity or 1)
+                    self.assertEqual(collection.values, {
+                        PLAYER_KEY: expected, SKILL_KEY: "Hunter", "other_config": {"keep": [7]},
+                    })
+                    save.assert_called_once_with(PLAYER_KEY, expected)
+                    self.assertEqual(sample.call_count, 0 if greeting else 1)
+                    persisted = collection.values[PLAYER_KEY]
+                    self.assertIsNot(loaded["inventory"], persisted["inventory"])
+                    self.assertIsNot(loaded["cold_war_greeting"], persisted["cold_war_greeting"])
+                    self.assertIsNot(loaded["unknown"], persisted["unknown"])
+                    self.assertIsNot(raw["unknown"], persisted["unknown"])
+                    self.assertEqual(storage.load_player_data(), (loaded, skill))
+                    save.assert_called_once()
+                    # Also protect suits owned before the check from later replacement.
+                    persisted["inventory"].pop("Clockwork suit")
+                    removed, _ = storage.load_player_data()
+                    self.assertEqual(removed["inventory"].get("Clockwork suit", 0), 0)
+                    save.assert_called_once()
+
+    def test_missing_and_malformed_raw_inventory_persist_only_granted_suit(self):
+        for inventory in ("missing", None, [], "invalid"):
+            with self.subTest(inventory=inventory):
+                raw = self._raw()
+                if inventory == "missing":
+                    raw.pop("inventory")
+                else:
+                    raw["inventory"] = inventory
+                before = copy.deepcopy(raw)
+                expected = {**before, COLD_WAR_SUIT_BACKFILL_KEY: True, "inventory": {"Clockwork suit": 1}}
+                collection = self._collection(raw)
+                storage = _load_storage_module(collection)
+                with patch.object(collection, "set_config", wraps=collection.set_config) as save:
+                    loaded, _ = storage.load_player_data()
+                    self.assertEqual(loaded["inventory"]["Clockwork suit"], 1)
+                    self.assertEqual(raw, before)
+                    save.assert_called_once_with(PLAYER_KEY, expected)
+                    storage.load_player_data()
+                    save.assert_called_once()
+
+    def test_invalid_boolean_quantity_is_persisted_as_one_integer_suit(self):
+        raw = self._raw()
+        raw["inventory"]["Clockwork suit"] = True
+        collection = self._collection(raw)
+        storage = _load_storage_module(collection)
+        with patch.object(collection, "set_config", wraps=collection.set_config) as save:
+            storage.load_player_data()
+            expected = {**raw, COLD_WAR_SUIT_BACKFILL_KEY: True,
+                        "inventory": {**raw["inventory"], "Clockwork suit": 1}}
+            save.assert_called_once_with(PLAYER_KEY, expected)
+            self.assertIs(type(collection.values[PLAYER_KEY]["inventory"]["Clockwork suit"]), int)
+            storage.load_player_data()
+            save.assert_called_once()
+
+    def test_receipt_and_checked_marker_prevent_replacement_and_earlier_saves_wait(self):
+        for mode in ("proof", "checked", "earlier", "unstarted"):
+            with self.subTest(mode=mode):
+                raw = self._raw()
+                if mode == "proof":
+                    raw["quest_action_proofs"].append(SUIT_ACTION)
+                elif mode == "checked":
+                    raw[COLD_WAR_SUIT_BACKFILL_KEY] = True
+                elif mode == "earlier":
+                    raw["quests"][QUEST_ID]["progress"] = 2
+                else:
+                    raw["quests"][QUEST_ID] = dict(started=False, completed=False, progress=99)
+                    raw.pop("cold_war_greeting")
+                before = copy.deepcopy(raw)
+                collection = self._collection(raw)
+                storage = _load_storage_module(collection)
+                with patch.object(collection, "set_config", wraps=collection.set_config) as save:
+                    loaded, _ = storage.load_player_data()
+                    self.assertEqual(loaded["inventory"].get("Clockwork suit", 0), 0)
+                    if mode == "proof":
+                        save.assert_called_once_with(PLAYER_KEY, {**before, COLD_WAR_SUIT_BACKFILL_KEY: True})
+                    else:
+                        save.assert_not_called()
+                    self.assertEqual(storage.load_player_data()[0], loaded)
+                    self.assertEqual(save.call_count, int(mode == "proof"))
+
+    def test_legacy_text_repair_and_persistence_failures(self):
+        raw = self._raw(1)
+        raw.pop("cold_war_greeting")
+        before = copy.deepcopy(raw)
+        expected = {**before, "cold_war_greeting": list(GREETING),
+                    COLD_WAR_SUIT_BACKFILL_KEY: True,
+                    "inventory": {**before["inventory"], "Clockwork suit": 1}}
+        collection = self._collection(raw, legacy=True)
+        storage = _load_storage_module(collection)
+        with patch(SAMPLER, return_value=list(GREETING)), patch.object(
+            collection, "set_config", wraps=collection.set_config,
+        ) as save:
+            loaded, skill = storage.load_player_data()
+            self.assertEqual(save.call_count, 3)
+            self.assertEqual([call.args for call in save.call_args_list], [
+                (PLAYER_KEY, expected), (RECOVERY_KEY, expected), (PLAYER_KEY, expected),
+            ])
+            self.assertFalse(collection.legacy_row)
+            self.assertNotIn(RECOVERY_KEY, collection.values)
+            self.assertEqual(collection.values[PLAYER_KEY], expected)
+            self.assertEqual(raw, before)
+            self.assertEqual(storage.load_player_data(), (loaded, skill))
+            self.assertEqual(save.call_count, 3)
+
+        # A load cannot succeed until the targeted repair is durable.
+        for key in (PLAYER_KEY, RECOVERY_KEY):
+            collection = self._collection(copy.deepcopy(before), key)
+            storage = _load_storage_module(collection)
+            unchanged = copy.deepcopy(collection.values)
+            with patch(SAMPLER, return_value=list(GREETING)), patch.object(
+                collection, "set_config", side_effect=RuntimeError("persist failed"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "persist failed"):
+                    storage.load_player_data()
+            self.assertEqual(collection.values, unchanged)
+
 
 class TestColdWarSuitRuntime(unittest.TestCase):
-    def setUp(self):
-        self._original_modules = dict(sys.modules)
-        _install_runtime_fakes()
-
-    def tearDown(self):
-        sys.modules.clear()
-        sys.modules.update(self._original_modules)
-
-    def test_real_review_undo_restores_stage_and_suit(self):
-        addon = _load_addon_as_package("ankiscape_cold_war_suit_e2e")
-        saved, errors = [], []
-        addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: saved.append(copy.deepcopy(addon._state.player_data))
-        addon._refresh_skill_availability = lambda: None
-        addon._show_activity_gain = lambda _text: None
-        addon._show_exp = lambda _amount: None
-        addon.level_up_check = lambda _skill, _data: None
-        addon.update_review_hud = lambda _data, _skill: None
-        addon.show_error_message = lambda title, message: errors.append((title, message))
+    def test_real_review_undo_restores_stage_suit_proofs_and_backfill_marker(self):
         for prior_quantity in (0, 2):
-            with self.subTest(prior_quantity=prior_quantity):
+            with self.subTest(prior_quantity=prior_quantity), review_session() as (addon, collection, errors):
                 player = _player()
                 player["inventory"]["Clockwork suit"] = prior_quantity
                 player["quest_action_proofs"] = [BOOK_ACTION, "Existing unrelated proof"]
-                prior_proofs = list(player["quest_action_proofs"])
-                prior_xp = player["crafting_exp"]
+                player["cold_war_greeting"] = list(GREETING)
                 addon._state.player_data = player
                 addon._state.current_skill = "Quests"
-                addon._state.review_undo_stack.clear()
-                saved.clear()
-
+                addon.check_achievements(player)
+                addon.save_player_data()
+                before = copy.deepcopy(addon._state.player_data)
+                before_store = copy.deepcopy(collection._store)
                 _answer_review(addon)
+                saved = collection._store[PLAYER_KEY]
+                self.assertEqual(saved["quests"][QUEST_ID]["progress"], 3)
+                self.assertEqual(saved["inventory"]["Clockwork suit"], prior_quantity + 1)
+                self.assertEqual(set(saved["quest_action_proofs"]), {*before["quest_action_proofs"], SUIT_ACTION})
+                self.assertNotIn(RETIRED_ACTION, saved["quest_action_proofs"])
+                self.assertEqual(saved["crafting_exp"], before["crafting_exp"])
+                self.assertIs(saved[COLD_WAR_SUIT_BACKFILL_KEY], False)
 
-                self.assertEqual(len(saved), 1)
-                self.assertEqual(saved[-1]["quests"][QUEST_ID]["progress"], 3)
-                self.assertEqual(saved[-1]["inventory"]["Clockwork suit"], prior_quantity + 1)
-                self.assertEqual(set(saved[-1]["quest_action_proofs"]), {*prior_proofs, SUIT_ACTION})
-                self.assertNotIn(RETIRED_ACTION, saved[-1]["quest_action_proofs"])
-                self.assertEqual(saved[-1]["crafting_exp"], prior_xp)
+                addon._on_state_did_undo(SimpleNamespace(operation="Answer Card"))
 
-                addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-
-                self.assertEqual(addon._state.player_data["quests"][QUEST_ID]["progress"], 2)
-                self.assertEqual(addon._state.player_data["inventory"]["Clockwork suit"], prior_quantity)
-                self.assertEqual(addon._state.player_data["quest_action_proofs"], prior_proofs)
-                self.assertEqual(saved[-1]["quests"][QUEST_ID]["progress"], 2)
-                self.assertEqual(saved[-1]["inventory"]["Clockwork suit"], prior_quantity)
-
+                self.assertEqual(addon._state.player_data, before)
+                self.assertEqual(collection._store, before_store)
+                self.assertEqual(addon._state.review_undo_stack, [])
                 _answer_review(addon)
-
-                self.assertEqual(saved[-1]["quests"][QUEST_ID]["progress"], 3)
-                self.assertEqual(saved[-1]["inventory"]["Clockwork suit"], prior_quantity + 1)
-                self.assertEqual(saved[-1]["quest_action_proofs"].count(SUIT_ACTION), 1)
-                self.assertEqual(saved[-1]["crafting_exp"], prior_xp)
-        self.assertEqual(errors, [])
+                saved = collection._store[PLAYER_KEY]
+                self.assertEqual(saved["quests"][QUEST_ID]["progress"], 3)
+                self.assertEqual(saved["inventory"]["Clockwork suit"], prior_quantity + 1)
+                self.assertEqual(saved["quest_action_proofs"].count(SUIT_ACTION), 1)
+                self.assertIs(saved[COLD_WAR_SUIT_BACKFILL_KEY], False)
+                addon.load_player_data()
+                self.assertEqual(addon._state.player_data["inventory"]["Clockwork suit"], prior_quantity + 1)
+                self.assertIs(collection._store[PLAYER_KEY][COLD_WAR_SUIT_BACKFILL_KEY], True)
+                persisted = copy.deepcopy(collection._store)
+                addon.load_player_data()
+                self.assertEqual(collection._store, persisted)
+                self.assertEqual(errors, [])

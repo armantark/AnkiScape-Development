@@ -125,15 +125,16 @@ class ColdWarGreetingTest(unittest.TestCase):
         for player, operation in ((missing_skill, start_quest_pure),
                                   (missing_skill, apply_quest_progress_pure),
                                   (eligible_player(), apply_quest_progress_pure)):
-            # Supply the real stage's materials to isolate its unresolved action.
+            # Keep the real opening blocked by one missing Oak plank.
             if player is not missing_skill:
                 row = QUEST_DATA["cold_war"]["stage_requirements"][0]
                 player["inventory"].update(row["required_inventory"])
                 player["toolbelt"].update(row["required_tools"])
+                player["inventory"]["Oak plank"] = 9
                 preview = copy.deepcopy(player)
                 preview["quests"]["cold_war"]["started"] = True
                 blockers = quest_current_stage_blockers_pure(preview, "cold_war", QUEST_DATA)
-                self.assertIn("Complete Cold War stage 1 objective", str(blockers))
+                self.assertEqual([row["item_name"] for row in blockers], ["Oak plank"])
             for started in (False, True) if player is not missing_skill else (False,):
                 player["quests"]["cold_war"]["started"] = started
                 before, random_before = copy.deepcopy(player), random.getstate()
@@ -231,7 +232,7 @@ class ColdWarGreetingTest(unittest.TestCase):
                     player["cold_war_greeting"] = list(greeting)
                     self.assertEqual(quest_current_stage_blockers_pure(player, "cold_war", QUEST_DATA), before)
                 if stage == 2:
-                    self.assertIn("Build the clockwork penguin on a crafting table 3", str(before))
+                    self.assertEqual(before, ())
 
 
 if __name__ == "__main__":
