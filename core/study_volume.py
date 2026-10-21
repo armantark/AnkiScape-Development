@@ -10,6 +10,7 @@ from ..logic.pace.world_clock import (
 )
 
 from ..logic.shop.state import count_answered_cards_pure
+from ..logic.fish_flingers_logic import sync_fish_flingers_tickets_pure
 
 WORLD_DAY_FOLLOW_CONFIG_KEY = "ankiscape_world_day_follow_study_volume"
 WORLD_DAY_CARDS_CONFIG_KEY = "ankiscape_world_day_cards"
@@ -47,4 +48,7 @@ def next_world_day_length(collection, player_data) -> int:
 def advance_world_clock_for_answer(player_data, collection, *, speed):
     next_length = next_world_day_length(collection, player_data)
     counted = count_answered_cards_pure(player_data)
-    return advance_world_clock_pure(counted, speed=speed, next_day_length=next_length)
+    updated, calendar = advance_world_clock_pure(counted, speed=speed, next_day_length=next_length)
+    if calendar["day_rolled"]:
+        updated = sync_fish_flingers_tickets_pure(updated)
+    return updated, calendar
