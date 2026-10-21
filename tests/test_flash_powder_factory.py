@@ -493,7 +493,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         addon.advance_shop_market_clock_pure = lambda data: dict(data)
         addon.advance_ge_market_tick_pure = lambda data, **_kwargs: (dict(data), {})
         addon.advance_summoning_world_tick_pure = (
-            lambda data, **_kwargs: (dict(data), ())
+            lambda data, **_kwargs: (dict(data), {"familiar_ticks_before": None})
         )
         addon.runtime_actions.advance_farming_clock_for_review = lambda _ctx: {}
         addon._advance_world_events_after_review = lambda: None
