@@ -11,7 +11,8 @@ at the day's boundary.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from statistics import median
+from typing import Any, Iterable, Mapping
 
 from .short_timers import card_ticks_pure
 
@@ -90,7 +91,7 @@ def advance_world_clock_pure(
         clock = {
             "day": clock["day"] + 1,
             "day_start_card": day_end_card,
-            "day_length": max(100, min(1_000, int(next_day_length))),
+            "day_length": sanitize_world_day_cards_pure(next_day_length),
             "in_day_ticks": 0,
         }
     data["world_clock"] = clock
@@ -144,3 +145,25 @@ def calendar_ticks_pure(player_data: Mapping[str, Any]) -> int:
 
 def world_day_start_ticks_pure(player_data: Mapping[str, Any]) -> int:
     return world_day_index_pure(player_data) * CALENDAR_TICKS_PER_DAY
+
+
+def world_day_length_pure(player_data: Mapping[str, Any]) -> int:
+    return _current_clock(player_data)["day_length"]
+
+
+def world_day_rolls_on_next_card_pure(player_data: Mapping[str, Any]) -> bool:
+    return cards_to_next_world_day_pure(player_data) == 1
+
+
+def sanitize_world_day_cards_pure(value: Any) -> int:
+    try:
+        return max(100, min(1_000, int(value)))
+    except (TypeError, ValueError, OverflowError):
+        return DEFAULT_WORLD_DAY_CARDS
+
+
+def suggested_world_day_cards_pure(daily_counts: Iterable[int]) -> int:
+    counts = [count for value in daily_counts if (count := _int(value)) > 0]
+    if len(counts) < 7:
+        return DEFAULT_WORLD_DAY_CARDS
+    return sanitize_world_day_cards_pure(median(counts))

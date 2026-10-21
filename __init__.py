@@ -241,8 +241,8 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
-from .logic.shop_logic import advance_shop_market_clock_pure, count_answered_cards_pure
-from .logic.pace.world_clock import advance_world_clock_pure
+from .logic.shop_logic import advance_shop_market_clock_pure
+from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
 from .data.grand_exchange_data import GE_ITEM_CATALOG
 from .logic.grand_exchange_logic import (
@@ -5209,8 +5209,7 @@ def _advance_clocks_for_answer(successful_answer) -> None:
         card_ticks=card_ticks))
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
     _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, card_ticks))
-    _state.player_data.update(count_answered_cards_pure(_state.player_data))
-    clock_data, calendar = advance_world_clock_pure(_state.player_data, speed=card_ticks // 6)
+    clock_data, calendar = advance_world_clock_for_answer(_state.player_data, getattr(mw, "col", None), speed=card_ticks // 6)
     _state.player_data.update(advance_shop_market_clock_pure(clock_data, 0,
         calendar_ticks_before=calendar["before_ticks"], calendar_ticks_after=calendar["after_ticks"]))
     _state.calendar_ticks_for_answer = calendar["after_ticks"] - calendar["before_ticks"]
