@@ -75,7 +75,7 @@ except Exception:
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
-from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section
+from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
 from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,

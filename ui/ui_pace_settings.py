@@ -1,4 +1,4 @@
-"""Game speed and world-day rows, shared by the Settings tab and the pace dialog.
+"""Game speed and world-day rows in Settings, and the pace dialog that reuses them.
 
 The rows render ``world_day_setting_view_pure``; whether the length is editable,
 which number it shows and when the suggestion hint appears are decided there.
@@ -16,15 +16,24 @@ from ..core.study_volume import (
     suggested_world_day_cards,
     world_day_settings,
 )
-from ..logic.pace.onboarding import PaceSettings
+from ..logic.pace.onboarding import (
+    PaceOnboardingPlan,
+    PaceSettings,
+    pace_onboarding_plan_pure,
+    pace_text_fields_pure,
+)
 from ..logic.pace.world_clock import DEFAULT_WORLD_DAY_CARDS, world_day_setting_view_pure
 from ..logic_pure.logic_pure import sanitize_review_action_multiplier
 
 try:
+    from aqt import mw  # type: ignore
+    from ..core.storage import saved_player_record  # reads the profile through aqt
     from aqt.qt import (  # type: ignore
         QCheckBox,
+        QDialog,
         QHBoxLayout,
         QLabel,
+        QPushButton,
         QSpinBox,
         QVBoxLayout,
         QWidget,
@@ -32,14 +41,29 @@ try:
 
     HAS_QT = True
 except Exception:
+    mw = None
     HAS_QT = False
 
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
+# Read once, so an existing player is shown the speed the save was played at.
+_LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
+_PACE_DIALOG_ANSWERED_CONFIG_KEY = "ankiscape_pace_dialog_answered"
 
 GAME_SPEED_TOOLTIP = "<<COPY:game_speed_tooltip>>"
 GAME_SPEED_HELP = "<<COPY:game_speed_help>>"
 CARDS_SUFFIX = "<<COPY:cards_suffix>>"
 WORLD_DAY_SUGGESTION_HINT = "<<COPY:world_day_suggestion_hint|cards={cards}>>"
+PACE_DIALOG_TITLE = "<<COPY:pace_dialog_title>>"
+PACE_DIALOG_REASON = "<<COPY:pace_dialog_reason>>"
+PACE_DIALOG_CURRENT_LINE = (
+    "<<COPY:pace_dialog_current_line|speed={speed} cards={cards} hours={hours}"
+    " minutes={minutes} fish_flingers_cards={fish_flingers_cards}>>"
+)
+PACE_DIALOG_HOURS_LINE = (
+    "<<COPY:pace_dialog_hours_line|speed={speed} cards={cards} hours={hours}"
+    " minutes={minutes} fish_flingers_cards={fish_flingers_cards}>>"
+)
+PACE_DIALOG_APPLY = "<<COPY:pace_dialog_apply>>"
 
 
 def stored_pace_settings(collection) -> tuple[PaceSettings, int]:
@@ -167,3 +191,88 @@ def pace_settings_section(collection) -> QWidget:
     speed_help.setStyleSheet("color: palette(text); font-size: 11px;")
     layout.addWidget(speed_help)
     return section
+
+
+def run_pace_onboarding() -> None:
+    """Profile-load step: each profile answers the pace question once (decision 10).
+
+    The dialog is modal, so no card is answered at a speed the player has not
+    confirmed. Every answer writes all three settings, the current ones included.
+    """
+    collection = getattr(mw, "col", None)
+    if collection is None or collection.get_config(_PACE_DIALOG_ANSWERED_CONFIG_KEY, None) is not None:
+        return
+    follow_study_volume, world_day_cards = world_day_settings(collection)
+    suggestion = suggested_world_day_cards(collection)
+    plan = pace_onboarding_plan_pure(
+        # Nothing before this step in the profile-load hooks writes the save.
+        existing_player=bool(saved_player_record(collection)),
+        speed=collection.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, None),
+        legacy_speed=collection.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, None),
+        follow_study_volume=follow_study_volume,
+        world_day_cards=world_day_cards,
+        suggestion=suggestion,
+    )
+    dialog = PaceDialog(plan, suggestion, parent=mw)
+    dialog.exec()
+    write_pace_settings(collection, dialog.choice())
+    collection.set_config(_PACE_DIALOG_ANSWERED_CONFIG_KEY, True)
+
+
+if HAS_QT:
+
+    class PaceDialog(QDialog):
+        """Shows the current pace and the recommended one; the plan decides what each answer writes."""
+
+        def __init__(self, plan: PaceOnboardingPlan, suggestion: int, parent: QWidget | None = None) -> None:
+            super().__init__(parent)
+            self.setObjectName("paceDialog")
+            self.setWindowTitle(PACE_DIALOG_TITLE)
+            self.setMinimumWidth(460)
+            self._suggestion = suggestion
+            # Closing with X or Esc is the answer until a button is pressed.
+            self._choice = plan.on_close
+            layout = QVBoxLayout(self)
+            layout.setContentsMargins(16, 16, 16, 16)
+            layout.setSpacing(12)
+
+            reason = _wrapped_label(PACE_DIALOG_REASON, "paceDialogReason")
+            current = _wrapped_label(
+                PACE_DIALOG_CURRENT_LINE.format(**pace_text_fields_pure(plan.current, suggestion)),
+                "paceDialogCurrentLine",
+            )
+            self.rows = PaceSettingsRows(plan.recommended, suggestion, on_change=self._show_hours)
+            self.hours_line = _wrapped_label("", "paceDialogHoursLine")
+            self._show_hours(self.rows.settings())
+
+            keep = QPushButton("Keep my current settings")
+            keep.setObjectName("paceDialogKeepButton")
+            keep.clicked.connect(lambda _checked=False: self._choose(plan.current))
+            apply = QPushButton(PACE_DIALOG_APPLY)
+            apply.setObjectName("paceDialogApplyButton")
+            apply.setDefault(True)
+            apply.clicked.connect(lambda _checked=False: self._choose(self.rows.settings()))
+            buttons = QHBoxLayout()
+            buttons.addStretch(1)
+            buttons.addWidget(keep)
+            buttons.addWidget(apply)
+
+            for widget in (reason, current, self.rows, self.hours_line):
+                layout.addWidget(widget)
+            layout.addLayout(buttons)
+
+        def choice(self) -> PaceSettings:
+            return self._choice
+
+        def _show_hours(self, settings: PaceSettings) -> None:
+            self.hours_line.setText(PACE_DIALOG_HOURS_LINE.format(**pace_text_fields_pure(settings, self._suggestion)))
+
+        def _choose(self, settings: PaceSettings) -> None:
+            self._choice = settings
+            self.accept()
+
+    def _wrapped_label(text: str, object_name: str) -> QLabel:
+        label = QLabel(text)
+        label.setObjectName(object_name)
+        label.setWordWrap(True)
+        return label

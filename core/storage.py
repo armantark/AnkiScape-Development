@@ -38,11 +38,14 @@ def _save_player_data_config(player_data: dict) -> None:
         mw.col.remove_config(_PLAYER_DATA_RECOVERY_KEY)
 
 
+def saved_player_record(collection):
+    """The stored save, else the backup a TEXT-row repair keeps; empty for a new player."""
+    return collection.get_config(_PLAYER_DATA_KEY, None) or collection.get_config(_PLAYER_DATA_RECOVERY_KEY, None)
+
+
 def load_player_data():
     """Load player data and current skill from Anki config."""
-    loaded = mw.col.get_config(_PLAYER_DATA_KEY)
-    if not loaded:
-        loaded = mw.col.get_config(_PLAYER_DATA_RECOVERY_KEY)
+    loaded = saved_player_record(mw.col)
     if loaded:
         # Migrations normalize nested state in place; retain the raw record for
         # a greeting-only backfill without persisting unrelated normalization.

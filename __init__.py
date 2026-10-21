@@ -119,6 +119,7 @@ from .ui.ui import (
     update_review_bank_run_button,
     hide_review_status_badge,
     migrate_legacy_settings,
+    run_pace_onboarding,
 )
 from .ui import ui
 from .logic import inventory_pure
@@ -708,13 +709,9 @@ def _refresh_skill_availability() -> None:
 
 def _review_action_multiplier() -> int:
     try:
-        if mw and getattr(mw, 'col', None):
-            return sanitize_review_action_multiplier(
-                mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, 1)
-            )
+        return sanitize_review_action_multiplier(mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, 1))
     except Exception:
-        pass
-    return 1
+        return 1
 
 
 def _cadence_kernel_enabled() -> bool:
@@ -5421,6 +5418,7 @@ try:
                 initialize_skill,
                 _initialize_debug_from_config,
                 migrate_legacy_settings,
+                run_pace_onboarding,
                 initialize_menu,
                 (lambda: _register_deck_browser_button()),
             ],
@@ -5471,6 +5469,7 @@ except Exception:
         addHook("profileLoaded", initialize_exp_popup)
         addHook("profileLoaded", initialize_skill)
         addHook("profileLoaded", migrate_legacy_settings)
+        addHook("profileLoaded", run_pace_onboarding)
         addHook("profileLoaded", initialize_menu)
         addHook("profileLoaded", lambda: _register_deck_browser_button())
     except Exception:
