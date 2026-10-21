@@ -22,6 +22,51 @@ BAR_CRAWL_DRINKS: Tuple[Tuple[str, str, str, int], ...] = (
     ("Hand of Death Cocktail", "Rising Sun", "Falador", 70),
     ("Black Skull Ale", "Rusty Anchor", "Port Sarim", 8),
 )
+
+# Saved packet: 0270-barcrawl-drink-effects; owner answers 2026-10-21 10:44 PDT.
+# Tip.It 20120419060910 (2012-04-19T06:09:10Z), bar_crawl.htm:271,292,
+# 310-314,332-346,373-391,400-403 gives averages, NOT level-50 formulas.
+# Body SHA-256: a44b5d84b4574b6e685d7b780ac65f43cde93af05b33f03aa8b73da66e874271.
+# Wiki Bar_Crawl_(miniquest) oldid 6269519 (2012-09-20T04:35:56Z):
+# 23,36,43,49,55,61,67,73,79,85,91 supplies affected skills/health descriptions.
+# Body SHA-256: 32e617e947b6c317ff5d71500bb64ac26c0a5b0dc04b5e4470e129bbe02b0a2d.
+# Owner includes Smithing using oldid 5882004 (2012-07-04T04:25:50Z):72,
+# versus repeated Mining at 6269519:73; this is not a historical resolution.
+# Body SHA-256: d17e01157e6ecbe5f5c5af897766fbe4b39ca66a15df669d89bce594c4ad7e50.
+# Tip.It says Ape Bite has no damage; the wiki names Attack/Defence. Owner
+# chooses those losses, including wholly provisional 8/7 reference amounts.
+# Olde Suspiciouse Strength/Smithing 6/6 are also wholly provisional.
+# Originals 6304383/5575732 remain unrecovered; these hashes are NOT theirs.
+# Darkan's 2024 restoration supplies no historical authority here.
+# PLACEHOLDER(bar_crawl.stat_drain_magnitudes): needs per-skill formulas, units and rounding.
+BAR_CRAWL_STAT_REFERENCE_LEVEL = 50
+BAR_CRAWL_STAT_DRAIN_REFERENCES = {
+    "Uncle Humphrey's Gutrot": {"attack": 8, "defense": 7, "strength": 7, "smithing": 6},
+    "Fire Toad Blast": {},
+    "Supergrog": {"attack": 8, "defense": 7, "herblore": 6, "cooking": 7, "prayer": 60},
+    "Fire Brandy": {"attack": 11, "defense": 10},
+    "Heart Stopper": {},
+    "Liverbane Ale": {"attack": 8, "defense": 6, "fletching": 5, "firemaking": 5, "woodcutting": 5},
+    "Olde Suspiciouse": {"attack": 8, "defense": 7, "mining": 6, "crafting": 6, "magic": 6, "strength": 6, "smithing": 6},
+    "Ape Bite Liqueur": {"attack": 8, "defense": 7},
+    "Hand of Death Cocktail": {"attack": 8, "defense": 6, "ranged": 6, "fishing": 6},
+    "Black Skull Ale": {},
+}
+# PLACEHOLDER(bar_crawl.drink_damage_transaction): needs scaling, bounds, rounding and protection/death semantics.
+BAR_CRAWL_DAMAGE_REFERENCE_LIFEPOINTS = 500
+# Gutrot 20 (6269519:36) conflicts with 200 at oldid 5575745
+# (2012-05-07T07:33:35Z):36; owner selects 20 without resolving history.
+# 5575745 body SHA-256: 119304aa8a26b7758ca5a1f81d36d4e387db9991fe751992098722485685f46f.
+# PLACEHOLDER(bar_crawl.gutrot_damage_formula): needs maximum conflict resolved and actual damage transaction.
+# PLACEHOLDER(bar_crawl.drink_damage_transaction): needs actual Fire Toad/Hand scaling and roll bounds.
+BAR_CRAWL_DAMAGE_CAPS = {
+    "Uncle Humphrey's Gutrot": 20,
+    "Fire Toad Blast": 47,
+    "Hand of Death Cocktail": 200,
+}
+# PLACEHOLDER(bar_crawl.drink_damage_transaction): needs exact Heart Stopper bounds and arithmetic; floor is owner policy.
+BAR_CRAWL_HEART_STOPPER_PERCENT_BOUNDS = (20, 30)
+
 _RETURN_STAGE = len(BAR_CRAWL_DRINKS) + 2
 
 BAR_CRAWL_STAGES: Tuple[QuestStage, ...] = (

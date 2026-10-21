@@ -6,10 +6,12 @@ from __future__ import annotations
 from typing import Any
 
 from ..core.constants import CLAIM_DATA, EQUIPMENT_DATA, QUEST_DATA
+from ..logic.bar_crawl_logic import apply_bar_crawl_drink_effects_pure
 from ..logic_pure.logic_pure import (
     apply_quest_combat_encounter_pure,
     apply_quest_progress_pure,
     can_start_quest_pure,
+    quest_current_stage_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
@@ -97,6 +99,16 @@ def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: 
     )
 
 
+def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any) -> None:
+    if repair_phase == "hand_in":
+        ctx.show_activity_gain("Oronwen took the damaged trousers, 2 Silk and 1 Bear fur. Review one more card to collect the repaired trousers.")
+        return
+    if repair_phase == "collect":
+        ctx.show_activity_gain("Oronwen returned the repaired mourner trousers.")
+    state = ctx.player_data.get("quests", {}).get(quest_id, {})
+    ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
+
+
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
@@ -135,6 +147,12 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         if stage_blocker_reasons:
             _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
         return False
+    if quest_id == "bar_crawl":
+        new_data = apply_bar_crawl_drink_effects_pure(
+            new_data,
+            quest_current_stage_pure(player_data, quest_id, QUEST_DATA),
+            rng=ctx.random_random,
+        )
     player_data.update(new_data)
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
     if completed_now:
@@ -145,11 +163,6 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
     if completed_now:
         _announce_quest_completion(ctx, quest_id, quest, clue_reward_refusal_reason)
-    elif repair_phase == "hand_in":
-        ctx.show_activity_gain("Oronwen took the damaged trousers, 2 Silk and 1 Bear fur. Review one more card to collect the repaired trousers.")
     else:
-        if repair_phase == "collect":
-            ctx.show_activity_gain("Oronwen returned the repaired mourner trousers.")
-        state = player_data.get("quests", {}).get(quest_id, {})
-        ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
+        _announce_quest_progress(ctx, quest_id, quest, repair_phase)
     return True
