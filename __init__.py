@@ -389,7 +389,6 @@ _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS = 50
 _DIRECT_ACTION_UNDO_OPERATION = "AnkiScape direct action"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
-_LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 
 class _NamedExperience(float):
@@ -710,10 +709,9 @@ def _refresh_skill_availability() -> None:
 def _review_action_multiplier() -> int:
     try:
         if mw and getattr(mw, 'col', None):
-            raw_value = mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, None)
-            if raw_value is None:
-                raw_value = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
-            return sanitize_review_action_multiplier(raw_value)
+            return sanitize_review_action_multiplier(
+                mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, 1)
+            )
     except Exception:
         pass
     return 1

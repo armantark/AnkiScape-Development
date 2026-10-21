@@ -3007,7 +3007,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Bought one-shot bundle"])
 
-    def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
+    def test_bad_review_action_multiplier_config_plays_at_speed_ten(self):
         addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
 
         addon.level_up_check = lambda _skill, _data: None
@@ -3018,7 +3018,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": "not-a-number"}))
         addon._state.player_data = {
-            "inventory": {"Logs": 1},
+            "inventory": {"Logs": 20},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
@@ -3031,7 +3031,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.exp_awarded = False
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertAlmostEqual(addon._state.player_data["fletching_exp"], 5.0)
+        self.assertAlmostEqual(addon._state.player_data["fletching_exp"], 50.0)
 
     def test_processing_multiplier_stops_when_materials_are_depleted(self):
         addon = _load_addon_as_package("ankiscape_review_multiplier_depletion")

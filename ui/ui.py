@@ -1098,7 +1098,6 @@ _COMBAT_SKILL_BARS = (
     ("Constitution", "constitution_level", "constitution_exp", 10),
 )
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
-_LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 # Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
 # fetch_assets.py alpha-trim step). Fixed-size UI slots use
@@ -1217,9 +1216,8 @@ def get_config_bool(key: str, default: bool = True) -> bool:
 def _game_speed() -> int:
     """The game speed every counter shown to the player is measured in."""
     try:
-        legacy = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
         return sanitize_review_action_multiplier(
-            mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, legacy)
+            mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, 1)
         )
     except Exception:
         return 1

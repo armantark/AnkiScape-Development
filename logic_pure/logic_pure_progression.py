@@ -327,8 +327,8 @@ def pick_weighted_item_pure(weighted_items, r, total_weight=None):
     return last.get("item")
 
 
-def sanitize_review_action_multiplier(value, default=1, minimum=1, maximum=10):
-    """Return the integer number of game action ticks one review can run."""
+def sanitize_review_action_multiplier(value, default=10, minimum=1, maximum=20):
+    """Return the game speed, the multiple of 2012 play time one card buys."""
     if isinstance(value, bool):
         return default
     try:

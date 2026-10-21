@@ -1526,10 +1526,10 @@ class TestLogic(unittest.TestCase):
 
     def test_review_action_multiplier_validation(self):
         self.assertEqual(sanitize_review_action_multiplier("2.5"), 2)
-        self.assertEqual(sanitize_review_action_multiplier("bad"), 1)
-        self.assertEqual(sanitize_review_action_multiplier(True), 1)
+        self.assertEqual(sanitize_review_action_multiplier("bad"), 10)
+        self.assertEqual(sanitize_review_action_multiplier(True), 10)
         self.assertEqual(sanitize_review_action_multiplier(-5), 1)
-        self.assertEqual(sanitize_review_action_multiplier(500), 10)
+        self.assertEqual(sanitize_review_action_multiplier(500), 20)
 
     def test_apply_smelt_pure(self):
         bar_data = {
