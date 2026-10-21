@@ -478,7 +478,7 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
         # Only a player still thieving is stunned; the thug fight or a death replaces it.
         stun_card(ctx, spec.get("stun_ticks", PLACEHOLDER_STUN_TICKS_BY_KIND.get(spec["kind"])), source="thieving")
         caught = _FAILURE_LABELS.get(spec["kind"], "Caught")
-        ctx.show_activity_gain(f"{caught} — {damage_result['damage']} LP damage; the stun ends this card")
+        ctx.show_activity_gain(f"{caught} — {damage_result['damage']} LP damage; the stun stops all actions on this card")
     food_used = damage_result.get("food_used")
     if food_used:
         ctx.show_activity_gain(

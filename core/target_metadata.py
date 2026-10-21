@@ -224,7 +224,7 @@ def thieving_target_rows(
                 damage_text = str(damage_low) if damage_low == damage_high else f"{damage_low}–{damage_high}"
                 failure_parts.append(f"{damage_text} LP damage")
             if stun:
-                failure_parts.append('stunned; the stun takes this card, then the next if needed')
+                failure_parts.append('stunned; stun time is paid from game time until it ends')
             tooltip_lines.append("On failure: " + ", ".join(failure_parts))
         if locked_reasons:
             tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
