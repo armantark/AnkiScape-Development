@@ -10,6 +10,37 @@ from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
+    # Template:Questreq oldid=6552449.
+    "desert_treasure": (
+        QuestPrerequisite("the_dig_site", "The Dig Site"),
+        QuestPrerequisite("the_tourist_trap", "The Tourist Trap"),
+        QuestPrerequisite("temple_of_ikov", "Temple of Ikov"),
+        QuestPrerequisite("priest_in_peril", "Priest in Peril"),
+        QuestPrerequisite("troll_stronghold", "Troll Stronghold"),
+        QuestPrerequisite("death_plateau", "Death Plateau"),
+        QuestPrerequisite("waterfall_quest", "Waterfall Quest"),
+    ),
+    # Template:Questreq oldid=6552449; cache struct 593 slots 13 and 99.
+    "one_small_favour": (
+        QuestPrerequisite("shilo_village", "Shilo Village"),
+        QuestPrerequisite("jungle_potion", "Jungle Potion"),
+        QuestPrerequisite("rune_mysteries", "Rune Mysteries"),
+    ),
+    # Seven cache links and Defender of Varrock oldid=6542570.
+    "defender_of_varrock": (
+        QuestPrerequisite("shield_of_arrav", "Shield of Arrav"),
+        QuestPrerequisite("the_knights_sword", "The Knight's Sword"),
+        QuestPrerequisite("family_crest", "Family Crest"),
+        QuestPrerequisite("what_lies_below", "What Lies Below"),
+        QuestPrerequisite("demon_slayer", "Demon Slayer"),
+        QuestPrerequisite("temple_of_ikov", "Temple of Ikov"),
+        QuestPrerequisite("garden_of_tranquillity", "Garden of Tranquillity"),
+    ),
+    # Template:Questreq oldids=6552449 and 5981134.
+    "recruitment_drive": (
+        QuestPrerequisite("black_knights_fortress", "Black Knights' Fortress"),
+        QuestPrerequisite("druidic_ritual", "Druidic Ritual"),
+    ),
     # Template:Questreq oldid=6552449 supplies the guide's transcluded prerequisite.
     AS_A_FIRST_RESORT_ID: (QuestPrerequisite("zogre_flesh_eaters", "Zogre Flesh Eaters"),),
     # Template:Questreq oldid=6552449.
@@ -35,11 +66,27 @@ QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]
         QuestPrerequisite("creature_of_fenkenstrain", "Creature of Fenkenstrain"),
         QuestPrerequisite("monkey_madness", "Monkey Madness"),
     ),
+    # Template:Questreq oldid 6552449; Sal's Realm capture 20121018050049.
+    "legends_quest": (
+        QuestPrerequisite("family_crest", "Family Crest"),
+        QuestPrerequisite("heroes_quest", "Heroes' Quest"),
+        QuestPrerequisite("shilo_village", "Shilo Village"),
+        QuestPrerequisite("underground_pass", "Underground Pass"),
+        QuestPrerequisite("waterfall_quest", "Waterfall Quest"),
+    ),
 }
 
 
 # Replace generated start gates with the source-backed required levels.
 QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, ...]] = {
+    # Desert Treasure oldids=5981512 and 6563639 mark Mining 50 as optional.
+    "desert_treasure": (
+        QuestSkillRequirement("agility", "Agility", 15),
+        QuestSkillRequirement("firemaking", "Firemaking", 50),
+        QuestSkillRequirement("magic", "Magic", 50),
+        QuestSkillRequirement("slayer", "Slayer", 10),
+        QuestSkillRequirement("thieving", "Thieving", 53),
+    ),
     "horror_from_the_deep": (QuestSkillRequirement("agility", "Agility", 35),),
     "monkey_madness": (),
     "enakhras_lament": (
@@ -58,6 +105,21 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
 
 
 QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
+    "desert_treasure": (
+        "The Dig Site", "The Tourist Trap", "Temple of Ikov", "Priest in Peril",
+        "Troll Stronghold", "Death Plateau", "Waterfall Quest", "Agility 15",
+        "Firemaking 50", "Magic 50", "Slayer 10", "Thieving 53",
+    ),
+    "one_small_favour": (
+        "Shilo Village", "Jungle Potion", "Rune Mysteries", "Agility 36",
+        "Crafting 25", "Herblore 18", "Smithing 30",
+    ),
+    "defender_of_varrock": (
+        "Shield of Arrav", "The Knight's Sword", "Family Crest", "What Lies Below",
+        "Demon Slayer", "Temple of Ikov", "Garden of Tranquillity", "Agility 51",
+        "Hunter 51", "Mining 59", "Smithing 54",
+    ),
+    "recruitment_drive": ("Black Knights' Fortress", "Druidic Ritual"),
     "horror_from_the_deep": ("Alfred Grimhand's Barcrawl", "Agility 35"),
     "monkey_madness": ("The Grand Tree", "Tree Gnome Village"),
     "enakhras_lament": ("Crafting 50", "Firemaking 45", "Magic 39", "Prayer 43"),

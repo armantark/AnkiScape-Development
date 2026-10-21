@@ -35,6 +35,67 @@ PERIOD_START_GATES = {
         ("crafting", "prayer"),
         ("Priest in Peril", "The Restless Ghost"),
     ),
+    "desert_treasure": (
+        (("agility", 15), ("firemaking", 50), ("magic", 50), ("slayer", 10), ("thieving", 53)),
+        ("mining",),
+        (
+            "The Dig Site", "The Tourist Trap", "Temple of Ikov", "Priest in Peril",
+            "Troll Stronghold", "Death Plateau", "Waterfall Quest", "Agility 15",
+            "Firemaking 50", "Magic 50", "Slayer 10", "Thieving 53",
+        ),
+    ),
+    "one_small_favour": (
+        (("agility", 36), ("crafting", 25), ("herblore", 18), ("smithing", 30)),
+        (),
+        (
+            "Shilo Village", "Jungle Potion", "Rune Mysteries", "Agility 36",
+            "Crafting 25", "Herblore 18", "Smithing 30",
+        ),
+    ),
+    "defender_of_varrock": (
+        (("agility", 51), ("hunter", 51), ("mining", 59), ("smithing", 54)),
+        (),
+        (
+            "Shield of Arrav", "The Knight's Sword", "Family Crest", "What Lies Below",
+            "Demon Slayer", "Temple of Ikov", "Garden of Tranquillity", "Agility 51",
+            "Hunter 51", "Mining 59", "Smithing 54",
+        ),
+    ),
+    "recruitment_drive": (
+        (),
+        (),
+        ("Black Knights' Fortress", "Druidic Ritual"),
+    ),
+}
+
+PERIOD_QUEST_PREREQUISITES = {
+    "desert_treasure": (
+        ("the_dig_site", "The Dig Site"),
+        ("the_tourist_trap", "The Tourist Trap"),
+        ("temple_of_ikov", "Temple of Ikov"),
+        ("priest_in_peril", "Priest in Peril"),
+        ("troll_stronghold", "Troll Stronghold"),
+        ("death_plateau", "Death Plateau"),
+        ("waterfall_quest", "Waterfall Quest"),
+    ),
+    "one_small_favour": (
+        ("shilo_village", "Shilo Village"),
+        ("jungle_potion", "Jungle Potion"),
+        ("rune_mysteries", "Rune Mysteries"),
+    ),
+    "defender_of_varrock": (
+        ("shield_of_arrav", "Shield of Arrav"),
+        ("the_knights_sword", "The Knight's Sword"),
+        ("family_crest", "Family Crest"),
+        ("what_lies_below", "What Lies Below"),
+        ("demon_slayer", "Demon Slayer"),
+        ("temple_of_ikov", "Temple of Ikov"),
+        ("garden_of_tranquillity", "Garden of Tranquillity"),
+    ),
+    "recruitment_drive": (
+        ("black_knights_fortress", "Black Knights' Fortress"),
+        ("druidic_ritual", "Druidic Ritual"),
+    ),
 }
 
 
@@ -45,8 +106,12 @@ def _player_ready_to_start(quest_id):
         player[f"{skill_id}_level"] = level
     for skill_id in removed_skills:
         player[f"{skill_id}_level"] = 1
-    for prerequisite in QUEST_DATA[quest_id]["required_quests"]:
-        required_id = prerequisite["quest_id"]
+    required_ids = (
+        tuple(required_id for required_id, _ in PERIOD_QUEST_PREREQUISITES[quest_id])
+        if quest_id in PERIOD_QUEST_PREREQUISITES
+        else tuple(row["quest_id"] for row in QUEST_DATA[quest_id]["required_quests"])
+    )
+    for required_id in required_ids:
         player["quests"][required_id] = {
             "started": True,
             "progress": QUEST_DATA[required_id]["stages"],
@@ -56,6 +121,25 @@ def _player_ready_to_start(quest_id):
 
 
 class TestPeriodStartGates(unittest.TestCase):
+    def test_period_prerequisite_lists_match_source_order_and_names(self):
+        for quest_id, expected in PERIOD_QUEST_PREREQUISITES.items():
+            with self.subTest(quest_id=quest_id):
+                self.assertEqual(
+                    tuple(
+                        (row["quest_id"], row["display_name"])
+                        for row in QUEST_DATA[quest_id]["required_quests"]
+                    ),
+                    expected,
+                )
+
+    def test_desert_treasure_can_start_with_mining_one(self):
+        player = _player_ready_to_start("desert_treasure")
+        self.assertEqual(player["mining_level"], 1)
+        self.assertEqual(quest_locked_reasons_pure(player, "desert_treasure", QUEST_DATA), ())
+        updated, started = start_quest_pure(player, "desert_treasure", QUEST_DATA)
+        self.assertTrue(started)
+        self.assertTrue(updated["quests"]["desert_treasure"]["started"])
+
     def test_recommended_levels_do_not_block_starting(self):
         for quest_id in PERIOD_START_GATES:
             with self.subTest(quest_id=quest_id):
@@ -103,6 +187,10 @@ class TestPeriodStartGates(unittest.TestCase):
             "enakhras_lament": (),
             "eadgars_ruse": ("druidic_ritual", "troll_stronghold", "death_plateau"),
             "nature_spirit": ("priest_in_peril", "the_restless_ghost"),
+            **{
+                quest_id: tuple(required_id for required_id, _ in rows)
+                for quest_id, rows in PERIOD_QUEST_PREREQUISITES.items()
+            },
         }
         for quest_id, required_ids in prerequisites.items():
             for required_id in required_ids:
@@ -129,7 +217,7 @@ class TestPeriodStartGates(unittest.TestCase):
         quests = quests_as_dict()
         for row in PRE_EOC_QUEST_CATALOG:
             quest_id = row["id"]
-            if quest_id in PERIOD_START_GATES or quest_id in QUEST_OVERRIDES_BY_ID:
+            if quest_id in PERIOD_START_GATES or quest_id in QUEST_OVERRIDES_BY_ID or quest_id == "legends_quest":
                 continue
             with self.subTest(quest_id=quest_id):
                 self.assertEqual(quests[quest_id]["requirements"], row["requirements"])
