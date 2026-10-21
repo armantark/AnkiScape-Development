@@ -68,6 +68,7 @@ class MysticHatMarketRuntimeTest(unittest.TestCase):
 
     def _open(self, collection):
         self.collection = collection
+        collection.set_config("ankiscape_review_action_multiplier", 10)
         sys.modules["aqt"].mw = runtime_fixture._DummyMW(collection)
         self.addon = runtime_fixture._load_addon_as_package("ankiscape_mystic_hat_markets")
         addon = self.addon
@@ -115,7 +116,7 @@ class MysticHatMarketRuntimeTest(unittest.TestCase):
 
     def _fill_on_reviews(self):
         addon = self.addon
-        for _ in range(20):
+        for _ in range(200):
             before = copy.deepcopy(addon._state.player_data), addon._state.current_skill
             _answer_review(addon)
             after = copy.deepcopy(addon._state.player_data), addon._state.current_skill
@@ -168,7 +169,7 @@ class MysticHatMarketRuntimeTest(unittest.TestCase):
                 addon._state.player_data["ge_buy_limit_usage"][name] = {"window_start_tick": tick, "bought": 99}
                 self._action_with_undo("place_offer", {"item_name": name, "side": "buy", "quantity": 3,
                                                       "unit_price": guide * 2, "confirmed": True})
-                for _ in range(20):
+                for _ in range(200):
                     _answer_review(addon)
                     if addon._state.player_data["ge_buy_limit_usage"][name]["bought"] == 100:
                         break

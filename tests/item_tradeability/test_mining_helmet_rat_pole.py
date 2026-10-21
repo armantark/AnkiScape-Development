@@ -57,10 +57,10 @@ class MiningHelmetRatPoleTest(unittest.TestCase):
     def _undo(self, operation):
         self.addon._on_state_did_undo(types.SimpleNamespace(operation=operation))
 
-    def _fill(self):
+    def _fill(self, market_ticks=1):
         addon = self.addon
         shop = sys.modules[f"{addon.__name__}.logic.shop_logic"]
-        clocked = shop.advance_shop_market_clock_pure(addon._state.player_data, calendar_ticks_before=0, calendar_ticks_after=600 * (1))
+        clocked = shop.advance_shop_market_clock_pure(addon._state.player_data, calendar_ticks_before=0, calendar_ticks_after=600 * market_ticks)
         addon._state.player_data, result = self.ge.advance_ge_market_tick_pure(
             clocked, item_catalog=addon.GE_ITEM_CATALOG, random_draw=lambda: 0.0)
         self.assertEqual(len(result["fills"]), 1)
@@ -142,7 +142,7 @@ class MiningHelmetRatPoleTest(unittest.TestCase):
         self.assertEqual(addon._state.player_data, before)
         self.assertTrue(self.action("place_offer", sell)["ok"])
         self._reload()
-        self._fill()
+        self._fill(3)
         order = addon._state.player_data["ge_player_orders"][0]
         self.assertEqual((order["status"], order["escrow_items"], order["collectible_coins"]), ("complete", 0, 482))
         self.assertTrue(self.action("collect_offer", {"order_id": order["id"]})["ok"])

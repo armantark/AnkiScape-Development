@@ -490,7 +490,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _message: None
         addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.advance_shop_market_clock_pure = lambda data: dict(data)
+        addon.advance_shop_market_clock_pure = lambda data, *_args, **_kwargs: dict(data)
         addon.advance_ge_market_tick_pure = lambda data, **_kwargs: (dict(data), {})
         addon.advance_summoning_world_tick_pure = (
             lambda data, **_kwargs: (dict(data), {"familiar_ticks_before": None})
