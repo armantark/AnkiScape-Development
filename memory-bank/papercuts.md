@@ -757,3 +757,5 @@
 - 2026-10-21: The Settings hook reported `tools/maintenance/pace_close_visuals.py: E302 x1 (was 0)` after the helper split. Restored two blank lines between top-level definitions. The earlier successful UI proof stays valid.
 
 - 2026-10-21T11:49:48-07:00: The Settings geometry selector covered checkboxes and push buttons but omitted Widget Position radio buttons. Changed it to `QAbstractButton` in the test and capture utility; the all-button geometry case passes.
+
+- 2026-10-21T12:03:11-07:00: Astra found two Part J measurement defects: independent-sample standard error for paired seeds, and unequal measured endpoints after Thieving stun. Add a paired constant-offset regression and equal-window guard before repairing the measurement; keep seeds, sample, thresholds and caps fixed.

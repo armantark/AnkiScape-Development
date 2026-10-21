@@ -1,19 +1,18 @@
 """XP per tick of play is the same at speed 1 and speed 10 (plan Part J item 1).
 
-Each sampled route plays a window of 3,600 game ticks (36 minutes of
-0.6-second ticks) at speed 10 and then the same number of ticks at speed 1,
-for each of 20 fixed seeds. A card goes through the add-on's own card glue
+Each sampled route plays at least 3,600 game ticks (36 minutes of
+0.6-second ticks) at each speed, over matching windows for 20 paired seeds. A card goes through the add-on's own card glue
 (``_spend_card_on_action``), so the carried pack, bank trips, the next-step
 check and the after-card recovery run as they do in play. The speed-10 run
 answers cards until the window is spent: 60 cards when no card ends early. Its
-last card can carry play past the window, so the speed-1 run plays to the same
-tick; otherwise XP that arrives in lumps (a runecrafting trip pays at the
-altar) would make the rate depend on where each window ends. A card that a
+last card can carry play past the minimum window. Both runs extend to a
+common endpoint with no unpaid step debt; otherwise XP that arrives in lumps
+or before a borrowed step finishes would depend on the sample's cut point. A card that a
 danger stop or a kill ends early leaves its unspent ticks unplayed, so they
 count neither as play nor towards the window.
 
 The route passes when the mean XP per tick spent at speed 10 is within four
-standard errors of the mean at speed 1. Quests and Dungeoneering take one stage
+standard errors of the paired differences from speed 1. Quests and Dungeoneering take one stage
 or room per card at every speed (assumption 5), so they are not sampled.
 
 Combat runs with banking off, as Sol's 2026-10-15 kill-cap measurement did,
@@ -346,13 +345,15 @@ SAMPLE.update(
 
 
 def standard_errors_apart(x1: list[float], x10: list[float]) -> float:
-    """The difference of the two means in standard errors of that difference."""
+    """Compare paired seed results in standard errors of their difference."""
     mean_x1, mean_x10 = statistics.fmean(x1), statistics.fmean(x10)
     # The same XP summed in a different order can differ in the last bits.
     if math.isclose(mean_x1, mean_x10, rel_tol=1e-9):
         return 0.0
-    error = math.sqrt(statistics.variance(x1) / len(x1) + statistics.variance(x10) / len(x10))
-    return (mean_x10 - mean_x1) / error if error else math.inf
+    differences = [fast - slow for slow, fast in zip(x1, x10, strict=True)]
+    error = statistics.stdev(differences) / math.sqrt(len(differences))
+    difference = mean_x10 - mean_x1
+    return difference / error if error else math.copysign(math.inf, difference)
 
 
 class RatePropertyCase(unittest.TestCase):
@@ -410,7 +411,7 @@ class RatePropertyCase(unittest.TestCase):
         return 0 if fight is last_fight else int(fight.get("ticks_elapsed", 0))
 
     def play(self, route: Route, speed: int, seed: int, ticks: int) -> tuple[float, int]:
-        """Return the XP gained and the ticks spent playing at least ``ticks``."""
+        """Play at least ``ticks`` and finish with every borrowed step tick paid."""
         addon = self.addon
         addon._review_action_multiplier = lambda: speed
         addon._state.player_data = route.player()
@@ -418,7 +419,9 @@ class RatePropertyCase(unittest.TestCase):
         random.seed(seed)
         xp_before = sum(addon._implemented_exp_keys_snapshot().values())
         spent = cards = 0
-        while spent < ticks and cards < MAX_CARDS and addon._state.current_skill == route.skill:
+        while (
+            spent < ticks or addon._state.player_data.get("card_tick_debt", 0)
+        ) and cards < MAX_CARDS and addon._state.current_skill == route.skill:
             spent += self._card_ticks(route.skill)
             cards += 1
         self.assertGreaterEqual(
@@ -427,16 +430,24 @@ class RatePropertyCase(unittest.TestCase):
             f"{route} at speed {speed}, seed {seed}: play stopped after {cards} cards and {spent} ticks "
             f"({addon._state.current_skill}: {addon._state.pending_bankstanding_notice})",
         )
+        self.assertFalse(addon._state.player_data.get("card_tick_debt", 0), f"{route}: unpaid sample time")
         return sum(addon._implemented_exp_keys_snapshot().values()) - xp_before, spent
 
     def rates(self, route: Route) -> dict[int, list[float]]:
-        """XP per tick spent for every seed, by speed."""
+        """XP per tick over equal, debt-free windows for every paired seed."""
         rates: dict[int, list[float]] = {1: [], 10: []}
         for seed in SEEDS:
-            xp, window = self.play(route, 10, seed, PLAY_TICKS)
-            rates[10].append(xp / window)
-            xp, spent = self.play(route, 1, seed, window)
-            rates[1].append(xp / spent)
+            xp10, window10 = self.play(route, 10, seed, PLAY_TICKS)
+            xp1, window1 = self.play(route, 1, seed, window10)
+            # Full cards can pass an endpoint; both runs must finish at the same tick.
+            while window1 != window10:
+                if window1 < window10:
+                    xp1, window1 = self.play(route, 1, seed, window10)
+                else:
+                    xp10, window10 = self.play(route, 10, seed, window1)
+            self.assertEqual(window1, window10, f"{route}, seed {seed}: rate windows differ")
+            rates[1].append(xp1 / window1)
+            rates[10].append(xp10 / window10)
         return rates
 
     def test_xp_per_tick_is_the_same_at_speed_1_and_speed_10(self):

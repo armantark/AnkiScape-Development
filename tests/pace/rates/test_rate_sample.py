@@ -1,6 +1,7 @@
 """The Part J rate sample covers what the plan says it covers, and every group runs."""
 
 import importlib
+import math
 import pkgutil
 import unittest
 
@@ -46,3 +47,14 @@ class RateSampleTests(unittest.TestCase):
                 for group in value.GROUPS
             ]
         self.assertCountEqual(groups, rate_property.SAMPLE)
+
+
+class PairedSeedComparisonTests(unittest.TestCase):
+    def test_a_consistent_offset_cannot_hide_inside_shared_seed_variance(self):
+        x1 = [float(100 * seed) for seed in rate_property.SEEDS]
+        for offset in (-1, 1):
+            with self.subTest(offset=offset):
+                x10 = [value + offset for value in x1]
+                apart = rate_property.standard_errors_apart(x1, x10)
+                self.assertTrue(math.isinf(apart), apart)
+                self.assertEqual(math.copysign(1.0, apart), offset)
