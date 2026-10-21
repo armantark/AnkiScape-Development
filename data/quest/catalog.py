@@ -350,6 +350,7 @@ def _apply_combat_encounter_replacements(
     quest_id: str,
     requirements: Tuple[QuestStageRequirement, ...],
 ) -> Tuple[QuestStageRequirement, ...]:
+    requirements = apply_horror_from_the_deep_lifepoints(quest_id, requirements)
     replacements = QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID.get(quest_id, {})
     if not replacements:
         return requirements
