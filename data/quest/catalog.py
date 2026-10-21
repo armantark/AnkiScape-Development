@@ -293,7 +293,10 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         point_reward=_catalog_int(row, "point_reward", 0),
         rewards=item_rewards,
         start_point=str(row.get("start_point", "See the source guide for the start location.")),
-        requirements=tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
+        requirements=QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID.get(
+            quest_id,
+            tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
+        ),
         required_items=(),
         combat=str(row.get("combat", "See the source guide.")),
         source=f"{row.get('source', '')}; {row.get('release_source', '')}",
@@ -350,6 +353,7 @@ def _apply_combat_encounter_replacements(
     quest_id: str,
     requirements: Tuple[QuestStageRequirement, ...],
 ) -> Tuple[QuestStageRequirement, ...]:
+    requirements = apply_horror_from_the_deep_lifepoints(quest_id, requirements)
     replacements = QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID.get(quest_id, {})
     if not replacements:
         return requirements

@@ -268,17 +268,24 @@ def enter_fish_flingers_pure(
 
 
 def fish_flingers_score_pure(session: Mapping[str, Any]) -> int:
-    """Translate the bounded session statistics to Darkan's 48-point score."""
+    """Score session statistics using the retained provisional mapping."""
     fish_caught = _int(session.get("fish_caught"))
     big_fish = _int(session.get("big_fish"), maximum=3)
     assists = _int(session.get("assists"), maximum=6)
     perfect_tackles = _int(session.get("perfect_tackles"), maximum=6)
 
-    # Darkan commit bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
-    # FishFlingersDomain.kt:98-114: score combines catch bands, large fish,
-    # assists, total/heaviest weight, and the perfect-tackle table. The local
-    # eight-review session does not retain weights, so one tracked catch is the
-    # closest proxy for 500 kg and one tracked large fish for 60 kg.
+    # Fish Flingers oldid 6529096 (2012-11-03T16:37:15Z), lines 439-478,
+    # lists catch thresholds 70/80/90/110/130, big catches x2 capped at 6,
+    # assists capped at 6, weight divisors 500/60 with caps 20/3,
+    # and perfect-tackle points (0, 1, 2, 4, 5, 6, 8).
+    # Earlier post-update revisions conflict; independent period confirmation
+    # of the complete numeric rule remains incomplete.
+    # PLACEHOLDER(fish_flingers.xp_payout): qualified catch intervals and
+    # post-update weight evidence would replace this retained session mapping.
+    # Darkan bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
+    # FishFlingersDomain.kt:98-114 supplies the retained catch-band behavior.
+    # The period threshold notation does not specify every interval or the
+    # behavior below 70; the existing comparisons remain provisional.
     catch_points = (
         5
         if fish_caught >= 130
@@ -293,23 +300,30 @@ def fish_flingers_score_pure(session: Mapping[str, Any]) -> int:
         else 0
     )
     # The local eight-review session cannot exceed 47 catches, so it never
-    # reaches Darkan's 70-catch band inherited from the ten-minute live event.
+    # reaches the retained 70-catch threshold.
     perfect_points = (0, 1, 2, 4, 5, 6, 8)[perfect_tackles]
     return (
         catch_points
         + big_fish * 2
         + assists
+        # PLACEHOLDER(fish_flingers.xp_payout): qualified post-update catch weights
+        # would replace the registered 500 kg-per-catch proxy used here.
         + min(20, fish_caught)
+        # PLACEHOLDER(fish_flingers.xp_payout): qualified post-update catch weights
+        # would replace the registered 60 kg-per-big-fish heaviest-weight proxy.
         + min(3, big_fish)
         + perfect_points
     )
 
 
 def fish_flingers_xp_payout_pure(fishing_level: Any, score: Any) -> int:
-    # PLACEHOLDER(fish_flingers.xp_payout): period settlement source or a
-    # qualified cutoff-era payout table would retire the Darkan reconstruction.
-    # Darkan commit bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
-    # FishFlingersDomain.kt:130-134: the event pays this once at settlement.
+    # PLACEHOLDER(fish_flingers.xp_payout): a qualified post-2012-07-24,
+    # pre-2012-11-20 level-and-score payout rule would replace this estimate.
+    # Fish Flingers oldid 6529096, lines 509-751, retains an obsolete-table
+    # warning and supplies no score for its maximum-XP observations.
+    # The examined period sources do not establish a replacement curve.
+    # Retain Darkan bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
+    # FishFlingersDomain.kt:130-134; this is not a period-accurate XP claim.
     level = max(1, min(_int(fishing_level, 1), 99))
     bounded_score = max(0, min(_int(score), 48))
     maximum = max(162, 235 * level - 73)

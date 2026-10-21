@@ -3,10 +3,16 @@
 from dataclasses import replace
 
 from .. import rum_deal_data, zogre_flesh_eaters_data
+from .oronwen_repair_data import QUEST_ID, DAMAGED_TROUSERS, MOURNER_ENCOUNTER
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_COMBAT_PREREQUISITES
 
 
 _RELOCATIONS_BY_QUEST_ID = {
+    QUEST_ID: (
+        {MOURNER_ENCOUNTER: 2},
+        {MOURNER_ENCOUNTER: ((DAMAGED_TROUSERS, 1),)},
+        "Mourning's End Part I combat encounter catalog changed",
+    ),
     rum_deal_data.QUEST_ID: (
         rum_deal_data.RUM_DEAL_COMBAT_ENCOUNTER_STAGES,
         rum_deal_data.RUM_DEAL_COMBAT_GUARANTEED_DROPS,

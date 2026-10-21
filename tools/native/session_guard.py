@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 import hashlib
+import importlib
 import json
 import os
 import plistlib
@@ -24,6 +25,8 @@ RECEIPT = "native-session-receipt.json"
 ANKI_APP = Path("/Applications/Anki.app")
 TEST_APP = "AnkiScape Native Test.app"
 BOOTSTRAP = "ankiscape_native_bootstrap"
+PLAYER_DATA = "native-player-data.json"
+PLAYER_DATA_APPLIED = "native-player-data-applied.json"
 
 
 def owner_collection() -> Path:
@@ -96,12 +99,22 @@ def copy_addon(repo: Path, destination: Path) -> None:
     shutil.copytree(repo, destination, ignore=ignore, copy_function=_copy_file)
 
 
-def prepare(repo: Path) -> Path:
+def player_data_helpers(repo: Path):
+    # The alias exposes pure submodules without executing AnkiScape's entry point.
+    runpy.run_path(str(repo / "pkg_alias.py"))
+    return importlib.import_module("ankiscape.tools.native.player_data")
+
+
+def prepare(repo: Path, *, player_data: Optional[Path] = None) -> Path:
     require_safe_environment()
     require_anki_stopped()
     repo = repo.resolve()
     if not (repo / "__init__.py").is_file():
         raise RuntimeError(f"not an add-on repository: {repo}")
+    player_bytes = None
+    if player_data is not None:
+        player_bytes = player_data.read_bytes()
+        player_data_helpers(repo).merge_player_data(json.loads(player_bytes))
     collection = owner_collection()
     baseline = measure(collection)
     base = Path(tempfile.mkdtemp(prefix="ankiscape-native-")).resolve()
@@ -126,6 +139,9 @@ def prepare(repo: Path) -> Path:
     receipt = {"base": str(base), "repo": str(repo),
                "collection": str(collection), "baseline": baseline,
                "source_sha256": source_digest(base / "addons21/ankiscape_fork")}
+    if player_bytes is not None:
+        (base / PLAYER_DATA).write_bytes(player_bytes)
+        receipt["player_data_sha256"] = hashlib.sha256(player_bytes).hexdigest()
     receipt_path = base / RECEIPT
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     module_root = app / "Contents/Resources/app"
@@ -232,13 +248,55 @@ def bootstrap(module: str, bound_base: str, collection: str, receipt_sha256: str
         receipt = read_receipt(base, collection=Path(collection), session_root=base.parent)
         if source_digest(base / "addons21/ankiscape_fork") != receipt["source_sha256"]:
             raise RuntimeError("prepared add-on source changed after preparation")
+        if "player_data_sha256" in receipt:
+            if hashlib.sha256((base / PLAYER_DATA).read_bytes()).hexdigest() != receipt["player_data_sha256"]:
+                raise RuntimeError("prepared player data changed after preparation")
         require_anki_stopped(exclude_self=True)
     except (RuntimeError, ValueError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr, flush=True)
         raise SystemExit(2) from None
+    if "player_data_sha256" in receipt:
+        register_player_data_seed(base)
     sys.argv = [sys.argv[0], "-b", str(base)]
     # Briefcase uses this call to give the application its real __main__ namespace.
     runpy._run_module_as_main("anki", alter_argv=False)
+
+
+def seed_player_data(base: Path, collection) -> None:
+    path = Path(collection.path).resolve(strict=True)
+    if not path.is_relative_to(base) or not path.is_file():
+        raise RuntimeError("player-data collection is outside the disposable base")
+    applied = base / PLAYER_DATA_APPLIED
+    if applied.exists():
+        return
+    helpers = player_data_helpers(base / "addons21/ankiscape_fork")
+    seed = helpers.migrated_player_data(json.loads((base / PLAYER_DATA).read_bytes()))
+    collection.set_config("ankiscape_player_data", seed)
+    collection.set_config("ankiscape_current_skill", "None")
+    applied.write_text(json.dumps({"collection": str(path)}) + "\n", encoding="utf-8")
+
+
+def register_player_data_seed(base: Path) -> None:
+    from anki import app
+
+    original_main = app.main
+
+    def seed_or_exit(collection):
+        try:
+            seed_player_data(base, collection)
+        except Exception as exc:
+            # Anki reports ordinary hook errors and continues opening the profile.
+            print(f"error: cannot seed native player data: {exc}", file=sys.stderr, flush=True)
+            raise SystemExit(2) from None
+
+    def seeded_main():
+        # Anki's launcher removes its shim package before main imports aqt.
+        from aqt import gui_hooks
+
+        gui_hooks.collection_did_load.append(seed_or_exit)
+        original_main()
+
+    app.main = seeded_main
 
 
 def launch(base: Path) -> int:
@@ -266,13 +324,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[2])
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("prepare")
+    preparation = subparsers.add_parser("prepare")
+    preparation.add_argument("--player-data", type=Path,
+                             help="JSON object of player-data overrides for the first launch")
     for command in ("launch", "verify"):
         subparsers.add_parser(command).add_argument("base", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "prepare":
-            prepare(args.repo)
+            if args.player_data is None:
+                prepare(args.repo)
+            else:
+                prepare(args.repo, player_data=args.player_data)
         elif args.command == "launch":
             return launch(args.base)
         else:
