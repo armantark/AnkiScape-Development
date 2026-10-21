@@ -2,8 +2,12 @@ import argparse
 import difflib
 import json
 import os
+import subprocess
+import tempfile
+import time
 import sys
 import unittest
+from contextlib import ExitStack
 from collections import Counter
 from collections.abc import Iterable
 
@@ -123,10 +127,110 @@ def write_skip_report(result: unittest.TestResult) -> None:
         print(f"warning: skipped-test report could not be written: {exc}", file=sys.stderr)
 
 
-def main() -> int:
-    root = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(root)
+class ReportedTest:
+    def __init__(self, test_id: str, description: str):
+        self.test_id = test_id
+        self.description = description
 
+    def id(self) -> str:
+        return self.test_id
+
+    def __str__(self) -> str:
+        return self.description
+
+    def shortDescription(self) -> None:
+        return None
+
+
+def worker_report(result: unittest.TextTestResult) -> dict:
+    report = {"testsRun": result.testsRun}
+    for field in ("failures", "errors", "skipped", "expectedFailures"):
+        report[field] = [
+            [test.id(), result.getDescription(test), detail]
+            for test, detail in getattr(result, field)
+        ]
+    report["unexpectedSuccesses"] = [
+        [test.id(), result.getDescription(test)] for test in result.unexpectedSuccesses
+    ]
+    return report
+
+
+def merge_worker_report(result: unittest.TestResult, report: dict, expected: int) -> None:
+    result.testsRun += report["testsRun"]
+    for field in ("failures", "errors", "skipped", "expectedFailures"):
+        getattr(result, field).extend(
+            (ReportedTest(test_id, description), detail)
+            for test_id, description, detail in report[field]
+        )
+    result.unexpectedSuccesses.extend(
+        ReportedTest(test_id, description)
+        for test_id, description in report["unexpectedSuccesses"]
+    )
+    if report["testsRun"] != expected:
+        raise ValueError(f"worker ran {report['testsRun']} tests; assigned {expected}")
+
+
+def partition_test_ids(suite: unittest.TestSuite, processes: int) -> list[list[str]]:
+    modules: dict[str, list[str]] = {}
+    for test in iter_tests(suite):
+        modules.setdefault(type(test).__module__, []).append(test.id())
+    workers: list[list[str]] = [[] for _ in range(min(processes, len(modules)))]
+    for ids in sorted(modules.values(), key=len, reverse=True):
+        min(workers, key=len).extend(ids)
+    return workers
+
+
+class ParallelSuite:
+    # A bounded worker cannot leave a standalone run waiting forever. Promotion
+    # retains its own, unchanged lane deadlines outside this runner.
+    worker_timeout = 1800
+
+    def __init__(self, suite: unittest.TestSuite, processes: int, failfast: bool):
+        self.assignments = partition_test_ids(suite, processes)
+        self.failfast = failfast
+
+    def __call__(self, result: unittest.TestResult) -> None:
+        with tempfile.TemporaryDirectory(prefix="ankiscape-tests-") as directory, ExitStack() as stack:
+            workers = []
+            deadline = time.monotonic() + self.worker_timeout
+            for index, ids in enumerate(self.assignments):
+                prefix = os.path.join(directory, str(index))
+                with open(prefix + ".ids.json", "w", encoding="utf-8") as file:
+                    json.dump(ids, file)
+                log = stack.enter_context(open(prefix + ".log", "w+", encoding="utf-8"))
+                command = [sys.executable, os.path.abspath(__file__),
+                           "--worker-input", prefix + ".ids.json", "--worker-result", prefix + ".json"]
+                if self.failfast:
+                    command.append("--failfast")
+                process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+                stack.callback(self.stop_worker, process)
+                workers.append((process, prefix, ids, log))
+            for process, prefix, ids, log in workers:
+                self.collect_worker(result, process, prefix, ids, log, deadline)
+
+    @staticmethod
+    def stop_worker(process: subprocess.Popen) -> None:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+
+    @staticmethod
+    def collect_worker(result, process, prefix, ids, log, deadline) -> None:
+        try:
+            returncode = process.wait(timeout=max(0, deadline - time.monotonic()))
+            if returncode:
+                raise RuntimeError(f"worker exited {returncode}")
+            with open(prefix + ".json", encoding="utf-8") as file:
+                report = json.load(file)
+            merge_worker_report(result, report, len(ids))
+        except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.TimeoutExpired) as exc:
+            ParallelSuite.stop_worker(process)
+            log.seek(0)
+            test = ReportedTest(ids[0], f"parallel worker ({ids[0]})")
+            result.errors.append((test, f"{exc}\n{log.read()}"))
+
+
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Discover AnkiScape tests and select them by verified test-id fragments.",
     )
@@ -178,10 +282,26 @@ def main() -> int:
         help="print only failures and the final unittest summary",
     )
     parser.add_argument("--failfast", action="store_true")
+    parser.add_argument("--processes", type=int, default=1,
+                        help="parallel worker processes, keeping each test module together (default: 1)")
+    parser.add_argument("--worker-input", help=argparse.SUPPRESS)
+    parser.add_argument("--worker-result", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.processes < 1:
+        parser.error("--processes must be at least 1")
+    if bool(args.worker_input) != bool(args.worker_result):
+        parser.error("worker input and result paths must be supplied together")
 
     if args.max_results < 1:
         parser.error("--max-results must be at least 1")
+    return args
+
+
+def main() -> int:
+    root = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(root)
+
+    args = parse_arguments()
 
     # Ensure project root is importable for tests
     if root not in sys.path:
@@ -235,9 +355,24 @@ def main() -> int:
         print(f"Matching tests: {len(selected_ids)}", file=sys.stderr)
         return 0
 
+    return run_selected_tests(suite, args)
+
+
+def run_selected_tests(suite: unittest.TestSuite, args: argparse.Namespace) -> int:
+    if args.worker_input:
+        with open(args.worker_input, encoding="utf-8") as file:
+            worker_ids = set(json.load(file))
+        suite = unittest.TestSuite(test for test in iter_tests(suite) if test.id() in worker_ids)
+
     verbosity = 0 if args.quiet else args.verbosity
     runner = unittest.TextTestRunner(verbosity=verbosity, failfast=args.failfast)
+    if args.processes > 1:
+        suite = ParallelSuite(suite, args.processes, args.failfast)
     result = runner.run(suite)
+    if args.worker_result:
+        with open(args.worker_result, "w", encoding="utf-8") as file:
+            json.dump(worker_report(result), file)
+        return 0
     write_skip_report(result)
     returncode = test_result_exit_code(result, focused=bool(args.selectors))
     if returncode == 2:
