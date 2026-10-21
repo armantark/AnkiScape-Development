@@ -2551,7 +2551,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.exp_awarded = False
 
         original_random = addon.random.random
-        rolls = iter((85 / 255, 0.0))
+        rolls = iter((85 / 255, 0.0, 0.0, 0.0, 0.0))
         addon.random.random = lambda: next(rolls)
         try:
             addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
