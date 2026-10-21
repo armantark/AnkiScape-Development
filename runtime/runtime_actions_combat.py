@@ -418,7 +418,6 @@ from .runtime_actions_shared import (
 
 from .runtime_actions_context import (
     RuntimeActionContext,
-    danger_stop_suffix,
 )
 
 
@@ -770,20 +769,19 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         else ""
     )
     wilderness_ambush = result.get("wilderness_ambush") or {}
-    stop_text = danger_stop_suffix(result["stop_reason"])
     if result.get("died") and wilderness_ambush.get("died"):
         lost_count = len(wilderness_ambush.get("lost_items", ()) or ())
         kept_count = len(wilderness_ambush.get("kept_items", ()) or ())
         ctx.show_activity_gain(
             "☠ PKER AMBUSH — "
             f"lost {lost_count} equipped item{'s' if lost_count != 1 else ''}; "
-            f"kept {kept_count}; no grave{stop_text}"
+            f"kept {kept_count}; no grave"
         )
     elif result.get("died"):
         if kills > 0:
-            ctx.show_activity_gain(f"☠ YOU DIED — defeated {kill_phrase} first; gear moved to grave{stop_text}")
+            ctx.show_activity_gain(f"☠ YOU DIED — defeated {kill_phrase} first; gear moved to grave")
         else:
-            ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave{stop_text}")
+            ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
     elif result.get("fled"):
         # Auto-flee is the "you can't win this" signal: switch combat off entirely
         # (current_skill -> "None"), exactly like running out of materials for an
@@ -791,7 +789,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         # same losing fight. The player re-opens the menu to resume.
         ctx.deactivate_current_skill()
         prefix = f"Defeated {kill_phrase}, then f" if kills > 0 else "F"
-        ctx.show_activity_gain(f"{prefix}led {display_name} — out of food; combat switched off to stop you dying{stop_text}")
+        ctx.show_activity_gain(f"{prefix}led {display_name} — out of food; combat switched off to stop you dying")
     elif wilderness_ambush.get("triggered"):
         damage = int(wilderness_ambush.get("damage", 0) or 0)
         ctx.show_activity_gain(

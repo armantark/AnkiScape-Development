@@ -2900,9 +2900,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         finish_feedback = addon._finish_review_feedback_context
 
-        def _finish_feedback():
+        def _finish_feedback(*args):
             modal_order.append(("feedback", "flushed"))
-            finish_feedback()
+            finish_feedback(*args)
 
         addon._finish_review_feedback_context = _finish_feedback
         addon.check_achievements = lambda _data: None

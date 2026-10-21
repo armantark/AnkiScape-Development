@@ -54,7 +54,9 @@ GAME_SPEED_HELP = "<<COPY:game_speed_help>>"
 CARDS_SUFFIX = "<<COPY:cards_suffix>>"
 WORLD_DAY_SUGGESTION_HINT = "<<COPY:world_day_suggestion_hint|cards={cards}>>"
 PACE_DIALOG_TITLE = "<<COPY:pace_dialog_title>>"
-PACE_DIALOG_REASON = "<<COPY:pace_dialog_reason>>"
+# A new player has no earlier pace; an existing save keeps its pace unless the new one is applied.
+PACE_DIALOG_REASON_NEW = "<<COPY:pace_dialog_reason_new>>"
+PACE_DIALOG_REASON_EXISTING = "<<COPY:pace_dialog_reason_existing>>"
 PACE_DIALOG_CURRENT_LINE = (
     "<<COPY:pace_dialog_current_line|speed={speed} cards={cards} hours={hours}"
     " minutes={minutes} fish_flingers_cards={fish_flingers_cards}>>"
@@ -236,7 +238,9 @@ if HAS_QT:
             layout.setContentsMargins(16, 16, 16, 16)
             layout.setSpacing(12)
 
-            reason = _wrapped_label(PACE_DIALOG_REASON, "paceDialogReason")
+            reason = _wrapped_label(
+                PACE_DIALOG_REASON_EXISTING if plan.existing_player else PACE_DIALOG_REASON_NEW, "paceDialogReason"
+            )
             current = _wrapped_label(
                 PACE_DIALOG_CURRENT_LINE.format(**pace_text_fields_pure(plan.current, suggestion)),
                 "paceDialogCurrentLine",

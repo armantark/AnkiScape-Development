@@ -227,7 +227,10 @@ from .core.injectors import inject_reviewer_floating_button as _inject_reviewer_
 from .core.injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .core.injectors import register_deck_browser_button as _register_deck_browser_button
 from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
-from .core.activity_feedback import combine_activity_feedback as _combine_activity_feedback
+from .core.activity_feedback import (
+    combine_activity_feedback as _combine_activity_feedback,
+    lines_with_stop_reason as _lines_with_stop_reason,
+)
 from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
 from .core.equipment_change import equip_item_save_pure as _equip_item_save_pure
 from .core.equipment_change import unequip_slot_save_pure as _unequip_slot_save_pure
@@ -603,12 +606,8 @@ def level_up_check(skill, data) -> None:
     _core_level_up_check(skill, data)
 
 
-def _finish_review_feedback_context() -> None:
-    context = _state.review_feedback_context or {
-        "xp": 0.0,
-        "initial_exp": {},
-        "activity": [],
-    }
+def _finish_review_feedback_context(stop_reason: str = "") -> None:
+    context = _state.review_feedback_context or {"xp": 0.0, "initial_exp": {}, "activity": []}
     _record_pending_review_xp_event()
     _state.review_feedback_context = None
     _state.review_feedback_flushing = True
@@ -622,10 +621,10 @@ def _finish_review_feedback_context() -> None:
                 _NamedExperience(xp_total, skill_names, breakdown),
                 record_event=False,
             )
-            for message in activity_messages:
+            for message in _lines_with_stop_reason(activity_messages, stop_reason):
                 _record_review_event("activity", str(message), persist=False)
         elif activity_messages:
-            combined = _combine_activity_feedback(activity_messages)
+            combined = _combine_activity_feedback(activity_messages, stop_reason)
             if combined:
                 _show_activity_gain(combined)
         try:
@@ -5163,7 +5162,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
             if handler:
                 _spend_card_on_action(review_ctx, handler_key, handler)
         finally:
-            _finish_review_feedback_context()
+            _finish_review_feedback_context(review_ctx.card.stop_reason)
             # The background clock and active action form one persisted review
             # transaction, including rejected handlers and safe recovery.
             _advance_world_events_after_review()

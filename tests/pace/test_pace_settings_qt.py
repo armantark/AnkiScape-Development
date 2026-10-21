@@ -204,7 +204,7 @@ class OnboardingPathTests(PaceQtCase):
 
         def act():
             dialog = QApplication.activeModalWidget()
-            seen.append(dialog.findChild(QLabel, "paceDialogCurrentLine").text())
+            seen.append(tuple(dialog.findChild(QLabel, name).text() for name in ("paceDialogReason", "paceDialogCurrentLine")))
             action(dialog)
 
         QTimer.singleShot(0, act)
@@ -232,7 +232,12 @@ class OnboardingPathTests(PaceQtCase):
         _, seen = self.answer({**A_SAVE, LEGACY_SPEED_KEY: 4}, _escape)
         self.assertEqual(len(seen), 1)
         for field in ("speed=4", "cards=240", "hours=0.96", "fish_flingers_cards=42"):
-            self.assertIn(field, seen[0])
+            self.assertIn(field, seen[0][1])
+
+    def test_the_reason_is_written_for_a_new_or_an_existing_player(self):
+        for store, reason in (({}, "<<COPY:pace_dialog_reason_new>>"), (A_SAVE, "<<COPY:pace_dialog_reason_existing>>")):
+            with self.subTest(reason):
+                self.assertEqual(self.answer(store, _escape)[1][0][0], reason)
 
     def test_an_answered_profile_is_never_asked_again(self):
         from ankiscape.ui import ui_pace_settings
