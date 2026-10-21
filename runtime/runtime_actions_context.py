@@ -16,6 +16,7 @@ from typing import Any, Callable, Mapping, Optional
 
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 from ..logic.pace.short_timers import card_ticks_pure
+from ..logic.pace.danger_stops import card_danger_state_pure, card_danger_stop_pure
 
 # Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
 # one stage or one room per card at every speed (owner-accepted).
@@ -167,7 +168,11 @@ def spend_card_budget(
         if progressed and not can_continue():
             break
         before_session = dict(ctx.player_data.get("activity_session") or {})
+        before_danger = card_danger_state_pure(ctx.player_data)
         result = step(ctx)
+        danger = card_danger_stop_pure(before_danger, card_danger_state_pure(ctx.player_data))
+        if danger and not budget.stop_reason:
+            stop_card(ctx, danger)
         budget.ticks_remaining = (
             0
             if handler_key == "combat" or handler_key in ONE_PER_CARD_HANDLER_KEYS

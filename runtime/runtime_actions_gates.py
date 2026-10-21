@@ -128,6 +128,7 @@ from ..logic_pure.logic_pure import (
     mining_target_locked_reasons_pure,
     red_sandstone_daily_state_pure,
     magic_target_locked_reasons_pure,
+    effective_magic_rune_cost_pure,
     normalize_xp_rewards_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
@@ -502,7 +503,11 @@ def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_magic_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_magic", DEFAULT_MAGIC_TARGET)
-    return not magic_target_locked_reasons_pure(ctx.player_data, target, MAGIC_DATA, _magic_alch_values())
+    data = ctx.player_data
+    runes = effective_magic_rune_cost_pure(data, MAGIC_DATA.get(target, {}).get("rune_cost", {}))
+    if any((data.get("inventory") or {}).get(name, 0) < count for name, count in runes.items()):
+        ctx.card.stop_reason = "out_of_runes"
+    return not magic_target_locked_reasons_pure(data, target, MAGIC_DATA, _magic_alch_values())
 
 
 def _can_start_construction_action(ctx: RuntimeActionContext) -> bool:
