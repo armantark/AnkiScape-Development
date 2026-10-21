@@ -48,4 +48,3 @@ class SettingsGeometryTests(pace.PaceQtCase):
                         self._assert_settings_control_heights(page)
         self.assertIsInstance(surface, QScrollArea)
         self.assertEqual(surface.horizontalScrollBar().maximum(), 0)
-

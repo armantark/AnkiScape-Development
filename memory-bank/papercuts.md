@@ -759,3 +759,5 @@
 - 2026-10-21T11:49:48-07:00: The Settings geometry selector covered checkboxes and push buttons but omitted Widget Position radio buttons. Changed it to `QAbstractButton` in the test and capture utility; the all-button geometry case passes.
 
 - 2026-10-21T12:03:11-07:00: Astra found two Part J measurement defects: independent-sample standard error for paired seeds, and unequal measured endpoints after Thieving stun. Add a paired constant-offset regression and equal-window guard before repairing the measurement; keep seeds, sample, thresholds and caps fixed.
+
+- 2026-10-21T12:17:54-07:00: The final branch-range whitespace check reported `tests/pace/test_settings_geometry.py:51: new blank line at EOF.` Removed the extra end line. The Python syntax tree matches the accepted review head exactly.
