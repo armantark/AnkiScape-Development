@@ -537,20 +537,18 @@ class CatalogIntegrityTest(unittest.TestCase):
                     self.assertGreater(count, 0, name)
 
     def test_every_regional_lamp_has_a_distinct_sourced_bank_claim(self):
-        expected = {}
-        for family in ACHIEVEMENT_DIARY_CATALOG:
-            for tier in family.tiers:
-                if tier.lamp is None:
-                    continue
-                claim_id = diary_lamp_claim_id(tier.id)
-                expected[claim_id] = tier
-        self.assertEqual(len(expected), 32)
+        expected = {
+            diary_lamp_claim_id(tier.id, index): (tier, lamp)
+            for family in ACHIEVEMENT_DIARY_CATALOG for tier in family.tiers
+            for index, lamp in enumerate(tier.lamps, 1)
+        }
+        self.assertEqual(len(expected), 53)
         self.assertTrue(expected.keys() <= CLAIM_DATA.keys())
-        for claim_id, tier in expected.items():
+        for claim_id, (tier, lamp) in expected.items():
             claim = CLAIM_DATA[claim_id]
             self.assertEqual(claim["required_diary_tier"], tier.id)
-            self.assertEqual(claim["xp_amount"], float(tier.lamp.experience))
-            self.assertEqual(claim["minimum_level"], tier.lamp.minimum_level)
+            self.assertEqual(claim["xp_amount"], float(lamp.experience))
+            self.assertEqual(claim["minimum_level"], lamp.minimum_level)
             self.assertTrue(claim["source"], claim_id)
 
     def test_every_tier_has_a_roster(self):
@@ -1671,6 +1669,7 @@ class ClaimTest(unittest.TestCase):
         tier = family.tiers[0]
         player = claim_diary_tier_pure(_complete_tier(_fresh(), tier), tier.id)[0]
         claim_id = diary_lamp_claim_id(tier.id)
+        player["mining_level"] = tier.lamp.minimum_level
         before = float(player["mining_exp"])
 
         player, ok = apply_claim_pure(player, claim_id, CLAIM_DATA, "mining")

@@ -381,6 +381,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
                 current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
+        addon._state.player_data["mining_level"] = tier.lamp.minimum_level
         before_spend = copy.deepcopy(dict(addon._state.player_data))
         depth = len(addon._state.direct_action_undo_stack)
         addon.level_up_check = lambda *_args: None

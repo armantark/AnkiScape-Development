@@ -222,7 +222,8 @@ from ..logic.shades_of_mortton_logic import (
     default_shades_of_mortton_state_pure,
     sanitize_shades_of_mortton_state_pure,
 )
-from ..data.achievement_diary_data import DIARY_LAMP_CLAIM_IDS_BY_TIER
+from ..data.achievement_diary_data import DIARY_LAMP_CLAIM_IDS_BY_TIER, DIARY_ALL_LAMP_CLAIM_IDS_BY_TIER
+from ..logic.achievement_diaries.lamp_migration import migrate_missing_diary_lamps_pure
 from ..logic.achievement_diary_logic import (
     default_achievement_diary_state_pure,
     refresh_achievement_diaries_pure,
@@ -1004,7 +1005,7 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
     if isinstance(claims, dict):
         for claim_id, default_state in clean_claims.items():
             clean_claims[claim_id] = _clean_claim_state(claims.get(claim_id), default_state)
-        for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
+        for claim_id in (claim_id for ids in DIARY_ALL_LAMP_CLAIM_IDS_BY_TIER.values() for claim_id in ids):
             if isinstance(claims.get(claim_id), (bool, dict)):
                 clean_claims[claim_id] = _clean_claim_state(claims[claim_id], {"claimed": False})
     data["claims"] = clean_claims
@@ -1070,7 +1071,7 @@ def _migrate_legacy_claimed_diary_lamps(data: Dict[str, Any]) -> None:
         for tier_id in claimed_tiers:
             claim_id = DIARY_LAMP_CLAIM_IDS_BY_TIER.get(tier_id)
             if claim_id is not None:
-                clean_claims[claim_id] = {"claimed": True}
+                clean_claims.setdefault(claim_id, {})["claimed"] = True
     data["claims"] = clean_claims
 
 
@@ -2313,11 +2314,10 @@ def migrate_loaded_data(
     # migration above attaches tools already owned under the old auto-resolution
     # contract once; tools bought after this version remain in the Bank until the
     # player explicitly attaches them.
-    # v107: diary tier claims stop applying XP directly and create Bank Claims.
-    # Older claimed tiers already received that XP, so their generated claim is
-    # retired during migration rather than paying the same lamp twice.
+    # v107 retires original direct XP payments before v125 adds missing lamps.
     if loaded_config_version < 107:
         _migrate_legacy_claimed_diary_lamps(data)
+    migrate_missing_diary_lamps_pure(data, loaded_config_version)
     # v108 activates ledger-output and exact shop-transaction diary predicates.
     # Newly relevant held outputs seed once under the semantics contract; the
     # shop seed preserves durable counters beyond the bounded event history.

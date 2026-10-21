@@ -311,11 +311,16 @@ from .achievement_diary_catalog import (  # noqa: E402  (avoids a cycle at impor
     diary_equipment_data_as_dict,
 )
 
-ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = DIARY_FAMILIES
+from .achievement_diaries.lamp_rewards import apply_lamp_reward_overrides
+
+ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = apply_lamp_reward_overrides(DIARY_FAMILIES)
 
 
-def diary_lamp_claim_id(tier_id: str) -> str:
-    return f"achievement_diary_{tier_id}_xp_lamp"
+def diary_lamp_claim_id(tier_id: str, lamp_index: int = 1) -> str:
+    if lamp_index < 1:
+        raise ValueError("Lamp indices start at 1")
+    original = f"achievement_diary_{tier_id}_xp_lamp"
+    return original if lamp_index == 1 else f"{original}_{lamp_index}"
 
 
 DIARY_LAMP_CLAIM_IDS_BY_TIER = {
@@ -326,36 +331,43 @@ DIARY_LAMP_CLAIM_IDS_BY_TIER = {
 }
 
 
+DIARY_ALL_LAMP_CLAIM_IDS_BY_TIER = {
+    tier.id: tuple(diary_lamp_claim_id(tier.id, i) for i in range(1, len(tier.lamps) + 1))
+    for family in ACHIEVEMENT_DIARY_CATALOG
+    for tier in family.tiers
+    if tier.lamps
+}
+
+
 def diary_lamp_claims_as_dict() -> dict[str, dict[str, Any]]:
     """Bank Claim rows created by regional diary tier claims."""
 
     claims: dict[str, dict[str, Any]] = {}
     for family in ACHIEVEMENT_DIARY_CATALOG:
         for tier in family.tiers:
-            lamp = tier.lamp
-            if lamp is None:
-                continue
-            claim_id = diary_lamp_claim_id(tier.id)
-            claims[claim_id] = {
-                "id": claim_id,
-                "display_name": (
-                    f"{family.name} {tier.name}: reward lamp"
-                    f" ({lamp.experience:,} XP)"
-                ),
-                "claim_type": "xp_lamp",
-                "item_name": "Reward lamp",
-                "quantity": 1,
-                "items": (),
-                "source": tier.source or family.source,
-                "required_quest": "",
-                "required_runecrafting_level": 0,
-                "required_diary_tier": tier.id,
-                "xp_amount": float(lamp.experience),
-                # Empty is the established Bank Claim representation for any
-                # trainable skill; the claims logic expands it at render/spend time.
-                "skill_options": lamp.skills,
-                "minimum_level": lamp.minimum_level,
-            }
+            for index, lamp in enumerate(tier.lamps, 1):
+                claim_id = diary_lamp_claim_id(tier.id, index)
+                claims[claim_id] = {
+                    "id": claim_id,
+                    "display_name": (
+                        f"{family.name} {tier.name}: reward lamp"
+                        + (f" {index} of {len(tier.lamps)}" if len(tier.lamps) > 1 else "")
+                        + f" ({lamp.experience:,} XP)"
+                    ),
+                    "claim_type": "xp_lamp",
+                    "item_name": "Reward lamp",
+                    "quantity": 1,
+                    "items": (),
+                    "source": lamp.source or tier.source or family.source,
+                    "required_quest": "",
+                    "required_runecrafting_level": 0,
+                    "required_diary_tier": tier.id,
+                    "xp_amount": float(lamp.experience),
+                    # Empty is the established Bank Claim representation for any
+                    # trainable skill; the claims logic expands it at render/spend time.
+                    "skill_options": lamp.skills,
+                    "minimum_level": lamp.minimum_level,
+                }
     return claims
 
 

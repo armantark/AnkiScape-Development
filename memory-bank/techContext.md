@@ -38,9 +38,11 @@
 - Test storage is bounded: lane descendants and the root proof wrapper enforce a 256 MiB per-file limit; new retained packets allow 256 MiB per file and 1 GiB total. Oversize output fails explicitly, without reducing test scenarios or acceptance requirements.
 - `tools.maintenance.report_retention` expires only unpinned successful stopped report groups after seven days, keeping at most 128 groups / 64 MiB of eligible reports. Missing pins, uncertain process scans, changed files, failures and unresolved groups refuse deletion or remain protected. Exact receipts, native packets and Git work are preserved.
 - Native add-on/app copies and launch-time test snapshots use independent APFS clones on Darwin; writes to either copy cannot change the other. Native freeze retains archive/manifest and disposes its temporary unpacked copy, deriving source identity from the already computed file hashes.
+
 - Use `python3 -m tools.maintenance.retain_evidence retain <repo> <revision> <destination> <sources>` for bounded retention. Its `compact <manifest> <source-root>` command, where `<source-root>` contains the manifest's original source files and only files of 64 MiB or more are eligible, defaults to a metadata dry-run; `--apply` verifies both existing copies against the original manifest before independently cloning duplicate storage. Receipt paths and bytes remain unchanged.
 - `tools/audit_docs.py` reads the Git index and runs only in a Git checkout; the Git-free MacBook mirror's `git ls-files ... exit status 128` is a runner failure, not an audit result.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
+- Add `--processes 8` to run selections in separate processes with whole modules kept together; full promotion lanes use eight workers and remain sequential.
 - `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
 
 ### Bounded operator commands
@@ -195,6 +197,8 @@ polling shell is reaped.
 - Existing dirty-tree, worktree-safety, and closure gates apply unchanged in
   both environments. Do not add paid cloud infrastructure or invent a
   cloud-only substitute for an unavailable check.
+
+For a native check with player progress, run `python3 tools/native/session_guard.py prepare --player-data /tmp/player-data.json`. The file must hold one JSON object with top-level keys from `default_player_data`; nested objects merge recursively into defaults, and other values replace defaults. Preparation refuses unknown top-level keys and binds the copied fixture to its SHA-256 receipt. The first guarded launch migrates and seeds the disposable collection before AnkiScape loads player data; later launches retain tester progress. The flag does not affect the owner collection or the unchanged check.
 
 ## Testing Coverage
 Tests cover, among other areas:

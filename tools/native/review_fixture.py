@@ -33,15 +33,17 @@ def prepare_state_fixture(mw, *, disposable_base: str) -> dict:
         raise ValueError("The fixture requires the standard Basic note type")
 
     from ...core.constants import ITEM_DEFINITIONS, ORE_DATA
-    from ...core.storage_pure import default_player_data, migrate_loaded_data
+    from ...core.storage_pure import migrate_loaded_data
 
-    seed = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-    seed["inventory"]["Logs"] = 1
-    seed["inventory"]["Ashes"] = 0
+    from .player_data import merge_player_data
+
     # These values define the scenario independently of future player defaults.
-    seed["firemaking_level"] = 1
-    seed["firemaking_exp"] = 0
-    seed["current_firemaking"] = "logs"
+    seed = merge_player_data({
+        "inventory": {"Logs": 1, "Ashes": 0},
+        "firemaking_level": 1,
+        "firemaking_exp": 0,
+        "current_firemaking": "logs",
+    })
     # Persist the same values that the normal profile load will expose.
     seed = migrate_loaded_data(seed, ORE_DATA, ITEM_DEFINITIONS)
 
