@@ -605,6 +605,22 @@ def _equip_slot_row(equip_list: "QListWidget", slot_id: str) -> "QListWidgetItem
     raise AssertionError(f"equipment slot row {slot_id!r} not found")
 
 
+class _FakeCol:
+    """A dict-backed profile config, for tests that persist menu preferences."""
+
+    def __init__(self) -> None:
+        self._cfg: dict = {}
+        # Settings suggests a world-day length from an empty review log.
+        self.sched = SimpleNamespace(day_cutoff=0)
+        self.db = SimpleNamespace(all=lambda *_query: [])
+
+    def get_config(self, key, default=None):
+        return self._cfg.get(key, default)
+
+    def set_config(self, key, value):
+        self._cfg[key] = value
+
+
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(unittest.TestCase):
     app: "QApplication"
@@ -8785,16 +8801,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         # expand -> persist -> reopen-expanded loop actually round-trips.
         from ankiscape.ui import ui
 
-        class _FakeCol:
-            def __init__(self) -> None:
-                self._cfg: dict = {}
-
-            def get_config(self, key, default=None):
-                return self._cfg.get(key, default)
-
-            def set_config(self, key, value):
-                self._cfg[key] = value
-
         # Subclass QWidget so show_main_menu can still parent its QDialog to mw.
         class _FakeMw(QWidget):
             def __init__(self) -> None:
@@ -12717,16 +12723,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         # which pushed long categories off-window. It now scrolls like every
         # other grouped tree in the hub and persists per-category collapses.
         from ankiscape.ui import ui
-
-        class _FakeCol:
-            def __init__(self) -> None:
-                self._cfg: dict = {}
-
-            def get_config(self, key, default=None):
-                return self._cfg.get(key, default)
-
-            def set_config(self, key, value):
-                self._cfg[key] = value
 
         class _FakeMw(QWidget):
             def __init__(self) -> None:
@@ -16664,11 +16660,11 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_settings_expose_action_multiplier_under_gameplay(self) -> None:
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn("Gameplay", labels)
-        self.assertIn("Actions per review:", labels)
+        self.assertIn("Game speed:", labels)
         spin = self.dialog.findChild(QSpinBox, "settingsActionMultiplierSpin")
         self.assertIsNotNone(spin, "no action multiplier spin box found")
         self.assertEqual(spin.minimum(), 1)
-        self.assertGreaterEqual(spin.maximum(), 1.0)
+        self.assertEqual(spin.maximum(), 20)
 
     # ---- Woodcutting 2011Scape parity frontend ----------------------------
     def _open_woodcutting(self, dialog: "QDialog") -> "QListWidget":

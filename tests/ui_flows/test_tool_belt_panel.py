@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 from tests import test_main_menu_widget as _main_menu
@@ -54,6 +55,9 @@ def _belt_group_labels(dialog) -> dict:
 class _FakeCol:
     def __init__(self) -> None:
         self.config: dict = {}
+        # Settings suggests a world-day length from an empty review log.
+        self.sched = SimpleNamespace(day_cutoff=0)
+        self.db = SimpleNamespace(all=lambda *_query: [])
 
     def get_config(self, key, default=None):
         return self.config.get(key, default)

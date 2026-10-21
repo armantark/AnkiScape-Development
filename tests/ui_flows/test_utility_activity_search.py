@@ -7,6 +7,7 @@ import unittest
 from tests import test_main_menu_widget as _main_menu
 from tests.test_main_menu_widget import (
     HAS_AQT,
+    _FakeCol,
     _find_named_button,
     _find_named_widget,
     _make_player_data,
@@ -211,16 +212,6 @@ class UtilityActivitySearchTest(unittest.TestCase):
         from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
 
         ui = self.menu._ui
-
-        class _FakeCol:
-            def __init__(self) -> None:
-                self._cfg: dict = {}
-
-            def get_config(self, key, default=None):
-                return self._cfg.get(key, default)
-
-            def set_config(self, key, value):
-                self._cfg[key] = value
 
         # Subclass QWidget so show_main_menu can still parent its QDialog to mw.
         class _FakeMw(QWidget):

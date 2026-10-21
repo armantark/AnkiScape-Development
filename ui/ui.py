@@ -75,6 +75,7 @@ except Exception:
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
+from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section
 from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
@@ -1097,7 +1098,6 @@ _COMBAT_SKILL_BARS = (
     ("Magic", "magic_level", "magic_exp", 1),
     ("Constitution", "constitution_level", "constitution_exp", 10),
 )
-_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 
 # Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
 # fetch_assets.py alpha-trim step). Fixed-size UI slots use
@@ -26861,30 +26861,8 @@ def show_main_menu(
             div.setFrameShadow(QFrame.Shadow.Sunken)
             set_layout.addWidget(div)
 
-    # ---- Gameplay: review action multiplier + experience HUD ----
-    current_multiplier = _game_speed()
-
-    xp_mult_row = QWidget()
-    xmr = QHBoxLayout(xp_mult_row)
-    xmr.setContentsMargins(0, 0, 0, 0)
-    xmr.setSpacing(8)
-    xmr.addWidget(QLabel("Actions per review:"))
-    xp_mult_spin = QSpinBox()
-    xp_mult_spin.setObjectName("settingsActionMultiplierSpin")
-    xp_mult_spin.setRange(1, 10)
-    xp_mult_spin.setSingleStep(1)
-    xp_mult_spin.setSuffix("x")
-    xp_mult_spin.setValue(current_multiplier)
-    xp_mult_spin.setMaximumWidth(120)
-    xmr.addWidget(xp_mult_spin)
-    xmr.addStretch(1)
-
-    xp_mult_help = QLabel(
-        "Each successful review runs this many game action ticks. XP rises because more actions run; "
-        "items, rolls, and material use scale with it."
-    )
-    xp_mult_help.setWordWrap(True)
-    xp_mult_help.setStyleSheet("color: palette(text); font-size: 11px;")
+    # ---- Gameplay: game speed, world day + experience HUD ----
+    pace_section = pace_settings_section(getattr(mw, "col", None))
 
     review_hud_cb = QCheckBox("Enable experience HUD")
     review_hud_cb.setChecked(review_hud_enabled)
@@ -26975,8 +26953,7 @@ def show_main_menu(
 
     # ---- assemble sections in order ----
     set_layout.addWidget(_section_title("Gameplay"))
-    set_layout.addWidget(xp_mult_row)
-    set_layout.addWidget(xp_mult_help)
+    set_layout.addWidget(pace_section)
     set_layout.addWidget(review_hud_cb)
     set_layout.addWidget(ironman_cb)
     set_layout.addWidget(ironman_help)
@@ -27006,16 +26983,6 @@ def show_main_menu(
         rb_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("right"))
         rb_center.toggled.connect(lambda checked=False: checked and on_set_floating_position("center"))
         rb_hud_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("hud-right"))
-
-    def _apply_review_action_multiplier(value: int) -> None:
-        # Clamp before persisting so the backend sees an integer action count.
-        safe = sanitize_review_action_multiplier(value)
-        try:
-            if mw and getattr(mw, "col", None):
-                mw.col.set_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, safe)
-        except Exception:
-            pass
-    xp_mult_spin.valueChanged.connect(lambda v: _apply_review_action_multiplier(int(v)))
 
     def _persist_bool(key: str, val: bool):
         try:

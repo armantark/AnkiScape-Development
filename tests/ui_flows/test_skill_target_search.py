@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from types import SimpleNamespace
 
 from tests import test_main_menu_widget as _main_menu
 from tests.test_main_menu_widget import (
@@ -120,6 +121,9 @@ class SkillTargetSearchTest(unittest.TestCase):
         class _FakeCol:
             def __init__(self) -> None:
                 self._cfg: dict = {"ankiscape_craft_expanded_families": ["pottery"]}
+                # Settings suggests a world-day length from an empty review log.
+                self.sched = SimpleNamespace(day_cutoff=0)
+                self.db = SimpleNamespace(all=lambda *_query: [])
 
             def get_config(self, key, default=None):
                 return self._cfg.get(key, default)
