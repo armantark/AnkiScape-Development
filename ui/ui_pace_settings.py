@@ -40,6 +40,8 @@ try:
         QLabel,
         QPushButton,
         QSpinBox,
+        Qt,
+        QToolButton,
         QVBoxLayout,
         QWidget,
     )
@@ -75,11 +77,24 @@ PACE_DIALOG_REASON_EXISTING = (
 PACE_DIALOG_CURRENT_LINE = "Current settings: {pace}"
 PACE_DIALOG_NEW_LINE = "New settings: {pace}"
 PACE_LINE = (
-    "{speed}x speed, {world_day}. A world day is {play} of play, and a Fish Flingers game takes"
-    " {fish_flingers_cards} cards."
+    "{speed}x speed, {world_day}. A world day is {play} of play. For example, one Fish Flingers game"
+    " takes {fish_flingers_cards} cards."
 )
 FIXED_WORLD_DAY = "fixed world day of {cards:,} cards"
 FOLLOWED_WORLD_DAY = "world day that follows your study volume ({study_volume})"
+PACE_DIALOG_WHY_TOGGLE = "Why these settings?"
+PACE_DIALOG_WHY = (
+    "Each card gives a fixed amount of 2012 play time: 3.6 seconds at 1x and 36 seconds at 10x. At 1x, a"
+    " 240-card world day was 14 min of play but still gave a full day of daily content, such as two Fish"
+    " Flingers games. At 10x, it is 2 h 24 min, so daily content has about the weight it had for a 2012"
+    " player who played that long each day.\n\n"
+    "A higher speed gives more play for each card. If you study fewer than 240 cards a day, a higher speed"
+    " brings a world day closer to 2 h 24 min of play; if you study more, a lower speed does.\n\n"
+    "Following your study volume is strongly recommended: the world day uses your median cards per study"
+    " day over the last 60 days, so one world day passes on a typical study day. The length stays between"
+    " 100 and 1,000 cards, so a median outside that range makes a world day longer or shorter than a"
+    " typical study day. Until you have 7 study days, it uses 240 cards."
+)
 PACE_DIALOG_KEEP = "Keep current settings"
 PACE_DIALOG_APPLY = "Apply new settings"
 
@@ -267,7 +282,7 @@ if HAS_QT:
             super().__init__(parent)
             self.setObjectName("paceDialog")
             self.setWindowTitle(PACE_DIALOG_TITLE)
-            self.setMinimumWidth(460)
+            self.setMinimumWidth(540)
             self._median = median
             # Closing with X or Esc is the answer until a button is pressed.
             self._choice = plan.on_close
@@ -278,6 +293,17 @@ if HAS_QT:
             reason = _wrapped_label(
                 PACE_DIALOG_REASON_EXISTING if plan.existing_player else PACE_DIALOG_REASON_NEW, "paceDialogReason"
             )
+            self.why_toggle = QToolButton()
+            self.why_toggle.setObjectName("paceDialogWhyToggle")
+            self.why_toggle.setText(PACE_DIALOG_WHY_TOGGLE)
+            self.why_toggle.setCheckable(True)
+            # Flat like a disclosure triangle: a checked tool button otherwise draws pressed.
+            self.why_toggle.setStyleSheet("QToolButton { border: none; background: transparent; padding: 0; }")
+            self.why_toggle.setArrowType(Qt.ArrowType.RightArrow)
+            self.why_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            self.why = _wrapped_label(PACE_DIALOG_WHY, "paceDialogWhy")
+            self.why.setVisible(False)
+            self.why_toggle.toggled.connect(self._show_why)
             current = _wrapped_label(
                 PACE_DIALOG_CURRENT_LINE.format(pace=pace_text(plan.current, median)), "paceDialogCurrentLine"
             )
@@ -297,7 +323,9 @@ if HAS_QT:
             buttons.addWidget(keep)
             buttons.addWidget(apply)
 
-            for widget in (reason, current, self.rows, self.hours_line):
+            layout.addWidget(reason)
+            layout.addWidget(self.why_toggle, 0, Qt.AlignmentFlag.AlignLeft)
+            for widget in (self.why, current, self.rows, self.hours_line):
                 layout.addWidget(widget)
             # A taller window keeps the text together above the buttons.
             layout.addStretch(1)
@@ -308,8 +336,16 @@ if HAS_QT:
 
         def _show_hours(self, settings: PaceSettings) -> None:
             self.hours_line.setText(PACE_DIALOG_NEW_LINE.format(pace=pace_text(settings, self._median)))
-            # An open window does not grow by itself when the suggestion hint
-            # appears or the hours line wraps again, so the rows would be squeezed.
+            self._grow_to_fit()
+
+        def _show_why(self, expanded: bool) -> None:
+            self.why_toggle.setArrowType(Qt.ArrowType.DownArrow if expanded else Qt.ArrowType.RightArrow)
+            self.why.setVisible(expanded)
+            self._grow_to_fit()
+
+        def _grow_to_fit(self) -> None:
+            # An open window does not grow by itself when the suggestion hint or the reasons
+            # appear or the hours line wraps again, so the rows would be squeezed.
             if self.isVisible():
                 self.layout().activate()
                 self.resize(self.width(), max(self.height(), self.heightForWidth(self.width())))

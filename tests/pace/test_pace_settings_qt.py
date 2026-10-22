@@ -144,7 +144,7 @@ class PaceDialogFitTests(PaceQtCase):
         self.addCleanup(QApplication.setPalette, QApplication.palette())
         QApplication.setStyle("Fusion")
 
-    def test_every_text_and_control_has_room_with_or_without_the_hint(self):
+    def test_every_text_and_control_has_room_with_or_without_the_hint_and_the_reasons(self):
         from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
         from ankiscape.ui.ui_pace_settings import PaceDialog
 
@@ -153,16 +153,19 @@ class PaceDialogFitTests(PaceQtCase):
         )
         for theme, palette in (("light", QApplication.style().standardPalette()), ("dark", _dark_palette())):
             QApplication.setPalette(palette)
-            for follow in (True, False):
+            for follow, reasons in ((True, False), (False, False), (False, True)):
                 dialog = self.shown(PaceDialog(plan, 300))
                 dialog.findChild(QCheckBox, "settingsWorldDayFollowToggle").setChecked(follow)
+                dialog.findChild(QAbstractButton, "paceDialogWhyToggle").setChecked(reasons)
                 for height in ("own", 560):
                     if height == 560:
                         dialog.resize(dialog.width(), 560)
                     for _ in range(3):
                         QApplication.processEvents()
-                    with self.subTest(theme=theme, follow=follow, height=height):
+                    with self.subTest(theme=theme, follow=follow, reasons=reasons, height=height):
                         self.assertEqual(_cut_off(dialog), [])
+                        # Qt accepts a resize below what the texts need, so measure the need itself.
+                        self.assertLessEqual(dialog.heightForWidth(dialog.width()), 560)
         hint = dialog.findChild(QLabel, "settingsWorldDaySuggestionHint")
         # Dimmed from the dark theme's own text colour, never palette(mid).
         self.assertIn("rgba(238, 238, 238,", hint.styleSheet())
@@ -234,8 +237,8 @@ class OnboardingPathTests(PaceQtCase):
         self.assertEqual(len(seen), 1)
         self.assertEqual(
             seen[0]["paceDialogCurrentLine"],
-            "Current settings: 4x speed, fixed world day of 240 cards. A world day is 58 min of play,"
-            " and a Fish Flingers game takes 42 cards.",
+            "Current settings: 4x speed, fixed world day of 240 cards. A world day is 58 min of play."
+            " For example, one Fish Flingers game takes 42 cards.",
         )
 
     def test_the_reason_says_what_closing_the_window_does_for_each_player(self):
