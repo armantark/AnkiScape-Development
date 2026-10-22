@@ -8,6 +8,7 @@ from .choices import *
 from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
+from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
     # Template:Questreq oldid=6552449.
@@ -150,6 +151,7 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "cold_war": COLD_WAR_JOURNAL_STAGES,
     "the_blood_pact": THE_BLOOD_PACT_STAGES,
     "icthlarins_little_helper": ICTHLARINS_LITTLE_HELPER_STAGES,
     SMOKING_KILLS_ID: SMOKING_KILLS_STAGES,
@@ -275,6 +277,7 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
 }
 
 QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
+    "cold_war": COLD_WAR_UNLOCKS,
     BIOHAZARD_ID: (
         "Ability to travel freely through the West Ardougne Gate",
         "Use of the Combat Training Camp north of Ardougne",

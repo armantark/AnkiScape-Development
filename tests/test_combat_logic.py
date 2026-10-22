@@ -971,12 +971,13 @@ class CombatLogicTest(unittest.TestCase):
     def test_antipoison_potions_match_2011scape_source(self):
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["replacement"], "Antipoison (3)")
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (1)"]["replacement"], "Vial")
-        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["immunity_ticks"], 1500)
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["immunity_ticks"], 150)
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["replacement"], "Super antipoison (3)")
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (1)"]["replacement"], "Vial")
-        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["immunity_ticks"], 6000)
-        self.assertIn("Potion.kt", COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["source"])
-        self.assertIn("PotionType.kt", COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["source"])
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["immunity_ticks"], 600)
+        self.assertIn("Antipoison oldid 5606640", COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["source"])
+        self.assertIn("Super antipoison oldid 5819437", COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["source"])
+        # Legacy audit selector; durations: Antipoison 5606640:22 (conflict 6569702:71); Super antipoison 5819437:22.
 
     def test_simple_enemy_import_rows_match_source(self):
         cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
@@ -4824,16 +4825,13 @@ class CombatLogicTest(unittest.TestCase):
         poisoned, ok, reason = apply_combat_poison_effect_pure(player, 3)
 
         self.assertTrue(ok, reason)
-        self.assertEqual(combat_poison_ticks_for_initial_damage_pure(3), 11)
-        self.assertEqual(combat_poison_damage_for_ticks_pure(11), 30)
-        self.assertEqual(
-            poisoned["combat_status_effects"]["poison"],
-            {
-                "ticks_left": 11,
-                "tick_progress": 0,
-                "source": "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/mechanics/poison/Poison.kt",
-            },
-        )
+        self.assertEqual(combat_poison_ticks_for_initial_damage_pure(3), 10)
+        self.assertEqual(combat_poison_damage_for_ticks_pure(10), 30)
+        self.assertEqual(poisoned["combat_status_effects"]["poison"], {
+            "ticks_left": 10,
+            "tick_progress": 0,
+            "source": "https://runescape.wiki/w/index.php?title=Poison_(historical)&oldid=5979526",
+        })
         self.assertEqual(combat_status_summary_pure(poisoned), "Poisoned: 30 LP in 30 ticks")
 
     def test_safe_recovery_advances_poison_status_after_healing(self):
@@ -4852,9 +4850,9 @@ class CombatLogicTest(unittest.TestCase):
         # Leave-combat rest heals a third of the missing 60 LP (40 -> 60), then the
         # poison tick subtracts 30 -> 30.
         self.assertEqual(recovered["combat_lifepoints"], 30)
-        self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 10)
+        self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 9)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 30 LP in 10 ticks")
+        self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 28 LP in 10 ticks")
 
     def test_combat_burst_advances_poison_status_by_review_ticks(self):
         player = _player(
@@ -4879,7 +4877,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertFalse(result["died"])
         self.assertEqual(result["status_damage"], {"poison": 30})
         self.assertEqual(new_data["combat_lifepoints"], 70)
-        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 9)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
 
     def test_antipoison_loadout_auto_cures_poison_before_safe_recovery_tick(self):
@@ -4900,11 +4898,11 @@ class CombatLogicTest(unittest.TestCase):
         # rest heals a third of the missing 50 LP (50 -> 67).
         self.assertEqual(recovered["combat_lifepoints"], 67)
         self.assertNotIn("poison", recovered["combat_status_effects"])
-        self.assertEqual(recovered["combat_status_effects"]["poison_immunity"]["ticks_left"], 1450)
-        self.assertIn("PotionType.kt", recovered["combat_status_effects"]["poison_immunity"]["source"])
+        self.assertEqual(recovered["combat_status_effects"]["poison_immunity"]["ticks_left"], 100)
+        self.assertIn("Antipoison oldid 5606640", recovered["combat_status_effects"]["poison_immunity"]["source"])
         self.assertEqual(recovered["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
-        self.assertEqual(combat_poison_immunity_ticks_pure(recovered), 1450)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poison immune: 1450 ticks")
+        self.assertEqual(combat_poison_immunity_ticks_pure(recovered), 100)
+        self.assertEqual(combat_status_summary_pure(recovered), "Poison immune: 100 ticks")
 
     def test_poison_enemy_applies_player_poison_on_source_chance(self):
         player = _player(
@@ -4925,14 +4923,14 @@ class CombatLogicTest(unittest.TestCase):
         self.assertFalse(result["died"])
         self.assertEqual(result["status_applied"], {"poison": 30})
         self.assertEqual(result["status_damage"], {})
-        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 11)
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
         self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
 
     def test_source_poison_rows_reach_combat_state(self):
         cases = (
-            ("cave_slime", 100, 30, 11, "poisonDamage=3"),
-            ("cave_crawler", 200, 80, 36, "poisonDamage=8"),
+            ("cave_slime", 100, 30, 10, "poisonDamage=3"),
+            ("cave_crawler", 200, 80, 35, "poisonDamage=8"),
         )
         for target_id, lifepoints, initial_damage, ticks_left, source_marker in cases:
             with self.subTest(target=target_id):
@@ -4985,12 +4983,12 @@ class CombatLogicTest(unittest.TestCase):
                     "item": "Antipoison (1)",
                     "replacement": "Vial",
                     "effect": "poison_cure",
-                    "immunity_ticks": 1500,
+                    "immunity_ticks": 150,
                 },
             ),
         )
         self.assertNotIn("poison", new_data["combat_status_effects"])
-        self.assertEqual(new_data["combat_status_effects"]["poison_immunity"]["ticks_left"], 1500)
+        self.assertEqual(new_data["combat_status_effects"]["poison_immunity"]["ticks_left"], 150)
         self.assertEqual(new_data["inventory"]["Vial"], 1)
         self.assertEqual(new_data["combat_supply_loadout"]["potions"], {})
 

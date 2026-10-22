@@ -3,6 +3,8 @@
 from typing import Any, Dict
 
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
+from ..data.quest.cold_war import COLD_WAR_SUIT_BACKFILL_KEY
+from ..logic.cold_war_suit_logic import migrate_cold_war_suit_pure
 
 from ..data.quest_data import DEFAULT_QUEST_TARGET, default_quest_states
 from ..data.quest.oronwen_repair_data import PENDING_KEY
@@ -20,6 +22,7 @@ def default_quest_side_state():
         "quest_combat_encounter_counts": {},
         "quest_combat_active_encounters": default_quest_combat_active_encounters_pure(),
         "quest_action_proofs": [],
+        COLD_WAR_SUIT_BACKFILL_KEY: False,
         PENDING_KEY: False,
         "quest_route_states": {},
     }
@@ -31,6 +34,7 @@ def migrate_quest_data(data, loaded_config_version, current_config_version, reti
     _migrate_quest_stage_side_state(data, loaded_config_version)
     _migrate_quest_action_proofs(data, loaded_config_version, current_config_version, retired_proofs)
     migrate_oronwen_repair_state(data, loaded_config_version)
+    migrate_cold_war_suit_pure(data)
 
 
 def _migrate_quest_state(data: Dict[str, Any]) -> None:

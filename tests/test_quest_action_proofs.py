@@ -874,8 +874,6 @@ def _retired_store_write_sites(path, root, source):
 # its record in memory-bank/source-audits/shared-quest-action-proofs-2026-08-31.md
 # (design-thread queue 3.31). Remove a triple in the change that wires its emitter.
 _UNEMITTED_CLEANUP_ACTIONS = frozenset({
-    # Audit: the furniture exists, but the clockwork-penguin action does not.
-    ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
     # Audit: no Silvthrill-rod enchant target.
     ("in_aid_of_the_myreque", 6, "Enchant sapphire for the Myreque preparations"),
     # Audit: no quest-specific emerald preparation target.

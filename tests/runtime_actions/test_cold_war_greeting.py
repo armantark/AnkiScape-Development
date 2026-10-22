@@ -109,9 +109,9 @@ class ColdWarGreetingRuntimeTest(unittest.TestCase):
                         self.assertEqual(loaded["cold_war_greeting"], GREETING)
                         self.assertEqual(skill, "Hunter")
                         sample.assert_called_once()
-                        save.assert_called_once_with(PLAYER_KEY, {**raw, "cold_war_greeting": GREETING})
+                        save.assert_called_once_with(PLAYER_KEY, {**raw, "cold_war_greeting": GREETING, "cold_war_suit_backfill_checked": True, "inventory": {**raw["inventory"], "Clockwork suit": 1}})
                         saved = collection.values[PLAYER_KEY]
-                        self.assertEqual(saved, {**raw, "cold_war_greeting": GREETING})
+                        self.assertEqual(saved, {**raw, "cold_war_greeting": GREETING, "cold_war_suit_backfill_checked": True, "inventory": {**raw["inventory"], "Clockwork suit": 1}})
                         self.assertIsNot(saved["cold_war_greeting"], loaded["cold_war_greeting"])
                         self.assertEqual(collection.values[SKILL_KEY], "Hunter")
                         self.assertEqual(collection.values["other_config"], 42)
@@ -130,7 +130,7 @@ class ColdWarGreetingRuntimeTest(unittest.TestCase):
         with patch(SAMPLER, return_value=list(GREETING)):
             storage.load_player_data()
         self.assertFalse(collection.legacy_row)
-        self.assertEqual(collection.values[PLAYER_KEY], {**raw, "cold_war_greeting": GREETING})
+        self.assertEqual(collection.values[PLAYER_KEY], {**raw, "cold_war_greeting": GREETING, "cold_war_suit_backfill_checked": True, "inventory": {**raw["inventory"], "Clockwork suit": 1}})
         self.assertNotIn(RECOVERY_KEY, collection.values)
 
         collection = _LegacyTextCollection()
@@ -175,10 +175,11 @@ class ColdWarGreetingRuntimeTest(unittest.TestCase):
 
     def test_refused_cold_war_review_preserves_assignment(self):
         with review_session() as (addon, collection, errors):
-            # Isolate the real unresolved action blocker with materials present.
+            # Keep the opening blocked by one missing Oak plank.
             row = addon.QUEST_DATA["cold_war"]["stage_requirements"][0]
             addon._state.player_data["inventory"].update(row["required_inventory"])
             addon._state.player_data["toolbelt"].update(row["required_tools"])
+            addon._state.player_data["inventory"]["Oak plank"] = 9
             with patch(SAMPLER, return_value=list(GREETING)) as sample:
                 self.assertTrue(addon.on_set_quest("cold_war"))
                 addon._state.current_skill = "Quests"
@@ -191,7 +192,7 @@ class ColdWarGreetingRuntimeTest(unittest.TestCase):
                 self.assertEqual(collection._store[PLAYER_KEY]["cold_war_greeting"], GREETING)
                 self.assertEqual(player["quests"]["cold_war"]["progress"], 0)
                 self.assertEqual(player["quest_action_proofs"], [])
-                self.assertEqual(errors, [("Quest blocked", "Cold War is blocked:\n• Action required: Complete Cold War stage 1 objective\n\nQuesting has been switched off until this is resolved.")])
+                self.assertEqual(errors, [("Quest blocked", "Cold War is blocked:\n• Needs Oak plank x10\n\nQuesting has been switched off until this is resolved.")])
                 self.assertEqual(addon._state.current_skill, "Utilities")
                 self.assertEqual(player["current_utility"], "bankstanding")
                 sample.assert_called_once()
@@ -223,7 +224,7 @@ class ColdWarBackfillIsolationTest(unittest.TestCase):
                         collection, "set_config", wraps=collection.set_config,
                     ) as save:
                         loaded, skill = storage.load_player_data()
-                        expected = {**before, "cold_war_greeting": GREETING}
+                        expected = {**before, "cold_war_greeting": GREETING, "cold_war_suit_backfill_checked": True, "inventory": {**before["inventory"], "Clockwork suit": 1}}
                         self.assertEqual(raw, before)
                         save.assert_called_once_with("ankiscape_player_data", expected)
                         self.assertEqual(collection.values, {

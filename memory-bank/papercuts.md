@@ -739,3 +739,4 @@
 - 2026-10-21 PDT — Part I commits: slop gate refused `tests/test_main_menu_widget.py: 19863 lines (was 19857)` (hoist duplicated test fakes to one module-level class instead of adding attributes twice), `_cut_off 18 (new)` cognitive complexity in a test helper (split it), and E305; a UI module importing `core.storage` outside the aqt guard broke 4 plain-lane modules with `ModuleNotFoundError: No module named 'aqt'`.
 
 - 2026-10-22T13:59:09-07:00 — Part K host probe: SSH to armans-macbook-pro returned `Host key verification failed.` The task already runs on Armans-MacBook-Pro.local; use the remote runner local-host mode.
+- 2026-10-22T14:00:12-07:00 — Part K plan pack: vendored CSS and JavaScript emitted trailing spaces at packed HTML lines 328 and 1583. `git diff --check --cached` stopped the commit; stripped trailing spaces from the packed output.

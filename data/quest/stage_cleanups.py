@@ -5,6 +5,7 @@ from .contract import *
 from .ids import *
 from .sources import *
 from .stage_additions import CAT_FOLLOWER_STATE_NAMES
+from .cold_war import COLD_WAR_STAGE_CLEANUPS
 from .stage_overrides.members.later.mournings_end_part_i import MOURNINGS_END_PART_I_CLEANUPS
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_CLEANUPS
 from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_STAGE_CLEANUPS
@@ -321,13 +322,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(**row)
         for row in cabin_fever_data.CABIN_FEVER_STAGE_REQUIREMENT_CLEANUPS
     ),
-    "cold_war": (
-        QuestStageRequirementCleanup(
-            stage=2,
-            remove_required_inventory=("Crafting table 3",),
-            add_required_actions=("Build the clockwork penguin on a crafting table 3",),
-        ),
-    ),
+    "cold_war": COLD_WAR_STAGE_CLEANUPS,
     "kenniths_concerns": (
         QuestStageRequirementCleanup(
             stage=1,

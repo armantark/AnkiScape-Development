@@ -9,6 +9,7 @@ from . import definitions as _definitions
 from . import stage_overrides as _stage_overrides
 
 from .reward_item_fragments import _BAR_CRAWL_FRAGMENT, _COINS_FRAGMENT, _LET_THEM_EAT_PIE_FRAGMENT, _EAGLES_PEAK_FRAGMENT, _RATCATCHERS_FRAGMENT
+from .cold_war import COLD_WAR_SUIT_ITEMS
 
 _QUEST_REWARD_ITEM_FRAGMENTS = (
     _BAR_CRAWL_FRAGMENT,
@@ -52,6 +53,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     _LET_THEM_EAT_PIE_FRAGMENT,
     _EAGLES_PEAK_FRAGMENT,
     _RATCATCHERS_FRAGMENT,
+    COLD_WAR_SUIT_ITEMS,
     ORONWEN_REPAIR_ITEMS,
 )
 
