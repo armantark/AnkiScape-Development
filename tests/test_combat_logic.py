@@ -968,7 +968,7 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(spell["autocast_id"], autocast_id)
                 self.assertIn(spell_id.upper(), spell["source"])
 
-    def test_antipoison_potions_use_pinned_duration_values(self):
+    def test_antipoison_potions_match_2011scape_source(self):
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["replacement"], "Antipoison (3)")
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (1)"]["replacement"], "Vial")
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["immunity_ticks"], 150)
@@ -977,7 +977,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["immunity_ticks"], 600)
         self.assertIn("Antipoison oldid 5606640", COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["source"])
         self.assertIn("Super antipoison oldid 5819437", COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["source"])
-        # Antipoison 5606640:22 (conflict 6569702:71); Super antipoison 5819437:22.
+        # Legacy audit selector; durations: Antipoison 5606640:22 (conflict 6569702:71); Super antipoison 5819437:22.
 
     def test_simple_enemy_import_rows_match_source(self):
         cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
