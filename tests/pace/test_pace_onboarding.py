@@ -9,6 +9,7 @@ from ankiscape.logic.pace.onboarding import (
     pace_text_fields_pure,
 )
 from ankiscape.logic.pace.world_clock import world_day_setting_view_pure
+from ankiscape.ui.ui_pace_settings import study_volume_text
 
 NEVER_STORED = {"speed": None, "legacy_speed": None, "follow_study_volume": None, "world_day_cards": None}
 
@@ -44,17 +45,29 @@ class ThePlanForEachPlayerTests(unittest.TestCase):
 class TheTrueNumbersTests(unittest.TestCase):
     def test_hours_of_2012_play_per_world_day_and_fish_flingers_cards_per_game(self):
         rows = {
-            speed: pace_text_fields_pure(PaceSettings(speed, False, 240), suggestion=400)
+            speed: pace_text_fields_pure(PaceSettings(speed, False, 240), study_median=400)
             for speed in (1, 10, 20)
         }
         self.assertEqual(
-            [(row["hours"], row["minutes"], row["fish_flingers_cards"]) for row in rows.values()],
-            [("0.24", "14.4", 167), ("2.4", "144", 17), ("4.8", "288", 9)],
+            [(row["play"], row["fish_flingers_cards"]) for row in rows.values()],
+            [("14 min", 167), ("2 h 24 min", 17), ("4 h 48 min", 9)],
         )
 
     def test_a_followed_day_is_measured_at_the_suggestion(self):
-        fields = pace_text_fields_pure(PaceSettings(10, True, 240), suggestion=400)
-        self.assertEqual((fields["cards"], fields["hours"]), (400, "4"))
+        fields = pace_text_fields_pure(PaceSettings(10, True, 240), study_median=400)
+        self.assertEqual((fields["cards"], fields["play"]), (400, "4 h"))
+
+    def test_the_suggestion_names_the_median_when_a_bound_or_the_default_replaces_it(self):
+        cases = {
+            62: ("100 cards", "minimum", "62 cards"),
+            1240: ("1,000 cards", "maximum", "1,240 cards"),
+            None: ("240 cards", "7 study days"),
+        }
+        for median, parts in cases.items():
+            with self.subTest(median):
+                for part in parts:
+                    self.assertIn(part, study_volume_text(median))
+        self.assertEqual(study_volume_text(300), "300 cards, your median per study day")
 
 
 class TheWorldDayRowTests(unittest.TestCase):

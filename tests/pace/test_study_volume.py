@@ -32,7 +32,9 @@ class RevlogCollection:
 
 class StudyVolumeTests(unittest.TestCase):
     def test_six_study_days_use_the_default_and_seven_use_the_clamped_median(self):
-        suggest = world_clock.suggested_world_day_cards_pure
+        def suggest(counts):
+            return world_clock.suggested_world_day_cards_pure(world_clock.study_median_pure(counts))
+
         self.assertEqual(suggest([300] * 6), 240)
         self.assertEqual(suggest([0] * 53 + [300] * 7), 300)
         self.assertEqual(suggest([1, 2, 3, 4, 5, 6, 7]), 100)

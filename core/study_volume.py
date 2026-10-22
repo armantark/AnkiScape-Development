@@ -4,6 +4,7 @@ from ..logic.pace.world_clock import (
     DEFAULT_WORLD_DAY_CARDS,
     advance_world_clock_pure,
     sanitize_world_day_cards_pure,
+    study_median_pure,
     suggested_world_day_cards_pure,
     world_day_length_pure,
     world_day_rolls_on_next_card_pure,
@@ -52,8 +53,12 @@ def world_day_settings(collection) -> tuple[bool, int]:
     )
 
 
+def study_median(collection) -> int | None:
+    return study_median_pure(daily_study_counts(collection))
+
+
 def suggested_world_day_cards(collection) -> int:
-    return suggested_world_day_cards_pure(daily_study_counts(collection))
+    return suggested_world_day_cards_pure(study_median(collection))
 
 
 def advance_world_clock_for_answer(player_data, collection, *, speed):

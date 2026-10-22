@@ -2,8 +2,9 @@
 
 The rows render ``world_day_setting_view_pure``; whether the length is editable,
 which number it shows and when the suggestion hint appears are decided there.
-The copy model wrote the texts below (owner Q8); "Game speed", "Follow my study
-volume" and "Keep my current settings" come from owner decisions 2 and 8.
+The texts follow the usual register of a system dialog: explanations address
+the player as "you" and control labels have no pronoun. The speed, study-volume
+and keep controls come from owner decisions 2 and 8.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from collections.abc import Callable
 from ..core.study_volume import (
     WORLD_DAY_CARDS_CONFIG_KEY,
     WORLD_DAY_FOLLOW_CONFIG_KEY,
-    suggested_world_day_cards,
+    study_median,
     world_day_settings,
 )
 from ..logic.pace.onboarding import (
@@ -22,7 +23,11 @@ from ..logic.pace.onboarding import (
     pace_onboarding_plan_pure,
     pace_text_fields_pure,
 )
-from ..logic.pace.world_clock import DEFAULT_WORLD_DAY_CARDS, world_day_setting_view_pure
+from ..logic.pace.world_clock import (
+    MIN_STUDY_DAYS,
+    suggested_world_day_cards_pure,
+    world_day_setting_view_pure,
+)
 from ..logic_pure.logic_pure import sanitize_review_action_multiplier
 
 try:
@@ -50,40 +55,62 @@ _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _PACE_DIALOG_ANSWERED_CONFIG_KEY = "ankiscape_pace_dialog_answered"
 
 GAME_SPEED_TOOLTIP = (
-    "One card buys 3.6 seconds of play per point of game speed (1x = 3.6 seconds, 10x = 36 seconds,"
-    " 20x = 72 seconds).\n10x is recommended. A speed change applies from the next card."
+    "Each card gives 3.6 seconds of play at 1x, 36 seconds at 10x, and 72 seconds at 20x.\n"
+    "The recommended speed is 10x. A change applies from the next card."
 )
-GAME_SPEED_HELP = "Speed sets how much game time each card buys; a world day is a number of cards."
+GAME_SPEED_HELP = "Game speed sets how much play time each card gives. A world day ends after a set number of cards."
+FOLLOW_STUDY_VOLUME_LABEL = "Follow study volume"
 CARDS_SUFFIX = " cards"
-WORLD_DAY_SUGGESTION_HINT = "Suggested: {cards} cards."
-PACE_DIALOG_TITLE = "Pick your game speed and world day"
-# A new player has no earlier pace; an existing save keeps its pace unless the new one is applied.
-# Both quote the keep button's label, so the words read as its name and not as an order.
+WORLD_DAY_SUGGESTION_HINT = "Suggested: {study_volume}."
+PACE_DIALOG_TITLE = "Game speed and world day"
+# A new player has no earlier settings to keep, so closing applies the recommendation.
 PACE_DIALOG_REASON_NEW = (
-    "We recommend 10x with the world day following your study volume. “Keep my current settings” gives 1x"
-    " and a fixed 240-card day. Closing this window applies the recommendation. Change it in Settings."
+    "AnkiScape recommends a game speed of 10x, with a world day that follows your study volume."
+    " Closing this window uses the recommended settings. You can change them later in Settings."
 )
 PACE_DIALOG_REASON_EXISTING = (
-    "The recommended speed changed from 1x to 10x, so the game asks once. “Keep my current settings” and"
-    " closing the window keep your pace. Recommended: 10x with the world day following your study volume."
+    "AnkiScape now recommends a game speed of 10x, with a world day that follows your study volume."
+    " Closing this window keeps your current settings. You can change them later in Settings."
 )
-PACE_DIALOG_CURRENT_LINE = (
-    "Your current pace: {speed}x, {cards} cards per world day, {hours} h ({minutes} min) of play."
-    " One Fish Flingers game takes {fish_flingers_cards} cards."
+PACE_DIALOG_CURRENT_LINE = "Current settings: {pace}"
+PACE_DIALOG_NEW_LINE = "New settings: {pace}"
+PACE_LINE = (
+    "{speed}x speed, {world_day}. A world day is {play} of play, and a Fish Flingers game takes"
+    " {fish_flingers_cards} cards."
 )
-PACE_DIALOG_HOURS_LINE = (
-    "Selected settings: {speed}x, {cards} cards per world day, {hours} h ({minutes} min) of play."
-    " One Fish Flingers game takes {fish_flingers_cards} cards."
-)
-PACE_DIALOG_APPLY = "Apply these settings"
+FIXED_WORLD_DAY = "fixed world day of {cards:,} cards"
+FOLLOWED_WORLD_DAY = "world day that follows your study volume ({study_volume})"
+PACE_DIALOG_KEEP = "Keep current settings"
+PACE_DIALOG_APPLY = "Apply new settings"
 
 
-def stored_pace_settings(collection) -> tuple[PaceSettings, int]:
-    """The pace the game plays and the suggested world-day length; x1 with no profile."""
+def study_volume_text(median: int | None) -> str:
+    """The suggested length and why it differs from the median, when it does."""
+    cards = suggested_world_day_cards_pure(median)
+    if median is None:
+        return f"{cards:,} cards until you have {MIN_STUDY_DAYS} study days"
+    if cards == median:
+        return f"{cards:,} cards, your median per study day"
+    bound = "minimum" if cards > median else "maximum"
+    return f"{cards:,} cards, the {bound}; your median is {median:,} cards per study day"
+
+
+def pace_text(settings: PaceSettings, median: int | None) -> str:
+    fields = pace_text_fields_pure(settings, median)
+    world_day = (
+        FOLLOWED_WORLD_DAY.format(study_volume=study_volume_text(median))
+        if settings.follow_study_volume
+        else FIXED_WORLD_DAY.format(cards=fields["cards"])
+    )
+    return PACE_LINE.format(world_day=world_day, **fields)
+
+
+def stored_pace_settings(collection) -> tuple[PaceSettings, int | None]:
+    """The pace the game plays and the study median behind the suggestion; x1 with no profile."""
     if collection is None:
-        return PaceSettings(1, False, DEFAULT_WORLD_DAY_CARDS), DEFAULT_WORLD_DAY_CARDS
+        return PaceSettings(1, False, suggested_world_day_cards_pure(None)), None
     speed = sanitize_review_action_multiplier(collection.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, 1))
-    return PaceSettings(speed, *world_day_settings(collection)), suggested_world_day_cards(collection)
+    return PaceSettings(speed, *world_day_settings(collection)), study_median(collection)
 
 
 def write_pace_settings(collection, settings: PaceSettings) -> None:
@@ -100,13 +127,13 @@ if HAS_QT:
         def __init__(
             self,
             settings: PaceSettings,
-            suggestion: int,
+            median: int | None,
             *,
             on_change: Callable[[PaceSettings], None] | None = None,
             parent: QWidget | None = None,
         ) -> None:
             super().__init__(parent)
-            self._suggestion = suggestion
+            self._suggestion = suggested_world_day_cards_pure(median)
             self._fixed_cards = settings.world_day_cards
             self._on_change = on_change
             layout = QVBoxLayout(self)
@@ -124,7 +151,7 @@ if HAS_QT:
             self.speed_spin.setMaximumWidth(120)
             layout.addWidget(_row(speed_label, self.speed_spin))
 
-            self.follow_toggle = QCheckBox("Follow my study volume")
+            self.follow_toggle = QCheckBox(FOLLOW_STUDY_VOLUME_LABEL)
             self.follow_toggle.setObjectName("settingsWorldDayFollowToggle")
             self.follow_toggle.setChecked(settings.follow_study_volume)
             self.cards_spin = QSpinBox()
@@ -133,7 +160,7 @@ if HAS_QT:
             self.cards_spin.setSuffix(CARDS_SUFFIX)
             layout.addWidget(_row(self.follow_toggle, self.cards_spin))
 
-            self.suggestion_hint = QLabel(WORLD_DAY_SUGGESTION_HINT.format(cards=suggestion))
+            self.suggestion_hint = QLabel(WORLD_DAY_SUGGESTION_HINT.format(study_volume=study_volume_text(median)))
             self.suggestion_hint.setObjectName("settingsWorldDaySuggestionHint")
             self.suggestion_hint.setWordWrap(True)
             layout.addWidget(self.suggestion_hint)
@@ -185,7 +212,7 @@ def _row(*widgets: QWidget) -> QWidget:
 
 def pace_settings_section(collection) -> QWidget:
     """The Settings tab's pace rows; each change is saved at once and played from the next card."""
-    settings, suggestion = stored_pace_settings(collection)
+    settings, median = stored_pace_settings(collection)
     section = QWidget()
     layout = QVBoxLayout(section)
     layout.setContentsMargins(0, 0, 0, 0)
@@ -193,7 +220,7 @@ def pace_settings_section(collection) -> QWidget:
     layout.addWidget(
         PaceSettingsRows(
             settings,
-            suggestion,
+            median,
             on_change=None if collection is None else (lambda chosen: write_pace_settings(collection, chosen)),
         )
     )
@@ -215,7 +242,7 @@ def run_pace_onboarding() -> None:
     if collection is None or collection.get_config(_PACE_DIALOG_ANSWERED_CONFIG_KEY, None) is not None:
         return
     follow_study_volume, world_day_cards = world_day_settings(collection)
-    suggestion = suggested_world_day_cards(collection)
+    median = study_median(collection)
     plan = pace_onboarding_plan_pure(
         # Nothing before this step in the profile-load hooks writes the save.
         existing_player=bool(saved_player_record(collection)),
@@ -223,9 +250,9 @@ def run_pace_onboarding() -> None:
         legacy_speed=collection.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, None),
         follow_study_volume=follow_study_volume,
         world_day_cards=world_day_cards,
-        suggestion=suggestion,
+        suggestion=suggested_world_day_cards_pure(median),
     )
-    dialog = PaceDialog(plan, suggestion, parent=mw)
+    dialog = PaceDialog(plan, median, parent=mw)
     dialog.exec()
     write_pace_settings(collection, dialog.choice())
     collection.set_config(_PACE_DIALOG_ANSWERED_CONFIG_KEY, True)
@@ -234,14 +261,14 @@ def run_pace_onboarding() -> None:
 if HAS_QT:
 
     class PaceDialog(QDialog):
-        """Shows the current pace and the recommended one; the plan decides what each answer writes."""
+        """Shows the current settings and the recommended ones; the plan decides what each answer writes."""
 
-        def __init__(self, plan: PaceOnboardingPlan, suggestion: int, parent: QWidget | None = None) -> None:
+        def __init__(self, plan: PaceOnboardingPlan, median: int | None, parent: QWidget | None = None) -> None:
             super().__init__(parent)
             self.setObjectName("paceDialog")
             self.setWindowTitle(PACE_DIALOG_TITLE)
             self.setMinimumWidth(460)
-            self._suggestion = suggestion
+            self._median = median
             # Closing with X or Esc is the answer until a button is pressed.
             self._choice = plan.on_close
             layout = QVBoxLayout(self)
@@ -252,14 +279,13 @@ if HAS_QT:
                 PACE_DIALOG_REASON_EXISTING if plan.existing_player else PACE_DIALOG_REASON_NEW, "paceDialogReason"
             )
             current = _wrapped_label(
-                PACE_DIALOG_CURRENT_LINE.format(**pace_text_fields_pure(plan.current, suggestion)),
-                "paceDialogCurrentLine",
+                PACE_DIALOG_CURRENT_LINE.format(pace=pace_text(plan.current, median)), "paceDialogCurrentLine"
             )
-            self.rows = PaceSettingsRows(plan.recommended, suggestion, on_change=self._show_hours)
+            self.rows = PaceSettingsRows(plan.recommended, median, on_change=self._show_hours)
             self.hours_line = _wrapped_label("", "paceDialogHoursLine")
             self._show_hours(self.rows.settings())
 
-            keep = QPushButton("Keep my current settings")
+            keep = QPushButton(PACE_DIALOG_KEEP)
             keep.setObjectName("paceDialogKeepButton")
             keep.clicked.connect(lambda _checked=False: self._choose(plan.current))
             apply = QPushButton(PACE_DIALOG_APPLY)
@@ -281,7 +307,7 @@ if HAS_QT:
             return self._choice
 
         def _show_hours(self, settings: PaceSettings) -> None:
-            self.hours_line.setText(PACE_DIALOG_HOURS_LINE.format(**pace_text_fields_pure(settings, self._suggestion)))
+            self.hours_line.setText(PACE_DIALOG_NEW_LINE.format(pace=pace_text(settings, self._median)))
             # An open window does not grow by itself when the suggestion hint
             # appears or the hours line wraps again, so the rows would be squeezed.
             if self.isVisible():

@@ -18,6 +18,7 @@ from .short_timers import card_ticks_pure
 
 CALENDAR_TICKS_PER_DAY = 144_000  # 24 hours of 0.6-second game ticks
 DEFAULT_WORLD_DAY_CARDS = 240
+MIN_STUDY_DAYS = 7
 # Migration alone retains the old six calendar minutes per card.
 CARD_CALENDAR_TICKS = CALENDAR_TICKS_PER_DAY // DEFAULT_WORLD_DAY_CARDS
 DAYS_PER_WEEK = 7
@@ -167,11 +168,16 @@ def sanitize_world_day_cards_pure(value: Any) -> int:
         return DEFAULT_WORLD_DAY_CARDS
 
 
-def suggested_world_day_cards_pure(daily_counts: Iterable[int]) -> int:
+def study_median_pure(daily_counts: Iterable[int]) -> int | None:
+    """Median answers per study day; ``None`` until there are enough study days to trust it."""
     counts = [count for value in daily_counts if (count := _int(value)) > 0]
-    if len(counts) < 7:
+    return int(median(counts)) if len(counts) >= MIN_STUDY_DAYS else None
+
+
+def suggested_world_day_cards_pure(study_median: int | None) -> int:
+    if study_median is None:
         return DEFAULT_WORLD_DAY_CARDS
-    return sanitize_world_day_cards_pure(median(counts))
+    return sanitize_world_day_cards_pure(study_median)
 
 
 def hours_of_play_per_world_day_pure(cards: int, speed: int) -> float:
