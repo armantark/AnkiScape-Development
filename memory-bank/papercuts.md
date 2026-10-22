@@ -740,3 +740,4 @@
 
 - 2026-10-22T13:59:09-07:00 — Part K host probe: SSH to armans-macbook-pro returned `Host key verification failed.` The task already runs on Armans-MacBook-Pro.local; use the remote runner local-host mode.
 - 2026-10-22T14:00:12-07:00 — Part K plan pack: vendored CSS and JavaScript emitted trailing spaces at packed HTML lines 328 and 1583. `git diff --check --cached` stopped the commit; stripped trailing spaces from the packed output.
+- 2026-10-22T14:00:38-07:00 — Part K native freeze: `freeze_source.py` rejected short revision `1e67bc263` with `RuntimeError: source revision does not match the requested commit`. It requires the full SHA, even when the short SHA resolves correctly.
