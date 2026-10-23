@@ -140,6 +140,22 @@ def cooking_gauntlets_worn_pure(player_data: Mapping[str, object]) -> bool:
     return isinstance(equipment, Mapping) and equipment.get("hands") == COOKING_GAUNTLETS
 
 
+def goldsmith_smelting_xp_pure(
+    player_data: Mapping[str, object], target_id: str, base_xp: float
+) -> float:
+    equipment = player_data.get("equipment", {}) or {}
+    if (
+        target_id == "smelt_gold_bar"
+        and isinstance(equipment, Mapping)
+        and equipment.get("hands") == FAMILY_GAUNTLET_ENCHANTMENTS["goldsmith"]
+    ):
+        # Published 56.2: oldid 5537343:19,23; official capture 20120818042049:605;
+        # Tip.It capture 20091021122352:282. Oldids 6327926:18 and 6548361:122
+        # instead state 56.25; selecting 56.2 leaves that precision dispute open.
+        return 56.2
+    return base_xp
+
+
 def cooking_gauntlets_beneficial_pure(
     player_data: Mapping[str, object],
     target_id: str,

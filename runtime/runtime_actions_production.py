@@ -152,9 +152,8 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_TOTAL_STEPS,
 )
 from ..logic.cooking_gauntlets_logic import (
-    cooking_gauntlets_beneficial_pure,
-    cooking_gauntlets_worn_pure,
-    reconcile_cooking_equipment_pure,
+    cooking_gauntlets_beneficial_pure, cooking_gauntlets_worn_pure,
+    goldsmith_smelting_xp_pure, reconcile_cooking_equipment_pure,
 )
 from ..core.skill_registry import get_skill
 from ..logic.skilling_boost_logic import (
@@ -1299,7 +1298,8 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
 
     _charge_urn_for_action(ctx, "smithing", target, spec, base_exp, output_item)
     base_exp, _glove_events, _risk_events = _apply_brawling_actions(
-        ctx, "smithing", target, (base_exp,)
+        ctx, "smithing", target,
+        (goldsmith_smelting_xp_pure(player_data, target, base_exp),),
     )
     _record_action(
         ctx,
