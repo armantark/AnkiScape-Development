@@ -20,7 +20,6 @@ from ..logic.bank_layout_logic import (
     default_bank_layout_state_pure,
     reconcile_bank_layout_for_player_pure,
 )
-from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
 from ..data.crafting_data import (
     DEFAULT_CRAFTING_TARGET,
     CRAFTING_RECIPES_BY_ID,
@@ -32,6 +31,7 @@ from ..logic.equipment_instance_logic import (
     default_equipment_instance_state_pure,
     sanitize_equipment_instance_state_pure,
 )
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.barrows_logic import default_barrows_state_pure, sanitize_barrows_state_pure
 from ..logic.fist_of_guthix_logic import (
     default_fist_of_guthix_state_pure,
@@ -93,7 +93,10 @@ from .constants import (
 from ..logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
-from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
+from .target_retirement import (
+    _migrate_cooking_target,
+    migrate_runecrafting_target as _migrate_runecrafting_target,
+)
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
     sanitize_wicked_hood_state_pure,
@@ -875,13 +878,6 @@ def _migrate_hunter_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_hunter, str) or current_hunter not in HUNTER_TARGETS_BY_ID:
         current_hunter = DEFAULT_HUNTER_TARGET
     data["current_hunter"] = current_hunter
-
-
-def _migrate_cooking_target(data: Dict[str, Any]) -> None:
-    current_cooking = data.get("current_cooking")
-    if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
-        current_cooking = DEFAULT_COOKING_TARGET
-    data["current_cooking"] = current_cooking
 
 
 def _migrate_herblore_target(data: Dict[str, Any]) -> None:
@@ -1876,8 +1872,7 @@ def migrate_loaded_data(
     # Druidic Ritual rework without sending active saves backwards.
     _migrate_druidic_ritual_rework(data, loaded_config_version)
 
-    # Migrate every persisted reference before the carried-state sanitizer
-    # clamps saved views against the already-renamed bank.
+    # Migrate persisted references before carried-state clamps views to the renamed Bank.
     _migrate_legacy_item_references(data)
     data = return_ineligible_spirit_shield_to_bank_pure(data, EQUIPMENT_DATA)
 
@@ -2459,7 +2454,11 @@ def migrate_loaded_data(
         review_day=wicked_hood_review_day_pure(data),
         initialize_allowances=True,
     )
-    data.update(sanitize_equipment_instance_state_pure(data))
+    data.update(
+        sanitize_equipment_instance_state_pure(
+            data, EQUIPMENT_CONDITION_DATA
+        )
+    )
     combat_current_levels = data.get("combat_current_levels")
     if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:
         try:

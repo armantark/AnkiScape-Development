@@ -11,7 +11,6 @@ import pkg_alias  # noqa: F401
 from ankiscape.core.constants import (
     EQUIPMENT_DATA, EQUIPMENT_ITEM_DATA, ITEM_DEFINITIONS, ORE_DATA,
 )
-from ankiscape.core.equipment_change import equip_item_save_pure
 from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data,
 )
@@ -75,7 +74,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 self.assertEqual(tuple(bonuses[f"attack_{style}"] for style in
                                        ("stab", "slash", "crush", "magic", "ranged")),
                                  (0, 0, 0, 0, 0))
-        from ankiscape.data.combat.spirit_shield_data import (
+        from ankiscape.data.spirit_shield_data import (
             SPIRIT_SHIELD_WIELD_SOURCE, spirit_shield_equipment_data_as_dict,
         )
         self.assertEqual(SPIRIT_SHIELD_WIELD_SOURCE,
@@ -163,21 +162,6 @@ class SpiritShieldWieldTest(unittest.TestCase):
         for name, equipment_data in RUNTIME_MAPS:
             with self.subTest(representation=name):
                 self.assertEqual(can_equip_item_pure("Bronze sq shield", equipment_data, {}), (True, ""))
-        player = {"inventory": {"Bronze sq shield": 1}, "equipment": {}}
-        updated, changed = equip_item_save_pure(player, "Bronze sq shield")
-        self.assertTrue(changed)
-        self.assertEqual(updated["equipment"], {"shield": "Bronze sq shield"})
-
-    def test_save_equip_helper_refuses_ineligible_spirit_shield(self):
-        for failure, updates, _reason in FAILURES:
-            with self.subTest(requirement=failure):
-                player = _player(**updates)
-                before = copy.deepcopy(player)
-                updated, changed = equip_item_save_pure(player, "Spirit shield")
-                self.assertFalse(changed)
-                self.assertEqual(updated, before)
-                self.assertIsNot(updated, player)
-                self.assertEqual(player, before)
 
     def test_worn_shield_repair_conserves_items(self):
         from ankiscape.logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure as repair

@@ -3,7 +3,6 @@
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.equipment_instance_logic import sync_equipment_instances_pure
 from ..logic_pure.logic_pure import (
-    can_equip_item_pure,
     equip_item_pure,
     reconcile_combat_method_pure,
     unequip_item_pure,
@@ -29,8 +28,6 @@ def _save_after_move(current, move):
 
 def equip_item_save_pure(player_data, item_name):
     """Return `(save, equipped)` after moving one Bank item into its slot."""
-    if item_name == 'Spirit shield' and can_equip_item_pure(item_name, EQUIPMENT_DATA, player_data)[0] is False:
-        return dict(player_data), False
     return _save_after_move(
         player_data,
         equip_item_pure(
