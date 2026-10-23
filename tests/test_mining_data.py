@@ -77,9 +77,9 @@ class TestMiningData(unittest.TestCase):
         self.assertEqual(MINING_PICKAXES_BY_ID["inferno_adze"].ticks_between_rolls, 3)
         self.assertFalse(MINING_PICKAXES_BY_ID["inferno_adze"].tradeable)
         self.assertEqual(MINING_PICKAXES_BY_ID["dragon_pickaxe"].item_id, 15261)
-        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_steel_pickaxe"].level, 1)
-        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_adamant_pickaxe"].level, 1)
-        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_rune_pickaxe"].level, 1)
+        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_steel_pickaxe"].level, 6)
+        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_adamant_pickaxe"].level, 31)
+        self.assertEqual(MINING_PICKAXES_BY_ID["gilded_rune_pickaxe"].level, 41)
         self.assertEqual(DEFERRED_MINING_PICKAXES, ())
 
     def test_bonus_items_and_tradability_are_explicit(self):

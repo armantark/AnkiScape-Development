@@ -338,6 +338,12 @@ DEFERRED_MINING_CONTENT: Tuple[DeferredMiningContent, ...] = (
 )
 
 
+GILDED_PICKAXE_REQUIREMENT_SOURCE = (
+    "https://runescape.wiki/w/index.php?title=Mining&oldid=6550166; "
+    "https://web.archive.org/web/20120419072936id_/http://www.tip.it/runescape/?page=lava_flow_mine.htm"
+)
+
+
 MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
     MiningPickaxe("bronze_pickaxe", "Bronze pickaxe", 1265, 1, 8),
     MiningPickaxe("iron_pickaxe", "Iron pickaxe", 1267, 1, 7),
@@ -356,10 +362,10 @@ MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
     ),
     MiningPickaxe("gilded_bronze_pickaxe", "Gilded bronze pickaxe", 20780, 1, 8),
     MiningPickaxe("gilded_iron_pickaxe", "Gilded iron pickaxe", 20781, 1, 7),
-    MiningPickaxe("gilded_steel_pickaxe", "Gilded steel pickaxe", 20782, 1, 6),
+    MiningPickaxe("gilded_steel_pickaxe", "Gilded steel pickaxe", 20782, 6, 6, source=GILDED_PICKAXE_REQUIREMENT_SOURCE),
     MiningPickaxe("gilded_mithril_pickaxe", "Gilded mithril pickaxe", 20784, 21, 5),
-    MiningPickaxe("gilded_adamant_pickaxe", "Gilded adamant pickaxe", 20783, 1, 4),
-    MiningPickaxe("gilded_rune_pickaxe", "Gilded rune pickaxe", 20785, 1, 3),
+    MiningPickaxe("gilded_adamant_pickaxe", "Gilded adamant pickaxe", 20783, 31, 4, source=GILDED_PICKAXE_REQUIREMENT_SOURCE),
+    MiningPickaxe("gilded_rune_pickaxe", "Gilded rune pickaxe", 20785, 41, 3, source=GILDED_PICKAXE_REQUIREMENT_SOURCE),
     MiningPickaxe("gilded_dragon_pickaxe", "Gilded dragon pickaxe", 20786, 61, 3, notes="Shares Dragon-tier Anki behavior."),
 )
 
