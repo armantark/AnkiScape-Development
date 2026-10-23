@@ -253,6 +253,10 @@ def _consume_essence_ordered(inventory, essence_items, amount):
 
 def _runecrafting_multiplier_info(target, level):
     output_item = str(target.get("output_item", ""))
+    # Astral rune oldid 6457955 L23; Tip.It capture 20120806075541 L662,778–779.
+    # Qualify the guaranteed tier only; preserve existing lower-level behavior.
+    if output_item == "Astral rune" and int(level) >= 82:
+        return 2, 0.0, 2
     divisors = {
         "Air rune": 11,
         "Mind rune": 14,
