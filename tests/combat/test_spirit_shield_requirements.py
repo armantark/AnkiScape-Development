@@ -2,6 +2,7 @@
 
 import copy
 from dataclasses import asdict
+from itertools import product
 import sys
 from types import SimpleNamespace
 import unittest
@@ -16,16 +17,19 @@ from ankiscape.core.storage_pure import (
 )
 from ankiscape.data.equipment_data import EQUIPMENT_DATA as GENERATED_EQUIPMENT_DATA
 from ankiscape.logic_pure.logic_pure import can_equip_item_pure
+from ankiscape.logic_pure.logic_pure_equipment import equipment_stat_totals_pure
 from tests import test_direct_action_undo_seam as undo_seam
 from tests.test_storage_runtime import _LegacyTextCollection, _load_storage_module
 
 
-QUEST_REFUSAL = "Complete Summer's End to equip Spirit shield"
+QUEST_REFUSAL = "Requires completion of Summer's End"
 FAILURES = (
     ("Defence", {"defense_level": 39},
      "Requires level 40 Defense"),
     ("Prayer", {"prayer_level": 54}, "Requires level 55 Prayer"),
-    ("quest", {"quests": {}}, QUEST_REFUSAL),
+    ("quest absent", {"quests": {}}, QUEST_REFUSAL),
+    ("quest unstarted", {"quests": {"summers_end": {"started": False, "completed": False}}}, QUEST_REFUSAL),
+    ("quest incomplete", {"quests": {"summers_end": {"started": True, "completed": False}}}, QUEST_REFUSAL),
 )
 RUNTIME_MAPS = (("records", EQUIPMENT_DATA), ("serialized", EQUIPMENT_ITEM_DATA))
 
@@ -84,8 +88,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
         self.assertIsNot(first["Spirit shield"], base)
         expected = {**before, "required_level": 40,
                     "skill_requirements": (("defense", 40), ("prayer", 55)),
-                    "source": f"{base.source}; {SPIRIT_SHIELD_WIELD_SOURCE}",
-                    "source_status": "period wield requirements; retained rev-667 equipment block"}
+                    "source": f"{base.source}; {SPIRIT_SHIELD_WIELD_SOURCE}"}
         self.assertEqual(asdict(first["Spirit shield"]), expected)
         self.assertEqual(asdict(EQUIPMENT_DATA["Spirit shield"]), expected)
         self.assertEqual(EQUIPMENT_ITEM_DATA["Spirit shield"], expected)
@@ -106,41 +109,55 @@ class SpiritShieldWieldTest(unittest.TestCase):
             ("missing Prayer", 40, None, (False, "Requires level 55 Prayer")),
             ("missing both", None, None, (False, "Requires level 40 Defense")),
         )
-        for name, equipment_data in RUNTIME_MAPS:
-            for case, defense, prayer, expected in cases:
-                with self.subTest(representation=name, boundary=case):
-                    player = _player(defense_level=defense, prayer_level=prayer)
-                    for key in ("defense_level", "prayer_level"):
-                        if player[key] is None:
-                            del player[key]
+        for (name, equipment_data), (case, defense, prayer, expected) in product(RUNTIME_MAPS, cases):
+            with self.subTest(representation=name, boundary=case):
+                player = _player(defense_level=defense, prayer_level=prayer)
+                player = {key: value for key, value in player.items() if value is not None}
+                before = copy.deepcopy(player)
+                self.assertEqual(can_equip_item_pure("Spirit shield", equipment_data, player), expected)
+                self.assertEqual(player, before)
+                if not expected[0]:
+                    player["quests"] = {}
                     before = copy.deepcopy(player)
                     self.assertEqual(can_equip_item_pure("Spirit shield", equipment_data, player), expected)
                     self.assertEqual(player, before)
-                    if not expected[0]:
-                        player["quests"] = {}
-                        before = copy.deepcopy(player)
-                        self.assertEqual(can_equip_item_pure("Spirit shield", equipment_data, player), expected)
-                        self.assertEqual(player, before)
 
     def test_completion_is_required(self):
         cases = (
             ("absent", None, False),
-            ("incomplete", {"completed": False}, False),
+            ("unstarted", {"started": False, "completed": False}, False),
+            ("incomplete", {"started": True, "completed": False}, False),
             ("journal progress", {"started": True, "progress": 999}, False),
             ("completed", {"completed": True}, True),
         )
-        for name, equipment_data in RUNTIME_MAPS:
-            for case, state, completed in cases:
-                with self.subTest(representation=name, quest=case):
-                    player = _player(inventory={"Spirit shield": 1, "Jennica's ring": 1})
-                    if state is None:
-                        player.pop("quests")
-                    else:
-                        player["quests"] = {"summers_end": state}
-                    before = copy.deepcopy(player)
-                    self.assertEqual(can_equip_item_pure("Spirit shield", equipment_data, player),
-                                     (True, "") if completed else (False, QUEST_REFUSAL))
-                    self.assertEqual(player, before)
+        for (name, equipment_data), (case, state, completed) in product(RUNTIME_MAPS, cases):
+            with self.subTest(representation=name, quest=case):
+                player = _player(inventory={"Spirit shield": 1, "Jennica's ring": 1})
+                if state is None:
+                    player.pop("quests")
+                else:
+                    player["quests"] = {"summers_end": state}
+                before = copy.deepcopy(player)
+                self.assertEqual(can_equip_item_pure("Spirit shield", equipment_data, player),
+                                 (True, "") if completed else (False, QUEST_REFUSAL))
+                self.assertEqual(player, before)
+
+    def test_use_saved_levels_despite_drains_and_boosts(self):
+        cases = product(RUNTIME_MAPS, (0, 99), (0, 99), (*FAILURES, ("eligible", {}, "")))
+        for (name, equipment_data), current_level, current_prayer, (failure, updates, reason) in cases:
+            with self.subTest(representation=name, current_level=current_level,
+                              current_prayer=current_prayer, requirement=failure):
+                player = _player(
+                    combat_current_levels={"defense": current_level,
+                                           "prayer": current_level},
+                    combat_prayer_points=current_prayer, **updates,
+                )
+                before = copy.deepcopy(player)
+                self.assertEqual(
+                    can_equip_item_pure("Spirit shield", equipment_data, player),
+                    (failure == "eligible", reason),
+                )
+                self.assertEqual(player, before)
 
     def test_other_shields_keep_existing_eligibility(self):
         for name, equipment_data in RUNTIME_MAPS:
@@ -163,75 +180,111 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 self.assertEqual(player, before)
 
     def test_worn_shield_repair_conserves_items(self):
-        from ankiscape.core.equipment_change import return_ineligible_spirit_shield_save_pure as repair
+        from ankiscape.logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure as repair
 
-        for failure, updates, _reason in FAILURES:
-            for quantity in (0, 2):
-                with self.subTest(requirement=failure, bank_quantity=quantity):
-                    player = _player(**updates)
-                    player["equipment"]["shield"] = "Spirit shield"
-                    player["inventory"]["Spirit shield"] = quantity
-                    player.update(
-                        carried_inventory={"goblin": {"Coins": 1}},
-                        combat_grave={"items": ["Spirit shield"]},
-                        death_office={"items": ["Spirit shield"]},
-                        unrelated={"nested": [1, 2]},
-                    )
-                    before = copy.deepcopy(player)
-                    updated, changed = repair(player)
-                    expected = copy.deepcopy(before)
-                    expected["inventory"]["Spirit shield"] += 1
-                    del expected["equipment"]["shield"]
-                    self.assertTrue(changed)
-                    self.assertEqual(updated, expected)
-                    self.assertEqual(player, before)
-                    self.assertIsNot(updated, player)
-                    self.assertIs(updated["unrelated"], player["unrelated"])
-                    again, changed = repair(updated)
-                    self.assertFalse(changed)
-                    self.assertEqual(again, expected)
+        for (failure, updates, _reason), quantity in product(FAILURES, (0, 2)):
+            with self.subTest(requirement=failure, bank_quantity=quantity):
+                player = _player(**updates)
+                player["equipment"]["shield"] = "Spirit shield"
+                player["inventory"]["Spirit shield"] = quantity
+                player.update(
+                    carried_inventory={"goblin": {"Coins": 1}},
+                    combat_grave={"items": ["Spirit shield"]},
+                    death_office={"items": ["Spirit shield"]},
+                    unrelated={"nested": [1, 2]},
+                )
+                before = copy.deepcopy(player)
+                updated = repair(player, EQUIPMENT_DATA)
+                expected = copy.deepcopy(before)
+                expected["inventory"]["Spirit shield"] += 1
+                del expected["equipment"]["shield"]
+                self.assertEqual(updated, expected)
+                self.assertEqual(player, before)
+                self.assertIsNot(updated, player)
+                self.assertIsNot(updated["inventory"], player["inventory"])
+                self.assertIsNot(updated["equipment"], player["equipment"])
+                self.assertIs(updated["unrelated"], player["unrelated"])
+                self.assertIs(repair(updated, EQUIPMENT_DATA), updated)
         for control, player in (
             ("eligible worn", _player(equipment={"shield": "Spirit shield"})),
             ("Bank only", _player(quests={}, equipment={})),
             ("other shield", _player(quests={})),
+            ("other slot", _player(quests={}, equipment={"head": "Spirit shield"})),
+            ("no equipment", {"inventory": {"Spirit shield": 1}}),
+            ("None equipment", {"inventory": {"Spirit shield": 1}, "equipment": None}),
         ):
             with self.subTest(control=control):
                 before = copy.deepcopy(player)
-                updated, changed = repair(player)
-                self.assertFalse(changed)
+                updated = repair(player, EQUIPMENT_DATA)
                 self.assertEqual(updated, before)
-                self.assertIsNot(updated, player)
+                self.assertIs(updated, player)
                 self.assertEqual(player, before)
 
     def test_load_repairs_old_and_current_saves(self):
-        for version in (CURRENT_CONFIG_VERSION - 1, CURRENT_CONFIG_VERSION):
-            for failure, updates, _reason in FAILURES:
-                with self.subTest(version=version, requirement=failure):
-                    player = _player(config_version=version, **updates)
-                    player["equipment"]["shield"] = "Spirit shield"
-                    player["inventory"]["Spirit shield"] = 0
-                    result = _migrate(player)
-                    self.assertNotIn("shield", result["equipment"])
-                    self.assertEqual(result["equipment"]["head"], "Bronze full helm")
-                    self.assertEqual(result["inventory"]["Spirit shield"], 1)
-                    self.assertEqual(result["bank_layout"]["items"]["Spirit shield"]["quantity"], 1)
-                    self.assertEqual(_xp(result), _xp(player))
-                    self.assertEqual(result["quests"]["summers_end"]["completed"],
-                                     player["quests"].get("summers_end", {}).get("completed", False))
-                    again = _migrate(result)
-                    self.assertNotIn("shield", again["equipment"])
-                    self.assertEqual(again["inventory"]["Spirit shield"], 1)
-                    unsaved_reload = _migrate(player)
-                    self.assertEqual(unsaved_reload["inventory"]["Spirit shield"], 1)
-            for control, player in (
-                ("eligible worn", _player(equipment={"shield": "Spirit shield", "head": "Bronze full helm"})),
-                ("Bank only", _player(quests={}, equipment={"head": "Bronze full helm"})),
-            ):
-                with self.subTest(version=version, control=control):
-                    player["config_version"] = version
-                    result = _migrate(player)
-                    self.assertEqual(result["equipment"], player["equipment"])
-                    self.assertEqual(result["inventory"]["Spirit shield"], 1)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 125)
+        for version, (failure, updates, _reason), quantity in product((1, 125, 126), FAILURES, (0, 2)):
+            with self.subTest(version=version, requirement=failure, bank_quantity=quantity):
+                player = _player(config_version=version, **updates)
+                player["equipment"]["shield"] = "Spirit shield"
+                player["inventory"]["Spirit shield"] = quantity
+                player["unrelated"] = {"nested": [1, 2]}
+                result = _migrate(player)
+                self.assertEqual(result["config_version"], max(version, 125))
+                self.assertNotIn("shield", result["equipment"])
+                self.assertEqual(result["equipment"]["head"], "Bronze full helm")
+                self.assertEqual(result["inventory"]["Spirit shield"], quantity + 1)
+                self.assertEqual(result["bank_layout"]["items"]["Spirit shield"]["quantity"], quantity + 1)
+                self.assertEqual(result["inventory"]["Coins"], 17)
+                self.assertEqual(result["unrelated"], player["unrelated"])
+                self.assertEqual(
+                    equipment_stat_totals_pure(result["equipment"], EQUIPMENT_DATA),
+                    EQUIPMENT_DATA["Bronze full helm"].bonuses,
+                )
+                control = _migrate(_player(config_version=version, **updates))
+                self.assertEqual(_xp(result), _xp(control))
+                self.assertEqual(result["quests"]["summers_end"]["completed"],
+                                 player["quests"].get("summers_end", {}).get("completed", False))
+                again = _migrate(result)
+                self.assertNotIn("shield", again["equipment"])
+                self.assertEqual(again["inventory"]["Spirit shield"], quantity + 1)
+                unsaved_reload = _migrate(player)
+                self.assertEqual(unsaved_reload["inventory"]["Spirit shield"], quantity + 1)
+
+    def test_load_preserves_eligible_worn_and_bank_only_shields(self):
+        for version, (control, player) in product((1, 125, 126), (
+            ("eligible worn", _player(equipment={"shield": "Spirit shield", "head": "Bronze full helm"})),
+            ("Bank only", _player(quests={}, equipment={"head": "Bronze full helm"})),
+        )):
+            with self.subTest(version=version, control=control):
+                player["config_version"] = version
+                result = _migrate(player)
+                self.assertEqual(result["equipment"], player["equipment"])
+                self.assertEqual(result["inventory"]["Spirit shield"], 1)
+                again = _migrate(result)
+                self.assertEqual(again["equipment"], result["equipment"])
+                self.assertEqual(again["inventory"]["Spirit shield"], 1)
+                self.assertEqual(again["config_version"], max(version, 125))
+
+    def test_load_initializes_absent_or_none_bank(self):
+        for version, inventory, (failure, updates, _reason) in product((1, 125, 126), ("absent", None), FAILURES):
+            with self.subTest(version=version, inventory=inventory, requirement=failure):
+                player = _player(config_version=version, **updates)
+                player["equipment"]["shield"] = "Spirit shield"
+                if inventory == "absent":
+                    player.pop("inventory")
+                else:
+                    player["inventory"] = None
+                result = _migrate(player)
+                self.assertEqual(result["inventory"]["Spirit shield"], 1)
+                self.assertEqual(result["equipment"], {"head": "Bronze full helm"})
+                again = _migrate(result)
+                self.assertEqual(again["inventory"]["Spirit shield"], 1)
+                self.assertEqual(
+                    {item: count for item, count in again["inventory"].items() if count},
+                    {item: count for item, count in result["inventory"].items() if count},
+                )
+                self.assertEqual(again["equipment"], result["equipment"])
+                self.assertEqual(again["config_version"], max(version, 125))
 
     def test_repaired_save_survives_save_and_reload(self):
         original_modules = dict(sys.modules)

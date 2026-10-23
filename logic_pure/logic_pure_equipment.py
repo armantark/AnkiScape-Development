@@ -347,7 +347,7 @@ def can_equip_item_pure(
     if blocked:
         return False, blocked
     if item_name == 'Spirit shield' and not quest_completed_pure(player_data, 'summers_end'):
-        return False, "Complete Summer's End to equip Spirit shield"
+        return False, "Requires completion of Summer's End"
     from ..logic.cape_logic import prestige_cape_wear_block_pure
 
     blocked = prestige_cape_wear_block_pure(player_data, item_name)
@@ -445,6 +445,19 @@ def unequip_item_pure(
     item_name = new_equipment.pop(slot)
     new_inventory[item_name] = new_inventory.get(item_name, 0) + 1
     return new_inventory, new_equipment, True
+
+
+def return_ineligible_spirit_shield_to_bank_pure(player_data, equipment_data):
+    """Return a rejected worn Spirit shield without changing other holders."""
+    equipment = player_data.get("equipment", {}) or {}
+    if equipment.get("shield") != "Spirit shield":
+        return player_data
+    if can_equip_item_pure("Spirit shield", equipment_data, player_data)[0]:
+        return player_data
+    inventory, equipment, _ = unequip_item_pure(
+        "shield", player_data.get("inventory", {}) or {}, equipment,
+    )
+    return {**player_data, "inventory": inventory, "equipment": equipment}
 
 
 def equipment_stat_totals_pure(

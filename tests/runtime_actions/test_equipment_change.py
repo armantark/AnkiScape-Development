@@ -51,6 +51,52 @@ class TestEquipmentChange(unittest.TestCase):
         self.assertEqual(player["equipment"]["shield"], "Fremennik round shield")
         self.assertTrue(saves)
 
+    def test_spirit_shield_refuses_each_missing_requirement_and_equips_at_boundary(self):
+        addon = integration._load_addon_as_package("ankiscape_spirit_shield_equipment")
+        collection = undo_seam._FakeCollection()
+        addon.mw = undo_seam._DummyMW(collection)
+        saves, errors = [], []
+        addon.save_player_data = lambda: saves.append(copy.deepcopy(addon._state.player_data))
+        addon.show_error_message = lambda _title, message: errors.append(message)
+        player = undo_seam.default_player_data(undo_seam.ORE_DATA, undo_seam.ITEM_DEFINITIONS)
+        player.update({
+            "inventory": {"Spirit shield": 2, "Coins": 17},
+            "equipment": {"shield": "Bronze sq shield", "head": "Bronze full helm"},
+            "defense_level": 40, "prayer_level": 55,
+            "quests": {"summers_end": {"completed": True}},
+            "unknown_save_key": {"value": [1, 2]},
+        })
+        failures = (
+            ({"defense_level": 39}, "Requires level 40 Defense"),
+            ({"prayer_level": 54}, "Requires level 55 Prayer"),
+            ({"quests": {}}, "Requires completion of Summer's End"),
+        )
+        for updates, reason in failures:
+            with self.subTest(reason=reason):
+                candidate = {**copy.deepcopy(player), **updates}
+                addon._state.player_data = candidate
+                before = copy.deepcopy(candidate)
+                undo_before = copy.deepcopy(addon._state.direct_action_undo_stack)
+                self.assertFalse(addon.on_equip_item("Spirit shield"))
+                self.assertEqual(errors[-1], reason)
+                self.assertEqual(addon._state.player_data, before)
+                self.assertEqual(candidate, before)
+                self.assertEqual(saves, [])
+                self.assertEqual(collection.entries, [])
+                self.assertEqual(addon._state.direct_action_undo_stack, undo_before)
+
+        addon._state.player_data = copy.deepcopy(player)
+        self.assertTrue(addon.on_equip_item("Spirit shield"))
+        expected = copy.deepcopy(player)
+        expected["inventory"].update({"Spirit shield": 1, "Bronze sq shield": 1})
+        expected["equipment"]["shield"] = "Spirit shield"
+        self.assertEqual(addon._state.player_data["inventory"], expected["inventory"])
+        self.assertEqual(addon._state.player_data["equipment"], expected["equipment"])
+        self.assertEqual(addon._state.player_data["quests"], expected["quests"])
+        self.assertEqual(addon._state.player_data["unknown_save_key"], expected["unknown_save_key"])
+        self.assertEqual(saves, [addon._state.player_data])
+        self.assertEqual(collection.entries, ["AnkiScape direct action"])
+
     def test_mogre_drops_equip_from_inventory_and_apply_their_bonuses(self):
         addon = integration._load_addon_as_package("ankiscape_mogre_equipment")
         addon.mw = integration._DummyMW(integration._DummyCol())
@@ -126,6 +172,15 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
         self.assert_review_then_move_undoes_in_order(
             lambda: self.addon.on_equip_item("Bronze platebody"),
             inventory={"Bronze platebody": 1}, equipment={},
+        )
+
+    def test_spirit_shield_equip_after_review_undoes_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            lambda: self.addon.on_equip_item("Spirit shield"),
+            inventory={"Spirit shield": 2, "Bronze sq shield": 3},
+            equipment={"shield": "Bronze sq shield", "head": "Bronze full helm"},
+            defense_level=40, prayer_level=55,
+            quests={"summers_end": {"completed": True}},
         )
 
     def test_unequip_after_a_review_is_undone_before_the_review(self):

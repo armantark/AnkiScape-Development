@@ -19,6 +19,5 @@ def spirit_shield_equipment_data_as_dict():
             required_level=40,
             skill_requirements=(('defense', 40), ('prayer', 55)),
             source=f"{EQUIPMENT_DATA['Spirit shield'].source}; {SPIRIT_SHIELD_WIELD_SOURCE}",
-            source_status='period wield requirements; retained rev-667 equipment block',
         ),
     }

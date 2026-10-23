@@ -123,7 +123,8 @@ def _expected_condition_holders(
 
 
 def sanitize_equipment_instance_state_pure(
-    player_data: Mapping[str, Any], condition_data: Mapping[str, Mapping[str, Any]]
+    player_data: Mapping[str, Any],
+    condition_data: Mapping[str, Mapping[str, Any]] = EQUIPMENT_CONDITION_DATA,
 ) -> dict[str, Any]:
     """Reconcile the per-copy ledger with Bank/equipment/grave name holders."""
     # Shallow on purpose: the ledger below is rebuilt as fresh records, and

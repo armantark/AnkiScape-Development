@@ -14,6 +14,9 @@ from .registry_sources import *
 from .paths import *
 from .hunter_assets import HUNTER_SHARED_ITEM_IMAGES
 from .skill_catalog import *
+from ...data.combat.spirit_shield_data import (
+    spirit_shield_equipment_data_as_dict as _spirit_shield_equipment_data_as_dict,
+)
 
 
 def _asset_slug(name: str) -> str:
@@ -420,7 +423,7 @@ def _equipment_data_before_diaries():
     equipment_data.update(dominion_tower_equipment_data_as_dict())
     equipment_data.update(crucible_equipment_data_as_dict())
     equipment_data.update(goblin_raids_equipment_data_as_dict())
-    equipment_data.update(spirit_shield_equipment_data_as_dict())
+    equipment_data.update(_spirit_shield_equipment_data_as_dict())
     return equipment_data
 
 

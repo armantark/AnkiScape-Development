@@ -30,6 +30,7 @@ from ..data.crafting_data import (
 from .item_registry import ItemDefinition
 from ..logic.equipment_instance_logic import (
     default_equipment_instance_state_pure,
+    sanitize_equipment_instance_state_pure,
 )
 from ..logic.barrows_logic import default_barrows_state_pure, sanitize_barrows_state_pure
 from ..logic.fist_of_guthix_logic import (
@@ -89,10 +90,7 @@ from .constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
-from .equipment_change import (
-    return_ineligible_spirit_shield_save_pure,
-    sanitize_equipment_conditions_save_pure,
-)
+from ..logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
@@ -1881,7 +1879,7 @@ def migrate_loaded_data(
     # Migrate every persisted reference before the carried-state sanitizer
     # clamps saved views against the already-renamed bank.
     _migrate_legacy_item_references(data)
-    data, _ = return_ineligible_spirit_shield_save_pure(data)
+    data = return_ineligible_spirit_shield_to_bank_pure(data, EQUIPMENT_DATA)
 
     # Seed the carried-inventory overlay keys on old saves. Coins stay canonical
     # in the flat inventory (the money pouch is just that balance surfaced under a
@@ -2461,7 +2459,7 @@ def migrate_loaded_data(
         review_day=wicked_hood_review_day_pure(data),
         initialize_allowances=True,
     )
-    data = sanitize_equipment_conditions_save_pure(data)
+    data.update(sanitize_equipment_instance_state_pure(data))
     combat_current_levels = data.get("combat_current_levels")
     if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:
         try:
