@@ -1210,7 +1210,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(ice_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 32})
         self.assertEqual(ice_tertiary["total"], 100000)
         self.assertEqual(sum(slot["slots"] for slot in ice_tertiary["slots"]), 100000)
-        self.assertEqual(ice_tertiary["slots"][2], {"item": "Champion's scroll", "quantity": 1, "slots": 20})
+        self.assertEqual(ice_tertiary["slots"], ({"item": "Long bone", "quantity": 1, "slots": 250}, {"item": "Curved bone", "quantity": 1, "slots": 20}, {"slots": 99730}))
 
     def test_ghost_row_matches_source_and_has_no_death_drops(self):
         ghost = COMBAT_ENEMY_DATA["ghost"]
@@ -2692,7 +2692,7 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(hill_seed_drops, {"Big bones": 1, "Potato seed": 4})
         self.assertEqual(moss_seed_drops, {"Big bones": 1, "Limpwurt seed": 1})
-        self.assertEqual(ice_tertiary_drops, {"Big bones": 1, "Iron 2h sword": 1, "Champion's scroll": 1})
+        self.assertEqual(ice_tertiary_drops, {"Big bones": 1, "Iron 2h sword": 1})
         self.assertEqual(ice_gem_drops, {"Big bones": 1, "Uncut sapphire": 1})
 
     def test_ghost_drop_rolls_no_items(self):

@@ -449,7 +449,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(ice_giant.group, "Giants")
         self.assertIn("Ice giant · combat level 53", ice_giant.tooltip)
         self.assertIn("Black kiteshield x1 (32/1024)", ice_giant.tooltip)
-        self.assertIn("Champion's scroll x1 (20/100000)", ice_giant.tooltip)
+        self.assertNotIn("Champion's scroll", ice_giant.tooltip)
         self.assertIn("ice_giant_level_53.plugin.kts", ice_giant.tooltip)
         self.assertEqual(ghost.group, "Undead")
         self.assertIn("Ghost · combat level 19", ghost.tooltip)

@@ -150,14 +150,14 @@ ICE_GIANT_DROPS = {
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 32},
             ),
         },
+        # Giant invitation: Hill giants only (Hill giant oldid=6548497:44; Giant Champion's scroll oldid=6515988:21,28).
         {
             "name": "Tertiary",
             "total": 100000,
             "slots": (
                 {"item": "Long bone", "quantity": 1, "slots": 250},
                 {"item": "Curved bone", "quantity": 1, "slots": 20},
-                {"item": "Champion's scroll", "quantity": 1, "slots": 20},
-                {"slots": 99710},
+                {"slots": 99730},
             ),
         },
     ),
