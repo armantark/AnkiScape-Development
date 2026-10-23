@@ -326,6 +326,17 @@ def equipment_bonus_state_pure(equipment: Mapping[str, str], bonus_item_data: Ma
     return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
 
 
+def _equipment_requirement_refusal_pure(item_name, spec, player_data):
+    """Name the first unmet saved-level or Spirit shield quest requirement."""
+    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
+        current_level = _positive_int(player_data.get(level_key, 1), 1)
+        if current_level < required_level:
+            return f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    if item_name == "Spirit shield" and not quest_completed_pure(player_data, "summers_end"):
+        return "Requires completion of Summer's End"
+    return ""
+
+
 def can_equip_item_pure(
     item_name: str,
     equipment_data: Mapping[str, object],
@@ -334,10 +345,9 @@ def can_equip_item_pure(
     spec = equipment_data.get(item_name)
     if spec is None:
         return False, "Item is not equippable"
-    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
-        current_level = _positive_int(player_data.get(level_key, 1), 1)
-        if current_level < required_level:
-            return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    blocked = _equipment_requirement_refusal_pure(item_name, spec, player_data)
+    if blocked:
+        return False, blocked
     from ..logic.cape_logic import prestige_cape_wear_block_pure
 
     blocked = prestige_cape_wear_block_pure(player_data, item_name)
@@ -435,6 +445,19 @@ def unequip_item_pure(
     item_name = new_equipment.pop(slot)
     new_inventory[item_name] = new_inventory.get(item_name, 0) + 1
     return new_inventory, new_equipment, True
+
+
+def return_ineligible_spirit_shield_to_bank_pure(player_data, equipment_data):
+    """Return a rejected worn Spirit shield without changing other holders."""
+    equipment = player_data.get("equipment", {}) or {}
+    if equipment.get("shield") != "Spirit shield":
+        return player_data
+    if can_equip_item_pure("Spirit shield", equipment_data, player_data)[0]:
+        return player_data
+    inventory, equipment, _ = unequip_item_pure(
+        "shield", player_data.get("inventory", {}) or {}, equipment,
+    )
+    return {**player_data, "inventory": inventory, "equipment": equipment}
 
 
 def equipment_stat_totals_pure(

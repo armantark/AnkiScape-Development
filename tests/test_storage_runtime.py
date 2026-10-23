@@ -112,6 +112,33 @@ class StorageRuntimeTest(unittest.TestCase):
         self.assertEqual(current_skill, "None")
         self.assertEqual(collection.values["ankiscape_current_skill"], "None")
 
+    def test_ineligible_spirit_shield_return_survives_save_reload(self):
+        collection = _LegacyTextCollection()
+        collection.legacy_row = False
+        collection.values = {
+            "ankiscape_player_data": {
+                "config_version": 125,
+                "defense_level": 39, "prayer_level": 55,
+                "quests": {"summers_end": {"completed": True}},
+                "inventory": {"Spirit shield": 2},
+                "equipment": {"shield": "Spirit shield"},
+            },
+            "ankiscape_current_skill": "None",
+        }
+        storage = _load_storage_module(collection)
+
+        player_data, current_skill = storage.load_player_data()
+
+        self.assertEqual(player_data["inventory"]["Spirit shield"], 3)
+        self.assertNotIn("shield", player_data["equipment"])
+        self.assertEqual(collection.values["ankiscape_player_data"]["inventory"]["Spirit shield"], 2)
+        self.assertEqual(collection.values["ankiscape_player_data"]["equipment"]["shield"], "Spirit shield")
+        storage.save_player_data(player_data, current_skill)
+        for _ in range(2):
+            player_data, current_skill = storage.load_player_data()
+            self.assertEqual(player_data["inventory"]["Spirit shield"], 3)
+            self.assertNotIn("shield", player_data["equipment"])
+
     @unittest.skipIf(Collection is None, "Anki runtime is not installed")
     def test_real_anki_collection_repairs_text_backed_config_row(self):
         with tempfile.TemporaryDirectory() as directory:
