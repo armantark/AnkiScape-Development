@@ -27,10 +27,10 @@ class IceGiantChampionScrollTests(unittest.TestCase):
                 self.assertEqual(drops, expected)
 
     def test_owned_scroll_survives_reload_without_champion_credit(self):
-        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player["inventory"]["Champion's scroll"] = 2
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved["inventory"]["Champion's scroll"] = 2
 
-        loaded = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+        loaded = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
 
         self.assertEqual(loaded["inventory"]["Champion's scroll"], 2)
         champions = next(
