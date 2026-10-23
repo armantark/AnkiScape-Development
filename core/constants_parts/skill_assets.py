@@ -420,6 +420,7 @@ def _equipment_data_before_diaries():
     equipment_data.update(dominion_tower_equipment_data_as_dict())
     equipment_data.update(crucible_equipment_data_as_dict())
     equipment_data.update(goblin_raids_equipment_data_as_dict())
+    equipment_data.update(spirit_shield_equipment_data_as_dict())
     return equipment_data
 
 

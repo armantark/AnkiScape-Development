@@ -15,6 +15,7 @@ from ...data.brawling_gloves_data import (
     brawling_gloves_equipment_data_as_dict,
     brawling_gloves_extra_items_as_dict,
 )
+from ...data.combat.spirit_shield_data import spirit_shield_equipment_data_as_dict
 
 __all__ = [
     'cape_equipment_data_as_dict',
@@ -24,4 +25,5 @@ __all__ = [
     'cooking_gauntlets_equipment_data_as_dict',
     'brawling_gloves_equipment_data_as_dict',
     'brawling_gloves_extra_items_as_dict',
+    'spirit_shield_equipment_data_as_dict',
 ]

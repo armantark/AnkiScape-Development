@@ -326,6 +326,15 @@ def equipment_bonus_state_pure(equipment: Mapping[str, str], bonus_item_data: Ma
     return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
 
 
+def _equipment_skill_wear_block_pure(spec, player_data) -> str:
+    """Return the first unmet base-level requirement in equipment source order."""
+    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
+        current_level = _positive_int(player_data.get(level_key, 1), 1)
+        if current_level < required_level:
+            return f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    return ""
+
+
 def can_equip_item_pure(
     item_name: str,
     equipment_data: Mapping[str, object],
@@ -334,10 +343,11 @@ def can_equip_item_pure(
     spec = equipment_data.get(item_name)
     if spec is None:
         return False, "Item is not equippable"
-    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
-        current_level = _positive_int(player_data.get(level_key, 1), 1)
-        if current_level < required_level:
-            return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    blocked = _equipment_skill_wear_block_pure(spec, player_data)
+    if blocked:
+        return False, blocked
+    if item_name == 'Spirit shield' and not quest_completed_pure(player_data, 'summers_end'):
+        return False, "Complete Summer's End to equip Spirit shield"
     from ..logic.cape_logic import prestige_cape_wear_block_pure
 
     blocked = prestige_cape_wear_block_pure(player_data, item_name)
