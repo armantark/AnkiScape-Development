@@ -166,8 +166,8 @@ class SpiritShieldWieldTest(unittest.TestCase):
     def test_worn_shield_repair_conserves_items(self):
         from ankiscape.logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure as repair
 
-        for (failure, updates, _reason), quantity in product(FAILURES, (0, 2)):
-            with self.subTest(requirement=failure, bank_quantity=quantity):
+        for (name, equipment_data), (failure, updates, _reason), quantity in product(RUNTIME_MAPS, FAILURES, (0, 2)):
+            with self.subTest(representation=name, requirement=failure, bank_quantity=quantity):
                 player = _player(**updates)
                 player["equipment"]["shield"] = "Spirit shield"
                 player["inventory"]["Spirit shield"] = quantity
@@ -178,7 +178,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
                     unrelated={"nested": [1, 2]},
                 )
                 before = copy.deepcopy(player)
-                updated = repair(player, EQUIPMENT_DATA)
+                updated = repair(player, equipment_data)
                 expected = copy.deepcopy(before)
                 expected["inventory"]["Spirit shield"] += 1
                 del expected["equipment"]["shield"]
@@ -188,7 +188,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 self.assertIsNot(updated["inventory"], player["inventory"])
                 self.assertIsNot(updated["equipment"], player["equipment"])
                 self.assertIs(updated["unrelated"], player["unrelated"])
-                self.assertIs(repair(updated, EQUIPMENT_DATA), updated)
+                self.assertIs(repair(updated, equipment_data), updated)
         for control, player in (
             ("eligible worn", _player(equipment={"shield": "Spirit shield"})),
             ("Bank only", _player(quests={}, equipment={})),
@@ -211,6 +211,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 player = _player(config_version=version, **updates)
                 player["equipment"]["shield"] = "Spirit shield"
                 player["inventory"]["Spirit shield"] = quantity
+                player["inventory"]["Unknown saved item"] = 7
                 player["unrelated"] = {"nested": [1, 2]}
                 result = _migrate(player)
                 self.assertEqual(result["config_version"], max(version, 125))
@@ -219,6 +220,7 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 self.assertEqual(result["inventory"]["Spirit shield"], quantity + 1)
                 self.assertEqual(result["bank_layout"]["items"]["Spirit shield"]["quantity"], quantity + 1)
                 self.assertEqual(result["inventory"]["Coins"], 17)
+                self.assertEqual(result["inventory"]["Unknown saved item"], 7)
                 self.assertEqual(result["unrelated"], player["unrelated"])
                 self.assertEqual(
                     equipment_stat_totals_pure(result["equipment"], EQUIPMENT_DATA),
@@ -229,8 +231,11 @@ class SpiritShieldWieldTest(unittest.TestCase):
                 self.assertEqual(result["quests"]["summers_end"]["completed"],
                                  player["quests"].get("summers_end", {}).get("completed", False))
                 again = _migrate(result)
-                self.assertNotIn("shield", again["equipment"])
-                self.assertEqual(again["inventory"]["Spirit shield"], quantity + 1)
+                self.assertEqual(again["equipment"], result["equipment"])
+                self.assertEqual(
+                    {item: count for item, count in again["inventory"].items() if count},
+                    {item: count for item, count in result["inventory"].items() if count},
+                )
                 unsaved_reload = _migrate(player)
                 self.assertEqual(unsaved_reload["inventory"]["Spirit shield"], quantity + 1)
 

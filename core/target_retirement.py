@@ -1,7 +1,5 @@
 """Repair retired or invalid skilling targets in saved state."""
 
-from typing import Any, Dict
-
 from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
 from ..data.runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
 
@@ -28,7 +26,7 @@ def migrate_runecrafting_target(data: dict) -> None:
         data.pop("skilling_bank_run_requested")
 
 
-def _migrate_cooking_target(data: Dict[str, Any]) -> None:
+def migrate_cooking_target(data: dict) -> None:
     current_cooking = data.get("current_cooking")
     if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
         current_cooking = DEFAULT_COOKING_TARGET

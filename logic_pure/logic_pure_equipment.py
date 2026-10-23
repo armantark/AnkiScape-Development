@@ -338,7 +338,7 @@ def can_equip_item_pure(
         current_level = _positive_int(player_data.get(level_key, 1), 1)
         if current_level < required_level:
             return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
-    if item_name == 'Spirit shield' and not quest_completed_pure(player_data, 'summers_end'):
+    if item_name == "Spirit shield" and not quest_completed_pure(player_data, "summers_end"):
         return False, "Requires completion of Summer's End"
     from ..logic.cape_logic import prestige_cape_wear_block_pure
 

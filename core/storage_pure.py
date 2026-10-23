@@ -94,7 +94,7 @@ from ..logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from .target_retirement import (
-    _migrate_cooking_target,
+    migrate_cooking_target as _migrate_cooking_target,
     migrate_runecrafting_target as _migrate_runecrafting_target,
 )
 from ..logic.wicked_hood_logic import (
