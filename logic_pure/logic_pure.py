@@ -682,7 +682,7 @@ from .logic_pure_equipment import (  # noqa: F401  (re-export)
     equipment_bonus_state_pure,
     equipment_stat_totals_pure,
     put_tool_on_belt_pure,
-    unequip_item_pure,
+    unequip_item_pure, return_ineligible_spirit_shield_to_bank_pure,
 )
 
 from .logic_pure_landmarks import (  # noqa: F401  (re-export)

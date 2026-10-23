@@ -112,7 +112,7 @@ class StorageRuntimeTest(unittest.TestCase):
         self.assertEqual(current_skill, "None")
         self.assertEqual(collection.values["ankiscape_current_skill"], "None")
 
-    def test_ineligible_worn_spirit_shield_returns_once_across_save_and_reload(self):
+    def test_ineligible_spirit_shield_return_survives_save_reload(self):
         collection = _LegacyTextCollection()
         collection.legacy_row = False
         collection.values = {

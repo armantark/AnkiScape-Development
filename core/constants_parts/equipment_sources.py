@@ -9,7 +9,7 @@ from ...data.equipment_data import (
     equipment_items_as_dict,
 )
 
-from ...data.equipment.cooking_gauntlets import cooking_gauntlets_equipment_data_as_dict
+from ...data.cooking_gauntlets_data import cooking_gauntlets_equipment_data_as_dict
 
 from ...data.brawling_gloves_data import (
     brawling_gloves_equipment_data_as_dict,

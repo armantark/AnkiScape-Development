@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from ..core.constants import COOKING_DATA
-from ..data.equipment.cooking_gauntlets import (
+from ..data.cooking_gauntlets_data import (
     FAMILY_GAUNTLET_ENCHANTMENTS,
     FAMILY_GAUNTLET_ITEMS,
 )

@@ -14,7 +14,7 @@ from .registry_sources import *
 from .paths import *
 from .hunter_assets import HUNTER_SHARED_ITEM_IMAGES
 from .skill_catalog import *
-from ...data.spirit_shield_data import (
+from ...data.equipment_overrides.spirit_shield import (
     spirit_shield_equipment_data_as_dict as _spirit_shield_equipment_data_as_dict,
 )
 

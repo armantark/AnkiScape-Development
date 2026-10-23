@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..equipment_data import EquipmentBonuses, EquipmentItem
+from .equipment_data import EquipmentBonuses, EquipmentItem
 
 
 FAMILY_GAUNTLET_ITEMS = (

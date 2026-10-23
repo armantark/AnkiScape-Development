@@ -2,7 +2,7 @@
 
 from dataclasses import replace
 
-from .equipment_data import EQUIPMENT_DATA
+from ..equipment_data import EQUIPMENT_DATA
 
 
 SPIRIT_SHIELD_WIELD_SOURCE = (

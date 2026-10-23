@@ -1,7 +1,6 @@
 # storage_pure.py - Pure helpers for migrating and defaulting player data (no Anki deps)
 import math
 from typing import Dict, Iterable, Optional, Any
-
 from ..logic.cadence_kernel import default_cadence_kernel_state_pure, sanitize_cadence_kernel_state_pure
 from ..logic import inventory_pure
 from ..logic.skilling_boost_logic import (
@@ -20,6 +19,7 @@ from ..logic.bank_layout_logic import (
     default_bank_layout_state_pure,
     reconcile_bank_layout_for_player_pure,
 )
+from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
 from ..data.crafting_data import (
     DEFAULT_CRAFTING_TARGET,
     CRAFTING_RECIPES_BY_ID,
@@ -90,13 +90,9 @@ from .constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
-from ..logic_pure.logic_pure_equipment import return_ineligible_spirit_shield_to_bank_pure
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
-from .target_retirement import (
-    migrate_cooking_target as _migrate_cooking_target,
-    migrate_runecrafting_target as _migrate_runecrafting_target,
-)
+from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
     sanitize_wicked_hood_state_pure,
@@ -118,7 +114,7 @@ from ..logic_pure.logic_pure import (
     default_stronghold_state_pure,
     calculate_new_level,
     combat_dream_thrift_locked_reasons_pure,
-    refill_combat_supply_loadout_pure,
+    refill_combat_supply_loadout_pure, return_ineligible_spirit_shield_to_bank_pure,
     repair_combat_supply_loadout_class_pure,
     sanitize_action_telemetry_pure,
     sanitize_achievement_progress_pure,
@@ -878,6 +874,13 @@ def _migrate_hunter_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_hunter, str) or current_hunter not in HUNTER_TARGETS_BY_ID:
         current_hunter = DEFAULT_HUNTER_TARGET
     data["current_hunter"] = current_hunter
+
+
+def _migrate_cooking_target(data: Dict[str, Any]) -> None:
+    current_cooking = data.get("current_cooking")
+    if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
+        current_cooking = DEFAULT_COOKING_TARGET
+    data["current_cooking"] = current_cooking
 
 
 def _migrate_herblore_target(data: Dict[str, Any]) -> None:
@@ -1856,7 +1859,6 @@ def migrate_loaded_data(
     data["vinesweeper"] = sanitize_vinesweeper_state_pure(
         data.get("vinesweeper")
     )
-
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.
     inv = data.get("inventory") or {}
@@ -1871,18 +1873,16 @@ def migrate_loaded_data(
     # v119 replaces the retired meat-and-cauldron quest with the January 2012
     # Druidic Ritual rework without sending active saves backwards.
     _migrate_druidic_ritual_rework(data, loaded_config_version)
-
-    # Migrate persisted references before carried-state clamps views to the renamed Bank.
+    # Migrate every persisted reference before the carried-state sanitizer
+    # clamps saved views against the already-renamed bank.
     _migrate_legacy_item_references(data)
     data = return_ineligible_spirit_shield_to_bank_pure(data, EQUIPMENT_DATA)
-
     # Seed the carried-inventory overlay keys on old saves. Coins stay canonical
     # in the flat inventory (the money pouch is just that balance surfaced under a
     # pouch label); the overlay and death-drop exclude coins, so no coin store is
     # moved and no balance can be stranded.
     inventory_pure.sanitize_carried_state(data)
     data.update(reconcile_bank_layout_for_player_pure(data))
-
     # Ensure achievements structure exists
     data.setdefault("completed_achievements", [])
     data.setdefault("cooking_success_count", 0)

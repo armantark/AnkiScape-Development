@@ -326,6 +326,17 @@ def equipment_bonus_state_pure(equipment: Mapping[str, str], bonus_item_data: Ma
     return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
 
 
+def _equipment_requirement_refusal_pure(item_name, spec, player_data):
+    """Name the first unmet saved-level or Spirit shield quest requirement."""
+    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
+        current_level = _positive_int(player_data.get(level_key, 1), 1)
+        if current_level < required_level:
+            return f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    if item_name == "Spirit shield" and not quest_completed_pure(player_data, "summers_end"):
+        return "Requires completion of Summer's End"
+    return ""
+
+
 def can_equip_item_pure(
     item_name: str,
     equipment_data: Mapping[str, object],
@@ -334,37 +345,27 @@ def can_equip_item_pure(
     spec = equipment_data.get(item_name)
     if spec is None:
         return False, "Item is not equippable"
-    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
-        current_level = _positive_int(player_data.get(level_key, 1), 1)
-        if current_level < required_level:
-            return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
-    if item_name == "Spirit shield" and not quest_completed_pure(player_data, "summers_end"):
-        return False, "Requires completion of Summer's End"
+    blocked = _equipment_requirement_refusal_pure(item_name, spec, player_data)
+    if blocked:
+        return False, blocked
     from ..logic.cape_logic import prestige_cape_wear_block_pure
 
     blocked = prestige_cape_wear_block_pure(player_data, item_name)
     if blocked:
         return False, blocked
-    blocked = _mage_arena_equipment_conflict_pure(item_name, player_data.get("equipment", {}) or {})
-    if blocked:
-        return False, blocked
-    return True, ""
-
-
-def _mage_arena_equipment_conflict_pure(item_name, equipment):
-    """Name a conflicting god cape or staff already worn by the player."""
+    equipment = player_data.get("equipment", {}) or {}
     item_god = _mage_arena_god_for_item(item_name)
     if item_name in MAGE_ARENA_GOD_STAVES:
         cape = equipment.get("cape")
         cape_god = _mage_arena_god_for_item(cape)
         if cape_god and cape_god != item_god:
-            return f"{item_name} cannot be equipped with {cape}"
+            return False, f"{item_name} cannot be equipped with {cape}"
     elif item_name in MAGE_ARENA_GOD_CAPES:
         weapon = equipment.get("weapon")
         weapon_god = _mage_arena_god_for_item(weapon)
         if weapon_god and weapon_god != item_god:
-            return f"{item_name} cannot be equipped with {weapon}"
-    return ""
+            return False, f"{item_name} cannot be equipped with {weapon}"
+    return True, ""
 
 
 def _mage_arena_god_for_item(item_name):

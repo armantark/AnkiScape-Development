@@ -51,7 +51,7 @@ class TestEquipmentChange(unittest.TestCase):
         self.assertEqual(player["equipment"]["shield"], "Fremennik round shield")
         self.assertTrue(saves)
 
-    def test_spirit_shield_refuses_each_missing_requirement_and_equips_at_boundary(self):
+    def test_spirit_shield_requires_all_three_wield_conditions(self):
         addon = integration._load_addon_as_package("ankiscape_spirit_shield_equipment")
         collection = undo_seam._FakeCollection()
         addon.mw = undo_seam._DummyMW(collection)
@@ -60,8 +60,8 @@ class TestEquipmentChange(unittest.TestCase):
         addon.show_error_message = lambda _title, message: errors.append(message)
         player = undo_seam.default_player_data(undo_seam.ORE_DATA, undo_seam.ITEM_DEFINITIONS)
         player.update({
-            "inventory": {"Spirit shield": 2, "Coins": 17},
-            "equipment": {"shield": "Bronze sq shield", "head": "Bronze full helm"},
+            "inventory": {"Spirit shield": 1, "Coins": 17},
+            "equipment": {"weapon": "Bronze 2h sword", "head": "Bronze full helm"},
             "defense_level": 40, "prayer_level": 55,
             "quests": {"summers_end": {"completed": True}},
             "unknown_save_key": {"value": [1, 2]},
@@ -88,7 +88,8 @@ class TestEquipmentChange(unittest.TestCase):
         addon._state.player_data = copy.deepcopy(player)
         self.assertTrue(addon.on_equip_item("Spirit shield"))
         expected = copy.deepcopy(player)
-        expected["inventory"].update({"Spirit shield": 1, "Bronze sq shield": 1})
+        expected["inventory"].update({"Spirit shield": 0, "Bronze 2h sword": 1})
+        del expected["equipment"]["weapon"]
         expected["equipment"]["shield"] = "Spirit shield"
         self.assertEqual(addon._state.player_data["inventory"], expected["inventory"])
         self.assertEqual(addon._state.player_data["equipment"], expected["equipment"])
@@ -174,10 +175,10 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
             inventory={"Bronze platebody": 1}, equipment={},
         )
 
-    def test_spirit_shield_equip_after_review_undoes_before_the_review(self):
+    def test_spirit_shield_equip_after_review_undoes_in_order(self):
         self.assert_review_then_move_undoes_in_order(
             lambda: self.addon.on_equip_item("Spirit shield"),
-            inventory={"Spirit shield": 2, "Bronze sq shield": 3},
+            inventory={"Spirit shield": 1, "Bronze sq shield": 3},
             equipment={"shield": "Bronze sq shield", "head": "Bronze full helm"},
             defense_level=40, prayer_level=55,
             quests={"summers_end": {"completed": True}},
