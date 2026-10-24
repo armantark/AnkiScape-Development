@@ -116,7 +116,6 @@ class TreeGnomeVillageOpeningTest(unittest.TestCase):
             addon.storage_load_player_data = storage.load_player_data
             errors = []
             addon.show_error_message = lambda title, message: errors.append((title, message))
-            addon.ui.update_menu_visibility = lambda *_args: None
             addon._show_activity_gain = lambda _text: None
             addon._show_exp = lambda _amount: None
             addon.update_review_hud = lambda *_args: None

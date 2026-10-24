@@ -4,7 +4,7 @@ Status: source authoring; root-owned behavior and native acceptance remain pendi
 
 ## Scope and authority
 
-Fixed base `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088`; branch `goal/death-grave-transfer-2026-10-03`. Leaf 10 in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/contracts-2026-10-03-codex-resume.md` owns this boundary. Only the old-grave transfer in `_combat_apply_pvm_death`, baseline transfer lines 847–863, under the guard at line 846, moves to a helper. Existing helpers retain sanitation, fee and loadout policy. No gameplay ruling changes.
+Fixed base `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088`; branch `goal/death-grave-transfer-2026-10-03`. Leaf 10 in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/contracts-2026-10-03-codex-resume.md` owns this boundary. Only the old-grave transfer in `_combat_apply_pvm_death`, baseline transfer `0bbf4aa4:logic_pure/logic_pure_combat_model.py:847-863`, under the guard at `0bbf4aa4:logic_pure/logic_pure_combat_model.py:846`, moves to a helper. Existing helpers retain sanitation, fee and loadout policy. No gameplay ruling changes.
 
 ## Failure modes recorded before editing
 

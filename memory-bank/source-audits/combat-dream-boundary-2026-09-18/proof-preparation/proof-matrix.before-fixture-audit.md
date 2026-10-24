@@ -6,7 +6,7 @@
 _apply_dream_transaction(data, dream_cost, max_lp_for_dream) -> result | None
 ```
 
-The source baseline is P8 `b044efa72670d6c26749d9218d5b84a274c72eb9`, specifically `logic_pure/logic_pure_combat_engine.py:1230-1272`; the transaction being extracted is `:1257-1267`. Costs are `DREAM_COST = {"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5}` at `data/magic_data.py:616`.
+The source baseline is P8 `b044efa72670d6c26749d9218d5b84a274c72eb9`, specifically `logic_pure/logic_pure_combat_engine.py:1230-1272`; the transaction being extracted is `:1257-1267`. Costs are `DREAM_COST = {"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5}` at `data/magic_data.py:626`.
 
 ## Reusable fixtures and proof mechanism
 

@@ -14,8 +14,9 @@ AnkiScape gives rewards only when the player answers a card in the desktop
 reviewer while the add-on runs. Reviews on AnkiMobile, AnkiDroid or AnkiWeb
 give nothing. Desktop reviews while the add-on was off also give nothing.
 Anki records every one of these reviews in its `revlog` table, and sync
-copies the rows to the desktop. The game never reads that table:
-`grep -rl revlog __init__.py core runtime logic ui` finds 0 files.
+copies the rows to the desktop. The game does not credit those past reviews.
+`core/study_volume.py` reads `revlog` for adaptive world-day length.
+Those queries do not credit past reviews.
 
 ## 2. What the player gets
 
@@ -28,7 +29,7 @@ copies the rows to the desktop. The game never reads that table:
 
 ## 3. Facts from the real code
 
-1. The live path is `on_answer_card` in `__init__.py` (line 5430). It
+1. The live path is `on_answer_card` in `__init__.py:5285`. It
    wraps `Reviewer._answerCard`. It processes an answer only when the
    reviewer showed the question and the answer (`card_turned` and
    `answer_shown`).

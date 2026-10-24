@@ -1,6 +1,6 @@
 # AnkiScape Completion Roadmap
 
-Status: reconciled 2026-07-16. Use `future-work-kanban.md` for the product-wide parity and depth backlog;
+Use `future-work-kanban.md` for the product-wide parity and depth backlog;
 selection is in [the goal priority matrix](goal-priority-matrix.md);
 the dated completion audit is archived under `archive/2026-07/baselines/`.
 
@@ -36,7 +36,7 @@ Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile
 
 ## Layer 5 — Economy and Collections
 
-- Unpark the locked fake GE only when the item universe is representative.
+- Extend the live Grand Exchange through its deterministic offers and item metadata. Preserve the Ironman access restriction.
 - Add achievement diaries, clue scrolls, collections, one-time rewards, and random/timed content.
 - Keep the global review clock for world/economy cadence, not ordinary skilling minutes.
 

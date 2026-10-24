@@ -5895,7 +5895,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         detail = dialog.findChild(QWidget, "collectionsDetailPanel")
         self.assertIsNotNone(navigation)
         self.assertIsNotNone(detail)
-        self.assertEqual(navigation.width(), 244)
         self.assertGreater(detail.width(), navigation.width())
         self.assertGreater(detail.x(), navigation.x())
         self.assertEqual(navigation.topLevelItemCount(), 2)

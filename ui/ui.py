@@ -7,7 +7,6 @@ import re
 from collections.abc import Mapping
 from copy import deepcopy
 from typing import Any, Optional
-import datetime
 
 from ..core.search_match import match_rank
 
@@ -53,7 +52,6 @@ try:
         QSpinBox,
         QInputDialog,
         QAbstractItemView,
-        QDesktopServices,
         QUrl,
         QEvent,
         QLineEdit,
@@ -75,6 +73,7 @@ except Exception:
 
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
+from .ui_first_cell_tree import FirstCellSelectionTree
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
 from ..core.action_registry import review_action_handler_key
@@ -114,7 +113,6 @@ from ..core.constants import (
     DEFAULT_CONSTRUCTION_TARGET,
     CONSTRUCTION_ITEM_IMAGES,
     FARMING_COMPOST_STATE_IMAGES,
-    FARMING_HUD_SPROUT_ICON,
     FARMING_PATCH_STATE_IMAGES,
     HERBLORE_GROUP_LABELS,
     FIREMAKING_DATA,
@@ -127,7 +125,6 @@ from ..core.constants import (
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
     CLAIM_DATA,
-    COMBAT_FOOD_DATA,
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ENEMY_DATA,
     COMBAT_ENEMY_IMAGES,
@@ -1630,7 +1627,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrapped_label
+    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -25891,11 +25888,6 @@ def show_main_menu(
     )
 
     # ---- Equipment tab (dedicated worn-slot list + summed stat totals) ----
-    # All 11 OSRS worn slots always render (greyed placeholder when empty) so the
-    # layout is stable and discoverable; filled slots show the item + its icon
-    # and expose right-click Unequip. The totals panel sums the worn set via the
-    # pure equipment_stat_totals_pure so a future combat system reads the exact
-    # same numbers the player sees.
     equipment_tab = QWidget()
     eq_layout = QVBoxLayout(equipment_tab)
     eq_layout.setContentsMargins(12, 12, 12, 12)
@@ -25940,10 +25932,7 @@ def show_main_menu(
     eq_caption.setStyleSheet(f"color: {dim_text_css(eq_caption)};")
     eq_layout.addWidget(eq_caption)
 
-    # Followers are a global equipment-adjacent resource: familiars and pets
-    # share this one slot, while the Pets log projects the same persistent
-    # entities regardless of whether they are banked, carried, or in a
-    # Menagerie.
+    # Familiars and pets share one follower slot, wherever their items are stored.
     follower_group = QtFrame()
     follower_group.setObjectName("summoningFollowerPanel")
     follower_group.setFrameShape(QtFrame.Shape.StyledPanel)
@@ -26032,7 +26021,6 @@ def show_main_menu(
     winter_storage_layout.addWidget(winter_storage_threshold)
     winter_storage_layout.addWidget(winter_storage_save)
     follower_layout.addWidget(winter_storage_row)
-
     pets_toggle = QPushButton("▸  Pets")
     pets_toggle.setObjectName("summoningPetsToggle")
     pets_toggle.setCheckable(True)
@@ -26045,11 +26033,13 @@ def show_main_menu(
     pets_layout = QVBoxLayout(pets_body)
     pets_layout.setContentsMargins(8, 0, 0, 0)
     pets_layout.setSpacing(5)
-    pets_list = QTreeWidget()
+    pets_list = FirstCellSelectionTree()
     pets_list.setObjectName("summoningPetsLog")
     pets_list.setHeaderLabels(["Pet", "State", "Stage / care", "Acquisition"])
     pets_list.setRootIsDecorated(False)
     pets_list.setAlternatingRowColors(True)
+    pets_list.setVerticalScrollMode(QTreeWidget.ScrollMode.ScrollPerItem)
+    wrap_last_column(pets_list, minimum_chars=30)
     pets_list.setFixedHeight(210)
     pets_layout.addWidget(pets_list)
     phoenix_egg_row = QWidget()
@@ -26087,7 +26077,6 @@ def show_main_menu(
             pets_body.setVisible(bool(checked)),
         )
     )
-    eq_layout.addWidget(follower_group)
 
     def _run_summoning_command(action_id: str, payload=None) -> bool:
         if on_summoning_command is None:
@@ -26299,7 +26288,8 @@ def show_main_menu(
                 )
                 row.setForeground(1, dim_text_color(pets_list))
                 pets_list.addTopLevelItem(row)
-        for column in range(4):
+        # Acquisition, the last column, stretches and wraps; sizing it to its text overflowed the log.
+        for column in range(3):
             pets_list.resizeColumnToContents(column)
         pets_list.blockSignals(False)
         _refresh_pet_action_buttons()
@@ -26403,23 +26393,20 @@ def show_main_menu(
     _equipment_refreshers.append(_refresh_follower_panel)
     _refresh_follower_panel()
 
-    # The Equipment tab can grow tall (worn slots + totals + the 28-slot carried
-    # editor on the left, the combat setup + loot controls on the right), so the
-    # whole body scrolls. The worn-slot list is sized to its content (no inner
-    # scrollbar) to avoid a scroller-inside-a-scroller.
+    # Followers and gear share the existing scrollbar below the fixed points.
     eq_scroll = QScrollArea()
     eq_scroll.setWidgetResizable(True)
     eq_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    eq_scroll.setMinimumHeight(30)
+    eq_scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Ignored)
     eq_content = QWidget()
     eq_content_layout = QHBoxLayout(eq_content)
     eq_content_layout.setContentsMargins(0, 0, 0, 0)
     eq_content_layout.setSpacing(12)
-
     eq_left = QWidget()
     eq_left_layout = QVBoxLayout(eq_left)
     eq_left_layout.setContentsMargins(0, 0, 0, 0)
     eq_left_layout.setSpacing(8)
-
     equip_list = QListWidget()
     equip_list.setObjectName("equipmentList")
     equip_list.setIconSize(QSize(28, 28))
@@ -26510,7 +26497,7 @@ def show_main_menu(
     combat_setup_panel.setObjectName("equipmentCombatSetupPanel")
     eq_content_layout.addWidget(eq_left, 2)
     eq_content_layout.addWidget(combat_setup_panel, 1)
-    eq_scroll.setWidget(eq_content)
+    set_equipment_scroll_body(eq_scroll, follower_group, eq_content, pets_list)
     eq_layout.addWidget(eq_scroll, 1)
 
     def _populate_equipment() -> None:
@@ -26656,7 +26643,7 @@ def show_main_menu(
         summary.setWordWrap(True)
         layout.addWidget(summary)
 
-        tree = QTreeWidget()
+        tree = FirstCellSelectionTree()
         tree.setObjectName("challengeTree")
         tree.setHeaderLabels(["Challenge", "Task", "Progress", "Reward"])
         tree.setRootIsDecorated(False)

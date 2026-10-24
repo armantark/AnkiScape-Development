@@ -64,39 +64,39 @@ November 2012 game with a rollback of the owner's past games.
   `tools/achievement_diary_ledger.py:421-427` returns the source text for every
   row that is not invented. So the game shows "Dial to the fairy ring on
   Mudskipper Point" for a row that fires on one big-net catch.
-- The popup `ui/ui.py:4562-4587` shows `task.name` and `task.description`;
-  `DiaryTask` (`data/achievement_diaries/contract.py:39-54`) has no other text
+- The popup `ui/ui.py:4488-4513` shows `task.name` and `task.description`;
+  `DiaryTask` (`data/achievement_diaries/contract.py:40-55`) has no other text
   field. Reload shows no popups; the first review after a reload rescans every
-  row and queues one popup per newly satisfied row (`core/logic.py:151-196`,
+  row and queues one popup per newly satisfied row (`core/logic.py:140-185`,
   `__init__.py:1344-1353,1561-1578`). Ruling 7: no change.
 - Quest fights: `logic_pure/logic_pure_quest.py:109-124` reads
   `quest_combat_config["resolver_enabled"]`, default false, initialised at
   `core/storage_pure.py:701-704`. No production code sets it; tests set it at
   `tests/test_logic.py:10313-10324`. The message is built at
   `logic_pure/logic_pure_quest.py:846-862` and wrapped at
-  `runtime/runtime_actions_production.py:1327-1335` and `1354-1361`. The
+  `05567189:runtime/runtime_actions_production.py:1327-1335` and `1354-1361`. The
   levels shown are boss display levels. Demon Slayer stage 7
   (`05567189:data/quest_data.py:7055-7094`) is unreachable for every player today.
 - Bankstanding: the seam `__init__.py:1604-1645` accepts `caller_owns_notice`;
   only two Crafting paths use it (`runtime/runtime_actions_shared.py:397-417`).
   Every other exhausted-material branch shows its own popup and then the
-  deferred "Switched to Bankstanding" modal (`ui/ui.py:4597-4642`). Affected
+  deferred "Switched to Bankstanding" modal (`ui/ui.py:4523-4568`). Affected
   branches: gathering `:451-459,592-600`; production `:511-539,575-607,647-656,
   724-739,779-841,863-908,958-966,1031-1061,1181-1241,1387-1442`; utility
   `:773-928`; activities encounters `:76-96`; distractions `:135-158`; combat
   `:422-512`.
 - Activities: the shared seam is target selection then
-  `_start_surface_activity()` (`ui/ui.py:8909-8919,20413-20429,21280-21290`).
+  `_start_surface_activity()` (`ui/ui.py:8582-8592,19724-19740,20591-20601`).
   Evil Tree arms only (`ui/ui.py:9117-9143`, "Select full event"). Shooting
   star's handler passes `activate=True` (`ui/ui.py:9465-9608`). Fish Flingers
   (`ui/ui.py:13743-13917`) and Big Top (`ui/ui.py:14877-15438`) have a "Start
   activity" control. The owner's shooting star two-step needs a reproduction.
 - Bones: `combat_auto_prayer_training` ("Auto-bury bones",
-  `ui/ui.py:7853-7858`) removes every bone from the kill's drops, awards Prayer
+  `ui/ui.py:7712-7717`) removes every bone from the kill's drops, awards Prayer
   XP, and adds two ticks per bone (`data/prayer_data.py:60-71,91-105`,
   `logic_pure/logic_pure_urns.py:405-416`). The learning record stores the
-  drops after that step (`logic_pure/logic_pure_combat_model.py:1062-1088`), so
-  the keep/drop list (`ui/ui.py:8143-8158`, `__init__.py:2040-2050`) never
+  drops after that step (`logic_pure/logic_pure_combat_model.py:1057-1083`), so
+  the keep/drop list (`ui/ui.py:8002-8017`, `__init__.py:1991-2001`) never
   shows bones. Bank "Bury" targets already exist (`data/prayer_data.py:38-39`).
 - Targets: `core/target_metadata.py:71-86` makes `sort_key` optional. Flat
   lists keep insertion order (`core/target_metadata.py:748-855`). Trees sort by
@@ -179,7 +179,7 @@ Fix sites: `__init__.py:1604-1645`, the runtime branch files. Tests:
 3. Tests: an auto-buried kill learns Bones; the keep/drop override is honoured
    under both settings.
 
-Fix sites: `logic_pure/logic_pure_combat_model.py:1062-1088`,
+Fix sites: `logic_pure/logic_pure_combat_model.py:1057-1083`,
 `logic_pure/logic_pure_urns.py:405-416`. Tests: `tests/test_runtime_actions.py`.
 
 ### S5 `quest-combat-flag-removal`

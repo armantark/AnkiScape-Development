@@ -16,7 +16,7 @@ Its raw record begins `1213,299,6303,11,1276`: **NLOC is 1213; Lizard CCN is 299
 
 ## Current boundary
 
-The Dream block is `logic_pure/logic_pure_combat_engine.py:1080-1100` inside `apply_combat_burst_pure`.
+The Dream block is `logic_pure/logic_pure_combat_engine.py:1060-1080` inside `apply_combat_burst_pure`.
 
 Before the transaction, the engine:
 

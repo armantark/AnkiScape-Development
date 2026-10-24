@@ -700,7 +700,7 @@ queue for quest slices, not a reason to relax the reachability gate.
     same search-and-read steps with Beaten book id `9717`, while Slashed book
     remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
     item table preserve the same two identities. The cleanup row at
-    `data/quest/stage_cleanups.py:126` instead invents slashing the Beaten Book in the
+    `data/quest/stage_cleanups.py:105` instead invents slashing the Beaten Book in the
     workshop and produces `Slashed book`. This needs a source-correction slice,
     not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
@@ -791,10 +791,10 @@ an open design fork; it does not choose or implement a repair.
   `logic_pure/logic_pure_quest.py:427-459` is the only production writer of
   route values in `quest_route_states`. It accepts a route only when a
   registered `QuestChoice` for the current stage offers the same `route_id`;
-  otherwise `logic_pure/logic_pure_quest.py:371-379` returns
+  otherwise `logic_pure/logic_pure_quest.py:357-365` returns
   `(player_data, False)`. The Quests tab likewise creates a route button only
   inside the loop over a `QuestChoice` option at
-  `ui/ui_tab_quests.py:389-402`. A stage can therefore require a route that the
+  `ui/ui_tab_quests.py:395-408`. A stage can therefore require a route that the
   player can neither select nor cause the logic layer to record, so the quest
   stays blocked forever.
 - **Measured catalog class:** at `a23f80f3`, scanning `QUESTS` and subtracting
@@ -1179,8 +1179,8 @@ What the code does:
 
 - The game reads the save from collection config key `ankiscape_player_data`
   into memory once, on the legacy `profileLoaded` hook (`__init__.py:456-459`,
-  registered at `__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
-  game write puts the memory copy back (`__init__.py:451-453`,
+  registered at `47139de7:__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
+  game write puts the memory copy back (`__init__.py:448-450`,
   `core/storage.py:51-54`). The add-on registers no sync or collection hook;
   its only other Anki hooks are reviewer, overview, undo and
   `profile_will_close` (HUD hide).
@@ -1231,7 +1231,7 @@ Options:
    the original AnkiScape on the same key). Cost: a new save field, one extra
    config read per answer, the player's current action is dropped, and it still
    needs option 1's reload. Live-install risk: a false mismatch (for example
-   the legacy TEXT-row repair in `core/storage.py:21-35`) stops every save.
+   the legacy TEXT-row repair in `core/storage.py:25-39`) stops every save.
    Undo: medium, because the revision field stays in synced saves.
 3. **Fold into the save relocation.** Move the save out of collection config
    (matrix row "Upstream AnkiScape 3.0 ideas"). Anki sync then never touches
@@ -1769,8 +1769,8 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 ### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
-- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:669` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
-- **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:319`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:661` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1055` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:313`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
 
 ### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
 
@@ -1831,8 +1831,8 @@ carries full authority.
    completes. The shipped one-shot search model and the Shattered Heart
    herb-protection exemption are removed together.
 4. **3.27 answered: shared hook.** Output-replacement eligibility moves into
-   the shared hook at `logic/shattered_heart_logic.py:319`. The four callers
-   (`runtime/runtime_actions_production.py:669`,
+   the shared hook at `logic/shattered_heart_logic.py:313`. The four callers
+   (`runtime/runtime_actions_production.py:661`,
    `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
    it, so a future rock-eligible skill cannot silently regain the
    untradeable-output defect.
@@ -2123,20 +2123,20 @@ forks, so the implemented recommendation is not authority to close them.
   `tools/audit_docs.py`, then repair the historical references against the live
   tests.
 - `### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1686`) — the owner chose the
+  (`memory-bank/design-thread-queue.md:1702`) — the owner chose the
   source-faithful search-until-turn-in model, but the catalog still alternates
   one-shot search and turn-in stages and
   `runtime/runtime_actions_production.py:694-700` still carries the pre-ruling
   Shattered Heart exemption. Reshape the five stage pairs and remove the
   exemption together.
 - `### 4.15 Grill of 2026-07-30 — design-gap answers`
-  (`memory-bank/design-thread-queue.md:1733`) — the requested Kinship party
+  (`memory-bank/design-thread-queue.md:1749`) — the requested Kinship party
   design packet does not exist, while the named Darkan dependency is available
   in current history at `d4d430606`, `fcad1e89d`, and `f2ed1d725`. Produce the
   flattened-port packet and per-class analog table; runtime implementation then
   waits for owner approval.
 - `### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1754`) — the owner chose the shared hook,
+  (`memory-bank/design-thread-queue.md:1770`) — the owner chose the shared hook,
   but `apply_shattered_heart_skilling_hook_pure` still accepts caller-filtered
   `output_items` and the four runtime callers still own eligibility. Move the
   tradeability rule into the hook and route all four callers through it.
@@ -2403,7 +2403,7 @@ Recorded as an open sourcing gap, not as work to schedule.
   normal maximum hit of 312. This project's evidence order puts Darkan first, so
   the executable value must be 260. Registering the disagreement documents it;
   it does not authorise the wiki number.
-- The Dominion Tower fallback at memory-bank/placeholder-values.md:193 covers
+- The Dominion Tower fallback at memory-bank/placeholder-values.md:199 covers
   Dominion Tower content and four stats. It does not extend to Glacor, and it
   must not be stretched to Ranged.
 - Applying that fallback gave a level-475 Glacor 99 in every stat, below the

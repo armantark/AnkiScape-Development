@@ -247,7 +247,6 @@ class ObservatoryOpeningTest(unittest.TestCase):
             storage.mw = addon.mw
             addon.storage_save_player_data = storage.save_player_data
             addon.storage_load_player_data = storage.load_player_data
-            addon.ui.update_menu_visibility = lambda _skill: None
             addon.show_error_message = lambda *_args: None
             addon._show_activity_gain = lambda _text: None
             addon._show_exp = lambda _amount: None

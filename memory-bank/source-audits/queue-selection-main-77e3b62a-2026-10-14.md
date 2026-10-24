@@ -9,7 +9,7 @@ Rank2 Fenkenstrain stage2 is qualified and assigned with both Brain routes, inve
 Rank3 Giant Dwarf opening is blocked on an owner-approved library load model; a real-weight choice needs complete qualified weights. Ferry is free and3000Coins is route budget.
 Existing Polar, Razor-backed and Camouflaged tracker rows supersede older missing-target labels; no implementation from those stale labels.
 Root independently checked the First Resort period/retained-contract hashes and current reducer semantics.
-The audit’s `data/quest/stage_cleanups.py:69` First Resort reference is stale: the cleanup imports the actual `data/quest/stage_overrides/members/later/as_a_first_resort.py` module at lines 9/952.
+The audit’s `data/quest/stage_cleanups.py:77` First Resort reference is stale: the cleanup imports the actual `data/quest/stage_overrides/members/later/as_a_first_resort.py` module at lines 9/952.
 Root handed that exact observed module and the stale-citation qualification to the implementation leaf.
 No current-main gameplay or final native/gate acceptance follows from this audit. Re-audit changed main before closure.
 Raw `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/queue-review-main-77e3b62a/report.md`; SHA-256 `e5d471caa96061cba8fa1e518b850fe8f595536ff487ea2da652b9dcf358348d`.
