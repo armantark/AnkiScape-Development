@@ -63,7 +63,7 @@ level 13, and uncut 1629 to cut 1613 with 25 XP at level 16. This is current
 reconstruction corroboration, not an additional period tradeability source.
 No Darkan source or harvest ledger was modified.
 
-In `data/crafting_data.py:185`, the `cut_jade` recipe outputs the exact key
+In `data/crafting_data.py:191`, the `cut_jade` recipe outputs the exact key
 `Jade`; line 186 outputs `Red topaz` from `cut_red_topaz`. Both explicitly set
 `tradeable=False`, and neither supplies `source_item_id`. The recipe converter
 at line 434 carries those values into the output specification.

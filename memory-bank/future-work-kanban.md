@@ -19,13 +19,6 @@ Shipped cards older than 30 days rotate monthly into [the shipped-card archive](
 Current goal selection, next action and branch disposition:
 `memory-bank/goal-priority-matrix.md`. Existing UI changes are excluded by this goal.
 
-### README FAQ — shipped and closed 2026-10-15
-
-The owner wrote the FAQ, and it sits in `README.md` after "What you get"
-(commit `62beff7d`). Its facts were checked against the code on 2026-10-15.
-Still unverified, so the FAQ makes no claim about it: which save wins when two
-desktops play before an AnkiWeb sync.
-
 ### Upstream ideas from AnkiScape 3.0 — 2026-09-19
 
 Labels: `IMPLEMENT` for the first four, `PARKED` for the rest. Owner accepted
@@ -61,16 +54,6 @@ Take, in value order:
 Specs (2026-09-25): [review-log catch-up](specs/review-log-catch-up.md),
 [export and restore](specs/save-export-restore.md), and
 [redo](specs/review-redo.md); each waits on its owner questions.
-
-Check, then close or fix:
-
-- One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
-  on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
-  Confirm `level_up_check` (`__init__.py:615`) and the core check behave the
-  same after a large XP change. Fixed 2026-09-25: the runtime check only
-  delegates to the core one, which showed one popup per level (the Elder Kiln
-  100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
-  the old and new level and still logs every level.
 
 Release hygiene to copy when the AnkiWeb gates open:
 
@@ -121,10 +104,10 @@ Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
-  a new `QDialog` per open (`ui/ui.py:4899-4904`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:23400-23402`); the Bank
+  a new `QDialog` per open (`ui/ui.py:4818-4823`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:22683-22685`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24770-24781,27095-27108`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:24052-24063,25874-25887`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
   real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before
@@ -1473,7 +1456,7 @@ bump must not strand a route in a repeated runtime error.
 
 | Defect | Breaks | Cause | Victims |
 |---|---|---|---|
-| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure/logic_pure_progression.py:42-45,404-413`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
+| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure/logic_pure_progression.py:43-46,399-408`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
 | Unmodelled dead time | *rate* | one review per action, whatever the real wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
 
 *Legacy adapter.* Its damage scales with how rare the action is: near `p=1` the square

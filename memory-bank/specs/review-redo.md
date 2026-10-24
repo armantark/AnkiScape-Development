@@ -355,7 +355,7 @@ steps, and the save hash after each step, under `memory-bank/evidence/`.
 4. Today, Undo of any `Answer Card` pops the top snapshot, even if that
    snapshot belongs to a different answer. An answer that the add-on does
    not process makes no snapshot (`review_answered` is false in
-   `on_answer_card`, `__init__.py:5435-5436`). Its undo pops the snapshot of the
+   `on_answer_card`, `__init__.py:5290-5291`). Its undo pops the snapshot of the
    answer before it.
 
    Section 4.2.1 matches by revlog id: it pops a tagged snapshot only when

@@ -40,8 +40,8 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   Super prayer, Prayer renewal, Prayer mix are all live
   (`data/herblore_data.py:216,261,262,275`).
 - **`prayer_level` already feeds the combat-level formula**
-  (`logic_pure/logic_pure_combat_engine.py:2066-2079`) and `prayer` is in
-  `_COMBAT_AFFECTABLE_SKILLS` (`logic_pure/logic_pure_combat_model.py:355-362`).
+  (`logic_pure/logic_pure_combat_engine.py:1994-2007`) and `prayer` is in
+  `_COMBAT_AFFECTABLE_SKILLS` (`logic_pure/logic_pure_combat_model.py:354-361`).
 - **Equipment already models a prayer bonus**: `prayer` is in
   `EQUIPMENT_BONUS_FIELDS` (`data/equipment_data.py:15`), so the drain-resistance
   formula consumes it with no schema change.
@@ -124,7 +124,7 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   authentic rate × uptime. Combat hooks: enemy damage
   `logic_pure/logic_pure_combat_engine.py:1596-1616`; pre-loop accuracy and
   maximum-hit setup `logic_pure/logic_pure_combat_engine.py:1394-1467`; per-tick
-  loop `logic_pure/logic_pure_combat_engine.py:1417`.
+  loop `logic_pure/logic_pure_combat_engine.py:1346`.
 - **Uptime policy, not assumed 100%.** Toggle Off / Conservative 40% /
   Aggressive 70% / Always 100%, scoped through the combat preset system below.
   The fractions are the one invented knob, tuned from telemetry later.
@@ -137,7 +137,7 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   override individual fields. This mirrors skilling's casual-preset /
   advanced-saved-layout split (`runtime/runtime_actions_carried_overlay.py:762`) and generalizes the
   current global-only combat state (`default_combat_state_pure`,
-  `logic_pure/logic_pure_combat_model.py:573`); migration keeps the existing global loadout as the
+  `logic_pure/logic_pure_combat_model.py:568`); migration keeps the existing global loadout as the
   initial default preset. Checkboxes are gated by unlock level, enforce the
   authentic conflict groups (protect/deflect one-of; sap ⊥ leech ⊥ turmoil;
   overheads ⊥ Wrath/Soul Split), and get a "hide lower-tier prayers" toggle.
@@ -163,18 +163,18 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
 - **Rapid Restore analog:** recovery-step multiplier `(1 + uptime)` on the
   existing `COMBAT_STAT_DRAIN_RECOVERY_TICKS` 100-tick cadence
   (`_combat_recover_current_levels`,
-  `logic_pure/logic_pure_combat_supplies.py:1102`), excluding
+  `logic_pure/logic_pure_combat_supplies.py:1099`), excluding
   Constitution/Prayer/Summoning. Rapid Heal analog: natural LP trickle
   `×(1 + uptime)`. Rapid Renewal / Prayer renewal potion restore points
   gradually per tick (pin exact rate at implementation).
 - **Prayer points:** max = `prayer_level` (internally `level*10`). Bank-run
   refill = free full restore "as if stopping by an altar." Mid-burst restore =
   Prayer potions auto-drunk (existing stat-potion auto-drink,
-  `logic_pure/logic_pure_combat_supplies.py:1631`). At 0 points with no potion, prayers switch off until
+  `logic_pure/logic_pure_combat_supplies.py:1629`). At 0 points with no potion, prayers switch off until
   the next bank-run refill. Drain resistance `60 + 2×prayer equipment bonus`.
 - **Protect Item** is meaningful because PvM death has real costs
   (`_combat_apply_pvm_death`,
-  `logic_pure/logic_pure_combat_model.py:818`).
+  `logic_pure/logic_pure_combat_model.py:813`).
 - **Auto-bury/scatter during combat**: per-combat toggle spending extra
   simulated ticks per bone/ash, off by default.
 - **Piety/Chivalry gates:** pre-EOC these required King's Ransom + the Knight

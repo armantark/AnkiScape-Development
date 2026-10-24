@@ -27,9 +27,9 @@ The three predicates, with the exact lines they sit on:
 
 | Quest | Stage | Predicate | Line |
 | --- | ---: | --- | --- |
-| `legacy_of_seergaze` | 5 | `Cast Enchant Level 2 Jewellery for the emerald preparations` | `data/quest/stage_cleanups.py:695` |
-| `in_aid_of_the_myreque` | 6 | `Enchant sapphire for the Myreque preparations` | `data/quest/stage_cleanups.py:548` |
-| `the_fremennik_isles` | 5 | `Make a Fremennik round shield` | `data/quest/stage_cleanups.py:409` |
+| `legacy_of_seergaze` | 5 | `Cast Enchant Level 2 Jewellery for the emerald preparations` | `data/quest/stage_cleanups.py:668` |
+| `in_aid_of_the_myreque` | 6 | `Enchant sapphire for the Myreque preparations` | `data/quest/stage_cleanups.py:521` |
+| `the_fremennik_isles` | 5 | `Make a Fremennik round shield` | `data/quest/stage_cleanups.py:382` |
 
 ## 2. Why you cannot simply bind these to what exists
 

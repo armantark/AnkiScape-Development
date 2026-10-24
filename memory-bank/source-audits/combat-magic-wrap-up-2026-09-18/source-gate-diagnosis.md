@@ -9,7 +9,7 @@ Root's full source gate session `16559` failed its plain lane: `Ran 5693 tests i
 | Failed assertion | Expected digest | Observed digest |
 | --- | --- | --- |
 | `test_first_wave_digests`, `tests/test_module_surface.py:73`, combat engine | `886cde5a31bb852ed696e8018c8954e707fff86c56dc0fc65633fd1b2f76f8c6` | `ce360383f420a4bd22595f8e7ee8af3ad4cb9c7c069a86ad355a1f82dc074d79` |
-| `test_root_initializer_digest_under_qt`, `tests/test_module_surface.py:202`, root initializer | `c81943a0fc224bafcefc85a0fa3bd1a1c6bc242b73c2c9949d65efa8e1bcf030` | `2040bdd3887ef471b0aa1fcfbb4031180bccbfb458e4b46161a42eed7781b366` |
+| `test_root_initializer_digest_under_qt`, `7eaa9910:tests/test_module_surface.py:202`, root initializer | `c81943a0fc224bafcefc85a0fa3bd1a1c6bc242b73c2c9949d65efa8e1bcf030` | `2040bdd3887ef471b0aa1fcfbb4031180bccbfb458e4b46161a42eed7781b366` |
 
 The plain suite explicitly launches the Qt interpreter for its root-initializer assertion. Its name does not establish the separate full Qt lane's outcome. That lane remains root-owned; no outcome is inferred here. The first-wave test stops at its first unequal line, so the failure does not establish that later surfaces or its later interpreter iteration passed.
 
@@ -21,9 +21,9 @@ AST and Git reads establish these exact moved public bindings:
 
 | Surface | Binding | Original definition | Candidate definition |
 | --- | --- | --- | --- |
-| Engine | `combat_magic_preset_locked_reasons_pure` | `logic_pure_combat_model.py:413` | `logic_pure_combat_magic.py:32` |
-| Engine | `combat_staff_covered_runes_pure` | `logic_pure_combat_model.py:2288` | `logic_pure_combat_magic.py:107` |
-| Root, through the pure facade | `combat_dream_thrift_locked_reasons_pure` | `logic_pure_combat_model.py:403` | `logic_pure_combat_magic.py:22` |
+| Engine | `combat_magic_preset_locked_reasons_pure` | `logic_pure_combat_model.py:408` | `logic_pure_combat_magic.py:32` |
+| Engine | `combat_staff_covered_runes_pure` | `logic_pure_combat_model.py:2252` | `logic_pure_combat_magic.py:107` |
+| Root, through the pure facade | `combat_dream_thrift_locked_reasons_pure` | `logic_pure_combat_model.py:398` | `logic_pure_combat_magic.py:22` |
 
 Engine imports the first two through model at lines 117 and 383. The facade imports all three through model at line 438; root imports Dream through the facade at line 44. The model re-exports them from magic at line 9. The magic module assigns no replacement `__module__` or `__qualname__`. All three argument ASTs, absent return annotations, and undecorated status are unchanged. Dream and staff whole-function ASTs are identical; the preset validator's already-reviewed two-helper refactor is not whole-function-identical, and the surface instrument does not serialize its body.
 
