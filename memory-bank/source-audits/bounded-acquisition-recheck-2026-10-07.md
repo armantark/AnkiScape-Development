@@ -14,6 +14,6 @@ The quest product files equal main. No qualified complete implementation emerged
 
 Source anchors: [Ghosts Ahoy](ghosts-ahoy-harvest-2026-09-01.md#not-recovered), [Horror from the Deep](horror-from-the-deep-harvest-2026-09-02.md#not-recovered), and the retained Darkan `the-giant-dwarf-target-contract.json` and `garden-of-tranquillity-target-contract.json` in `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/`.
 Root read the exact source-blocked sections and the generated first-stage requirements for Creature of Fenkenstrain and The Grand Tree.
-Root also read `tests/test_logic.py:3913`: the Monkey Madness test seeds prerequisite completion before it exercises the local infiltration action.
+Root also read `tests/test_logic.py:3910`: the Monkey Madness test seeds prerequisite completion before it exercises the local infiltration action.
 Do not remove sentinels, use automatic labels, seed completion or substitute transports to claim a complete player route.
 The reviewer performed no source harvest, execution, tests or writes. This record leaves the remaining candidates open for bounded selection.

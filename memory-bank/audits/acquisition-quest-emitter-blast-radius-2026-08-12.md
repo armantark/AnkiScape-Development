@@ -325,7 +325,7 @@ The live blocker probe confirms:
 - Druidic Ritual stages 1–3 require un-emitted hand-authored actions; and
 - Jungle Potion stages 1–4 require un-emitted generated placeholder actions.
 
-`runtime/runtime_actions_production.py:1298-1389` deactivates Questing and rejects
+`9eb91701:runtime/runtime_actions_production.py:1298-1389` deactivates Questing and rejects
 progress when these stage blocker reasons exist. Consequently an ordinary
 level-one-start player cannot complete Jungle Potion or enter Tai Bwo Wannai
 Cleanup through currently modeled progression routes. This is not a claim about

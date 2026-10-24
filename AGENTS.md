@@ -9,7 +9,7 @@ open multiple dialogs, and serve stale code or assets.
   `addons21`.
 - Create linked worktrees with
   `python3 tools/worktree_guard.py add <branch> [--name <leaf>]`; they belong in
-  the sibling `Anki2/ankiscape_worktrees/` directory.
+  the safe root selected by the guard from the canonical checkout path.
 - Run `python3 tools/worktree_guard.py audit` before and after worktree changes.
 - Never use a raw `git worktree add` destination beneath `addons21`.
 - The global pooled-`treehouse` rule reaches this repo only through the guard,

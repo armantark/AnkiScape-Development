@@ -6,7 +6,7 @@ advanced by this seat. Delete this file when any single item below clears.
 
 ## Audit, measured not asserted
 
-`memory-bank/loop-queue.md` has two open entries, at lines 197 and 212.
+`f455b371:memory-bank/loop-queue.md:197,212` records the two entries at this checkpoint.
 `memory-bank/goal-priority-matrix.md` has three live rows not closed, at lines
 56, 58 and 64; every other open row sits in the section the file itself labels
 "Initial ordered-work audit — historical".
