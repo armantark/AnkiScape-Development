@@ -669,7 +669,7 @@ skill cadence gate. The complete reconciliation table is
 `memory-bank/source-audits/activity-cadence-reconciliation-2026-07-18.md`.
 
 Persistent multi-enemy activities use one sealed session plus one visible
-roster. A successful review applies the ordinary live `6 × M` Combat reducer
+roster. Each source step applies the ordinary live six-tick Combat reducer
 to exactly one engaged member, stops at a terminal boundary, then resolves one
 bounded pressure pass from the remaining roster through the same player
 Defence and protection-prayer state. Preserve the player's full data mapping
