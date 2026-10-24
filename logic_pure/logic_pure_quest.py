@@ -3,13 +3,18 @@
 from typing import Iterable, Mapping, Optional
 
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
+from .quest.eligibility import (  # noqa: F401 (re-export)
+    _skill_requirement_reason, quest_locked_reasons_pure, quest_eligibility_reasons_pure,
+)
+from .quest.completion_rewards import apply_completion_rewards_pure
+from .quest.elemental_workshop import (
+    opening_blockers_pure, opening_review_ready_pure,
+    apply_opening_review_pure, opening_journal_rows_pure,
+)
 from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
-from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 from ..core.tool_belt import tool_on_belt
-
-from ..logic.treasure_trails_logic import clue_refusal_reason_pure, filter_clue_scroll_outputs_pure
 
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
@@ -108,66 +113,6 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
 
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
-
-def _skill_requirement_reason(player_data, requirement):
-    if not isinstance(requirement, Mapping):
-        return None
-    skill_id = requirement.get("skill_id")
-    display_name = requirement.get("display_name")
-    if not isinstance(skill_id, str):
-        return None
-    skill = get_skill(skill_id)
-    label = str(display_name or (skill.display_name if skill is not None else skill_id.replace("_", " ").title()))
-    level_required = _positive_int(requirement.get("level", 1), 1)
-    if skill_id == "combat":
-        return None if player_combat_level_pure(player_data) >= level_required else f"{label} {level_required}"
-    if skill is None or not skill.trainable:
-        return f"{label} {level_required} (not implemented)"
-    level_key = skill.level_key
-    if level_key not in player_data:
-        return f"{label} {level_required} (not implemented)"
-    if _positive_int(player_data.get(level_key, 1), 1) < level_required:
-        return f"{label} {level_required}"
-    return None
-
-def quest_locked_reasons_pure(player_data, quest_id, quest_data):
-    quest = quest_data.get(quest_id)
-    if not quest:
-        return ("unknown quest",)
-    state = quest_state_pure(player_data, quest_id)
-    if state["completed"]:
-        return ("completed",)
-    if state["started"]:
-        return tuple()
-
-    reasons = []
-    for requirement in quest.get("required_quests", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        required_id = requirement.get("quest_id")
-        display_name = requirement.get("display_name")
-        if not isinstance(required_id, str):
-            continue
-        if not isinstance(quest_data.get(required_id), Mapping):
-            reasons.append(f"{display_name or required_id.replace('_', ' ').title()} (not implemented)")
-        elif not quest_completed_pure(player_data, required_id):
-            reasons.append(str(display_name or required_id.replace("_", " ").title()))
-
-    for requirement in quest.get("required_skills", ()) or ():
-        reason = _skill_requirement_reason(player_data, requirement)
-        if reason:
-            reasons.append(reason)
-
-    required_quest_points = _positive_int(quest.get("required_quest_points", 0), 0)
-    if required_quest_points and _positive_int(player_data.get("quest_points", 0), 0) < required_quest_points:
-        reasons.append(f"{required_quest_points} quest points")
-
-    inventory = player_data.get("inventory", {}) or {}
-    required_items = quest.get("required_items", {}) or {}
-    for item_name, amount in required_items.items():
-        if inventory.get(item_name, 0) < amount:
-            reasons.append(f"{item_name} x{amount}")
-    return tuple(dict.fromkeys(reasons))
 
 def quest_current_stage_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
@@ -866,9 +811,9 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
         return tuple()
     choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
     if choice_blockers:
-        return choice_blockers
+        return (*choice_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
     _, blockers = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
-    return blockers
+    return (*blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
@@ -1032,7 +977,11 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
-    return oronwen_review_ready_pure(player_data, quest_id, blockers) or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
+    return (
+        oronwen_review_ready_pure(player_data, quest_id, blockers)
+        or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
+        or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
+    )
 
 
 def start_quest_pure(player_data, quest_id, quest_data, *, assign_greeting=True):
@@ -1322,13 +1271,17 @@ def apply_quest_progress_pure(
     data, ok = start_quest_pure(player_data, quest_id, quest_data, assign_greeting=False)
     state = quest_state_pure(data, quest_id)
     if not ok or state["completed"]:
-        return (data, False, False, *empty_refusal)
+        return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
     data, repair_result = apply_oronwen_review_pure(data, quest_id, blockers)
     if repair_result == "handed_in":
         return (data, True, False, *empty_refusal)
-    if repair_result == "collected":
-        blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    data, opening_ok = apply_opening_review_pure(
+        data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,
+    )
+    if not opening_ok:
+        return (player_data, False, False, *empty_refusal)
+    blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
     if blockers:
         return (player_data, False, False, *empty_refusal)
     quest = quest_data[quest_id]
@@ -1346,25 +1299,9 @@ def apply_quest_progress_pure(
     clue_reward_refusal_reason = ""
     if completed_now:
         state["completed"] = True
-        data["quest_points"] = max(0, _positive_int(data.get("quest_points", 0), 0)) + _positive_int(quest.get("point_reward", 0), 0)
-        inventory = data["inventory"]
-        offered_rewards = quest.get("rewards", {}) or {}
-        rewards = filter_clue_scroll_outputs_pure(data, offered_rewards)
-        clue_reward_refusal_reason = clue_refusal_reason_pure(
-            player_data, offered_rewards, rewards
+        clue_reward_refusal_reason = apply_completion_rewards_pure(
+            data, player_data, quest_id, quest, _apply_quest_xp_rewards,
         )
-        for item_name, amount in rewards.items():
-            inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
-        if quest_id == "family_crest":
-            data["family_gauntlet_enchantment"] = "family"
-        if quest_id == "nomads_requiem":
-            # Nomad's Requiem pays 70 Zeal points, a Soul Wars currency, not an
-            # inventory item (RuneScape Wiki Nomad's Requiem oldid=6386610).
-            data["soul_wars_zeal"] = min(
-                SOUL_WARS_ZEAL_CAP,
-                max(0, int(data.get("soul_wars_zeal") or 0)) + 70,
-            )
-        _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
     if include_clue_refusal:
         return data, True, completed_now, clue_reward_refusal_reason
@@ -1440,4 +1377,4 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
                 "current": (not state["completed"] and stage == progress),
             }
         )
-    return tuple(rows)
+    return opening_journal_rows_pure(player_data, quest_id, tuple(rows))
