@@ -1179,7 +1179,7 @@ What the code does:
 
 - The game reads the save from collection config key `ankiscape_player_data`
   into memory once, on the legacy `profileLoaded` hook (`__init__.py:456-459`,
-  registered at `__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
+  registered at `47139de7:__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
   game write puts the memory copy back (`__init__.py:448-450`,
   `core/storage.py:51-54`). The add-on registers no sync or collection hook;
   its only other Anki hooks are reviewer, overview, undo and

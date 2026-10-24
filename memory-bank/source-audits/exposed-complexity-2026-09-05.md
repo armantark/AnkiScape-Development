@@ -37,7 +37,7 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 | --- | ---: | ---: | ---: |
 | `logic_pure/logic_pure_combat_engine.py:1033::apply_combat_burst_pure` | 348 | 690 | 16.59811320754717 |
 | `runtime/runtime_actions_carried_overlay.py:951::run_answer_with_carried_overlay` | 189 | 267 | 11.831521739130435 |
-| `__init__.py:5700::on_answer_card` | 93 | 84 | 3.664285714285714 |
+| `91c39417:__init__.py:5700::on_answer_card` | 93 | 84 | 3.664285714285714 |
 | `runtime/runtime_actions_activities_training.py:882::handle_agility_answer` | 61 | 80 | 5.6911764705882355 |
 | `runtime/runtime_actions_carried_overlay.py:148::_try_pack_yak_winter_storage_overlay` | 34 | 20 | 7.838709677419355 |
 | `logic/shop/state.py:170::shop_access_lock_reason_pure` | 29 | 42 | 3.9705882352941178 |

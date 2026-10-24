@@ -34,9 +34,9 @@ Take, in value order:
   Anki's `revlog` for uncredited eligible reviews (including AnkiMobile and
   AnkiDroid rows synced to desktop), awards them on the next profile load,
   and keeps a persisted frontier id so the scan is incremental (fast path
-  chunk 2,000 rows; full reconciliation cap 20,000 rows, newest first). This
-  fork credits live desktop reviews only; `grep -rl revlog` over
-  `__init__.py core runtime logic ui` returns 0 files.
+  chunk 2,000 rows; full reconciliation cap 20,000 rows, newest first). This fork credits live desktop reviews only.
+  `core/study_volume.py` reads the review log to choose an adaptive world-day
+  length; those queries do not credit past reviews.
 - Game save outside Anki's tables. Upstream `evolved/journal.py` keeps an
   add-on-owned SQLite at `<profile>/ankiscape-evolved/<game_uuid>/game.sqlite3`
   (WAL, 25 ms interactive busy budget, fail fast to a recovery notice). This
@@ -118,9 +118,9 @@ Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
 
-- Quest combat stats: 91 of 293 encounters across 47 quests carry none and
-  report "This fight is not modelled yet (combat stats missing)"; list in
-  `memory-bank/pass13-running-notes-2026-09-03.md` (02:18).
+- Quest combat stats: run `python3 tools/audit_quest_combat_stat_gaps.py`
+  for the live encounter list. The audit identifies encounters without
+  resolver-ready stats; the Pass 13 notes retain the historical census.
 - Tradeable defaults: 106 items are `tradeable=False` while the 2011 cache
   flags them exchangeable (69 summoning pouches, 37 shop clothing and misc);
   root cause `MiningBonusItem.tradeable` default at `data/mining_data.py:98`.
@@ -903,8 +903,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 
 - `generated/quest_catalog_generated.py` carries all 194 pre-cutoff quests, and
   `data/quest_data.py` materializes all 194 as `QuestDefinition` rows. Together
-  with two miniquests, the live `QUESTS` and `QUESTS_BY_ID` collections contain
-  196 definitions.
+  with four miniquests, the live `QUESTS` and `QUESTS_BY_ID` collections contain
+  198 definitions.
 - Catalog and definition presence remain scaffolding. Re-audit each quest for
   authentic stages, branches, item transformations, combat, rewards, journals,
   unlocks, and missing-skill gates.

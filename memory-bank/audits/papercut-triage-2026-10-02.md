@@ -24,7 +24,7 @@ ui/ui.py:8529 still shows a reward-purchase placeholder. References to slayer_qu
 
 ### Entry 003 — Quest generation still depends on drifting source inputs
 
-Equipment drift is fixed by 06324e44: the non-writing generation probe produced byte-identical equipment_data.py (/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-10-02/equipment-regeneration-diff.log). Quest generation still reads external Darkan NPC definitions (tools/build_pre_eoc_quest_catalog.py:82) and writes its whole output at line 2613. Commit 8b57b4da explicitly leaves that drift unresolved; no reproducible retained input/output check closes it.
+Equipment drift is fixed by 06324e44: the non-writing generation probe produced byte-identical equipment_data.py (/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-10-02/equipment-regeneration-diff.log). Quest generation still reads external Darkan NPC definitions (tools/build_pre_eoc_quest_catalog.py:82) and writes its whole output at `aaa00c8a:tools/build_pre_eoc_quest_catalog.py:2613`. Commit 8b57b4da explicitly leaves that drift unresolved; no reproducible retained input/output check closes it.
 
 ### Entry 048 — HUD projection failures silently retain stale content
 
@@ -32,7 +32,7 @@ ui/ui.py:4091 still wraps ReviewHUD.set_data() in an outer except Exception: pas
 
 ### Entry 055 — The Crafting repair awaits integration
 
-tools/fetch_crafting_assets.py:175 still constructs HttpWikiClient() without before_timestamp. Lines 156-166 expose no cutoff or User-Agent options; tools/fetch_assets.py:123-133 supports both in the shared client. The command can still fetch current art on this tree. Commits 1fc5cb70 and 075e90a9 repair the client identity and cutoff on `goal/pass15b-logic-followups`. Neither commit is an ancestor of this slice or `main` at review time. Keep the exact open line until that repair is integrated and verified.
+tools/fetch_crafting_assets.py:175 still constructs HttpWikiClient() without before_timestamp. `tools/fetch_crafting_assets.py:157-167` exposes no cutoff or User-Agent options; tools/fetch_assets.py:123-133 supports both in the shared client. The command can still fetch current art on this tree. Commits 1fc5cb70 and 075e90a9 repair the client identity and cutoff on `goal/pass15b-logic-followups`. Neither commit is an ancestor of this slice or `main` at review time. Keep the exact open line until that repair is integrated and verified.
 
 ### Entry 030 — The reported expanded quest card lacks exact proof
 

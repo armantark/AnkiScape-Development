@@ -64,7 +64,7 @@ reconstruction corroboration, not an additional period tradeability source.
 No Darkan source or harvest ledger was modified.
 
 In `data/crafting_data.py:191`, the `cut_jade` recipe outputs the exact key
-`Jade`; line 186 outputs `Red topaz` from `cut_red_topaz`. Both explicitly set
+`Jade`; `data/crafting_data.py:192` outputs `Red topaz` from `cut_red_topaz`. Both explicitly set
 `tradeable=False`, and neither supplies `source_item_id`. The recipe converter
 at line 434 carries those values into the output specification.
 `core/item_registry.py:214` registers each Crafting output with that same
