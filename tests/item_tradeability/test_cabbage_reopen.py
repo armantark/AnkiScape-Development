@@ -32,7 +32,6 @@ class CabbageReopenTest(unittest.TestCase):
         sys.modules["aqt"].mw = runtime_fixture._DummyMW(self.collection)
         self.addon = runtime_fixture._load_addon_as_package("ankiscape_cabbage_reopen")
         addon = self.addon
-        addon.ui.update_menu_visibility = lambda *_args: None
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _exp: None

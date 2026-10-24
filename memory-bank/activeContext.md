@@ -22,7 +22,6 @@
 - The live install under `addons21/ankiscape_fork` is the canonical checkout. All assigned work uses pooled worktrees through `tools/worktree_guard.py`; only the root promotes verified merged trees. Root owns quota/reset control, the MacBook mirror, native coordination and promotion. Independent non-runtime work can proceed while native acceptance is blocked. Menu-open performance remains on `memory-bank/future-work-kanban.md` under its owner target.
 Last staleness sweep: 2026-10-13
 ## Decision Boundaries
-
 - The quota ceiling is a limit, not a spending target.
 - Finish and land already-authorized units before new cleanup; reuse existing checks and receipts, and add a runner, checker, retention layer, audit or plan only when a demonstrated blocker of the current unit requires a minimal repair.
 - The Darkan repository implements its quests and miniquests, including achievement task hooks; the thread split covers source harvesting only: for every subject, check pins and claims, doorbell, then record a claim before harvesting, with Darkan's 249 revisions already pinned; the one exception Darkan names to "AnkiScape writes no in-game quest code" is AnkiScape's 2026-08-31 `skippy_and_the_mogres` waiver, already used: that miniquest landed at `9b933084` (owner rulings 2026-09-25, [shared source ledger](shared-source-harvest-ledger.md)).
