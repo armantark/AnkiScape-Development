@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .quest.murder_mystery import MURDER_MYSTERY_OPENING_ITEMS as _MURDER_MYSTERY_OPENING_ITEMS
+
 from pathlib import Path
 from typing import Any
 
@@ -85,6 +87,7 @@ def quest_item_acquisition_activities_as_dict() -> dict[str, dict[str, Any]]:
 
 def quest_item_acquisition_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
+        **{name: dict(row) for name, row in _MURDER_MYSTERY_OPENING_ITEMS.items()},
         "Ugthanki dung": {
             "category": "material",
             "item_id": 4601,
