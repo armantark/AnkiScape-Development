@@ -3,7 +3,7 @@
 ## Scope and accounting
 
 This audit accounts for every incident in the 2026-08-09 00:49 checkout
-snapshot of `memory-bank/papercuts.md` (snapshot lines 3-129). The incident log
+snapshot of `6c247eb8:memory-bank/papercuts.md:3-129`. The incident log
 remains append-only evidence. A papercut is closed here when it has a durable
 guard, an existing regression oracle, or an explicit external/source boundary;
 closure does not erase the original failure.

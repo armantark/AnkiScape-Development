@@ -1103,24 +1103,6 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ## Cross-system program queue
 
-### Fancy and fighter boots have no art — needs owner approval
-
-Labels: `IMPLEMENT`, blocked on the owner, 2026-07-25.
-
-Reported in the playtest as "no icon for fancy boots (maybe not fighters boots
-either)". Both boots are now registered and equippable, so they leave the bank's
-"Other" group, but that is a different fix: **no sprite exists on disk.**
-`STRONGHOLD_OF_SECURITY_ITEM_IMAGES` is empty and `EXTRA_ITEM_IMAGES["Fancy boots"]`
-resolves to `None`, so the reported symptom is unchanged in the running add-on.
-
-Art is not invented here. The fetch pipeline under `tools/` obtains period sprites,
-and the result needs the owner's eye before it ships, so this stays blocked rather
-than guessed.
-
-The coverage test that should have caught the gap was itself fixed in the same
-pass — an asset-existence test that misses a missing icon is the more important
-defect, and worth a look for other families it may still be blind to.
-
 ### CS2, config, and interface readers shipped
 
 Labels: `SOURCE AUDIT` for the client-side parity re-walk.

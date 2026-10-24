@@ -7,7 +7,7 @@ a player-reachable completion route. The cutoff is immediately before EOC:
 `2012-11-20T00:00:00Z`.
 
 The initial claim is
-`memory-bank/pending/bar-crawl-claim-2026-09-02.md:12-32`. It establishes that
+`memory-bank/source-audits/bar-crawl-claim-2026-09-02.md:12-32`. It establishes that
 Darkan is an implementation lead, not period proof, and that the other
 project's two completed quest rows prove only their dependent gates. This
 harvest owns the internal Bar Crawl values for the first time; no Bar Crawl row

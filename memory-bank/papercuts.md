@@ -745,3 +745,4 @@
 - 2026-10-24T10:02:42.874105-07:00: The first staleness round could not lease a worktree: "all 16 worktrees are in use or dirty (max_trees = 16)". Guard status showed slot 14 as available, dirty=False and processes=0. The pool limit stayed fixed.
 - 2026-10-24T10:02:42.874105-07:00: The first staleness round combined broad Memory Bank reads and exceeded the output budget. Bounded line ranges keep each source read visible.
 - 2026-10-24T10:02:42.874105-07:00: The first staleness round guessed shell globs; zsh returned "no matches found: core/storage/*.py" and "no matches found: ui/ui_*summon*". Use the file inventory and quoted --glob filters.
+- 2026-10-24T10:06:06.187816-07:00: A staleness probe guessed runtime/runtime_actions_minigame_combat.py and runtime/runtime_actions_cadence.py; rg returned "No such file or directory". A directory search found budget admission in runtime/runtime_actions.py and runtime/runtime_actions_context.py.
