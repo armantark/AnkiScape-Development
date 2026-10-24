@@ -9,6 +9,7 @@ from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
+from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
     # Template:Questreq oldid=6552449.
@@ -172,7 +173,26 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
+    # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
+    # owner-selected and lacks period consensus.
+    "in_search_of_the_myreque": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=tuple(
+                {
+                    "Respond to Cyreg with the following:": "Persuade Cyreg with four responses in order; the last two continue in the next journal stage:",
+                    "Give him three Planks and then ten Coins.": "After all four responses, give Cyreg three ordinary planks and keep three more for the bridge. He will give you directions. To board, carry a blessed silver sickle and a Druid pouch with at least five current charges. The ten-coin fare applies after quest completion.",
+                }.get(line, line)
+                for line in journal_row["journal"]
+            ),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG
+        if quest_row["id"] == "in_search_of_the_myreque"
+        for journal_row in quest_row["journal_stages"]
+    ),
     "cold_war": COLD_WAR_JOURNAL_STAGES,
+    "garden_of_tranquillity": _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES,
     "the_blood_pact": THE_BLOOD_PACT_STAGES,
     "icthlarins_little_helper": ICTHLARINS_LITTLE_HELPER_STAGES,
     SMOKING_KILLS_ID: SMOKING_KILLS_STAGES,
