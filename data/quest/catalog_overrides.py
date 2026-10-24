@@ -9,6 +9,7 @@ from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
+from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
     # Template:Questreq oldid=6552449.
@@ -102,6 +103,20 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
     ),
     "nature_spirit": (),
     "the_lost_tribe": (),
+    # Legends' Quest oldid 6529921 line 33; Sal's capture 20121018050049.
+    "legends_quest": (
+        QuestSkillRequirement("agility", "Agility", 50),
+        QuestSkillRequirement("combat", "Combat", 75),
+        QuestSkillRequirement("crafting", "Crafting", 50),
+        QuestSkillRequirement("herblore", "Herblore", 45),
+        QuestSkillRequirement("magic", "Magic", 56),
+        QuestSkillRequirement("mining", "Mining", 52),
+        QuestSkillRequirement("prayer", "Prayer", 42),
+        QuestSkillRequirement("smithing", "Smithing", 50),
+        QuestSkillRequirement("strength", "Strength", 50),
+        QuestSkillRequirement("thieving", "Thieving", 50),
+        QuestSkillRequirement("woodcutting", "Woodcutting", 50),
+    ),
 }
 
 
@@ -128,6 +143,13 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Druidic Ritual", "Troll Stronghold", "Death Plateau", "Agility 15", "Herblore 31",
     ),
     "nature_spirit": ("Priest in Peril", "The Restless Ghost"),
+    # Same period sources: Prayer 42 required; 43 recommended.
+    "legends_quest": (
+        "108 quest points", "Family Crest", "Heroes' Quest", "Shilo Village",
+        "Underground Pass", "Waterfall Quest", "Agility 50", "Combat 75",
+        "Crafting 50", "Herblore 45", "Magic 56", "Mining 52", "Prayer 42",
+        "Smithing 50", "Strength 50", "Thieving 50", "Woodcutting 50",
+    ),
 }
 
 
@@ -151,7 +173,26 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
+    # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
+    # owner-selected and lacks period consensus.
+    "in_search_of_the_myreque": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=tuple(
+                {
+                    "Respond to Cyreg with the following:": "Persuade Cyreg with four responses in order; the last two continue in the next journal stage:",
+                    "Give him three Planks and then ten Coins.": "After all four responses, give Cyreg three ordinary planks and keep three more for the bridge. He will give you directions. To board, carry a blessed silver sickle and a Druid pouch with at least five current charges. The ten-coin fare applies after quest completion.",
+                }.get(line, line)
+                for line in journal_row["journal"]
+            ),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG
+        if quest_row["id"] == "in_search_of_the_myreque"
+        for journal_row in quest_row["journal_stages"]
+    ),
     "cold_war": COLD_WAR_JOURNAL_STAGES,
+    "garden_of_tranquillity": _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES,
     "the_blood_pact": THE_BLOOD_PACT_STAGES,
     "icthlarins_little_helper": ICTHLARINS_LITTLE_HELPER_STAGES,
     SMOKING_KILLS_ID: SMOKING_KILLS_STAGES,
