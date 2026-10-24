@@ -2,6 +2,8 @@
 
 from typing import Iterable, Mapping, Optional
 
+from .quest.start_requirements import _quest_prerequisite_reasons_pure, _quest_museum_claim_reasons_pure
+
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
 from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
@@ -140,18 +142,7 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     if state["started"]:
         return tuple()
 
-    reasons = []
-    for requirement in quest.get("required_quests", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        required_id = requirement.get("quest_id")
-        display_name = requirement.get("display_name")
-        if not isinstance(required_id, str):
-            continue
-        if not isinstance(quest_data.get(required_id), Mapping):
-            reasons.append(f"{display_name or required_id.replace('_', ' ').title()} (not implemented)")
-        elif not quest_completed_pure(player_data, required_id):
-            reasons.append(str(display_name or required_id.replace("_", " ").title()))
+    reasons = _quest_prerequisite_reasons_pure(player_data, quest, quest_data)
 
     for requirement in quest.get("required_skills", ()) or ():
         reason = _skill_requirement_reason(player_data, requirement)
@@ -167,6 +158,7 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     for item_name, amount in required_items.items():
         if inventory.get(item_name, 0) < amount:
             reasons.append(f"{item_name} x{amount}")
+    reasons.extend(_quest_museum_claim_reasons_pure(player_data, quest_id))
     return tuple(dict.fromkeys(reasons))
 
 def quest_current_stage_pure(player_data, quest_id, quest_data):
