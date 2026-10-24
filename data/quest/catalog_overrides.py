@@ -150,7 +150,32 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 }
 
 
+# The Grand Tree oldid 6450823, UTC 2012-10-21T20:56:52Z.
+# Retained packet tools/generation/quest_sources.json.gz key wiki.wikitext_the_grand_tree_old;
+# literal body SHA-256 4a18eb0d6e3b7a05ddb43ae616fc4f557d90cd497e74c3f53addf99ba3f13836.
+# Independent corroborating captures: Tip.It 20121119221116 and RuneHQ 20121107193758.
+def _grand_tree_journal_stages() -> Tuple[QuestStage, ...]:
+    row = next(
+        row for row in PRE_EOC_QUEST_CATALOG
+        if row["id"] == "the_grand_tree"
+    )
+    message = (
+        "A man came to me with the King's seal",  # Original source line 60.
+        "I gave the man Daconia rocks",  # Original source line 61 (visible wikilink label).
+        "and Daconia rocks will kill the tree!",  # Original source line 62.
+    )
+    return tuple(
+        QuestStage(
+            stage["stage"],
+            tuple(stage["journal"][:1]) + message + tuple(stage["journal"][1:])
+            if stage["stage"] == 2 else tuple(stage["journal"]),
+        )
+        for stage in row["journal_stages"]
+    )
+
+
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "the_grand_tree": _grand_tree_journal_stages(),
     # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
     # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
     # owner-selected and lacks period consensus.
