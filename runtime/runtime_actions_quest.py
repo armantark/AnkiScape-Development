@@ -110,6 +110,17 @@ def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: di
     ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
 
 
+def _report_quest_progress_refusal(ctx, quest_id, quest):
+    stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(ctx.player_data, quest_id, QUEST_DATA)
+    if stage_blocker_reasons:
+        _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
+    elif quest_id == "murder_mystery" and quest_current_stage_pure(ctx.player_data, quest_id, QUEST_DATA) == 1:
+        ctx.show_error_message(
+            "Evidence not collected",
+            "The evidence could not be collected. No items or quest progress changed.",
+        )
+
+
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
@@ -144,9 +155,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
     )
     if not ok:
-        stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-        if stage_blocker_reasons:
-            _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
+        _report_quest_progress_refusal(ctx, quest_id, quest)
         return False
     if quest_id == "bar_crawl":
         new_data = apply_bar_crawl_drink_effects_pure(

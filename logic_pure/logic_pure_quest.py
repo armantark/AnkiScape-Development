@@ -5,11 +5,11 @@ from typing import Iterable, Mapping, Optional
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
 from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
-from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 from ..core.tool_belt import tool_on_belt
 
-from ..logic.treasure_trails_logic import clue_refusal_reason_pure, filter_clue_scroll_outputs_pure
+from .quest.completion import apply_quest_completion_rewards_pure
+from .quest.murder_mystery import apply_murder_mystery_opening_items_pure, murder_mystery_journal_row_pure
 
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
@@ -1088,20 +1088,23 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
     inventory = data["inventory"]
     requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
     if blockers:
-        return
+        return False
+    if quest_id == "murder_mystery" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 1:
+        return apply_murder_mystery_opening_items_pure(data)
     for requirement in requirements:
         record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
         for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
             inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
         for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
-            for item_name, amount in options:
-                if _positive_int(inventory.get(item_name, 0), 0) >= amount:
-                    inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
-                    break
+            selected = next(filter(lambda pair: _positive_int(inventory.get(pair[0], 0), 0) >= pair[1], options), None)
+            if selected is not None:
+                item_name, amount = selected
+                inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
         if bool(requirement.get("repeatable_until_consumed")):
             continue
         for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
             inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
+    return True
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):
@@ -1339,32 +1342,17 @@ def apply_quest_progress_pure(
         state["progress"] = current_stage
         data.setdefault("quests", {})[quest_id] = state
         return (data, True, False, *empty_refusal)
-    _consume_quest_current_stage_items(data, quest_id, quest)
+    if not _consume_quest_current_stage_items(data, quest_id, quest):
+        return (player_data, False, False, *empty_refusal)
     total_stages = _positive_int(quest.get("stages", 1), 1)
     state["progress"] = min(total_stages, current_stage + 1)
     completed_now = state["progress"] >= total_stages
     clue_reward_refusal_reason = ""
     if completed_now:
         state["completed"] = True
-        data["quest_points"] = max(0, _positive_int(data.get("quest_points", 0), 0)) + _positive_int(quest.get("point_reward", 0), 0)
-        inventory = data["inventory"]
-        offered_rewards = quest.get("rewards", {}) or {}
-        rewards = filter_clue_scroll_outputs_pure(data, offered_rewards)
-        clue_reward_refusal_reason = clue_refusal_reason_pure(
-            player_data, offered_rewards, rewards
+        clue_reward_refusal_reason = apply_quest_completion_rewards_pure(
+            data, player_data, quest_id, quest, _apply_quest_xp_rewards
         )
-        for item_name, amount in rewards.items():
-            inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
-        if quest_id == "family_crest":
-            data["family_gauntlet_enchantment"] = "family"
-        if quest_id == "nomads_requiem":
-            # Nomad's Requiem pays 70 Zeal points, a Soul Wars currency, not an
-            # inventory item (RuneScape Wiki Nomad's Requiem oldid=6386610).
-            data["soul_wars_zeal"] = min(
-                SOUL_WARS_ZEAL_CAP,
-                max(0, int(data.get("soul_wars_zeal") or 0)) + 70,
-            )
-        _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
     if include_clue_refusal:
         return data, True, completed_now, clue_reward_refusal_reason
@@ -1432,12 +1420,11 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
     for stage in sorted(journal_stages):
         if stage > progress:
             continue
-        rows.append(
-            {
-                "stage": stage,
-                "lines": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),
-                "completed": state["completed"] or stage < progress,
-                "current": (not state["completed"] and stage == progress),
-            }
-        )
+        row = {
+            "stage": stage,
+            "lines": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),
+            "completed": state["completed"] or stage < progress,
+            "current": (not state["completed"] and stage == progress),
+        }
+        rows.append(murder_mystery_journal_row_pure(player_data, quest_id, row))
     return tuple(rows)

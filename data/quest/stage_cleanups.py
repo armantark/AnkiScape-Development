@@ -6,6 +6,7 @@ from .ids import *
 from .sources import *
 from .stage_additions import CAT_FOLLOWER_STATE_NAMES
 from .cold_war import COLD_WAR_STAGE_CLEANUPS
+from .murder_mystery import MURDER_MYSTERY_OPENING_CLEANUPS as _MURDER_MYSTERY_OPENING_CLEANUPS
 from .stage_overrides.members.later.mournings_end_part_i import MOURNINGS_END_PART_I_CLEANUPS
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_CLEANUPS
 from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_STAGE_CLEANUPS
@@ -14,6 +15,7 @@ from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_CLE
 from .stage_overrides.members.classic.observatory_quest import OBSERVATORY_QUEST_CLEANUPS
 
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
+    "murder_mystery": _MURDER_MYSTERY_OPENING_CLEANUPS,
     "zogre_flesh_eaters": tuple(QuestStageRequirementCleanup(**row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_STAGE_REQUIREMENT_CLEANUPS),
     "creature_of_fenkenstrain": CREATURE_OF_FENKENSTRAIN_CLEANUPS,
     "underground_pass": UNDERGROUND_PASS_CLEANUPS,
