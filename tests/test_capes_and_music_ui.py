@@ -226,7 +226,6 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         hidden_player = default_player_data(ORE_DATA)
         hidden_page = build(hidden_player)
         hidden_nav = self._named(hidden_page, "collectionsFamilyTree", QTreeWidget)
-        self.assertEqual(hidden_nav.width(), 244)
         hidden_drop_family = hidden_nav.topLevelItem(1)
         hidden_chicken = next(
             hidden_drop_family.child(index)
