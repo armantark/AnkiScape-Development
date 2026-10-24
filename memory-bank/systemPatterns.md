@@ -873,7 +873,7 @@ The remote checkout is an rsync mirror without `.git`.
 Remote tests must use filesystem fixtures and must not invoke Git.
 
 The canonical Git common directory owns gate registration, commit checks, evidence, landing locks, and landing state.
-Gates for different commits can run together. An OS file lock protects each active marker against recycled PIDs.
+Gate runs and landings share one exclusive repository lock. An OS file lock protects each active marker against recycled PIDs.
 Use the promotion tool to land, not a manual `git merge --ff-only`.
 Landing is serialized and requires full-gate evidence for the exact target commit.
 It refuses another active gate, a target that does not descend from current `main`, or a canonical checkout with uncommitted tracked changes before or after the fast-forward; untracked files do not block it.
