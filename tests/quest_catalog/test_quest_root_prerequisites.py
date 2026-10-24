@@ -7,6 +7,7 @@ from ankiscape.core.skill_registry import get_skill
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.quest.catalog import _quest_from_catalog
 from ankiscape.data.quest.contract import QuestPrerequisite
+from ankiscape.data.quest_data import quests_as_dict
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from ankiscape.logic_pure.logic_pure_quest import (
     apply_quest_progress_pure,
@@ -39,7 +40,7 @@ REQUIREMENTS = (
     "Herblore 45",
     "Magic 56",
     "Mining 52",
-    "Prayer 43",
+    "Prayer 42",
     "Smithing 50",
     "Strength 50",
     "Thieving 50",
@@ -87,10 +88,18 @@ class TestQuestRootPrerequisites(unittest.TestCase):
         self.assertEqual(quest["requirements"], REQUIREMENTS)
         self.assertNotIn("Regicide", quest["requirements"])
         self.assertNotIn("regicide", tuple(req.quest_id for req in definition.required_quests))
-        self.assertEqual(quest["required_skills"], raw["required_skills"])
+        expected_skills = tuple(
+            dict(req, level=42) if req["skill_id"] == "prayer" else dict(req)
+            for req in raw["required_skills"]
+        )
+        self.assertEqual(
+            next(req["level"] for req in raw["required_skills"] if req["skill_id"] == "prayer"),
+            43,
+        )
+        self.assertEqual(quest["required_skills"], expected_skills)
         self.assertEqual(
             tuple((req.skill_id, req.display_name, req.level) for req in definition.required_skills),
-            tuple((req["skill_id"], req["display_name"], req["level"]) for req in raw["required_skills"]),
+            tuple((req["skill_id"], req["display_name"], req["level"]) for req in expected_skills),
         )
         self.assertEqual(
             definition.source,
@@ -99,7 +108,37 @@ class TestQuestRootPrerequisites(unittest.TestCase):
             + "; https://web.archive.org/web/20121018050049id_/http://runescape.salmoneus.net/quests/legends-quest.html"
             + "; " + raw["release_source"],
         )
+        self.assertEqual(_quest_from_catalog(raw), definition)
+        self.assertEqual(quests_as_dict()[QUEST_ID], quest)
         self.assertEqual(PRE_EOC_QUEST_CATALOG, before)
+
+    def test_legends_prayer_boundary_and_start_nonmutation(self):
+        for level in (41, 42, 43):
+            with self.subTest(prayer_level=level):
+                player = _ready_legends_player()
+                player["prayer_level"] = level
+                before = copy.deepcopy(player)
+                self.assertEqual(QUEST_DATA[QUEST_ID]["requirements"], REQUIREMENTS)
+                self.assertEqual(
+                    quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA),
+                    ("Prayer 42",) if level == 41 else (),
+                )
+                self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), level >= 42)
+                self.assertEqual(player, before)
+
+                result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+
+                self.assertEqual(started, level >= 42)
+                expected = copy.deepcopy(before)
+                if level == 41:
+                    self.assertIs(result, player)
+                else:
+                    expected["quests"][QUEST_ID] = {
+                        "started": True, "progress": 0, "completed": False,
+                    }
+                    expected["current_quest"] = QUEST_ID
+                self.assertEqual(result, expected)
+                self.assertEqual(player, before)
 
     def test_legends_quest_point_boundary(self):
         for points in (107, 108, 109):
@@ -186,6 +225,7 @@ class TestQuestRootPrerequisites(unittest.TestCase):
                     "progress": QUEST_DATA[QUEST_ID]["stages"] if completed else 4,
                     "completed": completed,
                 }
+                player["prayer_level"] = 41
                 before = copy.deepcopy(player)
                 self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), not completed)
                 self.assertEqual(

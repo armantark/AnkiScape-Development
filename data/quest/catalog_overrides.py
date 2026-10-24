@@ -102,6 +102,20 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
     ),
     "nature_spirit": (),
     "the_lost_tribe": (),
+    # Legends' Quest oldid 6529921 line 33; Sal's capture 20121018050049.
+    "legends_quest": (
+        QuestSkillRequirement("agility", "Agility", 50),
+        QuestSkillRequirement("combat", "Combat", 75),
+        QuestSkillRequirement("crafting", "Crafting", 50),
+        QuestSkillRequirement("herblore", "Herblore", 45),
+        QuestSkillRequirement("magic", "Magic", 56),
+        QuestSkillRequirement("mining", "Mining", 52),
+        QuestSkillRequirement("prayer", "Prayer", 42),
+        QuestSkillRequirement("smithing", "Smithing", 50),
+        QuestSkillRequirement("strength", "Strength", 50),
+        QuestSkillRequirement("thieving", "Thieving", 50),
+        QuestSkillRequirement("woodcutting", "Woodcutting", 50),
+    ),
 }
 
 
@@ -128,6 +142,13 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Druidic Ritual", "Troll Stronghold", "Death Plateau", "Agility 15", "Herblore 31",
     ),
     "nature_spirit": ("Priest in Peril", "The Restless Ghost"),
+    # Same period sources: Prayer 42 required; 43 recommended.
+    "legends_quest": (
+        "108 quest points", "Family Crest", "Heroes' Quest", "Shilo Village",
+        "Underground Pass", "Waterfall Quest", "Agility 50", "Combat 75",
+        "Crafting 50", "Herblore 45", "Magic 56", "Mining 52", "Prayer 42",
+        "Smithing 50", "Strength 50", "Thieving 50", "Woodcutting 50",
+    ),
 }
 
 
