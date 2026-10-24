@@ -135,7 +135,6 @@ class TribalTotemOpeningTest(unittest.TestCase):
             storage.mw = addon.mw
             addon.storage_save_player_data = storage.save_player_data
             addon.storage_load_player_data = storage.load_player_data
-            addon.ui.update_menu_visibility = lambda *_args: None
             addon.show_error_message = lambda *_args: None
             addon._show_activity_gain = lambda *_args: None
             addon._show_exp = lambda *_args: None

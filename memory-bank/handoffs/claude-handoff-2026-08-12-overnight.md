@@ -24,7 +24,7 @@ The focused regression failed in each direction before the correction.
 
 ## The Headline
 
-`tools/audit_item_reachability.py` seeded every quest-stage product without checking the stage's `required_action` blockers. `handle_quest_answer` rejects those products in `runtime/runtime_actions_production.py:1298-1362` when the blockers are not satisfiable.
+`tools/audit_item_reachability.py` seeded every quest-stage product without checking the stage's `required_action` blockers. `handle_quest_answer` rejects those products in `ad5f7554:runtime/runtime_actions_production.py:1298-1362` when the blockers are not satisfiable.
 
 The corrected totals on main's catalog are:
 

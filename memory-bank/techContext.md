@@ -7,13 +7,12 @@
 
 ## Development Setup
 - A bookkeeping or presentation-parser failure does not justify rerunning successful product verification; check prerequisite results before dependent actions and reconcile failures explicitly.
-- Source lives directly in an Anki add-ons directory.
-- This working copy should live in `addons21/ankiscape_fork`, not the AnkiWeb-managed numeric folder `addons21/1808450369`.
+- Resolve the canonical checkout with Git. Keep linked worktrees outside `addons21`.
+- Keep the development checkout separate from the AnkiWeb-managed folder `addons21/1808450369`.
 - The canonical checkout is the only AnkiScape checkout allowed inside
-  `addons21`. Linked worktrees belong in the sibling
-  `Anki2/ankiscape_worktrees/` directory and must be created/audited through
-  `python3 tools/worktree_guard.py`; otherwise Anki loads each enabled worktree
-  as a separate add-on copy.
+  `addons21`. Use `python3 tools/worktree_guard.py` to create and audit linked
+  worktrees. The guard selects the safe root from the canonical path.
+  Anki loads each enabled worktree inside `addons21` as a separate add-on.
 - Delegate through Codex's native subagent tools. Give each writer a pooled
   worktree from `tools/worktree_guard.py lease` outside `addons21`.
   Do not use the Workflows route. Return a lease only after its
@@ -27,7 +26,7 @@
   The governing release record is
   `memory-bank/public-release-lineage-and-license-2026-07-17.md`.
 - The local working copy is a solo-project git repository on `main`.
-- The canonical checkout is the live add-on. Commit maintenance work in its
+- The canonical checkout supplies the add-on source. Commit maintenance work in its
   assigned worktree. The root uses `tools/promotion_gate.py` to verify the
   candidate and promote the exact accepted tree to local main.
 - Product execution uses the MacBook Pro mirror through
@@ -145,9 +144,10 @@ When main has moved by more than documentation since the family branch fork:
    migration chains in numeric order, renumber forked migrations, union asset
    JSON dictionaries with main winning key clashes, and make version tests
    assert `CURRENT_CONFIG_VERSION`.
-3. Require both test lanes green in the worktree and
-   `git merge-tree --write-tree main HEAD` to exit clean. Only then merge on
-   main, and rerun the default lane on main before reporting the family landed.
+3. Require both test lanes to pass in the worktree. Require
+   `git merge-tree --write-tree main HEAD` to exit clean. Run
+   `python3 tools/promotion_gate.py run --remote-lanes <worktree>`.
+   Use `python3 tools/promotion_gate.py land <worktree>` to promote the exact accepted commit.
 
 After a merge is reverted on main, a plain re-merge drops the reverted changes;
 rebasing gives them new commit IDs and avoids that history trap.
@@ -235,7 +235,7 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
 - **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main` on the MacBook Pro. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
 - **Historical semantics:** literal wikitext from exact pre-cutoff RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable.
-- **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN` (default `/opt/homebrew/opt/openjdk@25/bin/java`) and the Darkan core jars from the local Gradle cache; the scripts pin the Darkan core version and refuse to run when the Gradle cache lacks it.
+- **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN`. Read each script for its default launcher and Darkan core pin. The scripts require the pinned jars in the local Gradle cache.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
 Seven tools read the Darkan thread's checkout at
@@ -264,14 +264,14 @@ Cite that line and exit code as the proof.
 
 Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure_gathering.py` adapt them to Anki review cadence.
 
-Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
+Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage migrations convert Mining display names to stable IDs and store passive bonus ownership in `player_data["equipment"]`.
 
 
-Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content; the Kanban owns its acquisition gaps. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
+Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content; the Kanban owns its acquisition gaps. Storage migrations convert legacy `current_craft` names to stable recipe IDs.
 
-Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits the ordinary smelt recipes, the anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
+Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits the ordinary smelt recipes, the anvil recipes, and the separate source-backed cannonball furnace process. Storage migrations convert `current_bar` to `current_smith` recipe IDs and normalize legacy bar names.
 
-Equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and normalizes combat level/exp defaults so equipment gates use the real levels trained by unified Combat.
+Equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage migrations retain flat `equipment` state, remove `owned_equipment`, and supply real Combat levels for equipment gates.
 
 Feathers enter only through NPC shop stock and Combat drops. Do not add a
 Utility feather bridge; the dated
@@ -283,7 +283,7 @@ Firemaking data lives in `data/firemaking_data.py`, with the audit at
 local-2011Scape burnable targets, stable target IDs, input item IDs, source XP,
 `Ashes` output metadata, raw source low/high lighting odds, and the
 `DEFERRED_FIREMAKING_CONTENT` record for bonfires and fire spirits. Runtime review behavior adapts the source
-lighting roll in `logic_pure/logic_pure_production.py`; storage config version 12 adds
+lighting roll in `logic_pure/logic_pure_production.py`; storage migrations supply
 `firemaking_level`, `firemaking_exp`, and `current_firemaking`.
 
 Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
@@ -291,7 +291,7 @@ Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
 standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
 metadata from the local 2011Scape Runecrafting source. `data/quest/definitions/free/rune_mysteries.py`
 stores Rune Mysteries, and `data/quest/ledger.py` stores the one-time Wicked hood claim. Runtime review behavior
-lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
+lives in `logic_pure/logic_pure_runecrafting.py`; storage migrations supply
 `runecrafting_level`, `runecrafting_exp`, `current_runecrafting`,
 `current_quest`, `quests`, `quest_points`, `claims`, `wicked_hood`,
 `runecrafting_pouches`, and `item_charges`.
@@ -388,9 +388,8 @@ Dominion Tower and Gnome Restaurant retain their named asset commands and use th
 - Explicit choices use the direct-command undo stack. Ignored safe-default or
   remembered choices resolve inside the next answered card's atomic snapshot,
   so review undo restores the pending decision and RNG state.
-- Storage config version 45 adds sanitized per-family remembered choices,
-  introduced with The Pit's `Take XP / Gamble` family; stable family IDs allow
-  later contract-owned surfaces without feature-specific Qt inference.
+- Storage migrations sanitize remembered choices by stable family ID.
+  Each family owns its choice contract; Qt does not infer it.
 
 ## Retained standalone utilities
 
@@ -423,8 +422,8 @@ Manual verification should happen inside Anki when runtime behavior changes. Bro
 - Wiki research requests must send `User-Agent: AnkiScape parity audit`; never put the owner's identity or email in a public User-Agent.
 - In PyQt6, `QStyleOptionViewItem.icon` returns a live reference; save `QIcon(opt.icon)` before assigning a new icon to the option.
 - A read-only agent brief does not remove filesystem write tools or enforce a checkout write barrier; keep classification work away from the live add-on (2026-10-02 incident at papercuts-fixed-2026-10-03.md).
-- The root runner accepts positional selectors: `python3 run_tests.py --count <selection>`; only `tools/run_remote_tests.py` accepts `--select`, and a focused remote run requires the measured count and zero skips (`README-tests.md:37-67`).
-- A standalone plain harness must call `tests.test_integration_smoke._install_runtime_fakes()` before `_load_addon_as_package()`; the loader imports the add-on and does not create Anki modules (`tests/test_integration_smoke.py:45-91`).
+- The root runner accepts positional selectors: `python3 run_tests.py --count <selection>`; only `tools/run_remote_tests.py` accepts `--select`, and a focused remote run requires the measured count and zero skips (`README-tests.md:39-69`).
+- A standalone plain harness must call `tests.test_integration_smoke._install_runtime_fakes()` before `_load_addon_as_package()`; the loader imports the add-on and does not create Anki modules (`tests/test_integration_smoke.py:43-89`).
 - The MacBook mirror serves one lane at a time; queue, admission and mirror waits are untimed, while `--timeout` starts after launch (`tools/run_remote_tests.py::_hold_mirror_lock`). Normal runners retain ticket registration order across gate waits; gate admission priority remains independent of those tickets. Kernel record locks release cancelled or killed waiters without deleting queue state. Ordinary busy notices are expected.
-- `tools/audit_asset_cutoff.py` writes its default tracked report even when the audit passes; use `--report <evidence-path>` for a non-mutating source probe (`tools/audit_asset_cutoff.py:39-44,619`).
+- `tools/audit_asset_cutoff.py` writes its default tracked report even when the audit passes; use `--report <evidence-path>` for a non-mutating source probe (`tools/audit_asset_cutoff.py:39-44,618`).
 - Historical icon availability is specific to the source wiki: the first-Boneguard Crumble Undead sprite is retained from `rs3-fandom-period` at `2011-11-19T16:05:24Z`, with SHA-1 `263b75038c03b742bdfa93843623f38a656896b7` (`assets_provenance.json:31288-31300`); an absent runescape.wiki revision does not establish absent period art.

@@ -11,18 +11,25 @@ a width change settles after one extra layout pass.
 
 from aqt.qt import (  # type: ignore
     QCheckBox,
+    QEvent,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLayout,
+    QModelIndex,
+    QObject,
     QRect,
     QScrollArea,
     QSize,
     QSizePolicy,
     QStyle,
     QStyleOptionButton,
+    QStyleOptionViewItem,
+    QStyledItemDelegate,
     QStylePainter,
     Qt,
+    QTimer,
+    QToolTip,
     QVBoxLayout,
     QWidget,
 )
@@ -206,7 +213,7 @@ def stacked_pair(text, widget, label_style):
 
 
 def vertical_scroll(widget):
-    """Scroll `widget` vertically only; it keeps the scroll area's width."""
+    """Scroll vertically without squeezing the widget below its minimum height."""
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -263,3 +270,144 @@ class WrappingCheckBox(QCheckBox):
             Qt.TextFlag.TextWordWrap | Qt.AlignmentFlag.AlignVCenter,
             self.text(),
         )
+
+
+class _ResizeHook(QObject):
+    def __init__(self, widget, callback):
+        super().__init__(widget)
+        self._callback = callback
+        widget.installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.Type.Resize:
+            self._callback()
+        return False
+
+
+def on_resize(widget, callback):
+    """Calls callback, with the new size already set, on each resize of widget for as long as it lives."""
+    _ResizeHook(widget, callback)
+
+
+def set_equipment_scroll_body(scroll, follower, gear, pets):
+    """Keep the existing vertical order, with one scrollbar for the whole body.
+
+    A fixed follower panel can exceed a short window when Pets expands. Let
+    Equipment's existing scrollbar reach it as well as the gear below it.
+    """
+    body = QWidget()
+    layout = QVBoxLayout(body)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(8)
+    layout.addWidget(follower)
+    layout.addWidget(gear, 1)
+    scroll.setWidget(body)
+    # Wide gear can still scroll sideways; it must not widen Pets off screen.
+    on_resize(scroll.viewport(), lambda: follower.setMaximumWidth(scroll.viewport().width()))
+    _CurrentRowScrollHook(scroll, pets)
+
+
+class _CurrentRowScrollHook(QObject):
+    """Keep keyboard-selected pets visible through Equipment's viewport."""
+
+    def __init__(self, scroll, tree):
+        super().__init__(scroll)
+        self._tree = tree
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._reveal)
+        tree.currentItemChanged.connect(self._queue)
+        tree.installEventFilter(self)
+        # A manual scroll toward the actions takes precedence over selection.
+        scroll.verticalScrollBar().valueChanged.connect(self._timer.stop)
+        on_resize(scroll.viewport(), self._queue)
+
+    def eventFilter(self, watched, event):
+        # Home/End can reveal the same current item without a change signal.
+        if event.type() in (QEvent.Type.KeyPress, QEvent.Type.Show):
+            self._queue()
+        return False
+
+    def _queue(self):
+        # Wait for Qt's own item scrolling and the surrounding layout to settle.
+        self._timer.start(0)
+
+    def _reveal(self):
+        tree, scroll = self._tree, self.parent()
+        if not tree.isVisible():
+            return
+        if not tree.currentIndex().isValid():
+            scroll.ensureWidgetVisible(tree, 0, 0)
+            return
+        row = tree.visualRect(tree.currentIndex())
+        if row.top() < 0 or row.bottom() >= tree.viewport().height():
+            hint = tree.ScrollHint.PositionAtTop if row.top() < 0 else tree.ScrollHint.PositionAtBottom
+            horizontal = tree.horizontalScrollBar().value()
+            tree.scrollTo(tree.currentIndex(), hint)
+            tree.horizontalScrollBar().setValue(horizontal)
+            row = tree.visualRect(tree.currentIndex())
+        center = tree.viewport().mapTo(scroll.widget(), row.center())
+        scroll.ensureVisible(center.x(), center.y(), 0, row.height() // 2 + 1)
+
+
+class ElidedTipDelegate(QStyledItemDelegate):
+    """Shows a cell's whole text as its tooltip while the cell is too narrow for it and elides it."""
+
+    def helpEvent(self, event, view, option, index):
+        if event.type() == QEvent.Type.ToolTip and self.sizeHint(option, index).width() > option.rect.width():
+            QToolTip.showText(event.globalPos(), index.data(), view, option.rect)
+            return True
+        return super().helpEvent(event, view, option, index)
+
+
+class _WrappedLastColumn(QStyledItemDelegate):
+    def __init__(self, tree, minimum_chars):
+        super().__init__(tree)
+        self._column = tree.columnCount() - 1
+        self._minimum_chars = minimum_chars
+        tree.header().sectionResized.connect(self._section_resized)
+        on_resize(tree.viewport(), self._stretch)
+
+    def minimum_width(self):
+        return self._minimum_chars * self.parent().fontMetrics().averageCharWidth()
+
+    def _stretch(self):
+        tree = self.parent()
+        others = sum(tree.columnWidth(column) for column in range(self._column))
+        tree.setColumnWidth(self._column, max(self.minimum_width(), tree.viewport().width() - others))
+
+    def _section_resized(self, column, _old_size, new_size):
+        if column == self._column:
+            # Header dragging and resizeSection bypass _stretch. Restore the
+            # readable floor before asking Qt to calculate the wrapped rows.
+            minimum = self.minimum_width()
+            if new_size < minimum:
+                self.parent().setColumnWidth(column, minimum)
+                return
+            self.sizeHintChanged.emit(QModelIndex())
+        else:
+            self._stretch()
+
+    def sizeHint(self, option, index):
+        # Qt's style wraps only inside a valid rect, and the view passes a height of -1.
+        tree = self.parent()
+        painted = QStyleOptionViewItem(option)
+        painted.rect = QRect(0, 0, tree.columnWidth(index.column()), tree.viewport().height())
+        return super().sizeHint(painted, index)
+
+
+def wrap_last_column(tree, minimum_chars):
+    """Wraps a tree's last column in the room its other columns leave, but never in fewer than minimum_chars.
+
+    The floor counts average characters of the tree's font, so at a large font
+    the other columns cannot squeeze the text to a word per line; the tree
+    scrolls sideways instead, which is why the column stretches here and not as
+    a stretched last section, whose floor is the header's minimum for every
+    column. The floor also keeps a wrapped row a few lines tall, so the tree
+    keeps scrolling by item and its scrollbar is unchanged. QTreeView asks for
+    row heights with an unset width, so the delegate sizes each wrapped cell at
+    the column's width and relays the rows out when it changes.
+    """
+    tree.setWordWrap(True)
+    tree.header().setStretchLastSection(False)
+    tree.setItemDelegateForColumn(tree.columnCount() - 1, _WrappedLastColumn(tree, minimum_chars))

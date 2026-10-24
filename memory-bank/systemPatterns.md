@@ -147,7 +147,7 @@ expected file and provenance key in the asset test.
   explicit `source_blocked` declaration that preserves the handler action.
 - `logic/cadence_coverage.py`: complete handler/target catalog and fail-closed
   validation for every selectable foreground route plus Quest, Utility,
-  Farming, attached Summoning effects, and future skill attachments.
+  Farming, attached Summoning effects, and other skill attachments.
 - `logic/cadence_shadow.py` resolves shadow evidence and supports reports.
   The default runtime does not advance observer state or use it to seed live cadence state.
 - `tools/cadence_shadow_report.py` renders current, proposed, and pinned source XP/hour.
@@ -174,7 +174,7 @@ expected file and provenance key in the asset test.
 - `core/hooks.py`: centralized hook registration and dry-run planning.
 - `core/injectors.py`: floating widget and reviewer injection helpers; the retired Deck Browser content path has no separate module.
 
-## Current Skill Flow
+## Skill Flow
 1. Anki shows a review card and the add-on marks review state.
 2. The user shows the answer, then answers with an eligible ease.
 3. `on_answer_card` calls `on_good_answer` if the current skill is active and XP has not already been awarded.
@@ -186,7 +186,7 @@ expected file and provenance key in the asset test.
 - Skills get their XP curve from `exp_table_for_skill()`: Dungeoneering uses `DUNGEONEERING_EXP_TABLE`, every other skill `EXP_TABLE`. Each skill keeps per-skill `*_level` / `*_exp` fields.
 - Inventory is a single dictionary shared across ores, logs, gems, bars, and crafted items.
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration.
-- The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
+- The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs support UI and action metadata without a change to save keys.
 - Review dispatch resolves an `action_registry.review_action_handler_key` before calling the matching `runtime/runtime_actions.py` handler. Thin public `on_<skill>_answer` wrappers remain for compatibility and direct tests. This keeps display names, save keys, Utility aliases, handler identity, and runtime mutation logic connected without requiring a large action-engine rewrite.
 - Cadence state uses the route-keyed `player_data["cadence_profiles"]` mapping.
   Each route contains `credit`, `opening_ready`, `assigned_reviews`,
@@ -203,7 +203,7 @@ expected file and provenance key in the asset test.
   replacement rate. This includes ordinary versus concentrated gold, mixed
   leaping fish versus sturgeon-only evidence, runite coins/hour versus XP/hour,
   and urn-inclusive rocktail XP that cannot be decomposed.
-- Skill identity has separate implementation and surface-state axes. `surface_state` is `complete`, `partial`, or `planned`; `trainable` covers complete and partial skills. Use `training_source` for partial cross-surface stats and `visible_in_skill_hub` to hide Attack, Constitution, Defence, Ranged, and Strength because they train only through Combat. Prayer, Magic, and Summoning are complete surfaces. Dungeoneering is implemented, trainable, and partial.
+- Skill identity has separate implementation and surface-state axes. `surface_state` is `complete`, `partial`, or `planned`; `trainable` covers complete and partial skills. Use `training_source` for partial cross-surface stats and `visible_in_skill_hub` to hide Attack, Constitution, Defence, Ranged, and Strength because they train only through Combat. Read `core/skill_registry.py` for each skill's surface state and training source.
 - Composite target choices must be committed atomically. Prayer stores stable material and UI-method identities, resolves them to the runtime target/mode pair in pure logic, validates the pair once, and clears hosted-search/owned-stint state only when that composite selection changes.
 - Target-carried passives are physical pack semantics, not global ownership flags. Bonecrusher, Ectoplasmator, and training urns activate only when the selected target's clamped carried view contains the relevant item; bank-only or other-target copies remain inert.
 - Saved Advanced layouts describe logical urn slots. `materialize_urn_layout_pure()` follows each slot through runed, active, and full physical names before either skilling or Combat repacks it, prioritizing the active charge-bearing object and then teleportable full urns.
@@ -273,7 +273,7 @@ expected file and provenance key in the asset test.
   The strip is a sibling above the mouse-transparent XP HUD, not a control inside it.
   Do not create a standalone widget for each feature.
   Gravestone and expiring Familiar cargo use distinct source art, labels, countdown rules, and detail actions.
-  This bullet is contract text: the contract records its implementation as deferred, and no runtime alert strip exists.
+  The contract owns the required layout. The Kanban owns its delivery status.
 - Rare gameplay-created decisions use the sibling contextual-action contract in
   `review-hud-context-actions-contract-2026-07-18.md`: one labeled row, at most
   three direct actions, no duplicate toast, no automatic Casual/Advanced split,
@@ -286,20 +286,18 @@ expected file and provenance key in the asset test.
   familiar policy may fill an empty slot but must not silently replace the live
   entity during navigation. BoB packing shares the target's existing
   Casual/Advanced inventory mode rather than adding an independent mode switch.
-- Compatible restore trips coalesce rather than charging duplicate reviews. The Summoning
-  contract specifies a `Visiting altar+obelisk` foreground detour that consumes the
-  next successful answer, replaces the selected target action, and restores ordinary
-  Prayer and Summoning points together, and an existing combat Bank-run altar stop
-  that adds the obelisk restore at no further review cost. The runtime implements only
-  the `Visit obelisk` direct command, which restores Summoning points alone. It cannot fire on Again, run on wall-clock time, restore
-  special-move points without source support, or grant the target's ordinary output.
+- The Summoning contract requires compatible restore trips to share one review cost.
+  An altar+obelisk detour replaces the target action and restores ordinary Prayer
+  and Summoning points. It cannot fire on Again, use elapsed wall time, restore
+  special-move points without source support, or grant the target output.
+  Read `logic/summoning_logic.py` and its callers before a runtime support claim.
 - Enabled automation may also insert an owned-resource Bank detour. Summoning pouch
   depletion converts the next successful answer into a refill/resummon transaction
   when compatible Bank stock exists; it does not also perform the target action and
   never fires on Again. Advanced carried slots reduce detour frequency rather than
   bypassing the same resource rules.
-- The next four bullets are Summoning contract text. The runtime implements no
-  familiar renewal, replacement, or `Best available` policy.
+- The next four bullets define the Summoning policy contract. Read
+  `logic/summoning_logic.py` and its runtime callers for supported actions.
 - Consumable automation uses the target-carried inventory as its explicit budget.
   An enabled Summoning familiar policy may atomically renew or replace from matching
   carried pouches, and auto-special may consume a deliberately packed scroll, but
@@ -338,10 +336,9 @@ expected file and provenance key in the asset test.
   optional external publication is generated, never separately authored. Complex
   pages share one Qt search-field/controller contract while retaining page-specific
   result adapters.
-- The answered-card clock is not a universal action-duration converter. It runs
-  background/world/economy timers; ordinary skilling still performs one sourced
-  action tick per successful review unless an activity explicitly defines a
-  different action grouping.
+- The answered-card clock runs background, world, and economy timers.
+  Game speed supplies the foreground card budget. Handlers preserve source
+  action units and stop at their declared terminal boundaries.
 - AnkiScape has no standalone transportation layer or persistent player
   location. Canoes, hot-air balloons, lodestones, and comparable transport-only
   systems are deliberately excluded, including incidental XP actions whose
@@ -424,7 +421,7 @@ expected file and provenance key in the asset test.
 - Cooking follows the source-data-module pattern (`data/cooking_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_cooking`, while inventory uses real raw/cooked/burnt item names. Cooking failures are productive inventory mutations: the raw input is consumed, the source burnt item is added, and no XP is awarded. Source low/high chances stay in data and are adapted to review-scale probabilities in pure logic.
 - Runecrafting follows the source-data-module pattern (`data/runecrafting_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_runecrafting`, while inventory uses real rune/access item names. Rune Mysteries quest state, Bank Claims, Wicked hood fed-altars, pouch degradation, and Binding necklace charges are explicit flat side-state keys in `player_data`. Quests are review actions through `core/action_registry.py`, not fake skills in `core/skill_registry.py`.
 - Hunter follows the source-data-module pattern (`data/hunter_data.py`) as a Gathering skill. Its stable target IDs are persisted in `current_hunter`, while inventory uses canonical cache item names such as `Red feather`, `Kebbit claws`, `Imp-in-a-box (2)`, `Gourm' impling jar`, and `Ess' impling jar`. The local 2011Scape cache/snapshot is treated as identity evidence, not a mechanics implementation; 2011.rs guide rows supply levels/XP/rewards, and local 2012scape/Darkan Hunter code supplies mechanics/id parity. Hunter outputs are first-class `hunter` bank items, while jars/traps such as `Butterfly jar`, `Impling jar`, and `Magic box` remain material items. Quest locks cover completion gates and narrow route precedents only; partial-route access such as Regicide-start content stays in notes until a route model exists.
-- Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Current reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
+- Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
 - `tools/build_pre_eoc_quest_catalog.py` generates the pre-EOC quest catalog in release order.
   Recipe for Disaster subquests have separate rows. Use the generator for the current catalog size.
   Catalog and stage rows provide coverage structure, not proof of full quest parity.
@@ -560,7 +557,7 @@ expected file and provenance key in the asset test.
 - `ItemDefinition.tradeable` defines item tradability from source evidence.
   Grand Exchange eligibility must use item metadata, not category alone.
   Document source anomalies in the relevant item audit.
-- `food` is a first-class item category for cooked/prepared/burnt Cooking items. Burnt Cooking items are intentionally registered as non-tradeable junk in this fork even though RuneScape player-to-player tradability is historically weird, because future AnkiScape GE/trading will not distinguish marketing from trading.
+- `food` is an item category for cooked, prepared, and burnt Cooking items. Burnt items are non-tradeable junk. Grand Exchange eligibility uses item tradeability metadata.
 - Random no-XP Utility actions can use dedicated pure helpers.
   `Open bird nests` consumes a known nest subtype and rolls source contents.
   It does not use a fixed `requirements -> output_item` recipe.
@@ -602,14 +599,7 @@ hand-edit `data/equipment_data.py`. Stronghold's reward identities are Fancy boo
 parity-locked; Stronghold of Player Safety carries period source pins in
 `data/stronghold_player_safety_data.py`.
 
-## Architectural Pressure
-Adding many skills by copying the current pattern would increase duplication in:
-- skill selection UI
-- stats rendering
-- storage defaults and migrations
-- answer dispatch
-- icon/image registration
-- tests
+## Module ownership
 
 Backend modules own skill, item, review-action, runtime-handler, target-row,
 grouped target-tree, and achievement metadata.
@@ -627,9 +617,8 @@ Source-complete data can be broader than a live catalog. Herblore keeps Daemonhe
 Anki's add-on directory is a runtime import boundary, not a harmless place for
 parallel checkouts. Every enabled direct child of `addons21` with an
 `__init__.py` is imported as a separate add-on package. Keep only the canonical
-AnkiScape checkout there; linked worktrees belong in the sibling
-`Anki2/ankiscape_worktrees/` root and should be created/audited through
-`tools/worktree_guard.py`.
+AnkiScape checkout there. Create and audit linked worktrees through
+`tools/worktree_guard.py`; the guard selects the safe root from the canonical path.
 
 Production Anki hook wrappers expose their callbacks through `_hooks` but are
 not themselves iterable. Idempotent registration must inspect
@@ -680,7 +669,7 @@ skill cadence gate. The complete reconciliation table is
 `memory-bank/source-audits/activity-cadence-reconciliation-2026-07-18.md`.
 
 Persistent multi-enemy activities use one sealed session plus one visible
-roster. A successful review applies the ordinary live six-tick Combat reducer
+roster. Each source step applies the ordinary live six-tick Combat reducer
 to exactly one engaged member, stops at a terminal boundary, then resolves one
 bounded pressure pass from the remaining roster through the same player
 Defence and protection-prayer state. Preserve the player's full data mapping
@@ -884,7 +873,7 @@ The remote checkout is an rsync mirror without `.git`.
 Remote tests must use filesystem fixtures and must not invoke Git.
 
 The canonical Git common directory owns gate registration, commit checks, evidence, landing locks, and landing state.
-Gates for different commits can run together. An OS file lock protects each active marker against recycled PIDs.
+Gate runs and landings share one exclusive repository lock. An OS file lock protects each active marker against recycled PIDs.
 Use the promotion tool to land, not a manual `git merge --ff-only`.
 Landing is serialized and requires full-gate evidence for the exact target commit.
 It refuses another active gate, a target that does not descend from current `main`, or a canonical checkout with uncommitted tracked changes before or after the fast-forward; untracked files do not block it.
@@ -931,12 +920,12 @@ monolithic Qt lane after another test creates the application.
 
 A published object is identified by its published path and qualified name, not by the module that defines it, because nothing in the product pickles and re-exports keep old import paths working. Decision and proof: `handoffs/fable-grill-papercuts-2026-09-21-decisions.md`, decision 4.
 
-## Owner decisions — 2026-10-15: game speed and world day
+## Game speed and world day
 
-These are approved design decisions, not shipped behavior. The [decision queue](design-thread-queue.md#answered-owner-decisions--2026-10-15-game-speed-and-world-day) retains all 11 decisions and the exact owner authority.
+The [decision queue](design-thread-queue.md#answered-owner-decisions--2026-10-15-game-speed-and-world-day) owns the contract. The [pace closure record](audits/pace-k-closure-2026-10-22.md) retains delivery evidence.
 
-- The speed default is ×10 and its range is ×1–×20. Name it Game speed; the copy model writes the tooltip.
-- The global speed rule replaces the earlier deferral. Per-method balancing remains deferred; sourced XP amounts stay fixed.
+- The Game speed setting defaults to ×10 and permits ×1–×20.
+- Keep sourced XP amounts fixed when game speed changes.
 - Each card supplies 6 game ticks × speed. Handlers spend this budget. Quests and Dungeoneering deliberately keep one stage/room per card.
 - Danger stops the card at every condition in decision 5. Combat can chain only within the budget and before danger.
 - Fish Flingers uses its sourced ten-minute duration and eight catches; Master Angler remains automatic by owner ruling. No past XP rollback.
@@ -946,7 +935,6 @@ These are approved design decisions, not shipped behavior. The [decision queue](
 - Farming walks calendar deadlines in order, preserving fractional minutes and disease RNG across the gap. Market time advances at one tick per 600 calendar ticks; Fish Flingers tickets settle inside the boundary transaction. Undo restores every changed save key and RNG; re-answer reads the current config again.
 - Root ruling H-2 (2026-10-21 03:56 PDT) phases period events from world-day start and excludes the daily gap. Big Chinchompa uses quarter-day and three-quarter-day card slots with a 20-calendar-minute lifetime. An occupied slot is skipped, and the day boundary ends an active event. Communal pressure follows elapsed calendar ticks, at six ticks per step.
 - Timers use the same budget. Thieving stuns spend stun_ticks; Restaurant fairness spends the actual successful-card budget. Again advances only the clock.
-- Show one pace dialog at first launch for a new player, or once after this update for an existing player. Defaults, current values, hours and close behavior follow decision 10; the owner save has no special path.
-- Ship all pace/calendar parts together after rate/lump/daily-share/danger/chain/Undo/native proof. Only the approved Settings changes and dialog receive new UI. Opus authors UI and a taste-qualified model reviews it.
+- Show the pace dialog once per profile. Preserve the stored pace when an existing player closes it without a choice. Apply decision 10 to every save.
 
 The2026-10-15 nit rulings settle sourced text/gates (R1), first performed-deed endpoints (R2), enforceable constraints (R3), and clipped text defects (R4). The [owner decision queue](design-thread-queue.md) retains each application and its evidence. No rule authorizes unrelated layouts or erases source disputes.

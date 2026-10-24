@@ -133,7 +133,7 @@ post-acceptance transition seam with a true-transition guard. Call sites:
 `aa30c6f2:__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
 `__init__.py:1019-1083`; manual Stop `__init__.py:4482-4505` stays silent.
 Automatic switches show a modal (achievement-popup style,
-`ui/ui.py:4562-4594` precedent) naming the reason; the modal fires after the
+`ui/ui.py:4488-4520` precedent) naming the reason; the modal fires after the
 review answer completes, never before the XP feedback flush
 (`__init__.py:5300-5307`). One event-log entry per switch; repeated switch
 while already Bankstanding is silent; guard the redundant call at
@@ -151,9 +151,9 @@ Move the read-only Current-inventory grid below both `auto_view` and
 for display; Bank and Equipment copies inherit from the shared builder.
 Never subtract carried quantities from Bank totals; never create a second
 ledger. Pin: death routes retained loot to the grave
-(`runtime_actions_combat.py:684-708`), coins stay excluded, the 28-slot bank
+(`runtime_actions_combat.py:655-679`), coins stay excluded, the 28-slot bank
 run clears the view, mode switches mutate nothing.
-Tests: `tests/test_runtime_actions.py:2628-2736`,
+Tests: `tests/test_runtime_actions.py:2620-2728`,
 `tests/test_main_menu_widget.py:3537-3809`, `tests/test_inventory_pure.py`.
 
 ### S4 `druidic-2012`
@@ -181,8 +181,8 @@ Two stable Stronghold claim IDs delivered to Bank Claims on chest claim
 derive remaining lamps from the claim records and retire `lamps_remaining`
 as a competing source of truth; migrate old counts 2/1/0 deterministically.
 Shared chooser `_choose_xp_lamp_skill(parent, title, eligible_skill_ids)`
-beside `_exec_selection_dialog` (`ui/ui.py:28570-28573`), icon grid via
-`skill_icon_path_for` (`ui/ui.py:796-833`), explicit Claim/Cancel, returns
+beside `_exec_selection_dialog` (`ui/ui.py:27297-27300`), icon grid via
+`skill_icon_path_for` (`ui/ui.py:773-810`), explicit Claim/Cancel, returns
 the stable skill id; both callers (`ui/ui.py:18060-18077`, 26506-26520)
 keep their own eligibility computation. Completion per ruling 5; fix the
 header clipping (`ui/ui.py:17913-17923`) and the 188px dialog title elision.
