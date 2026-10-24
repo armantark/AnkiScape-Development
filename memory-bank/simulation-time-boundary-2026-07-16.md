@@ -47,15 +47,15 @@ then new answers use play speed. Undo restores the whole calendar transaction an
 | System | Current channel | Settled/needs review |
 |---|---|---|
 | NPC shop/market progression | Every answered card | Settled and compliant (`__init__.py:1536-1541`, `shop_logic.py:142-149`). |
-| Farming growth, disease, jobs, and regrowth | Every answered card | Settled and compliant (`__init__.py:1524-1529`, `runtime/runtime_actions_shared.py:754-758`). |
+| Farming growth, disease, jobs, and regrowth | Every answered card | Settled and compliant (`__init__.py:1474-1479`, `runtime/runtime_actions_shared.py:754-758`). |
 | Daily/weekly eligibility such as the Agility Circus | Shared answered-card calendar | Calendar boundary is compliant; carryover needs implementation after Decision 2 (`agility_logic.py:198-229`). |
 | Ordinary skilling, quests, Combat, Thieving, and Agility actions | Successful answer only | Settled and compliant (`__init__.py:1530-1553`). |
 | Familiar lifetime and Summoning-point drain | Every answered card while summoned | Ticks of the source minutes (`logic/pace/summoning_clock.py`); the drain spreads over the ticks lived, renewal resets phase and zero points create no debt. |
 | Enemy attacks | Successful Combat action only | Owner-settled: an active encounter receives no attack beat on Again. |
 | Prayer drain | Live Combat ticks only | Reconciled at `6 × M` immediate ticks with exact persisted counter state; Again grants no combat or Prayer-drain beat. |
-| Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure/logic_pure_combat_supplies.py:1467-1521`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
+| Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure/logic_pure_combat_supplies.py:1465-1519`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
 | Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:5300-5301`, `ba2c5418:logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
-| Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:609-623`), despite older comments using review/hour pacing. |
+| Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:603-617`), despite older comments using review/hour pacing. |
 | Familiar passive healing and special-point recharge | Every answered card | Exact 25- and 50-tick residuals fed by the card's ticks; passive benefits may resolve on Again. |
 
 ## Decision 1 — idle during an active Combat encounter (settled and clarified 2026-07-16)
@@ -140,7 +140,7 @@ by the caller; a count of six-tick steps shows `ceil(steps / speed)` (root rulin
 | Renewal window | Renew at 2:30 or less, oldid 6093772 (`summoning-familiar-lifecycle-2026-07-16.md:47`) | Short duration | 250 ticks of lifetime left. |
 | Gnome Restaurant delivery window | Easy six and hard eleven source minutes (`data/gnome_restaurant_data.py:29-34`) | Short duration | 600 and 1,100 ticks, successful other-target answers only; Again still pauses (2026-10-14 ruling). The easy window is 10 cards at ×10. |
 | Gnome Restaurant hard-decline wait | Five source minutes (`data/gnome_restaurant_data.py:36-37`) | Short duration | 500 ticks, every answer. |
-| Magic charge, antifire, super antifire, Shooting Star ore bonus, skilling temporary levels | Charge seven minutes (`magic-charge-reconciliation-2026-07-17.md:21`); antifire six minutes (`parity-deviation-ledger-2026-07-06.md:30`); ore bonus fifteen minutes (`data/shooting_star_data.py:25-27`); all stored in ticks | Short duration, already ticks | Successful non-Combat cards drain the card's ticks instead of 50 per unit of speed; live Combat keeps its elapsed ticks. |
+| Magic charge, antifire, super antifire, Shooting Star ore bonus, skilling temporary levels | Charge seven minutes (`magic-charge-reconciliation-2026-07-17.md:21`); antifire six minutes (`parity-deviation-ledger-2026-07-06.md:30`); ore bonus fifteen minutes (`data/shooting_star_data.py:30-32`); all stored in ticks | Short duration, already ticks | Successful non-Combat cards drain the card's ticks instead of 50 per unit of speed; live Combat keeps its elapsed ticks. |
 | Thieving stun | `stun_ticks` per target (`data/thieving_data.py`) | Short duration, already ticks | Already a tick debt on the running budget; unchanged here. |
 | Wild jade vine bind | Six ticks on the same debt | Short duration, already ticks | Already a tick debt; unchanged here. |
 | Evil Tree blessing | Six to thirty minutes by tier, wiki Evil Tree oldid 6569638 (`evil-tree-implementation-harvest-2026-07-19.md:39-47`) | Short duration | Ticks: `minutes × 100`, every answer. |

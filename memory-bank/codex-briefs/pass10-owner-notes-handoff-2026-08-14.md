@@ -64,17 +64,17 @@ target design is one commit action, the same as the new Big Top flow.
 ### UI defect mechanics
 
 - Combat selector: the grouped `QTreeWidget` path sets the same green
-  background brush as the flat path (`ui/ui.py:5427-5490`), but the tree
+  background brush as the flat path (`ui/ui.py:5351-5414`), but the tree
   stylesheet (`ui/ui.py:5267-5276`) suppresses the item background role in
   native paint. The existing tests assert the brush role, not pixels
-  (`tests/test_main_menu_widget.py:6444-6469`, `:8469-8503`), so they pass
+  (`tests/test_main_menu_widget.py:6458-6483`, `:8469-8503`), so they pass
   while the screen is wrong.
 - Strip text: the line is one `QProgressBar` with `setFormat(...)` text and a
   12 px green chunk (`ui/ui.py:2344-2402`, `:2550-2576`). The fill clips
   behind the centered text. That is the whole "stupid text" effect.
 - Level-up popups: the shared checker emits `show_level_up_dialog(skill,
   old, new)` per crossed level (`core/logic.py:29-54`). Combat level is
-  derived on demand (`logic_pure/logic_pure_combat_engine.py:2066-2079`);
+  derived on demand (`logic_pure/logic_pure_combat_engine.py:1994-2007`);
   no combat-level popup exists.
 - Big Top start flow: an Activities-row click already selects Big Top with
   the saved or default policy through the generic fallthrough
@@ -142,7 +142,7 @@ target design is one commit action, the same as the new Big Top flow.
    first level mutation of the review and after the last one. If it
    increased and popups are enabled, show "Your Combat level increased."
    with "Level <old> → <new>", after the skill dialogs. Use the calculator
-   at `logic_pure/logic_pure_combat_engine.py:2066-2079`.
+   at `logic_pure/logic_pure_combat_engine.py:1994-2007`.
 2. Make the saved-target green fill visible in the grouped combat selector.
    The brush is already set; fix the stylesheet/native-paint conflict in
    the tree path (`ui/ui.py:5267-5276`). The acceptance evidence is rendered

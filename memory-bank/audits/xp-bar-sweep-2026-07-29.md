@@ -16,7 +16,7 @@ The 58-target registry universe is 51 `UTILITY_ACTIVITY_DATA` rows classified on
 
 | Registry id | Reducer grants | Strip exposes | Omission | Minimal fix location |
 |---|---|---|---|---|
-| `livid_farm` | Magic, Farming, Construction, Crafting, Agility | Magic | Farming, Construction, Crafting, Agility | Expand the existing tuple at `logic/review_strip_logic.py:253`; source set is `logic/livid_farm_logic.py:199-205` and `data/livid_farm_data.py:30-88`. |
+| `livid_farm` | Magic, Farming, Construction, Crafting, Agility | Magic | Farming, Construction, Crafting, Agility | Expand the existing tuple at `logic/review_strip_logic.py:253`; source set is `logic/livid_farm_logic.py:197-203` and `data/livid_farm_data.py:30-88`. |
 | `mage_training_arena` | Magic | No XP bar | Magic | Add exact-ID entry in `ACTIVITY_TRAINED_SKILLS` at `logic/review_strip_logic.py:237-254` (and its data-ID import near `:34-47`); reducer writes Magic XP at `logic/mage_training_arena_logic.py:604-687`. |
 | `warriors_guild_attack_dummy` | Attack | No XP bar | Attack | Add exact-ID entry in `ACTIVITY_TRAINED_SKILLS` at `logic/review_strip_logic.py:237-254`; award is `logic/warriors_guild_logic.py:262-264`. |
 | `warriors_guild_catapult` | Defence | No XP bar | Defence | Add exact-ID entry in `ACTIVITY_TRAINED_SKILLS` at `logic/review_strip_logic.py:237-254`; award is `logic/warriors_guild_logic.py:265-267`. Also fix Defence storage-key lookup at `logic/review_strip_logic.py:211-212` before exposing this bar. |
@@ -87,7 +87,7 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 | Registry id | Strip exposes | Running/review reducer grants | Verdict | Evidence |
 |---|---|---|---|---|
-| `managing_miscellania` | Woodcutting | Woodcutting | Correct | `runtime/runtime_actions_activities_distractions.py:704-734` |
+| `managing_miscellania` | Woodcutting | Woodcutting | Correct | `runtime/runtime_actions_activities_distractions.py:695-725` |
 | `stronghold_player_safety` | No XP bar; finite landmark progress bar instead | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `varrock_museum` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 
@@ -103,26 +103,26 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 | `dominion_tower` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `duel_arena` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `fight_caves` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `fishing_trawler` | Fishing | Fishing | Correct | `runtime/runtime_actions_activities_training.py:456-496` |
+| `fishing_trawler` | Fishing | Fishing | Correct | `runtime/runtime_actions_activities_training.py:453-493` |
 | `fist_of_guthix` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `flash_powder_factory` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `gnome_ball` | Agility + Ranged | Agility + Ranged | Correct | `runtime/runtime_actions_activities_training.py:363-408` |
+| `gnome_ball` | Agility + Ranged | Agility + Ranged | Correct | `runtime/runtime_actions_activities_training.py:361-406` |
 | `gnome_restaurant` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `great_orb_project` | Runecrafting | Runecrafting | Correct | `runtime/runtime_actions_activities_training.py:499-543` |
-| `livid_farm` | Magic | Magic + Farming + Construction + Crafting + Agility | DEFECT | `logic/livid_farm_logic.py:199-205; data/livid_farm_data.py:30-88` |
+| `great_orb_project` | Runecrafting | Runecrafting | Correct | `runtime/runtime_actions_activities_training.py:496-540` |
+| `livid_farm` | Magic | Magic + Farming + Construction + Crafting + Agility | DEFECT | `logic/livid_farm_logic.py:197-203; data/livid_farm_data.py:30-88` |
 | `mage_training_arena` | No XP bar | Magic | DEFECT | `logic/mage_training_arena_logic.py:604-687` |
 | `mobilising_armies` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `pest_control` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `pyramid_plunder` | Thieving + Strength + Runecrafting (also-trains caption) | Thieving + Strength + Runecrafting | Correct | `runtime/runtime_actions_activities_training.py:282-327` |
 | `shades_of_mortton` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Crafting + Firemaking + Prayer, action dependent | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `sorceress_garden` | Farming + Thieving | Farming + Thieving | Correct | `runtime/runtime_actions_activities_distractions.py:430-475` |
+| `sorceress_garden` | Farming + Thieving | Farming + Thieving | Correct | `runtime/runtime_actions_activities_distractions.py:420-465` |
 | `soul_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `stealing_creation` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `temple_trekking` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains on combat encounters | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `trouble_brewing` | No XP bar | Agility + Cooking + Crafting + Firemaking + Woodcutting, duty dependent | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `tzhaar_fight_pit` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `vinesweeper` | Hunter | Hunter | Correct | `runtime/runtime_actions_activities_distractions.py:503-544` |
-| `werewolf_skullball` | Agility | Agility | Correct | `runtime/runtime_actions_activities_training.py:330-360` |
+| `werewolf_skullball` | Agility | Agility | Correct | `runtime/runtime_actions_activities_training.py:328-358` |
 
 ### activities: warriors_guild
 
@@ -142,6 +142,6 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 - Pure enumeration/probe artifacts: `activity_registry_dump.json`, `live_strip_probe.json`, and `defect_reducer_probe.json` in this scratchpad.
 - The real reducer probe returned Livid Farm keys `agility`, `construction`, `crafting`, `farming`, `magic`; Mage Training Arena returned 301 Magic XP at its first XP-bearing checkpoint; and the four noncombat Warriors' Guild activities returned Attack, Defence, Strength, and Strength respectively.
-- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:408-419`).
+- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:396-407`).
 - Pyramid Plunder produced two visible bars (Thieving, Strength) plus Runecrafting in `also_trains`, matching the two-bar cap.
 - No repository file was edited and no git command was run.

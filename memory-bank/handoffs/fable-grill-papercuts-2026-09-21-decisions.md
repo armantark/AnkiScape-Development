@@ -25,7 +25,7 @@ Codex; the paused status in the memory bank is stale.
   link" but records no elapsed time for them. Only the unittest `Ran ... in`
   line carries a duration.
 - No product module imports `pickle` or `marshal`. The save is JSON under the
-  Anki collection config key `ankiscape_player_data` (`core/storage.py:12`).
+  Anki collection config key `ankiscape_player_data` (`core/storage.py:16`).
   The module-surface rule in `codex-briefs/SPLIT-SLICE-CONTRACT.md` section 5a
   justifies defining-module identity by "a consumer that unpickles a saved
   object". No such consumer exists.
