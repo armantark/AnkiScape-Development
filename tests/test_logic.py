@@ -10705,18 +10705,6 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
-        stage_one = next(
-            requirement
-            for requirement in quest["stage_requirements"]
-            if requirement["stage"] == 1
-        )
-        player_data["inventory"].update(stage_one["required_inventory"])
-        player_data["inventory"].update(stage_one["required_tools"])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            (),
-        )
-
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
             quest_id,
@@ -10725,10 +10713,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertEqual(
-            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
-            ("Find and read the Ragged book in the workshop",),
-        )
+        self.assertEqual(player_data["inventory"]["Ragged book"], 1)
+        self.assertEqual(set(player_data["quest_action_proofs"]), {
+            "Search the chapel bookcase and obtain the Ragged book", "Read the Ragged book",
+        })
 
     def test_elemental_workshop_identical_darkan_sources_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

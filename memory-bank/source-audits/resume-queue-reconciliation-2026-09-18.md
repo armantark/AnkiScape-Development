@@ -8,7 +8,7 @@ The documentation branch is `goal/resume-queue-reconciliation-2026-09-18`, P13, 
 
 ## Current obligations
 
-The [current matrix](../goal-priority-matrix.md) is the execution queue. Owner §47 at `handoffs/design-to-impl-rulings-2026-08-13.md:2886-2894` requires the exposed-function cleanup programme after the first splits. Owner §55 at lines `3372-3377` requires the shared real-reviewer pass. Both remain obligations.
+The [current matrix](../goal-priority-matrix.md) is the execution queue. Owner §47 at `handoffs/design-to-impl-rulings-2026-08-13.md:2887-2895` requires the exposed-function cleanup programme after the first splits. Owner §55 at lines `3372-3377` requires the shared real-reviewer pass. Both remain obligations.
 
 The fresh AST read measured source spans only:
 
@@ -22,7 +22,7 @@ The fresh AST read measured source spans only:
 
 These spans do not measure gate complexity. The historical fourteen-family inventory remains the scope authority; the installed gate must measure each selected slice. The shop-UI obligation does not authorize an existing-UI change.
 
-Dream is still inline at `logic_pure/logic_pure_combat_engine.py:1080-1100`. Supplies still owns the rune-loadout functions at `logic_pure/logic_pure_combat_supplies.py:1000-1072`. Current carried settlement calls the landed `_fold_keep_gains_and_write_carried` helper at `runtime/runtime_actions_carried_overlay.py:776`; Drop/save/rollback remain at lines `784-794`. The old eight-parameter helper rejection does not describe this whole current source shape.
+Dream is still inline at `logic_pure/logic_pure_combat_engine.py:1060-1080`. Supplies still owns the rune-loadout functions at `logic_pure/logic_pure_combat_supplies.py:994-1066`. Current carried settlement calls the landed `_fold_keep_gains_and_write_carried` helper at `runtime/runtime_actions_carried_overlay.py:813`; Drop/save/rollback remain at lines `784-794`. The old eight-parameter helper rejection does not describe this whole current source shape.
 
 ## Ancestry and acceptance
 
@@ -65,7 +65,7 @@ Emerald sickle waits for a real Myreque route to Legacy of Seergaze stage 6. Pre
 
 The matrix also retains Beefy Bill banking, Horror from the Deep values, Barcrawl effects/card loss, missing quest combat stats, unresolved tradeability, registered Fish Flingers payout, dormant diary dependencies, depth classes, UI owner gates and unassigned tooling proposals. No old census is presented as a fresh measurement. No source harvest or new source claim occurred.
 
-Ghosts Ahoy's prerequisite is live at `data/quest/catalog_overrides.py:13-16`. Barcrawl prerequisites for Horror from the Deep and Scorpion Catcher are at lines `17-18`. The former oversized-generator block is obsolete; the full quest is not closed.
+Ghosts Ahoy's prerequisite is live at `data/quest/catalog_overrides.py:54-57`. Barcrawl prerequisites for Horror from the Deep and Scorpion Catcher are at lines `17-18`. The former oversized-generator block is obsolete; the full quest is not closed.
 
 ## Historical preservation
 

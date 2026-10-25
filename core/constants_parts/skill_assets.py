@@ -392,6 +392,7 @@ SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Run
 # activity_assets fills this shared map; its binding preserves facade export order.
 QUEST_ITEM_IMAGES = {}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
+    "Ragged book": os.path.join(current_dir, "data", "quest", "assets", "ragged_book.png"),
     "Lever": "temple_lever.png",
     "Kitten": "pet_kitten.png",
     "Holy symbol (Icthlarin's Little Helper)": "holy_symbol.png",

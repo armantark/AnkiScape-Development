@@ -54,7 +54,7 @@ remaining-first-event: True
 One correction to the original claim, from the measurement: the crafting action
 is not blocked. The retained hide can still be crafted, but that craft no longer
 earns "Cure and stitch yak-hide armour"
-(`data/quest_action_proof_data.py:36-42`), so Fremennik Isles stage 5 stays
+(`data/quest_action_proof_data.py:39-45`), so Fremennik Isles stage 5 stays
 gated (`data/quest/stage_cleanups.py:396-400`). The end state matches the claim; the
 mechanism does not.
 

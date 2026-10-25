@@ -1,0 +1,21 @@
+{
+  "timestamp": "2010-05-25T17:01:07Z",
+  "user": "LordDarkPhantom",
+  "size": 1571,
+  "width": 27,
+  "height": 29,
+  "comment": "",
+  "url": "https://runescape.wiki/images/archive/20140502180129%21Ragged_book.png?4160a",
+  "descriptionurl": "https://runescape.wiki/w/File:Ragged_book.png",
+  "descriptionshorturl": "https://runescape.wiki/index.php?curid=190774",
+  "sha1": "8f638edba734c9165dd6338f52378790aa76f46f",
+  "mime": "image/png",
+  "saved_path": "data/quest/assets/ragged_book.png",
+  "sha256": "3338ce6ee9e4dd732f0796cd61d605d330f291c710dfab5f008c966853e2e192",
+  "actual_sha1": "8f638edba734c9165dd6338f52378790aa76f46f",
+  "verification": "sha1 and size agree with the historical imageinfo entry",
+  "proposed_registry_path": "data/quest/assets/ragged_book.png",
+  "file_page_url": "https://runescape.wiki/w/File:Ragged_book.png",
+  "source_wiki": "rs3-period",
+  "license_string": "not stated by inspected imageinfo; Jagex game image"
+}

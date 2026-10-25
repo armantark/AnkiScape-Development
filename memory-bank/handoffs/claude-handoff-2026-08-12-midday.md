@@ -17,7 +17,7 @@ This session committed these changes:
 
 ## Headline finding
 
-`tools/audit_item_reachability.py` seeded quest-stage products without checking their `required_action` blockers. The runtime rejects exactly those blockers in `runtime/runtime_actions_production.py:1298-1362`.
+`tools/audit_item_reachability.py` seeded quest-stage products without checking their `required_action` blockers. The runtime rejects exactly those blockers in `94358c98:runtime/runtime_actions_production.py:1298-1362`.
 
 The corrected totals are 1,556 actions, 2,493 items, 103 orphans, and 102 blocked items. The item total fell by 80 from 2,573.
 

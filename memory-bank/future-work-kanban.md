@@ -19,13 +19,6 @@ Shipped cards older than 30 days rotate monthly into [the shipped-card archive](
 Current goal selection, next action and branch disposition:
 `memory-bank/goal-priority-matrix.md`. Existing UI changes are excluded by this goal.
 
-### README FAQ — shipped and closed 2026-10-15
-
-The owner wrote the FAQ, and it sits in `README.md` after "What you get"
-(commit `62beff7d`). Its facts were checked against the code on 2026-10-15.
-Still unverified, so the FAQ makes no claim about it: which save wins when two
-desktops play before an AnkiWeb sync.
-
 ### Upstream ideas from AnkiScape 3.0 — 2026-09-19
 
 Labels: `IMPLEMENT` for the first four, `PARKED` for the rest. Owner accepted
@@ -41,9 +34,9 @@ Take, in value order:
   Anki's `revlog` for uncredited eligible reviews (including AnkiMobile and
   AnkiDroid rows synced to desktop), awards them on the next profile load,
   and keeps a persisted frontier id so the scan is incremental (fast path
-  chunk 2,000 rows; full reconciliation cap 20,000 rows, newest first). This
-  fork credits live desktop reviews only; `grep -rl revlog` over
-  `__init__.py core runtime logic ui` returns 0 files.
+  chunk 2,000 rows; full reconciliation cap 20,000 rows, newest first). This fork credits live desktop reviews only.
+  `core/study_volume.py` reads the review log to choose an adaptive world-day
+  length; those queries do not credit past reviews.
 - Game save outside Anki's tables. Upstream `evolved/journal.py` keeps an
   add-on-owned SQLite at `<profile>/ankiscape-evolved/<game_uuid>/game.sqlite3`
   (WAL, 25 ms interactive busy budget, fail fast to a recovery notice). This
@@ -61,16 +54,6 @@ Take, in value order:
 Specs (2026-09-25): [review-log catch-up](specs/review-log-catch-up.md),
 [export and restore](specs/save-export-restore.md), and
 [redo](specs/review-redo.md); each waits on its owner questions.
-
-Check, then close or fix:
-
-- One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
-  on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
-  Confirm `level_up_check` (`__init__.py:615`) and the core check behave the
-  same after a large XP change. Fixed 2026-09-25: the runtime check only
-  delegates to the core one, which showed one popup per level (the Elder Kiln
-  100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
-  the old and new level and still logs every level.
 
 Release hygiene to copy when the AnkiWeb gates open:
 
@@ -121,10 +104,10 @@ Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
-  a new `QDialog` per open (`ui/ui.py:4899-4904`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:23400-23402`); the Bank
+  a new `QDialog` per open (`ui/ui.py:4818-4823`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:22683-22685`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24770-24781,27095-27108`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:24052-24063,25874-25887`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
   real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before
@@ -135,9 +118,9 @@ Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
 
-- Quest combat stats: 91 of 293 encounters across 47 quests carry none and
-  report "This fight is not modelled yet (combat stats missing)"; list in
-  `memory-bank/pass13-running-notes-2026-09-03.md` (02:18).
+- Quest combat stats: run `python3 tools/audit_quest_combat_stat_gaps.py`
+  for the live encounter list. The audit identifies encounters without
+  resolver-ready stats; the Pass 13 notes retain the historical census.
 - Tradeable defaults: 106 items are `tradeable=False` while the 2011 cache
   flags them exchangeable (69 summoning pouches, 37 shop clothing and misc);
   root cause `MiningBonusItem.tradeable` default at `data/mining_data.py:98`.
@@ -920,8 +903,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 
 - `generated/quest_catalog_generated.py` carries all 194 pre-cutoff quests, and
   `data/quest_data.py` materializes all 194 as `QuestDefinition` rows. Together
-  with two miniquests, the live `QUESTS` and `QUESTS_BY_ID` collections contain
-  196 definitions.
+  with four miniquests, the live `QUESTS` and `QUESTS_BY_ID` collections contain
+  198 definitions.
 - Catalog and definition presence remain scaffolding. Re-audit each quest for
   authentic stages, branches, item transformations, combat, rewards, journals,
   unlocks, and missing-skill gates.
@@ -1119,24 +1102,6 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
   state. Agility, Farming, Construction, Prayer, and Magic core loops are shipped.
 
 ## Cross-system program queue
-
-### Fancy and fighter boots have no art — needs owner approval
-
-Labels: `IMPLEMENT`, blocked on the owner, 2026-07-25.
-
-Reported in the playtest as "no icon for fancy boots (maybe not fighters boots
-either)". Both boots are now registered and equippable, so they leave the bank's
-"Other" group, but that is a different fix: **no sprite exists on disk.**
-`STRONGHOLD_OF_SECURITY_ITEM_IMAGES` is empty and `EXTRA_ITEM_IMAGES["Fancy boots"]`
-resolves to `None`, so the reported symptom is unchanged in the running add-on.
-
-Art is not invented here. The fetch pipeline under `tools/` obtains period sprites,
-and the result needs the owner's eye before it ships, so this stays blocked rather
-than guessed.
-
-The coverage test that should have caught the gap was itself fixed in the same
-pass — an asset-existence test that misses a missing icon is the more important
-defect, and worth a look for other families it may still be blind to.
 
 ### CS2, config, and interface readers shipped
 
@@ -1473,7 +1438,7 @@ bump must not strand a route in a repeated runtime error.
 
 | Defect | Breaks | Cause | Victims |
 |---|---|---|---|
-| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure/logic_pure_progression.py:42-45,404-413`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
+| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure/logic_pure_progression.py:43-46,399-408`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
 | Unmodelled dead time | *rate* | one review per action, whatever the real wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
 
 *Legacy adapter.* Its damage scales with how rare the action is: near `p=1` the square
@@ -1550,6 +1515,28 @@ Labels: `PARKED` until feature closure, then `IMPLEMENT`.
   the game; and lessons for the remaining activities/economy/release program.
   Generate the statistics from repository tools and Git at milestone time rather
   than preserving hand-maintained estimates.
+
+### Multiplayer — owner idea, 2026-10-25
+
+Labels: `PARKED`.
+
+Owner, 2026-10-25: "It would be really fun to make it multiplayer but I have no frickin clue how that could ever work", then "Eh it's ok for now, the multiplayer ideas. I mean you can write it down somewhere". This reopens no decision: solo stays canonical (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:230-231`), and the 2026-09-19 upstream review above rejected hosted accounts, cloud sync and public hiscores.
+
+If the idea is taken up, the shape is asynchronous, because players review at different times:
+
+- Shared hiscores for a friend group: levels and XP only, no deck content.
+- Shared world content: a Grand Exchange between friends (a server matches offers and the item arrives at the next profile load), Clan Citadel upkeep from each member's weekly skilling, and group Shooting Stars or Evil Trees.
+- Live play, such as Castle Wars or Dungeoneering parties, with one answer per move. This is the hardest form, because it needs a live connection between players.
+
+Known costs: a hosted server with accounts; reviews happen on each player's computer, so a server cannot prove a review (low stakes among friends; a public version needs review-log plausibility checks). Upstream's hiscores took most of its September in CI and server work and forced fresh-start-with-no-transfer and two-games-per-profile to keep the leaderboard fair.
+
+### Player-visible exclusion ledger
+
+Labels: `PARKED`.
+
+The 2026-07-17 completion bar requires the Help Center to explain deliberate exclusions (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:33-34`; the Help Center option at `:786-789`), and `memory-bank/source-audits/social-surfaces-and-random-events-2026-07-19.md` puts random events and the Party Room on a "player-visible exclusion/nostalgia ledger". None of the 20 `help_topics/` files covers exclusions. Owner, 2026-10-25: "help center topic may be okay but also maybe an FAQ section question maybe. But do that later".
+
+Sources for the entries: this file's "Explicitly excluded" section, the 2026-07-17 grill's "Deliberate exclusion or parked ledger" (`:727-745`), and the 2026-07-19 social-surfaces audit. First decide the form (a Help Center topic or an FAQ entry), then give each exclusion its reason and the nearest supported abstraction.
 
 ## Explicitly excluded
 

@@ -966,6 +966,8 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/logic_pure_quest.py", "_consume_quest_current_stage_items", "record_quest_stage_action_proofs_pure"),
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/oronwen.py", "apply_oronwen_review_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/elemental_workshop.py", "read_ragged_book_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "apply_murder_mystery_opening_items_pure", "record_quest_stage_action_proofs_pure"),
             },
         )
@@ -978,6 +980,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/logic_pure_quest.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
                 "logic_pure/quest/oronwen.py": 3,
+                "logic_pure/quest/elemental_workshop.py": 4,
                 "logic_pure/quest/murder_mystery.py": 1,
                 "logic_pure/quest_action_proofs.py": 25,
                 "runtime/runtime_actions_shared.py": 3,
