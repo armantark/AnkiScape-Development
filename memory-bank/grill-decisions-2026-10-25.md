@@ -113,6 +113,20 @@ does not ask the owner.
   items I reckon, as a principle going forward".
 - Precedent: item 2110 lets Hazelmere read the bark without the translation book.
 
+## Earlier owner answers that settle classes
+
+The owner gave these answers on single items. Each one settles its whole class, so
+a contract quotes it as an owner ruling.
+
+- Clue steps. Ruling line: "You know all the clue scrolls steps are meant to just
+  be flattened into a single card action right?" (owner, 2026-10-24, item 1790).
+  Each Treasure Trails step is one card, at one shared destination, with no
+  travel or location requirement that the period sources do not attest. Item
+  2000 applied it on 2026-10-25.
+- Repeated loops. Ruling line: "Just flatten the loop so it's automatic and the
+  player doesn't have to babysit." (owner, 2026-10-23, item 1130). An activity that
+  repeats a cycle runs the cycle automatically.
+
 ## Precedent: items that shared one name in 2012
 
 When 2012 gave several items one name, AnkiScape adds the state that tells them
