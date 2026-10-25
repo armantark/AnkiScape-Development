@@ -1359,6 +1359,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 - Use the global 240-reviews-per-day clock for world/economy cadence only.
 - Decide visibility, opt-in/interrupt behavior, expiry, missed events, rewards, persistence, and undo without adding a world map.
 
+### Item examine texts
+Labels: `IMPLEMENT`. Owner, 2026-10-25: "A, should be a simple data copy, right?" Copy the `examine` texts of Darkan's `data/items/config.json` (24,989 of its 25,358 item IDs; AnkiScape shows none) into a name-keyed table the way `generated/item_values_generated.py` copies item values; key a name that covers several item IDs with different texts, such as the three Extended brushes, by `source_item_id`. Show each text as hover text in the existing item lists (owner ruling 4, `grill-decisions-2026-10-25.md`).
+
 ### Road to Restoration comparator
 
 Labels: `DESIGN AUDIT`, `MODERN LEAD ONLY`, `NO PARITY CLAIM`.

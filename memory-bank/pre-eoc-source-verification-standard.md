@@ -120,7 +120,8 @@ number. Go to the implementations first, then prove what you found.
 4. **The remaining dated caches** (728, 729, 736, 741, 742). Use the newest for
    the closest-to-cutoff state, and the spread when a date of introduction or a
    configuration change matters.
-5. **The RuneScape Wiki**, at a pinned pre-cutoff `oldid`.
+5. **The RuneScape Wiki**, at a pinned pre-cutoff `oldid`, or a revision up to a
+   year later under owner ruling 5.
 
 ### Corroboration gate (applies to every value, from any tier)
 
@@ -130,7 +131,9 @@ wherever the wiki states the value at all. An emulator can invent: Darkan's
 `pickDoor()` accumulates a `numbFingers` counter and hands out flat bonuses that
 appear in no period source, and its `checkTrapsChest` ignores traps entirely
 despite the name. Implementation evidence that survives no corroboration and
-conflicts with the period record is a lead, not a fact.
+conflicts with the period record is a lead, not a fact. Where no period source
+states or contradicts a behavior, Darkan's behavior stands in as a placeholder
+(owner ruling 1, `grill-decisions-2026-10-25.md`).
 
 Dated Wayback material stands in for the wiki where histories are missing or
 moved, and for official guides and update posts.
@@ -147,6 +150,8 @@ hidden probability it never states.
 For every concrete value or gate:
 
 1. Find the nearest relevant revision strictly before `2012-11-20T00:00:00Z`.
+   A revision up to `2013-11-20T00:00:00Z` also counts for a passage that no
+   update after the cutoff changed (owner ruling 5, `grill-decisions-2026-10-25.md`).
 2. Record page title, oldid, and UTC timestamp.
 3. Inspect literal article wikitext—not merely the rendered `?oldid=` page.
 4. Trace templates, calculators, exchange calls, inline tables, modules, and
@@ -314,7 +319,9 @@ Every implemented parity family should leave a durable source audit containing:
 ## Breadth-Phase Placeholders
 
 Amended `2026-07-25` by owner decision. This relaxes the rule above for one
-purpose and one phase, and it expires when the breadth phase does.
+purpose and one phase, and it expires when the breadth phase does. Owner ruling 2
+of `2026-10-25` (`grill-decisions-2026-10-25.md`) picks the value: the smallest
+value that makes the mechanic work, and never a reward above what all sources agree on.
 
 The owner's goal is that every settled family reaches mechanical completion. The
 rule above blocks that: content that needs an intense dig stays `source_blocked`
