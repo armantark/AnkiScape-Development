@@ -52,3 +52,6 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 
 - **Game speed** — the amount of 2012 play time that one answered card buys, relative to the base pace.
 - **World day** — the game’s daily calendar span, expressed in answered cards, with active play inside it and logged-out time between days.
+- **Period source** — a record made before the 20 November 2012 cutoff: a RuneScape Wiki revision, an archived guide page, or an official update post. Current wiki pages and Darkan are not period sources.
+- **Darkan** — the owner's high-fidelity restoration of the November 2012 game server. Its behavior stands in where the period sources are silent, as a placeholder. Avoid: "reconstruction", "restoration", "modern server".
+- **Placeholder** — a value or behavior that the 2012 game had and that AnkiScape could not recover, shipped with a marker so that a later source find replaces it. It never stands for content that the period record does not attest.

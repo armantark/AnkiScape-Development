@@ -130,7 +130,9 @@ wherever the wiki states the value at all. An emulator can invent: Darkan's
 `pickDoor()` accumulates a `numbFingers` counter and hands out flat bonuses that
 appear in no period source, and its `checkTrapsChest` ignores traps entirely
 despite the name. Implementation evidence that survives no corroboration and
-conflicts with the period record is a lead, not a fact.
+conflicts with the period record is a lead, not a fact. Where no period source
+states or contradicts a behavior, Darkan's behavior stands in as a placeholder
+(owner ruling 1, `grill-decisions-2026-10-25.md`).
 
 Dated Wayback material stands in for the wiki where histories are missing or
 moved, and for official guides and update posts.
@@ -314,7 +316,9 @@ Every implemented parity family should leave a durable source audit containing:
 ## Breadth-Phase Placeholders
 
 Amended `2026-07-25` by owner decision. This relaxes the rule above for one
-purpose and one phase, and it expires when the breadth phase does.
+purpose and one phase, and it expires when the breadth phase does. Owner ruling 2
+of `2026-10-25` (`grill-decisions-2026-10-25.md`) picks the value: the smallest
+value that makes the mechanic work, and never a reward above what all sources agree on.
 
 The owner's goal is that every settled family reaches mechanical completion. The
 rule above blocks that: content that needs an intense dig stays `source_blocked`
