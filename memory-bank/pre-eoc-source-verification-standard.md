@@ -120,7 +120,8 @@ number. Go to the implementations first, then prove what you found.
 4. **The remaining dated caches** (728, 729, 736, 741, 742). Use the newest for
    the closest-to-cutoff state, and the spread when a date of introduction or a
    configuration change matters.
-5. **The RuneScape Wiki**, at a pinned pre-cutoff `oldid`.
+5. **The RuneScape Wiki**, at a pinned pre-cutoff `oldid`, or a revision up to a
+   year later under owner ruling 5.
 
 ### Corroboration gate (applies to every value, from any tier)
 
@@ -149,6 +150,8 @@ hidden probability it never states.
 For every concrete value or gate:
 
 1. Find the nearest relevant revision strictly before `2012-11-20T00:00:00Z`.
+   A revision up to `2013-11-20T00:00:00Z` also counts for a passage that no
+   update after the cutoff changed (owner ruling 5, `grill-decisions-2026-10-25.md`).
 2. Record page title, oldid, and UTC timestamp.
 3. Inspect literal article wikitext—not merely the rendered `?oldid=` page.
 4. Trace templates, calculators, exchange calls, inline tables, modules, and

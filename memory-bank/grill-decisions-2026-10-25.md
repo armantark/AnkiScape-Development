@@ -2,7 +2,7 @@
 
 Date: `2026-10-25`
 
-Status: **owner-settled, four rulings; one refinement of ruling 3 is open.**
+Status: **owner-settled, six rulings.**
 
 Each ruling settles a class of contract questions, not one item. A contract cites
 the ruling and quotes its ruling line, and then it does not ask the owner a question
@@ -28,7 +28,8 @@ contradicts it. Each such behavior gets a placeholder marker and a register line
 so a later source find replaces it.
 
 - When two period sources disagree with each other, the question still goes to the
-  owner. The owner chose option B, which keeps those disagreements with him, over
+  owner. A rule that the source dated nearest the cutoff wins was proposed and not
+  approved. The owner chose option B, which keeps those disagreements with him, over
   option A, which let Darkan pick between them.
 - When a period source contradicts Darkan, the corroboration gate of
   `pre-eoc-source-verification-standard.md` still holds: the Darkan behavior is "a
@@ -62,10 +63,19 @@ also costs one review.
 
 - The owner accepts that existing quests change to this rule: "then we'd also have
   to retroactively change all existing quests. Which I'm fine with".
-- **Open refinement:** a long step, such as a puzzle, is more than one card. The
-  owner: "It would be absurdly silly for the puzzle there to be only one card",
-  about Mourning's End Part 2. The rule for the review cost of a long step is not
-  settled yet. Until it is, a contract that holds a long puzzle asks the owner.
+- A puzzle or other long step costs one card for each action that the period
+  walkthrough lists. In the Mourning's End Part II mirror puzzle, each mirror
+  placed and each beam aimed is one action. Each card shows one line of text for
+  its action, and no puzzle screen appears. The owner chose this at 10:02 PDT
+  ("6. A") after he said that a one-card puzzle is "absurdly silly".
+- An action that could fail in 2012 can fail on a card. The owner: "Some things
+  also have failable agility actions". A failed card applies the action's
+  penalty, and the action repeats on the next card. When no source gives the
+  failure chance or the penalty, a quest Agility obstacle uses the existing Agility
+  obstacle model (`can_fail`, `roll_profile`, `failure_damage`).
+- Before this ruling, each quest review advanced one journal stage: 198 quests had
+  1,341 stages, and Mourning's End Part II cost 7 cards. Each quest gets one
+  re-staging row in the loop's design backlog.
 
 ## 4. Text-only changes inside an existing panel
 
@@ -77,6 +87,38 @@ screen.
 - New controls, layout changes and new screens still go to the owner.
 - Example: item 2050 replaces the Duel Arena exchange score and its five-review
   limit with both fighters' life points, the review count and the outcome.
+
+## 5. Wiki revisions up to a year after the cutoff count
+
+Ruling line: a RuneScape Wiki revision dated up to 20 November 2013 counts as a
+period source for a passage when no game update after 20 November 2012 changed the
+thing that the passage describes.
+
+- The owner, 10:02 PDT: "I actually think we can expand the sourcing ladder to
+  include wiki revisions within a year of 20 November 2012 as long as it didn't
+  obviously change due to combat etc."
+- The Evolution of Combat changes of 20 November 2012 are the main case of a later
+  change. Content released after the cutoff never counts.
+- When a pre-cutoff revision states the same thing, the contract cites the
+  pre-cutoff revision.
+
+## 6. Quest and quest-item details take the simpler playable option
+
+Ruling line: when the sources do not settle a detail of a quest or a quest item,
+such as what the player must carry, what a step spends, or how a lost item comes
+back, the contract picks the simpler option that keeps the quest playable, and it
+does not ask the owner.
+
+- The owner, 10:02 PDT: "No one is going to look too closely at quests and quest
+  items I reckon, as a principle going forward".
+- Precedent: item 2110 lets Hazelmere read the bark without the translation book.
+
+## Precedent: items that shared one name in 2012
+
+When 2012 gave several items one name, AnkiScape adds the state that tells them
+apart in brackets. Precedent: item 2080 names the three Extended brush items
+"Extended brush (1 cane)", "Extended brush (2 canes)" and "Extended brush
+(3 canes)" (owner, 10:02 PDT: "9. A").
 
 ## Wording in owner questions
 
