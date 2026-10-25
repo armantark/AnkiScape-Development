@@ -240,6 +240,42 @@ def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    # Primary: https://runescape.wiki/w/index.php?title=Desert_Treasure&oldid=6563639
+    # Revision 2012-11-16T08:24:12Z; literal-body SHA-256:
+    # 927f963a829d508fe8b869f4cadf8a27061ea54fc1754ada6608f7de507cfeca
+    # Sal's: https://web.archive.org/web/20120920041545id_/http://runescape.salmoneus.net/quests/desert-treasure.html
+    # Capture 2012-09-20T04:15:45Z; literal-body SHA-256:
+    # 7c7f7de84bee5960bdca721fd8f5a7abc73217d61da3701630b0cbfa3d87fa8f
+    # RuneHQ: https://web.archive.org/web/20121103141524id_/http://www.runehq.com:80/quest/desert-treasure
+    # Capture 2012-11-03T14:15:24Z; literal-body SHA-256:
+    # b14560bbc488200108ad2eaf8078035b38a0751210ab3677c0c4244f21d1b256
+    # Sal's L189 corroborates every quantity; RuneHQ L286 corroborates the
+    # existing noting qualification. Darkan omits noted bones/ashes. Sal's
+    # noting instructions conflict internally (L228 excludes charcoal; L232
+    # includes it). The adopted wiki paragraph states no blood-rune noting rule.
+    "desert_treasure": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=(
+                tuple(journal_row["journal"][:6])
+                + (
+                    "6 Steel bars",  # oldid 6563639 L98: *6 [[Steel bars]]
+                    "12 Magic logs",  # L99: *12 [[Magic logs]]
+                    "6 Molten glass",  # L100: *6 [[Molten glass]]
+                    "1 Charcoal",  # L101: *1 [[Charcoal]]
+                    "1 Blood rune",  # L102: *1 [[Blood rune]]
+                    "1 Ashes",  # L103: *1 [[Ashes]]
+                    "1 Bones",  # L104: *1 [[Bones]]
+                )
+                + tuple(journal_row["journal"][6:])
+                if journal_row["stage"] == 1
+                else tuple(journal_row["journal"])
+            ),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG
+        if quest_row["id"] == "desert_treasure"
+        for journal_row in quest_row["journal_stages"]
+    ),
     # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
     # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
     # owner-selected and lacks period consensus.
