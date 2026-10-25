@@ -17,6 +17,8 @@ from ..logic_pure.logic_pure import (
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_lamps_waiting_text_pure,
 )
+from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
+from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
 from ..logic_pure.quest.oronwen import oronwen_phase_pure, oronwen_review_ready_pure
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import (
@@ -133,7 +135,13 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return _answer_quest_combat(ctx, quest_id, quest, combat_blockers[0].get("encounter_id"))
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
-    if stage_blocker_reasons and not oronwen_review_ready_pure(player_data, quest_id, stage_blockers):
+    review_ready = (
+        oronwen_review_ready_pure(player_data, quest_id, stage_blockers)
+        or opening_review_ready_pure(
+            player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
+        )
+    )
+    if stage_blocker_reasons and not review_ready:
         _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
         return False
     if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):

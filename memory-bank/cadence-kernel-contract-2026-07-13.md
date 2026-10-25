@@ -25,7 +25,7 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    period record (gilded altar 913/hr, dragonhide 1,000/hr, High Alchemy 1,200/hr —
    the last stated outright by the 2012 page). `R = 1800` has no support.
 2. **Pace is the player's, via the existing `ankiscape_review_action_multiplier`**
-   (`__init__.py:391`). All parity claims are defined at multiplier 1. A
+   (`__init__.py:394`). All parity claims are defined at multiplier 1. A
    successful card buys `6 × M` game ticks (owner decision 4, 2026-10-15): Combat
    spends them in one engine call, and every other handler takes one six-tick
    kernel step per call until the card is spent or a boundary stops it; ratios are

@@ -103,6 +103,20 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
     ),
     "nature_spirit": (),
     "the_lost_tribe": (),
+    # Legends' Quest oldid 6529921 line 33; Sal's capture 20121018050049.
+    "legends_quest": (
+        QuestSkillRequirement("agility", "Agility", 50),
+        QuestSkillRequirement("combat", "Combat", 75),
+        QuestSkillRequirement("crafting", "Crafting", 50),
+        QuestSkillRequirement("herblore", "Herblore", 45),
+        QuestSkillRequirement("magic", "Magic", 56),
+        QuestSkillRequirement("mining", "Mining", 52),
+        QuestSkillRequirement("prayer", "Prayer", 42),
+        QuestSkillRequirement("smithing", "Smithing", 50),
+        QuestSkillRequirement("strength", "Strength", 50),
+        QuestSkillRequirement("thieving", "Thieving", 50),
+        QuestSkillRequirement("woodcutting", "Woodcutting", 50),
+    ),
 }
 
 
@@ -120,6 +134,8 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Shield of Arrav", "The Knight's Sword", "Family Crest", "What Lies Below",
         "Demon Slayer", "Temple of Ikov", "Garden of Tranquillity", "Agility 51",
         "Hunter 51", "Mining 59", "Smithing 54",
+        # Defender6542570 line 39: the Shield story must be claimed at the Museum.
+        "Claim Varrock Museum Kudos for completing Shield of Arrav",
     ),
     "recruitment_drive": ("Black Knights' Fortress", "Druidic Ritual"),
     "horror_from_the_deep": ("Alfred Grimhand's Barcrawl", "Agility 35"),
@@ -129,6 +145,13 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Druidic Ritual", "Troll Stronghold", "Death Plateau", "Agility 15", "Herblore 31",
     ),
     "nature_spirit": ("Priest in Peril", "The Restless Ghost"),
+    # Same period sources: Prayer 42 required; 43 recommended.
+    "legends_quest": (
+        "108 quest points", "Family Crest", "Heroes' Quest", "Shilo Village",
+        "Underground Pass", "Waterfall Quest", "Agility 50", "Combat 75",
+        "Crafting 50", "Herblore 45", "Magic 56", "Mining 52", "Prayer 42",
+        "Smithing 50", "Strength 50", "Thieving 50", "Woodcutting 50",
+    ),
 }
 
 
@@ -149,6 +172,71 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     BIOHAZARD_ID: len(BIOHAZARD_STAGES),
     WATERFALL_QUEST_ID: len(WATERFALL_QUEST_STAGES),
 }
+
+
+def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
+    # Retained packet: 1300-tower-of-life-opening-journal-answers,
+    # answer-source-mapping.json and source-index.json (qualified guide text).
+    # W1: Tower of Life oldid 6588693, 2012-11-19T21:10:36Z, lines 48-50, 55-58.
+    # https://runescape.wiki/w/index.php?title=Tower_of_Life&oldid=6588693
+    # sources/tower-of-life-6588693.txt
+    # SHA-256: 89a4e18f3c4f0babe03f00bab18d0606f8e9a2fadc6b14f6cd0bc3f8aed373c0
+    # W2: Quick guide oldid 6190562, 2012-09-03T20:13:09Z; shares W1 wiki lineage.
+    # https://runescape.wiki/w/index.php?title=Tower_of_Life%2FQuick_guide&oldid=6190562
+    # sources/tower-of-life-quick-guide-6190562.txt
+    # SHA-256: bb48162bc81134e5470a0707cb1674c45a4e1989b0cf1fab14efac4e5552b4d4
+    # A1: independent RuneHQ guide, actual capture 20120921110403,
+    # 2012-09-21T11:04:03Z; publication date and author-level ancestry unstated.
+    # https://web.archive.org/web/20120921110403id_/http://www.runehq.com/quest/tower-of-life
+    # sources/runehq-quest-20120921110403.html
+    # SHA-256: 2bbb8e9e045aded46b1b980109a286b3e918049116f53d5fc827a735329e3d70
+    # D1: canonical Darkan TowerOfLife.kt, revision
+    # 517bdeaaf16dbe3cbfe80ee74a91f7fbe944aaed; last file change
+    # 4a6595839e613b88b0e9dd95e708124490072fe4. Modern reconstruction corroborated
+    # by the period guides, not an original server transcript.
+    # sources/darkan-TowerOfLife.kt.txt
+    # SHA-256: 61a8719a58d49ba041e69313e07f560f78b71050d26cb2abbfff127fcfc94628
+    # Bonafido oldid 6222098 omits answers. Selected cache rows lack dialogue;
+    # raw caches/scripts remain unchecked. The game-main667 negative is bounded
+    # to the inspected content tree. These are not original-game journal words.
+    insertions = {
+        1: (
+            "He will ask three questions. The answer are as follows:",
+            (
+                # W1:48; W2:27; A1:280-281; D1:442-443. Expand W1's 3 to 3 nails.
+                "How many nails does it take to make a rocking chair? — 3 nails",
+                # W1:49; W2:28; A1:282-283; D1:444-445.
+                "What takes 3 planks, 3 cloth and 3 nails to make, and help remove light "
+                "from a room? — Torn curtains",
+                # W1:50; W2:29; A1:284-285; D1:446-447.
+                "I like fish and I want to put some in my garden, but I need a special "
+                "water feature. What materials would I require? — 10 clay pieces",
+            ),
+        ),
+        2: (
+            "He will give a test of which the answers are as follows:",
+            (
+                # W1:55; W2:46; A1:291-292; D1:460-461.
+                "You've plenty of work to do, but you need a drink fast - what do you go for? — Tea",
+                # W1:56; W2:48; A1:293-294; D1:462-463.
+                "Now, let's hear you whistle! — Whistle for attention",
+                # W1:57; W2:50; A1:295-296; D1:464-465. Correct only trowsers.
+                "What's a good sign that you need to repair your trousers? — Your legs are getting a bit cold",
+                # W1:58; W2:52; A1:297-298; D1:466-467.
+                "What do you do if you cut your finger? — Carry on, it'll fix itself.",
+            ),
+        ),
+    }
+    raw = next(row for row in PRE_EOC_QUEST_CATALOG if row["id"] == "tower_of_life")
+    stages = []
+    for stage in raw["journal_stages"]:
+        journal = list(stage["journal"])
+        if stage["stage"] in insertions:
+            prompt, answers = insertions[stage["stage"]]
+            position = journal.index(prompt) + 1
+            journal[position:position] = answers
+        stages.append(QuestStage(stage["stage"], tuple(journal)))
+    return tuple(stages)
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
@@ -206,6 +294,42 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
         if quest_row["id"] == "dream_mentor"
         for journal_row in quest_row["journal_stages"]
     ),
+    # Primary: https://runescape.wiki/w/index.php?title=Desert_Treasure&oldid=6563639
+    # Revision 2012-11-16T08:24:12Z; literal-body SHA-256:
+    # 927f963a829d508fe8b869f4cadf8a27061ea54fc1754ada6608f7de507cfeca
+    # Sal's: https://web.archive.org/web/20120920041545id_/http://runescape.salmoneus.net/quests/desert-treasure.html
+    # Capture 2012-09-20T04:15:45Z; literal-body SHA-256:
+    # 7c7f7de84bee5960bdca721fd8f5a7abc73217d61da3701630b0cbfa3d87fa8f
+    # RuneHQ: https://web.archive.org/web/20121103141524id_/http://www.runehq.com:80/quest/desert-treasure
+    # Capture 2012-11-03T14:15:24Z; literal-body SHA-256:
+    # b14560bbc488200108ad2eaf8078035b38a0751210ab3677c0c4244f21d1b256
+    # Sal's L189 corroborates every quantity; RuneHQ L286 corroborates the
+    # existing noting qualification. Darkan omits noted bones/ashes. Sal's
+    # noting instructions conflict internally (L228 excludes charcoal; L232
+    # includes it). The adopted wiki paragraph states no blood-rune noting rule.
+    "desert_treasure": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=(
+                tuple(journal_row["journal"][:6])
+                + (
+                    "6 Steel bars",  # oldid 6563639 L98: *6 [[Steel bars]]
+                    "12 Magic logs",  # L99: *12 [[Magic logs]]
+                    "6 Molten glass",  # L100: *6 [[Molten glass]]
+                    "1 Charcoal",  # L101: *1 [[Charcoal]]
+                    "1 Blood rune",  # L102: *1 [[Blood rune]]
+                    "1 Ashes",  # L103: *1 [[Ashes]]
+                    "1 Bones",  # L104: *1 [[Bones]]
+                )
+                + tuple(journal_row["journal"][6:])
+                if journal_row["stage"] == 1
+                else tuple(journal_row["journal"])
+            ),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG
+        if quest_row["id"] == "desert_treasure"
+        for journal_row in quest_row["journal_stages"]
+    ),
     # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
     # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
     # owner-selected and lacks period consensus.
@@ -242,6 +366,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     PLAGUE_CITY_ID: PLAGUE_CITY_STAGES,
     BIOHAZARD_ID: BIOHAZARD_STAGES,
     WATERFALL_QUEST_ID: WATERFALL_QUEST_STAGES,
+    "tower_of_life": _tower_of_life_journal_stages(),
 }
 
 

@@ -40,8 +40,7 @@ worktree-layout, clean-tree, and diff checks locally, while locks, logs,
 evidence, exact-commit checks, and landing state remain in the canonical Git
 common directory. Omitting the flag keeps the supported local default.
 
-For focused verification, use the checked-in runner directly from any local
-AnkiScape worktree:
+For full lanes, use the checked-in runner from a local AnkiScape worktree:
 
 ```bash
 /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain

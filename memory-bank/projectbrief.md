@@ -15,9 +15,9 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 ## Product Boundary
 
 - Target RuneScape immediately before EOC, cutoff `2012-11-20`.
-- Keep Anki review primary: one successful review is one sourced action by default.
+- Keep Anki review primary. Game speed sets each card budget; source action units and terminal boundaries stay fixed.
 - Preserve source base XP and tune Anki pacing separately.
-- Use the 240-reviews-per-day global clock only for background/world/economy cadence.
+- Use the configured or adaptive world-day length for background, world, and economy cadence. Change the length only at a day boundary.
 - Use target-local inventory, equipment, risk, and options rather than global player location.
 - Do not build a world map or standalone transportation network.
 - Do not expose inert “coming soon” targets or rewards; content is visible only when it works end to end, except authentic player-state locks on working content.

@@ -18,21 +18,20 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 - Each skill's surface state (complete or partial) lives in `core/skill_registry.py`; read it there, not here.
 - Unified Combat trains the partial Combat skills through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo share these foundations.
-- The quest catalog holds every pre-EOC quest row; `memory-bank/future-work-kanban.md` owns quest-by-quest fidelity work.
+- Read `data/quest/ledger.py` for the live quest and miniquest definitions. `memory-bank/future-work-kanban.md` owns their fidelity work.
 
 ## Completion Direction
 
 The goal is full pre-EOC breadth translated to Anki—not a literal world simulator. Unresolved skill depth receives a product grill only when authentic loops have multiple reasonable review abstractions. Large hidden-server systems may wait for a stable high-fidelity Darkan restoration, then must still be reconciled against period evidence.
 
-Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10
-completion audit is archived under `memory-bank/archive/2026-07/baselines/`.
+Canonical scope: `memory-bank/future-work-kanban.md`.
 
 ## Boundaries
 
 - Melvor Idle is conceptual overlap only, never a content, balance, or UI source.
 - No persistent world map or transport network.
 - No modern RS3/OSRS substitution for missing pre-EOC proof.
-- No ordinary skilling “minutes per review”; the card clock is reserved for world/economy cadence.
+- Game speed sets the foreground card budget. The world-day clock controls background and economy cadence; neither uses elapsed wall time.
 - Daemonheim resources stay inside the Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list; only explicit persistent rewards leave a floor.
 - Any public release is a separately named, independently maintained derivative
   that credits Wilson Yeh as the original creator; it must not impersonate or

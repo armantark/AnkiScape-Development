@@ -82,7 +82,7 @@ source and preserved the stage-2 circularity.
 
 The target rule now uses `kind="quest_started"` at
 `data/quest/ledger.py:191-193`. The generator-owned shop rule now uses
-`stage="started"` at `tools/generate_npc_shop_data.py:188-189`, and the checked-in
+`stage="started"` at `tools/generate_npc_shop_data.py:203-204`, and the checked-in
 `data/shop_data.py` row matches it. Runtime and audit machinery already support
 both started states; no gate resolver changed.
 

@@ -25,13 +25,34 @@ from ..logic.collection_log_logic import (
 )
 from ..logic.music_log_logic import music_log_view_pure
 from .ui import _clear_layout, _pixel_item_icon, dim_text_color, dim_text_css
+from .ui_first_cell_tree import FirstCellSelectionTree
 
 
 _NODE_ROLE = Qt.ItemDataRole.UserRole if "Qt" in globals() else None
+# The family list's widest share of the page, which leaves the detail pane usable in a 720 px dialog.
+NAVIGATION_MAX_SHARE = 0.4
+
+
+def _navigation_content_width(navigation, items) -> int:
+    """Measure names and counts even when their family is collapsed."""
+    # sizeHintForColumn ignores collapsed descendants. Include every target
+    # and its branch indentation so reopening a family cannot clip its text.
+    names, counts = 0, 0
+    for item in items:
+        indent = navigation.indentation() * (2 if item.parent() is not None else 1)
+        names = max(names, navigation.sizeHintForIndex(navigation.indexFromItem(item, 0)).width() + indent)
+        counts = max(counts, navigation.sizeHintForIndex(navigation.indexFromItem(item, 1)).width())
+    return (
+        2 * navigation.frameWidth()
+        + names
+        + counts
+        + navigation.verticalScrollBar().sizeHint().width()
+    )
 
 
 def build_collections_tab(ctx) -> "QWidget":
     """Build the settled left-family and right-detail Collections surface."""
+    from .ui_text_fit import ElidedTipDelegate, on_resize
 
     page = QWidget()
     page.setObjectName("collectionsPage")
@@ -56,14 +77,15 @@ def build_collections_tab(ctx) -> "QWidget":
     split.setSpacing(10)
     layout.addLayout(split, 1)
 
-    navigation = QTreeWidget()
+    navigation = FirstCellSelectionTree()
     navigation.setObjectName("collectionsFamilyTree")
     navigation.setColumnCount(2)
     navigation.setHeaderHidden(True)
     navigation.setRootIsDecorated(True)
     navigation.setItemsExpandable(True)
-    navigation.setFixedWidth(244)
-    navigation.setColumnWidth(0, 184)
+    navigation.setItemDelegateForColumn(0, ElidedTipDelegate(navigation))
+    # Names take the room the counts leave; a stretched last section would split it in half.
+    navigation.header().setStretchLastSection(False)
     navigation.header().setSectionResizeMode(
         0,
         QHeaderView.ResizeMode.Stretch,
@@ -175,6 +197,13 @@ def build_collections_tab(ctx) -> "QWidget":
         )
         navigation.blockSignals(False)
 
+    def _fit_navigation_width() -> None:
+        # Measured from the names it lists, so no family or target name is cut short in any font,
+        # up to its share of the page; past that a name elides and its tooltip shows it whole.
+        navigation.ensurePolished()
+        wanted = _navigation_content_width(navigation, nav_items.values())
+        navigation.setFixedWidth(min(wanted, int(page.width() * NAVIGATION_MAX_SHARE)))
+
     def _render_music(query: str) -> None:
         view = music_log_view_pure(ctx.player_data, search=query)
         detail_title.setText("Music Log")
@@ -209,7 +238,7 @@ def build_collections_tab(ctx) -> "QWidget":
         view = _drop_view(query=query)
         detail_title.setText("Boss/monster drop log")
         family_totals.setText(f"{view['collected']}/{view['total']}")
-        tree = QTreeWidget()
+        tree = FirstCellSelectionTree()
         tree.setObjectName("collectionsDropTargets")
         tree.setColumnCount(2)
         tree.setHeaderLabels(("Target", "Collected"))
@@ -341,10 +370,12 @@ def build_collections_tab(ctx) -> "QWidget":
             f"Collected {overall['collected']} / {overall['total']} overall"
         )
         _populate_navigation(selected_key)
+        _fit_navigation_width()
         _render_right()
 
     navigation.currentItemChanged.connect(lambda *_args: _selection_changed())
     search.textChanged.connect(lambda _text: _render_right())
+    on_resize(page, _fit_navigation_width)
     _refresh_all()
     ctx.refreshers["collections"] = _refresh_all
     return page

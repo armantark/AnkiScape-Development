@@ -9,7 +9,7 @@ open multiple dialogs, and serve stale code or assets.
   `addons21`.
 - Create linked worktrees with
   `python3 tools/worktree_guard.py add <branch> [--name <leaf>]`; they belong in
-  the sibling `Anki2/ankiscape_worktrees/` directory.
+  the safe root selected by the guard from the canonical checkout path.
 - Run `python3 tools/worktree_guard.py audit` before and after worktree changes.
 - Never use a raw `git worktree add` destination beneath `addons21`.
 - The global pooled-`treehouse` rule reaches this repo only through the guard,
@@ -21,7 +21,7 @@ open multiple dialogs, and serve stale code or assets.
 - Run mutation proofs in one of these guarded worktrees with
   `tools/maintenance/run_mutation_probe.py`, never in an rsync scratch copy.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.
-- Do not change an existing user interface without explicit owner approval; require a frontend-taste model review before promotion of each new interface.
+- Do not change an existing user interface without explicit owner approval, except a text- or number-only change inside an existing panel (owner ruling, `memory-bank/grill-decisions-2026-10-25.md`); require a frontend-taste model review before promotion of each new interface.
 - When the owner explicitly pauses the implementation goal, wrap up with a results artifact of what the run completed at gameplay level, plus any high-level architectural change that supported it, because the owner reads the game, not the code (grill decision 10, 2026-09-21).
 - For AnkiScape goal updates, state the user-visible change, what landed and the exact remaining check; give no whole-goal percentage without a measured denominator.
 - Preserve successful product verification when bookkeeping fails; repair the failing record without replaying product checks or adding process machinery unless the current slice has a demonstrated blocker.
