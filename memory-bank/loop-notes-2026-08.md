@@ -1444,7 +1444,7 @@ with real defects. None of the rejections were style.
 
 **Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
 herb produced by the quest's Herblore step, because `_record_action` in
-`runtime/runtime_actions_shared.py:581-590` subtracts the produced output as
+`runtime/runtime_actions_shared.py:585-594` subtracts the produced output as
 the rock's replacement. Each grimy jungle herb has exactly one producer, the
 already-passed search stage, so the quest becomes permanently unfinishable and
 takes Shilo Village and thirteen exclusive items with it. Incidence
@@ -1558,7 +1558,7 @@ polished away while the Codex block runs down:
    shipped defect.
 2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
    verbatim between `refresh_skill_availability` and the panel render path at
-   `ui/ui.py:22859-22876`, so editing one leaves the other emitting old text.
+   `ui/ui.py:22142-22159`, so editing one leaves the other emitting old text.
    The available branch also sets the tooltip to the bare skill name while the
    render path sets none, so an enabled button silently acquires a tooltip
    after the first refresh.

@@ -16,7 +16,7 @@ The final open log contains seven entries. All 55 closed occurrences remain verb
 
 ### Entry 001 — Quest cleanup actions lack emitters
 
-tests/test_quest_action_proofs.py:875 retains seven un-emitted cleanup actions. The round-shield action is repaired, but the other seven causes remain. The acceptance test preserves the source-blocked set rather than proving closure.
+tests/test_quest_action_proofs.py:876 retains seven un-emitted cleanup actions. The round-shield action is repaired, but the other seven causes remain. The acceptance test preserves the source-blocked set rather than proving closure.
 
 ### Entry 002 — Slayer quick-finisher purchases are unavailable
 
@@ -24,15 +24,15 @@ ui/ui.py:8529 still shows a reward-purchase placeholder. References to slayer_qu
 
 ### Entry 003 — Quest generation still depends on drifting source inputs
 
-Equipment drift is fixed by 06324e44: the non-writing generation probe produced byte-identical equipment_data.py (/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-10-02/equipment-regeneration-diff.log). Quest generation still reads external Darkan NPC definitions (tools/build_pre_eoc_quest_catalog.py:90) and writes its whole output at line 2613. Commit 8b57b4da explicitly leaves that drift unresolved; no reproducible retained input/output check closes it.
+Equipment drift is fixed by 06324e44: the non-writing generation probe produced byte-identical equipment_data.py (/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-10-02/equipment-regeneration-diff.log). Quest generation still reads external Darkan NPC definitions (tools/build_pre_eoc_quest_catalog.py:82) and writes its whole output at `aaa00c8a:tools/build_pre_eoc_quest_catalog.py:2613`. Commit 8b57b4da explicitly leaves that drift unresolved; no reproducible retained input/output check closes it.
 
 ### Entry 048 — HUD projection failures silently retain stale content
 
-ui/ui.py:4165 still wraps ReviewHUD.set_data() in an outer except Exception: pass at lines 4183-4184. No error is surfaced or logged in that path; stale content can conceal the failing projection.
+ui/ui.py:4091 still wraps ReviewHUD.set_data() in an outer except Exception: pass at lines 4183-4184. No error is surfaced or logged in that path; stale content can conceal the failing projection.
 
 ### Entry 055 — The Crafting repair awaits integration
 
-tools/fetch_crafting_assets.py:175 still constructs HttpWikiClient() without before_timestamp. Lines 156-166 expose no cutoff or User-Agent options; tools/fetch_assets.py:123-133 supports both in the shared client. The command can still fetch current art on this tree. Commits 1fc5cb70 and 075e90a9 repair the client identity and cutoff on `goal/pass15b-logic-followups`. Neither commit is an ancestor of this slice or `main` at review time. Keep the exact open line until that repair is integrated and verified.
+tools/fetch_crafting_assets.py:175 still constructs HttpWikiClient() without before_timestamp. `tools/fetch_crafting_assets.py:157-167` exposes no cutoff or User-Agent options; tools/fetch_assets.py:123-133 supports both in the shared client. The command can still fetch current art on this tree. Commits 1fc5cb70 and 075e90a9 repair the client identity and cutoff on `goal/pass15b-logic-followups`. Neither commit is an ancestor of this slice or `main` at review time. Keep the exact open line until that repair is integrated and verified.
 
 ### Entry 030 — The reported expanded quest card lacks exact proof
 
@@ -71,11 +71,11 @@ Metadata and handoff paths are repo-relative. Host paths remain only where the p
 
 | Finding | Decision | Checked evidence and result |
 | --- | --- | --- |
-| A1: entry 050 probe repair | Applied | `ad5bbdfd` adds the rich-text `sizeHint()` branch after word wrap; `tests/ui_flows/qt_text_fit.py:58` retains it. Entry 050 is fixed. Its merge trap also has guidance. |
+| A1: entry 050 probe repair | Applied | `ad5bbdfd` adds the rich-text `sizeHint()` branch after word wrap; `tests/ui_flows/qt_text_fit.py:66` retains it. Entry 050 is fixed. Its merge trap also has guidance. |
 | A2 / B9: checkout-specific cache guidance | Applied | Removed “and absent from this worktree”. Dated host observations and added check-before-relying language for the archive, jq, cache and pyflakes shim. |
 | B1: entries 004/018 and current ugrep wrapper | Applied documentation; rejected current-host assertion | Both entries are documented. A fresh `zsh -ic` reports `/usr/bin/grep`, BSD grep 2.6.0-FreeBSD, prints `aaa` for the reported regex, and finds no ugrep command. Guidance records the historical ugrep trap conditionally. `review-resolution-probes.json` retains the output. |
-| B2: entry 023 | Applied | `8f70a917` landed on 2026-09-27, before the 2026-10-01 discrepancy. Reclassified as documented at `memory-bank/techContext.md:396`. Current counts agree; the historical wrong-checkout cause remains a hypothesis. |
-| B3: entries 007/021/044/050 | Applied with A1 | `tools/worktree_guard.py:377` defaults to `main`. Added explicit `--start-point <family-branch>` or plain-merge guidance. Entries 007/021/044 are documented; entry 050 is fixed for the probe and also cites the guidance. |
+| B2: entry 023 | Applied | `8f70a917` landed on 2026-09-27, before the 2026-10-01 discrepancy. Reclassified as documented at `memory-bank/techContext.md:410`. Current counts agree; the historical wrong-checkout cause remains a hypothesis. |
+| B3: entries 007/021/044/050 | Applied with A1 | `tools/worktree_guard.py:448` defaults to `main`. Added explicit `--start-point <family-branch>` or plain-merge guidance. Entries 007/021/044 are documented; entry 050 is fixed for the probe and also cites the guidance. |
 | B4: disposable worktree paths | Applied | Removed this worktree prefix from archive metadata and this audit. Exact original incidents retain their paths. Promotion evidence paths remain absolute. |
 | B5: entry 030 | Applied | The cited test opens four other cards at 720 × 560. Returned the occurrence to open because the exact Fremennik Isles case at both reported heights lacks proof. |
 | B6: entries 006/020 | Applied | Added `User-Agent: AnkiScape parity audit` guidance that excludes personal identity. Both occurrences are documented. The existing audit client already uses that identity. |

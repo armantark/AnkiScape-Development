@@ -47,7 +47,7 @@ Resolution: accepted and applied to the whole canonical file. Independent enumer
 
 Finding: the note cited `_apply_brimhaven_review`, which does not exist.
 
-Resolution: accepted. The note now cites `logic/agility_logic.py:695::_brimhaven_review`, with the ticket award at lines 735-742, and the existing runtime telemetry handoff at `98e6630f:runtime/runtime_actions_activities.py:3089-3103::handle_agility_answer`.
+Resolution: accepted. The note now cites `logic/agility_logic.py:689::_brimhaven_review`, with the ticket award at `logic/agility_logic.py:729-736`, and the existing runtime telemetry handoff at `98e6630f:runtime/runtime_actions_activities.py:3089-3103::handle_agility_answer`.
 
 ### 4. Rows 12, 33, 49, 54, 62, and 109: rolling Farming log
 
@@ -109,7 +109,7 @@ Resolution: accepted. The row is now `dormant` with `future_system="world_transp
 
 Finding: the Bronze pickaxe is present on every fresh mining tool belt, so the cited attach action cannot succeed.
 
-Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:443::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:809-815::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:181-212::attach_tool_to_toolbelt_pure`.
+Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:449::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:800-806::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:190-221::attach_tool_to_toolbelt_pure`.
 
 ### 14. Row 245: Stronghold second-level off-by-one
 
@@ -139,7 +139,7 @@ Resolution: accepted. The note now cites `data/magic_data.py:83,108::MAGIC_TARGE
 
 Finding: the note called Misc source ID 3008 dormant even though row 316 is active, and its line range omitted the function definition.
 
-Resolution: accepted. The note now calls the duplicate active and cites `logic/bork_logic.py:363-542::apply_bork_review_pure`, including the kill increment at line 511.
+Resolution: accepted. The note now calls the duplicate active and cites `98e6630f:logic/bork_logic.py:363-542::apply_bork_review_pure`, including the kill increment at `logic/bork_logic.py:496`.
 
 ### 19. Row 223: unsupported King's Ransom gate
 

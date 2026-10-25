@@ -60,7 +60,7 @@ complete family. This follows the canonical label contract and duplicate rule
 at `memory-bank/future-work-kanban.md:7-15,156-161`, the settled recon dispositions
 at `memory-bank/source-audits/recon-coverage-closure-2026-07-18.md:7-69`, and the
 wider-family/exclusion ledgers at
-`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:631-744`.
+`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:632-745`.
 
 When documents conflict, use this authority order:
 
@@ -72,9 +72,9 @@ When documents conflict, use this authority order:
 
 This prevents an old sentence from resurrecting closed work. For example, the
 starter packet once called Warriors' Guild unowned
-(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:704-705`), but the
+(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:705-706`), but the
 current board records its executable closure
-(`memory-bank/future-work-kanban.md:395-401`) and the focused implementation
+(`memory-bank/future-work-kanban.md:399-405`) and the focused implementation
 audit supplies pinned period citations
 (`memory-bank/source-audits/warriors-guild-live-implementation-2026-07-18.md:1-23`).
 
@@ -122,10 +122,10 @@ has an owner or disposition; it does **not** mean historical completeness.
 | Transport, world-map, social, cosmetic, post-cutoff, and inert-preview boundaries | Explicit exclusion ledgers | Excluded/parked | Wiki Pass 1 exclusion check complete; other source families pending |
 
 The named family anchors are at
-`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:631-680,682-744`.
+`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:632-681,683-745`.
 The canonical forward cards for special methods, activities, bosses,
 diaries/collections, random content, and exclusions are at
-`memory-bank/future-work-kanban.md:697-809,940-945`.
+`memory-bank/future-work-kanban.md:701-813,944-949`.
 
 ## Baseline ledger reconciliation
 

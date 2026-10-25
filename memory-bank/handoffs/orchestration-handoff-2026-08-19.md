@@ -99,7 +99,7 @@ that buys nothing.
 ## 5. What is blocked, and by what
 
 - **[Resolved 2026-08-22]** The five vine-herb seeds ARE plantable now. The
-  habitat crop rows sit at `data/farming_data.py:421-425` on the merged tree
+  habitat crop rows sit at `data/farming_data.py:420-424` on the merged tree
   with `blocked=()`, and `Herblore:finished_juju_hunting` exists at
   `data/herblore_data.py:286`; the chain is reachable. The merged tree measures
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123` (actions / reachable items / orphan
@@ -108,7 +108,7 @@ that buys nothing.
   `tests/test_item_reachability_audit.py:559-567`. The original text follows:
 
   The habitat crops at
-  `data/farming_data.py:395-399` carried
+  `data/farming_data.py:394-398` carried
   `source_blocked=('stages','stage_minutes','yield')` and were deliberately not
   executable, so the Juju hunter potion chain stayed unreachable and the Withered
   vine had no consumer.
@@ -203,14 +203,14 @@ were marked in place rather than silently rewritten. Summary of what changed:
   `tools/promotion_gate.py`, which now enforces the promotion gate.
 - Section 5 claimed the five vine-herb seeds could not be planted and that
   `Herblore:finished_juju_hunting` was blocked. Both are live:
-  `data/farming_data.py:421-425` (blocked=()) and
+  `data/farming_data.py:420-424` (blocked=()) and
   `data/herblore_data.py:286`. Merged-tree reachability baseline:
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123`.
 - Section 8's "twenty-five of thirty-two handlers remain" was stale; see the
   in-place note there.
 - Citation drift found by `tools/audit_citation_drift.py` in this file:
   `f0879d95:memory-bank/activeContext.md:114` (content changed) and
-  `data/farming_data.py:395-399` -> now `421-425`.
+  `data/farming_data.py:394-398` -> now `421-425`.
 
 Still true as of `968b4f61`: `goal/secondaries-2026-08-11` and
 `promote5/2026-08-19` remain unmerged; the three source-blocked placeholders

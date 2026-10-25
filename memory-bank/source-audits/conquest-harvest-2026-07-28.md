@@ -22,7 +22,7 @@ result. There is no player-facing board UI
 
 All competitive activities receive solo adaptations with labelled bounded
 simulations
-(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:651-658`). One
+(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:652-659`). One
 answer must do bounded work, inactive sessions must not advance, and only state
 that can change a later decision, visible status, reward, cost, or failure may
 persist (`memory-bank/simulation-computation-budget-contract-2026-07-17.md:20-42`).

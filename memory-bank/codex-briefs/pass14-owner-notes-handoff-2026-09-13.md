@@ -46,9 +46,9 @@ pass.
 ## Facts (fact-finders of 2026-09-13, read-only)
 
 - The encounter predicate is `combat_has_active_encounter_pure`
-  (`logic_pure/logic_pure_combat_engine.py:1959-1965`): a mapping with a string
+  (`logic_pure/logic_pure_combat_engine.py:1887-1893`): a mapping with a string
   `target_id` and no `disengaged` flag. Weaker copies of the test exist at
-  `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1382-1468`.
+  `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1343-1429`.
 - Kill, death, flee, and exhausted enemy LP clear the record with
   `data["combat_encounter"] = {}` (`66be9ee8:logic_pure/logic_pure_combat_engine.py:2250-2277,
   2340-2352`; `66be9ee8:logic_pure/logic_pure_combat_model.py:840-896, 941-974, 2773-2840`).
@@ -65,12 +65,12 @@ pass.
   (`logic_pure_combat_engine.py:1218-1314`) and preserves the encounter
   (`logic_pure_combat_supplies.py:965-991`).
 - Slayer completion sets `completed=True`, increments `slayer_tasks_completed`,
-  and records `slayer_last_family_id` (`logic/slayer_logic.py:234-284`). The
+  and records `slayer_last_family_id` (`logic/slayer_logic.py:313-363`). The
   combat handler builds "Defeated {kill_phrase} · Slayer assignment complete"
-  (`runtime/runtime_actions_combat.py:828-860`) and sends it through
+  (`runtime/runtime_actions_combat.py:799-831`) and sends it through
   `show_activity_gain`, which on an XP-paying review only records the event
   (`__init__.py:620-658`). The XP bubble `ExpPopup` holds 900 ms and fades
-  500 ms (`ui/ui.py:3586-3699`). No dialog exists.
+  500 ms (`ui/ui.py:3512-3625`). No dialog exists.
 - The Level Up surface is `show_level_up_dialog` (`ui/ui.py:4513-4547`), a
   blocking custom `QDialog` with "OK". The diary dialogs queue during review
   and flush after it with `QTimer.singleShot(0, ...)` (`core/logic.py:81-113`;
@@ -129,7 +129,7 @@ Tests: `tests/test_integration_smoke.py`, `tests/test_cadence_kernel.py`,
    `.claude/rules/qt-offscreen-screenshots.md`. Frontend-taste review before
    promotion (project rule).
 
-Fix sites: `runtime/runtime_actions_combat.py:828-860`, `__init__.py`
+Fix sites: `runtime/runtime_actions_combat.py:799-831`, `__init__.py`
 (notice queue), `ui/ui.py` (dialog beside `show_level_up_dialog`; HUD at
 `2836-2883`). Tests: `tests/test_runtime_actions.py:2826-2860`,
 `tests/test_slayer_logic.py`, `tests/test_main_menu_widget.py`.
