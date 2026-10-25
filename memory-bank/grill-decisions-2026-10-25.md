@@ -77,3 +77,9 @@ screen.
 - New controls, layout changes and new screens still go to the owner.
 - Example: item 2050 replaces the Duel Arena exchange score and its five-review
   limit with both fighters' life points, the review count and the outcome.
+
+## Wording in owner questions
+
+An owner question names the November 2012 restoration "Darkan", the glossary term.
+On 2026-10-25 the open questions used three names for it: "later Darkan
+reconstruction", "retained reconstruction" and "modern reconstruction".
