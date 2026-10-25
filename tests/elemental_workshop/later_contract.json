@@ -1,0 +1,193 @@
+{
+  "point_reward": 1,
+  "rewards": {
+    "Coal": 50
+  },
+  "required_quests": [
+    {
+      "quest_id": "elemental_workshop_ii",
+      "display_name": "Elemental Workshop II"
+    },
+    {
+      "quest_id": "elemental_workshop_i",
+      "display_name": "Elemental Workshop I"
+    }
+  ],
+  "required_skills": [
+    {
+      "skill_id": "defense",
+      "display_name": "Defence",
+      "level": 33
+    },
+    {
+      "skill_id": "mining",
+      "display_name": "Mining",
+      "level": 20
+    },
+    {
+      "skill_id": "smithing",
+      "display_name": "Smithing",
+      "level": 33
+    }
+  ],
+  "xp_rewards": [
+    {
+      "skill_id": "smithing",
+      "amount": 2000.0
+    }
+  ],
+  "lamp_rewards": [],
+  "unlocks": [
+    "Ability to smith elemental, mind and body bodies, along with body helms and shields."
+  ],
+  "stage_requirements": [
+    {
+      "stage": 2,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 2 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    },
+    {
+      "stage": 3,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 3 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    },
+    {
+      "stage": 4,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 4 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    },
+    {
+      "stage": 5,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 5 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    },
+    {
+      "stage": 6,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 6 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [
+        {
+          "encounter_id": "elemental_workshop_iii_earth_elemental_35",
+          "display_name": "Earth Elemental",
+          "level": 35,
+          "quantity": 3,
+          "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+          "source_text": "Three Earth Elementals (level 35)",
+          "npc_stats": {
+            "hitpoints": 350,
+            "attack": 20,
+            "strength": 35,
+            "defence": 35,
+            "magic": 10,
+            "ranged": 30
+          },
+          "npc_bonuses": {},
+          "npc_configs": {
+            "max_hit": 40,
+            "attack_range": -1,
+            "attack_style": "melee",
+            "attack_bonus": "crush_att",
+            "aggressiveness_type": "passive"
+          },
+          "guaranteed_drops": {},
+          "npc_stats_source": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs/uncategorized/earth_elemental.json; /Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs/uncategorized/earth_elemental_rock.json",
+          "required_encounters": []
+        }
+      ],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    },
+    {
+      "stage": 7,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete Elemental Workshop III stage 7 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 from .murder_mystery import murder_mystery_opening_journal_stages as _murder_mystery_opening_journal_stages
 from .dependencies import *
 from .contract import *
+from .elemental_workshop_iii import compose_opening
 from .ids import *
 from .sources import *
 from .item_names import *
@@ -604,11 +605,12 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
             )
         ),
     )
+    journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
+    journal_stages = _murder_mystery_opening_journal_stages(quest.id, journal_stages)
+    requirements, journal_stages = compose_opening(quest.id, requirements, journal_stages)
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)
     configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stages)
     stages = max(configured_stages, max_requirement_stage + 1)
-    journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
-    journal_stages = _murder_mystery_opening_journal_stages(quest.id, journal_stages)
     combat = QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID.get(quest.id, quest.combat)
     choices = QUEST_CHOICE_REPLACEMENTS_BY_ID.get(quest.id, quest.choices)
     if (
