@@ -134,6 +134,8 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Shield of Arrav", "The Knight's Sword", "Family Crest", "What Lies Below",
         "Demon Slayer", "Temple of Ikov", "Garden of Tranquillity", "Agility 51",
         "Hunter 51", "Mining 59", "Smithing 54",
+        # Defender6542570 line 39: the Shield story must be claimed at the Museum.
+        "Claim Varrock Museum Kudos for completing Shield of Arrav",
     ),
     "recruitment_drive": ("Black Knights' Fortress", "Druidic Ritual"),
     "horror_from_the_deep": ("Alfred Grimhand's Barcrawl", "Agility 35"),

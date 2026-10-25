@@ -129,6 +129,27 @@ TREASURE_TRAILS_EASY_STEPS: dict[str, dict[str, Any]] = {
             "Cheer at the Burthorpe Games Room. Have nothing equipped at all when you do.",
             bare=True,
         ),
+        # Zeke is labelled level 1,2; this addition activates only Easy.
+        # Sir Kay's teleport advice is optional; the differing fountain/door
+        # descriptions establish no required exact spot.
+        # RuneHQ 2012-11-03 lines 694–696; Tip.It 2012-10-26 lines 281–282.
+        # Simple clues oldid=6579176, literal lines 341–343.
+        _step("simple_lumbridge_hans", "simple", "Speak to Hans."),
+        # RuneHQ 2012-11-03 lines 787–789; Tip.It 2012-10-26 lines 325–326.
+        # Simple clues oldid=6579176, literal lines 361–364.
+        _step("simple_camelot_sir_kay", "simple", "Speak to Sir Kay in Camelot Castle."),
+        # RuneHQ 2012-11-03 lines 628–630; Tip.It 2012-10-26 lines 247–248.
+        # Simple clues oldid=6579176, literal lines 366–368.
+        _step("simple_varrock_blue_moon_bartender", "simple", "Speak to the bartender of the Blue Moon Inn in Varrock."),
+        # RuneHQ 2012-11-03 lines 634–636; Tip.It 2012-10-26 lines 251–252.
+        # Simple clues oldid=6579176, literal lines 387–389.
+        _step("simple_port_sarim_rusty_anchor_bartender", "simple", "Talk to the bartender of the Rusty Anchor in Port Sarim."),
+        # RuneHQ 2012-11-03 lines 793–795; Tip.It 2012-10-26 lines 329–330.
+        # Simple clues oldid=6579176, literal lines 391–394.
+        _step("simple_falador_squire", "simple", "Talk to the Squire in the White Knights' castle in Falador."),
+        # RuneHQ 2012-11-03 lines 811–813; Tip.It 2012-10-26 lines 335–336.
+        # Simple clues oldid=6579176, literal lines 396–398.
+        _step("simple_al_kharid_zeke", "simple", "Talk to Zeke in Al Kharid."),
     )
 }
 
