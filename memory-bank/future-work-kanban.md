@@ -1516,6 +1516,28 @@ Labels: `PARKED` until feature closure, then `IMPLEMENT`.
   Generate the statistics from repository tools and Git at milestone time rather
   than preserving hand-maintained estimates.
 
+### Multiplayer — owner idea, 2026-10-25
+
+Labels: `PARKED`.
+
+Owner, 2026-10-25: "It would be really fun to make it multiplayer but I have no frickin clue how that could ever work", then "Eh it's ok for now, the multiplayer ideas. I mean you can write it down somewhere". This reopens no decision: solo stays canonical (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:230-231`), and the 2026-09-19 upstream review above rejected hosted accounts, cloud sync and public hiscores.
+
+If the idea is taken up, the shape is asynchronous, because players review at different times:
+
+- Shared hiscores for a friend group: levels and XP only, no deck content.
+- Shared world content: a Grand Exchange between friends (a server matches offers and the item arrives at the next profile load), Clan Citadel upkeep from each member's weekly skilling, and group Shooting Stars or Evil Trees.
+- Live play, such as Castle Wars or Dungeoneering parties, with one answer per move. This is the hardest form, because it needs a live connection between players.
+
+Known costs: a hosted server with accounts; reviews happen on each player's computer, so a server cannot prove a review (low stakes among friends; a public version needs review-log plausibility checks). Upstream's hiscores took most of its September in CI and server work and forced fresh-start-with-no-transfer and two-games-per-profile to keep the leaderboard fair.
+
+### Player-visible exclusion ledger
+
+Labels: `PARKED`.
+
+The 2026-07-17 completion bar requires the Help Center to explain deliberate exclusions (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:33-34`; the Help Center option at `:786-789`), and `memory-bank/source-audits/social-surfaces-and-random-events-2026-07-19.md` puts random events and the Party Room on a "player-visible exclusion/nostalgia ledger". None of the 20 `help_topics/` files covers exclusions. Owner, 2026-10-25: "help center topic may be okay but also maybe an FAQ section question maybe. But do that later".
+
+Sources for the entries: this file's "Explicitly excluded" section, the 2026-07-17 grill's "Deliberate exclusion or parked ledger" (`:727-745`), and the 2026-07-19 social-surfaces audit. First decide the form (a Help Center topic or an FAQ entry), then give each exclusion its reason and the nearest supported abstraction.
+
 ## Explicitly excluded
 
 - `EXCLUDED`: standalone transportation systems, persistent world map/player location, canoes, hot-air balloons, lodestones, and comparable transport-only content.
