@@ -1,0 +1,63 @@
+[
+  {
+    "asset_candidate": {
+      "title": "File:TzHaar Tourist Guide.png",
+      "file": "tourist-guide-20111130.png",
+      "source_imageinfo": "imageinfo-file-tzhaar-tourist-guide.png.json",
+      "timestamp": "2011-11-30T03:45:58Z",
+      "url": "https://runescape.wiki/images/archive/20160502085309%21TzHaar_Tourist_Guide.png?6f738",
+      "size": 767,
+      "sha256": "c94c91d990f3f50f77b151060780b5f126244539cfdfdc1178900f95b09ec693",
+      "sha1": "6708253362d14461563a5ad25ad6bc3fb58b2c3a",
+      "historical_sha1": "6708253362d14461563a5ad25ad6bc3fb58b2c3a",
+      "sha1_verified": true,
+      "size_verified": true
+    },
+    "destination": "data/quest/assets/toktz_opening/tourist_guide.png",
+    "file_description": {
+      "title": "File:TzHaar Tourist Guide.png",
+      "revision": "6420572",
+      "timestamp": "2012-10-15T12:28:17Z",
+      "file": "tzhaar-tourist-guide-file-6420572.txt",
+      "sha256": "8c417118fdf8f0a63597613bb0cb9eaae2318a6b63690b757e43ff34c7c1e73c",
+      "url": "https://runescape.wiki/w/index.php?title=File%3ATzHaar+Tourist+Guide.png&oldid=6420572&action=raw",
+      "rung": "R5 dated wiki",
+      "saved_body": "sources/tzhaar-tourist-guide-file-6420572.txt",
+      "original_numbered_excerpts": {
+        "1": "{{Inventory license|Tzhaar tourist guide}}",
+        "2": "[[Category:Quest item images]]",
+        "3": "[[Category:TokTz-Ket-Dill]]",
+        "4": "[[Category:Texts & Tomes images]]"
+      }
+    }
+  },
+  {
+    "asset_candidate": {
+      "title": "File:Stone tablet (TokTz-Ket-Dill).png",
+      "file": "stone-tablet-20111129.png",
+      "source_imageinfo": "imageinfo-file-stone-tablet-toktz-ket-dill.png.json",
+      "timestamp": "2011-11-29T06:02:58Z",
+      "url": "https://runescape.wiki/images/archive/20140512121644%21Stone_tablet_%28TokTz-Ket-Dill%29.png?045d2",
+      "size": 323,
+      "sha256": "1036d1a48f8d02496ee9c710255cf8a8675ed5f002c8ce30462fca555bbd8f90",
+      "sha1": "720d42dc796b0a0808fbbcbaa152f616f3286f1f",
+      "historical_sha1": "720d42dc796b0a0808fbbcbaa152f616f3286f1f",
+      "sha1_verified": true,
+      "size_verified": true
+    },
+    "destination": "data/quest/assets/toktz_opening/stone_tablet.png",
+    "file_description": {
+      "title": "File:Stone tablet (TokTz-Ket-Dill).png",
+      "revision": "6419415",
+      "timestamp": "2012-10-15T11:17:37Z",
+      "file": "stone-tablet-file-6419415.txt",
+      "sha256": "9b0d1ccb86a18f8d0bc9e0f3eff29409c4f666bbf4c7bca8c63bbca8a86d2730",
+      "url": "https://runescape.wiki/w/index.php?title=File%3AStone+tablet+%28TokTz-Ket-Dill%29.png&oldid=6419415&action=raw",
+      "rung": "R5 dated wiki",
+      "saved_body": "sources/stone-tablet-file-6419415.txt",
+      "original_numbered_excerpts": {
+        "1": "{{Inventory license|Stone tablet (TzHaar)}}"
+      }
+    }
+  }
+]

@@ -1,5 +1,7 @@
 """Bindings from genuine player actions to durable quest proofs."""
 
+from .quest.toktz_opening import SERVICES as _TOKTZ_SERVICES, PROOFS as _TOKTZ_PROOFS
+
 from .quest.enakhra_opening import PROOFS as ENAKHRA_PROOFS, EVENT_PREFIX
 from .quest.elemental_workshop_iii import ACQUIRE_EVENT, ACQUIRE_PROOF, READ_EVENT, READ_PROOF
 
@@ -22,6 +24,8 @@ SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle
 QUEST_ACTION_PROOF_RULES = {
     **{(deed['event_type'], deed['event_id']): (OPENING_PROOFS[:index], (deed['proof'],))
        for index, deed in enumerate(OPENING_DEEDS)},
+    **{("quest_service", service): (_TOKTZ_PROOFS[:index], (_TOKTZ_PROOFS[index],))
+       for index, service in enumerate(_TOKTZ_SERVICES)},
     ACQUIRE_EVENT: ((), (ACQUIRE_PROOF,)),
     READ_EVENT: ((), (READ_PROOF,)),
     ("quest_service", "oronwen_repair"): ((), (ORONWEN_REPAIR_PROOF,)),

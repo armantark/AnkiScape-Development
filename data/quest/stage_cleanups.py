@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .one_small_favour import OPENING_PROOFS, OPENING_SOURCE
+from .toktz_opening import OPENING_CLEANUPS as _TOKTZ_OPENING_CLEANUPS
 from .dependencies import *
 from .enakhra_opening import ENAKHRA_OPENING_CLEANUPS
 from .contract import *
@@ -927,9 +928,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     "perils_of_ice_mountain": (
         QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Nail",)),
     ),
-    "toktz_ket_dill": (
-        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("A crush weapon",)),
-    ),
+    "toktz_ket_dill": _TOKTZ_OPENING_CLEANUPS,
     "land_of_the_goblins": (
         QuestStageRequirementCleanup(
             stage=1,

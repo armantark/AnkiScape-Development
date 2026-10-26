@@ -6,6 +6,11 @@ from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
 from .quest.eligibility import (  # noqa: F401 (re-export)
     _skill_requirement_reason, quest_locked_reasons_pure, quest_eligibility_reasons_pure,
 )
+from .quest.journal import quest_current_stage_pure, quest_journal_rows_pure  # noqa: F401 (re-export)
+from .quest.toktz_opening import (
+    toktz_opening_phase_pure, toktz_opening_review_ready_pure,
+    toktz_opening_next_event_pure, apply_toktz_opening_review_pure,
+)
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure,
@@ -14,7 +19,6 @@ from .quest.elemental_workshop import (
 from .quest.review_steps import (apply_quest_review_step_pure, quest_review_requirement_pure,
     quest_review_ready_pure, quest_review_blockers_pure)
 from .quest.enakhra import enakhra_opening_blockers_pure
-from .quest.journal import quest_journal_rows_pure  # noqa: F401 (re-export)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 from ..core.tool_belt import tool_on_belt
@@ -117,18 +121,6 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
 
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
-
-def quest_current_stage_pure(player_data, quest_id, quest_data):
-    quest = quest_data.get(quest_id)
-    if not quest:
-        return 0
-    state = quest_state_pure(player_data, quest_id)
-    if not state["started"]:
-        return 0
-    total_stages = _positive_int(quest.get("stages", 1), 1)
-    if state["completed"]:
-        return total_stages
-    return min(total_stages, max(1, state["progress"]))
 
 def _quest_stage_item_pairs(requirement, key):
     raw_items = requirement.get(key, {}) if isinstance(requirement, Mapping) else {}
@@ -940,11 +932,14 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
 
 
 def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
+    if toktz_opening_phase_pure(player_data, quest_id) == "toktz_invalid_opening":
+        return False
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
     return (
-        quest_review_ready_pure(player_data, quest_id, blockers)
+        toktz_opening_review_ready_pure(player_data, quest_id, blockers)
+        or quest_review_ready_pure(player_data, quest_id, blockers)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
@@ -1242,6 +1237,10 @@ def apply_quest_progress_pure(
     if not ok or state["completed"]:
         return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    if toktz_opening_phase_pure(data, quest_id) is not None:
+        event = toktz_opening_next_event_pure(data, quest_id)
+        candidate, success = apply_toktz_opening_review_pure(data, quest_id, blockers, event)
+        return (candidate if success else player_data, success, False, *empty_refusal)
     data, review_result = apply_quest_review_step_pure(data, quest_id, blockers)
     if review_result == "partial":
         return (data, True, False, *empty_refusal)
