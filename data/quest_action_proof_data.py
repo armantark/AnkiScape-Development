@@ -1,5 +1,6 @@
 """Bindings from genuine player actions to durable quest proofs."""
 
+from .quest.enakhra_opening import PROOFS as ENAKHRA_PROOFS, EVENT_PREFIX
 from .quest.elemental_workshop_iii import ACQUIRE_EVENT, ACQUIRE_PROOF, READ_EVENT, READ_PROOF
 
 ORONWEN_REPAIR_PROOF = "Have Oronwen repair the mourner trousers"
@@ -56,6 +57,21 @@ QUEST_ACTION_PROOF_RULES = {
         f"biohazard:{BIOHAZARD_CAULDRON_ACTION}",
     ): ((), (MOURNER_FOOD_STORES_PROOF,)),
 }
+
+# Repeated partial deliveries/splits may leave the boolean proof list unchanged.
+for _action, _prerequisite in (
+    ("offer_help", None), ("deliver_sandstone", "offer_help"), ("receive_32kg", "offer_help"),
+    ("chisel_base", "receive_32kg"), ("talk_after_base", "chisel_base"), ("place_base", "talk_after_base"),
+    ("split_10kg", "offer_help"), ("split_5kg", "offer_help"), ("split_2kg", "offer_help"),
+):
+    QUEST_ACTION_PROOF_RULES[("quest_service", EVENT_PREFIX + _action)] = (
+        (ENAKHRA_PROOFS[_prerequisite],) if _prerequisite else (),
+        (ENAKHRA_PROOFS["deliver_sandstone"], ENAKHRA_PROOFS[_action]) if _action == "receive_32kg" else (ENAKHRA_PROOFS[_action],),
+    )
+QUEST_ACTION_PROOF_RULES.update({
+    ("mining", "sandstone"): ((), ("Mine sandstone",)),
+    ("mining", "coal"): ((), ("Mine coal",)),
+})
 
 # The reachability audit uses the same event bindings, but proves an event only
 # when the corresponding action or source is reachable in its fixed-point graph.

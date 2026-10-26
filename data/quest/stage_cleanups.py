@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .dependencies import *
+from .enakhra_opening import ENAKHRA_OPENING_CLEANUPS
 from .contract import *
 from .ids import *
 from .sources import *
@@ -493,22 +494,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_required_actions=("Cast Telegrab for the water channel puzzle",),
         ),
     ),
-    "enakhras_lament": (
-        QuestStageRequirementCleanup(
-            stage=1,
-            remove_required_inventory=("Sandstone", "Runes"),
-        ),
-        QuestStageRequirementCleanup(
-            stage=4,
-            remove_required_inventory=("Fire Bolt",),
-        ),
-        QuestStageRequirementCleanup(
-            stage=5,
-            remove_required_inventory=("Crumble Undead", "Wind Bolt"),
-            remove_required_actions=("Complete Enakhra's Lament stage 5 objective",),
-            add_required_actions=("Cast Crumble Undead during the boneguard fight",),
-        ),
-    ),
+    "enakhras_lament": ENAKHRA_OPENING_CLEANUPS,
     "in_aid_of_the_myreque": (
         QuestStageRequirementCleanup(
             stage=1,

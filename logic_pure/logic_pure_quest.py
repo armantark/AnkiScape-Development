@@ -2,21 +2,24 @@
 
 from typing import Iterable, Mapping, Optional
 
-from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
+from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
 from .quest.eligibility import (  # noqa: F401 (re-export)
     _skill_requirement_reason, quest_locked_reasons_pure, quest_eligibility_reasons_pure,
 )
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure,
-    apply_opening_review_pure, opening_journal_rows_pure,
+    apply_opening_review_pure,
 )
-from .quest.oronwen import apply_oronwen_review_pure, oronwen_requirement_pure, oronwen_review_ready_pure
+from .quest.oronwen import oronwen_requirement_pure
+from .quest.review_services import apply_quest_service_review_pure, quest_service_review_ready_pure
+from .quest.enakhra import enakhra_opening_blockers_pure
+from .quest.journal import quest_journal_rows_pure  # noqa: F401 (re-export)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 from ..core.tool_belt import tool_on_belt
 
-from .quest.murder_mystery import apply_murder_mystery_opening_items_pure, murder_mystery_journal_row_pure
+from .quest.murder_mystery import apply_murder_mystery_opening_items_pure
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ANTIPOISON_POTION_DATA,
@@ -810,11 +813,12 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return tuple()
+    service_blockers = enakhra_opening_blockers_pure(player_data, quest_id)
     choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
     if choice_blockers:
-        return (*choice_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
+        return (*choice_blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
     _, blockers = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
-    return (*blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
+    return (*blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
@@ -979,7 +983,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
     return (
-        oronwen_review_ready_pure(player_data, quest_id, blockers)
+        quest_service_review_ready_pure(player_data, quest_id, blockers)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
@@ -1277,7 +1281,7 @@ def apply_quest_progress_pure(
     if not ok or state["completed"]:
         return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
-    data, repair_result = apply_oronwen_review_pure(data, quest_id, blockers)
+    data, repair_result = apply_quest_service_review_pure(data, quest_id, blockers)
     if repair_result == "handed_in":
         return (data, True, False, *empty_refusal)
     data, opening_ok = apply_opening_review_pure(
@@ -1357,28 +1361,3 @@ def _apply_skill_xp_reward(data, skill_id, amount):
     data["pending_skill_exp_rewards"] = {
         key: value for key, value in clean_pending.items() if value > 0
     }
-
-
-def quest_journal_rows_pure(player_data, quest_id, quest_data):
-    quest = quest_data.get(quest_id)
-    if not quest:
-        return tuple()
-    state = quest_state_pure(player_data, quest_id)
-    progress = state["progress"]
-    if state["started"] and progress <= 0:
-        progress = 1
-    if state["completed"]:
-        progress = _positive_int(quest.get("stages", progress), progress)
-    journal_stages = quest.get("journal_stages", {}) or {}
-    rows = []
-    for stage in sorted(journal_stages):
-        if stage > progress:
-            continue
-        row = {
-            "stage": stage,
-            "lines": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),
-            "completed": state["completed"] or stage < progress,
-            "current": (not state["completed"] and stage == progress),
-        }
-        rows.append(murder_mystery_journal_row_pure(player_data, quest_id, row))
-    return opening_journal_rows_pure(player_data, quest_id, tuple(rows))

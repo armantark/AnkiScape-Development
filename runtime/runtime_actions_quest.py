@@ -19,7 +19,7 @@ from ..logic_pure.logic_pure import (
 )
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
 from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
-from ..logic_pure.quest.oronwen import oronwen_phase_pure, oronwen_review_ready_pure
+from ..logic_pure.quest.review_services import quest_service_phase_pure, quest_service_review_ready_pure
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import (
     _combat_review_ticks,
@@ -103,6 +103,9 @@ def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: 
 
 
 def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any) -> None:
+    if isinstance(repair_phase, dict):
+        ctx.show_activity_gain(repair_phase["notice"])
+        return
     if repair_phase == "hand_in":
         ctx.show_activity_gain("Oronwen took the damaged trousers, 2 Silk and 1 Bear fur. Review one more card to collect the repaired trousers.")
         return
@@ -136,7 +139,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     review_ready = (
-        oronwen_review_ready_pure(player_data, quest_id, stage_blockers)
+        quest_service_review_ready_pure(player_data, quest_id, stage_blockers)
         or opening_review_ready_pure(
             player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
         )
@@ -152,7 +155,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    repair_phase = oronwen_phase_pure(player_data, quest_id)
+    repair_phase = quest_service_phase_pure(player_data, quest_id)
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(
