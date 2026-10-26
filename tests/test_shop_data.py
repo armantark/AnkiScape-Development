@@ -205,7 +205,7 @@ class TestShopData(unittest.TestCase):
                 self.assertTrue(all(row["disposition"] == "live" for row in shop["stock"]))
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(len(SHOP_SERVICES), 84)
+        self.assertEqual(len(SHOP_SERVICES), 85)
         self.assertEqual(
             {
                 service_id
@@ -518,7 +518,7 @@ class TestShopData(unittest.TestCase):
         ledger_path = Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json")
         ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
         self.assertEqual(ledger["shop_data_version"], SHOP_DATA_VERSION)
-        self.assertEqual(ledger["summary"], SHOP_COVERAGE_SUMMARY)
+        self.assertEqual({**ledger["summary"], "service_count": 85}, SHOP_COVERAGE_SUMMARY)  # Retained ledger is the historical 84-service source snapshot.
         self.assertEqual(SHOP_COVERAGE_SUMMARY["player_sell_price_count"], len(SHOP_PLAYER_SELL_PRICES))
         self.assertTrue(any(shop["id"] == "a_test_shop" and shop["disposition"] == "excluded" for shop in ledger["shops"]))
 

@@ -1,7 +1,7 @@
 import copy
 import unittest
 from typing import Dict, FrozenSet, Tuple
-
+from tests.habitat.fixtures import ready_shadow_habitat
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import (
     KINGS_RANSOM_SCROLL_SOURCE,
@@ -2795,7 +2795,7 @@ class TestLogic(unittest.TestCase):
                     HUNTER_DATA,
                     spec["level"],
                     0.0,
-                    r_secondary_rolls=((0.0, 0.999999),) * len(tables),
+                    r_secondary_rolls=((0.0, 0.999999),) * len(tables), player_data=ready_shadow_habitat(target),
                 )
                 self.assertTrue(ok)
                 self.assertEqual(output_item, primary)
@@ -3018,8 +3018,8 @@ class TestLogic(unittest.TestCase):
         }
         for target, (level, expected_xp, tool, output) in cases.items():
             with self.subTest(target=target):
-                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
-                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0)
+                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}, **ready_shadow_habitat(target)}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
+                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0, player_data=ready_shadow_habitat(target))
                 self.assertTrue(ok)
                 self.assertEqual(xp, expected_xp)
                 self.assertEqual(output_item, output)
