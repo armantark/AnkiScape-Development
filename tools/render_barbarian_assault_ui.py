@@ -18,7 +18,8 @@ from ankiscape.logic.barbarian_assault_logic import (
     apply_barbarian_assault_command_pure,
     apply_barbarian_assault_review_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.main_menu.activities.sessions.test_barbarian_assault import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
 
 

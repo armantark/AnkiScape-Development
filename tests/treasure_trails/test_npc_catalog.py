@@ -241,15 +241,26 @@ class NpcCatalogTest(unittest.TestCase):
         self.assertEqual(owned_items(after), owned_items(before))
         self.assertEqual(skill, 'Activities')
 
-    def test_live_pool_has_twenty_two_rows_and_preserves_legacy_definitions(self):
+    def test_live_pool_has_thirty_rows_and_preserves_legacy_definitions(self):
         expected = {**LEGACY_EXPECTED, **NEW_EXPECTED}
+        added_keys = (
+            "simple_sinclair_mansion_donovan",
+            "simple_sinclair_mansion_staff",
+            "simple_falador_general_store_crates",
+            "simple_lumbridge_duke_bedroom_chest",
+            "simple_draynor_manor_crates",
+            "simple_varrock_horvik_armoury_crates",
+            "simple_port_sarim_fishing_shop_crates",
+            "simple_catherby_archery_shop_drawers",
+        )
+        expected_keys = [*expected, *added_keys, *(step_id for step_id, _ in SEARCH_ROWS)]
         expected.update({
             step_id: dict(step_id=step_id, kind="simple", text=text,
                           equipment=(), bare=False, source=EXPECTED_SOURCE)
             for step_id, text in SEARCH_ROWS
         })
-        self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), list(expected))
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 22)
+        self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), expected_keys)
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 30)
         for step_id, definition in expected.items():
             with self.subTest(step_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], definition)

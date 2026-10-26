@@ -19,8 +19,8 @@ from ankiscape.logic.castle_wars_logic import (
     apply_castle_wars_command_pure,
     apply_castle_wars_review_pure,
 )
+from tests.main_menu.activities.sessions.test_castle_wars import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _open_reward_target,
     _utility_row,

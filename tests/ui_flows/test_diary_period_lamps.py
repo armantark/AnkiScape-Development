@@ -4,6 +4,7 @@ import unittest
 from unittest import mock
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 from tests.test_main_menu_widget import HAS_AQT
 from tests.ui_flows import test_bank_claim_lamps as bank
 from tests.achievement_diaries.test_period_lamp_rewards import expected_ids
@@ -16,7 +17,7 @@ if HAS_AQT:
 class DiaryPeriodLampsUITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
         # Use the Bank harness without inheriting and rediscovering its tests.

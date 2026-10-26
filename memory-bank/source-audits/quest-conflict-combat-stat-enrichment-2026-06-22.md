@@ -92,7 +92,7 @@ classifications:
 ## Verification
 
 - `python3 -m unittest tests.test_quest_catalog tests.test_quest_combat_stat_gap_audit tests.test_logic tests.test_runtime_actions tests.test_integration_smoke`
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection`
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection`
 - `python3 run_tests.py` passed with 421 tests, 98 skipped.
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 421 tests.

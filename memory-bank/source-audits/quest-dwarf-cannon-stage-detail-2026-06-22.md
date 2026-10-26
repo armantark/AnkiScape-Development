@@ -77,7 +77,7 @@ Targeted tests added or updated:
 - `tests.test_quest_catalog.TestQuestCatalog.test_dwarf_cannon_has_source_backed_noncombat_stage_requirements`
 - `tests.test_logic.TestLogic.test_dwarf_cannon_real_stage_emitters_complete_and_reward_once`
 - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_dwarf_cannon_repairs_without_goblin_gate`
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_dwarf_cannon_repairs_without_combat_gate`
+- `tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_progresses_dwarf_cannon_repairs_without_combat_gate`
 - `tests.test_quest_combat_stat_gap_audit`
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
 

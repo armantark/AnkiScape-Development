@@ -18,8 +18,8 @@ from tests import test_runtime_actions as runtime_helpers
 from tests.treasure_trails import SEARCH_ROWS, finite_draws
 
 
-# Integration baseline: nine original rows plus six main NPC clues. Freeze every
-# pre-addition field, including the original shared source string and order.
+# Integration baseline: nine original rows, six NPC clues and eight main additions.
+# Freeze every pre-addition field, including the shared source string and order.
 BASELINE_SOURCE = (
     "RuneScape Wiki Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z); "
     "Clue scroll (easy) oldid=6333359 (2012-10-02T09:39:55Z); "
@@ -45,6 +45,14 @@ BASELINE_ROWS = (
     ("simple_port_sarim_rusty_anchor_bartender", "simple", "Talk to the bartender of the Rusty Anchor in Port Sarim.", (), False),
     ("simple_falador_squire", "simple", "Talk to the Squire in the White Knights' castle in Falador.", (), False),
     ("simple_al_kharid_zeke", "simple", "Talk to Zeke in Al Kharid.", (), False),
+    ("simple_sinclair_mansion_donovan", "simple", "Speak to Donovan the Family Handyman.", (), False),
+    ("simple_sinclair_mansion_staff", "simple", "Speak to the staff of Sinclair Mansion.", (), False),
+    ("simple_falador_general_store_crates", "simple", "Search the crates of Falador's general store.", (), False),
+    ("simple_lumbridge_duke_bedroom_chest", "simple", "Search the chest in the Duke of Lumbridge's bedroom.", (), False),
+    ("simple_draynor_manor_crates", "simple", "Search the crates in Draynor Manor.", (), False),
+    ("simple_varrock_horvik_armoury_crates", "simple", "Search the crates in Horvik's armoury.", (), False),
+    ("simple_port_sarim_fishing_shop_crates", "simple", "Search the crates in the Port Sarim fishing shop.", (), False),
+    ("simple_catherby_archery_shop_drawers", "simple", "Search the drawers in Catherby's Archery Shop.", (), False),
 )
 ROOT = Path(__file__).resolve().parents[2]
 CLUE = "Clue scroll (easy)"
@@ -152,7 +160,7 @@ class SevenSearchesTest(unittest.TestCase):
         expected = [expected_row(*row) for row in BASELINE_ROWS]
         expected += [expected_row(step_id, "simple", text) for step_id, text in SEARCH_ROWS]
         registry = data.TREASURE_TRAILS_EASY_STEPS
-        self.assertEqual(len(registry), 22)
+        self.assertEqual(len(registry), 30)
         self.assertEqual(list(registry), [row["step_id"] for row in expected])
         self.assertEqual(list(registry.values()), expected)
         self.assertEqual(data.TREASURE_TRAILS_SOURCE, BASELINE_SOURCE)
@@ -161,7 +169,7 @@ class SevenSearchesTest(unittest.TestCase):
                           and getattr(node.target, "id", "") == "TREASURE_TRAILS_EASY_STEPS")
         calls = assignment.value.generators[0].iter.elts
         ids = [ast.literal_eval(call.args[0]) for call in calls]
-        self.assertEqual(len(ids), 22)
+        self.assertEqual(len(ids), 30)
         self.assertEqual(len(ids), len(set(ids)), "Duplicate _step hidden by dict construction")
         self.assertEqual(ids, list(registry))
 

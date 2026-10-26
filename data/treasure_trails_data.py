@@ -150,6 +150,56 @@ TREASURE_TRAILS_EASY_STEPS: dict[str, dict[str, Any]] = {
         # RuneHQ 2012-11-03 lines 811–813; Tip.It 2012-10-26 lines 335–336.
         # Simple clues oldid=6579176, literal lines 396–398.
         _step("simple_al_kharid_zeke", "simple", "Talk to Zeke in Al Kharid."),
+        # Simple clues oldid=6579176, original lines 321–323.
+        # Answer: Donovan at Sinclair Mansion. Shared level 1, 2: Easy only.
+        _step(
+            "simple_sinclair_mansion_donovan",
+            "simple",
+            "Speak to Donovan the Family Handyman.",
+        ),
+        # Simple clues oldid=6579176, original lines 370–372.
+        # Answer: Louisa, in the room next to the spiral staircase at Sinclair Mansion.
+        _step(
+            "simple_sinclair_mansion_staff",
+            "simple",
+            "Speak to the staff of Sinclair Mansion.",
+        ),
+        # Simple clues oldid=6579176, original lines 145–147.
+        _step(
+            "simple_falador_general_store_crates",
+            "simple",
+            "Search the crates of Falador's general store.",
+        ),
+        # Simple clues oldid=6579176, original lines 149–151.
+        _step(
+            "simple_lumbridge_duke_bedroom_chest",
+            "simple",
+            "Search the chest in the Duke of Lumbridge's bedroom.",
+        ),
+        # Simple clues oldid=6579176, original lines 186–188.
+        _step(
+            "simple_draynor_manor_crates",
+            "simple",
+            "Search the crates in Draynor Manor.",
+        ),
+        # Simple clues oldid=6579176, original lines 194–196.
+        _step(
+            "simple_varrock_horvik_armoury_crates",
+            "simple",
+            "Search the crates in Horvik's armoury.",
+        ),
+        # Simple clues oldid=6579176, original lines 210–212.
+        _step(
+            "simple_port_sarim_fishing_shop_crates",
+            "simple",
+            "Search the crates in the Port Sarim fishing shop.",
+        ),
+        # Simple clues oldid=6579176, original lines 238–243.
+        _step(
+            "simple_catherby_archery_shop_drawers",
+            "simple",
+            "Search the drawers in Catherby's Archery Shop.",
+        ),
         # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
         # clue/answer/level lines 106/107/108; RuneHQ capture 20121103160103,
         # clue/answer lines 1266–1267 (destination corroboration only).

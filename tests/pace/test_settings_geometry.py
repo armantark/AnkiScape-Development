@@ -7,12 +7,13 @@ from tests.pace import test_pace_settings_qt as pace
 if pace.HAS_AQT:
     from aqt.qt import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QScrollArea, QSpinBox, QWidget
     from tests import test_main_menu_widget as menu
+    from tests.main_menu import fixtures as _main_menu_fixtures
 
 
 class SettingsGeometryTests(pace.PaceQtCase):
     def setUp(self):
-        menu.MainMenuWidgetTest.setUpClass()
-        self.menu = menu.MainMenuWidgetTest()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest()
         self.menu.setUp()
         self.addCleanup(self.menu.tearDown)
 

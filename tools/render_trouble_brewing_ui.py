@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QComboBox  # type: ignore
 
+from tests.main_menu.activities.sessions.test_trouble_brewing import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _open_reward_target,
     _utility_row,

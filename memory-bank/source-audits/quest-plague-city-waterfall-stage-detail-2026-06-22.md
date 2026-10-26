@@ -114,8 +114,8 @@ Targeted tests added or updated:
 - `tests.test_logic.TestLogic.test_plague_city_real_stage_emitters_complete_and_reward_once`
 - `tests.test_logic.TestLogic.test_waterfall_quest_real_stage_emitters_complete_and_reward_once`
 - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_waterfall_book_gate`
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_waterfall_book_gate`
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_plague_city_hangover_cure_blocker`
+- `tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_progresses_waterfall_book_gate`
+- `tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_plague_city_hangover_cure_blocker`
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
 
 Audit after this slice:

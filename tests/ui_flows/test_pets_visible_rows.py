@@ -6,6 +6,7 @@ import unittest
 from itertools import product
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 
 if _main_menu.HAS_AQT:
     from aqt.qt import QApplication, QPushButton, QRect, QScrollArea, Qt, QTreeWidget
@@ -61,10 +62,10 @@ def assert_pet_rows_visible(test, pets, rows):
 class PetsVisibleRowsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         app = QApplication.instance()
         self.addCleanup(app.setFont, app.font())

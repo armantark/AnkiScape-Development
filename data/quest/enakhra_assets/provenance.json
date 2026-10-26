@@ -1,0 +1,28 @@
+{
+  "sandstone_32kg.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Sandstone_(32kg).png",
+    "upload_timestamp_utc": "2011-11-28T04:56:48Z",
+    "retrieval_url": "https://runescape.wiki/images/archive/20140502064153%21Sandstone_%2832kg%29.png?4ae18",
+    "dimensions": [
+      22,
+      32
+    ],
+    "sha1": "212c4b77437b0e0654688bd8d628b7a220c33eb2",
+    "sha256": "aa5c5dbe949a45096e2026d2273fdcba0c1fb8de0c3a104746b0d6eb947456a6",
+    "receipt_reference": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1360-enakhras-lament-sandstone-base-opening/sources/icon-download-receipt.json",
+    "history_receipt_reference": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1360-enakhras-lament-sandstone-base-opening/sources/sandstone-32kg-icon-history.json"
+  },
+  "sandstone_base.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Sandstone_base.png",
+    "upload_timestamp_utc": "2011-11-28T04:57:09Z",
+    "retrieval_url": "https://runescape.wiki/images/archive/20140502064146%21Sandstone_base.png?1e683",
+    "dimensions": [
+      18,
+      30
+    ],
+    "sha1": "f0616a40c74786d5f10075b6325d345ad123ff81",
+    "sha256": "1059362d0467e2b4827765d163e400305a13e3e99fe2b0598bcc21ec0430e075",
+    "receipt_reference": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1360-enakhras-lament-sandstone-base-opening/sources/icon-download-receipt.json",
+    "history_receipt_reference": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1360-enakhras-lament-sandstone-base-opening/sources/sandstone-base-icon-history.json"
+  }
+}

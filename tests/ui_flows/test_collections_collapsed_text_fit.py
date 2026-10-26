@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows import test_tree_text_fit as _text_fit
 
 if _main_menu.HAS_AQT:
@@ -15,7 +16,7 @@ if _main_menu.HAS_AQT:
 class CollectionsCollapsedTextFitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
         self.flow = _text_fit.TreeTextFitTest(methodName="runTest")

@@ -1,34 +1,9 @@
 """Quest start requirements, shared with performed opening eligibility checks."""
 
-from collections.abc import Mapping
-
-from ...core.skill_registry import get_skill
 from ...data.quest.elemental_workshop_iii import QUEST_ID
-from ..logic_pure_combat_engine import player_combat_level_pure
 from ..logic_pure_state import _positive_int, quest_state_pure
+from .skill_requirements import _skill_requirement_reason
 from .start_requirements import _quest_prerequisite_reasons_pure, _quest_museum_claim_reasons_pure
-
-
-def _skill_requirement_reason(player_data, requirement):
-    if not isinstance(requirement, Mapping):
-        return None
-    skill_id = requirement.get("skill_id")
-    display_name = requirement.get("display_name")
-    if not isinstance(skill_id, str):
-        return None
-    skill = get_skill(skill_id)
-    label = str(display_name or (skill.display_name if skill is not None else skill_id.replace("_", " ").title()))
-    level_required = _positive_int(requirement.get("level", 1), 1)
-    if skill_id == "combat":
-        return None if player_combat_level_pure(player_data) >= level_required else f"{label} {level_required}"
-    if skill is None or not skill.trainable:
-        return f"{label} {level_required} (not implemented)"
-    level_key = skill.level_key
-    if level_key not in player_data:
-        return f"{label} {level_required} (not implemented)"
-    if _positive_int(player_data.get(level_key, 1), 1) < level_required:
-        return f"{label} {level_required}"
-    return None
 
 
 def _skill_evaluation_view(player_data, quest_id):
@@ -48,7 +23,7 @@ def _skill_reasons(player_data, quest_id, quest):
     view = _skill_evaluation_view(player_data, quest_id)
     reasons = []
     for requirement in quest.get("required_skills", ()) or ():
-        reason = _skill_requirement_reason(view, requirement)
+        reason = _skill_requirement_reason(view, requirement, quest_id=quest_id)
         if reason:
             reasons.append(reason)
     return reasons

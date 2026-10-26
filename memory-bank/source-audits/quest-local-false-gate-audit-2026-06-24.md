@@ -80,7 +80,7 @@ external requirement or route/equipment gate.
 - `python3 -m unittest tests.test_quest_catalog`: pass.
 - `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog.test_quest_wide_used_during_lines_do_not_gate_same_quest_products tests.test_quest_catalog.TestQuestCatalog.test_source_backed_starter_quest_stage_overrides_replace_generated_guesses tests.test_quest_catalog.TestQuestCatalog.test_heroes_quest_has_source_backed_stage_requirements tests.test_quest_catalog.TestQuestCatalog.test_fight_arena_has_source_backed_stage_requirements`:
   pass.
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements`:
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements`:
   pass.
 - `python3 tools/audit_quest_stage_gate_coverage.py`: 194/194 quests still have
   stage requirements.

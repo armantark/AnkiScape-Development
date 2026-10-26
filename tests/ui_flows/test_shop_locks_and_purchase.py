@@ -5,6 +5,7 @@ from unittest import mock
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 
 if _main_menu.HAS_AQT:
     from aqt.qt import QApplication, QPoint, QRect, Qt, QToolButton, QWidget
@@ -26,12 +27,12 @@ def _shop_rows(selector) -> list[tuple[str, bool]]:
 class ShopLocksAndPurchaseTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         self.fixtures = build_shop_frontend_fixtures()
         self.pd = self.fixtures["fixture_player_data"]

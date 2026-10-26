@@ -6,6 +6,7 @@ import pkg_alias  # noqa: F401
 from ankiscape.data.treasure_trails_data import TREASURE_TRAILS_EASY_STEPS
 from ankiscape.logic.treasure_trails_logic import apply_treasure_trails_command_pure
 from tests import test_main_menu_widget as widgets
+from tests.main_menu import fixtures
 from tests.treasure_trails import SEARCH_ROWS, finite_draws
 
 
@@ -61,7 +62,7 @@ def open_trail_panel(harness, dialog):
 
 def assert_bank_panel(test, step_id, text):
     # Composition avoids unittest rediscovering the harness's many test methods.
-    harness = widgets.MainMenuWidgetTest(methodName="runTest")
+    harness = fixtures.MainMenuWidgetTest(methodName="runTest")
     harness.setUp()
     dialog = None
     try:
@@ -99,7 +100,7 @@ def assert_bank_panel(test, step_id, text):
 @unittest.skipUnless(widgets.HAS_AQT, "requires Qt lane")
 class SevenSearchPanelTest(unittest.TestCase):
     def test_bank_start_displays_each_search(self):
-        widgets.MainMenuWidgetTest.setUpClass()
+        fixtures.MainMenuWidgetTest.setUpClass()
         app = widgets.QApplication.instance()
         original_palette = widgets.QPalette(app.palette())
         original_style = app.style().objectName()
