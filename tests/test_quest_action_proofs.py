@@ -11,9 +11,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 import ankiscape.core.storage_pure as storage_pure
 from ankiscape.core.storage_pure import (
-    CURRENT_CONFIG_VERSION,
-    default_player_data,
-    migrate_loaded_data,
+    CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data,
 )
 from ankiscape.data.quest.stage_cleanups import QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID
 from ankiscape.data.quest_action_proof_data import (
@@ -967,6 +965,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/one_small_favour.py", "_apply_opening_deed_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/oronwen.py", "apply_oronwen_review_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/watchtower.py", "apply_watchtower_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/toktz_opening.py", "apply_toktz_opening_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/enakhra.py", "apply_enakhra_opening_action_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
@@ -984,6 +983,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/logic_pure_state.py": 5,
                 "logic_pure/quest/one_small_favour.py": 3,
                 "logic_pure/quest/oronwen.py": 3,
+                "logic_pure/quest/watchtower.py": 3,
                 "logic_pure/quest/toktz_opening.py": 3,
                 "logic_pure/quest/enakhra.py": 3,
                 "logic_pure/quest/elemental_workshop.py": 4,
