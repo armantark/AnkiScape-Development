@@ -151,7 +151,7 @@ class TestQuestCombatGateFallback(unittest.TestCase):
         for quest_id in ENTRY_GATED_QUESTS:
             player = _maxed_player_for_quest(quest_id)
             with self.subTest(quest_id=quest_id), patch(
-                "ankiscape.logic_pure.quest.eligibility.player_combat_level_pure",
+                "ankiscape.logic_pure.quest.skill_requirements.player_combat_level_pure",
                 return_value=84,
             ):
                 self.assertEqual(

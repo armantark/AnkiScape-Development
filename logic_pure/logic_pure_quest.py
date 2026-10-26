@@ -3,9 +3,8 @@
 from typing import Iterable, Mapping, Optional
 
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure, cold_war_journal_lines_pure
-from .quest.eligibility import (  # noqa: F401 (re-export)
-    _skill_requirement_reason, quest_locked_reasons_pure, quest_eligibility_reasons_pure,
-)
+from .quest.eligibility import quest_locked_reasons_pure, quest_eligibility_reasons_pure  # noqa: F401 (re-export)
+from .quest.skill_requirements import _skill_requirement_reason
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure,

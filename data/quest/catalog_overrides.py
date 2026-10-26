@@ -9,6 +9,7 @@ from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
+from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_JOURNAL_STAGES
 from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
@@ -295,6 +296,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
         for journal_row in quest_row["journal_stages"]
     ),
     "cold_war": COLD_WAR_JOURNAL_STAGES,
+    "horror_from_the_deep": HORROR_FROM_THE_DEEP_JOURNAL_STAGES,
     "garden_of_tranquillity": _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES,
     "the_blood_pact": THE_BLOOD_PACT_STAGES,
     "icthlarins_little_helper": ICTHLARINS_LITTLE_HELPER_STAGES,
