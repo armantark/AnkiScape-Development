@@ -5,6 +5,7 @@ from .catalog_overrides import *
 from .catalog import _quest_reward_item_name
 
 from .hazeel_opening import HAZEEL_OPENING_ITEMS
+from .watchtower_opening import WATCHTOWER_ITEMS as _WATCHTOWER_ITEMS
 from .one_small_favour import BLUNT_HATCHET_ITEMS
 from .oronwen_repair_data import ORONWEN_REPAIR_ITEMS
 from .enakhra_opening import ENAKHRA_OPENING_ITEMS
@@ -59,6 +60,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     _RATCATCHERS_FRAGMENT,
     COLD_WAR_SUIT_ITEMS,
     ORONWEN_REPAIR_ITEMS,
+    _WATCHTOWER_ITEMS,
     RAGGED_BOOK_ITEMS,
     HAZEEL_OPENING_ITEMS,
     BLUNT_HATCHET_ITEMS,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from . import watchtower_opening as _watchtower_opening
 from .toktz_opening import PENDING_LINES as _TOKTZ_PENDING_LINES
 from .dependencies import *
 from .contract import *
@@ -84,6 +85,7 @@ QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]
 
 # Replace generated start gates with the source-backed required levels.
 QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, ...]] = {
+    "watchtower": _watchtower_opening.WATCHTOWER_SKILLS,
     # Desert Treasure oldids=5981512 and 6563639 mark Mining 50 as optional.
     "desert_treasure": (
         QuestSkillRequirement("agility", "Agility", 15),
@@ -124,6 +126,7 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
 
 
 QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
+    "watchtower": _watchtower_opening.WATCHTOWER_REQUIREMENTS,
     "desert_treasure": (
         "The Dig Site", "The Tourist Trap", "Temple of Ikov", "Priest in Peril",
         "Troll Stronghold", "Death Plateau", "Waterfall Quest", "Agility 15",
@@ -251,6 +254,7 @@ def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "watchtower": _watchtower_opening.WATCHTOWER_JOURNAL_STAGES,
     "toktz_ket_dill": tuple(
         QuestStage(row["stage"], (_TOKTZ_PENDING_LINES[0],) if row["stage"] == 1 else tuple(row["journal"]))
         for quest in PRE_EOC_QUEST_CATALOG if quest["id"] == "toktz_ket_dill"

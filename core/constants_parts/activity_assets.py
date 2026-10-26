@@ -3,6 +3,7 @@ from ...data.quest.toktz_opening import OPENING_IMAGES as _TOKTZ_OPENING_IMAGES
 import os
 import re
 
+from ...data.quest.watchtower_opening import WATCHTOWER_ITEM_IMAGES as _WATCHTOWER_ITEM_IMAGES
 from ...data.quest.one_small_favour import BLUNT_HATCHET_ICON
 from .quest_items import QUEST_REWARD_ITEM_DATA as _QUEST_REWARD_ITEM_DATA
 
@@ -32,6 +33,7 @@ for _item_name in _QUEST_REWARD_ITEM_DATA:
 _hazeel_mark_path = os.path.join(current_dir, "data", "quest", "hazeel_assets", "mark_of_hazeel.png")
 if os.path.exists(_hazeel_mark_path):
     QUEST_ITEM_IMAGES["Mark of Hazeel"] = _hazeel_mark_path
+QUEST_ITEM_IMAGES.update(_WATCHTOWER_ITEM_IMAGES)
 QUEST_ITEM_IMAGES['Blunt hatchet'] = BLUNT_HATCHET_ICON
 QUEST_ITEM_IMAGES.update(_TOKTZ_OPENING_IMAGES)
 for _item_name, _filename in (("Sandstone (32kg)", "sandstone_32kg.png"), ("Sandstone base", "sandstone_base.png")):
