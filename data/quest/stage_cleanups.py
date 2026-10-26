@@ -16,6 +16,7 @@ from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_S
 from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_CLEANUPS
 from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_CLEANUPS
 from .stage_overrides.members.classic.observatory_quest import OBSERVATORY_QUEST_CLEANUPS
+from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_OPENING_CLEANUP
 
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
     'one_small_favour': (QuestStageRequirementCleanup(stage=1, remove_required_inventory=('Empty Pot',),
@@ -476,6 +477,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         ),
     ),
     "horror_from_the_deep": (
+        HORROR_FROM_THE_DEEP_OPENING_CLEANUP,
         QuestStageRequirementCleanup(
             stage=6,
             remove_required_inventory=("Sword", "Arrow"),
