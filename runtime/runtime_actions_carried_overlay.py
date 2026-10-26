@@ -950,6 +950,10 @@ class _CarriedReview:
 
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay."""
+    from .runtime_habitat import run_shadow_upkeep
+    upkeep = run_shadow_upkeep(ctx, handler_key)
+    if upkeep is not None:
+        return upkeep
     player_data = ctx.player_data
     target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
     if target_key is None:

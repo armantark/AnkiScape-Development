@@ -26,9 +26,12 @@ from ..data.farming_data import (
 from ..logic_pure.logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
 from ..data.quest_data import QUEST_DISPLAY_NAMES
 from .farming.calendar import advance_farm_calendar
+from .farming.state import _default_patch_record, _sanitize_plan, PLANT_CURE_ITEM_FIRST, CURE_PLANT_SPELL_FIRST, CURE_ROUTE_PREFERENCES
+from .farming.care import _is_mature, automatic_watering_applies, watered_disease_slots
+from .farming.habitat_state import default_herblore_habitat_state_pure, sanitize_herblore_habitat_state_pure
+from .farming.habitat import preview_shadow_field_setup, apply_shadow_field_setup_step
 from .pace.short_timers import cards_for_ticks_pure
 from .farming.materials import _consume, _has_items, _int, _missing_items_reason
-
 
 FIELD_STEP_KINDS = frozenset({
     "plant",
@@ -39,12 +42,6 @@ FIELD_STEP_KINDS = frozenset({
     "dig_up",
     "chop",
     "habitat_traverse",
-})
-PLANT_CURE_ITEM_FIRST = "plant_cure_item_first"
-CURE_PLANT_SPELL_FIRST = "cure_plant_spell_first"
-CURE_ROUTE_PREFERENCES = frozenset({
-    PLANT_CURE_ITEM_FIRST,
-    CURE_PLANT_SPELL_FIRST,
 })
 HABITAT_EAST_PATCH_ID = "habitat_vine_herb_east"
 HABITAT_TRAVERSAL_PHASES = (
@@ -137,32 +134,6 @@ def _number(value: Any, default: float = 0.0, minimum: float = 0.0) -> float:
         return default
 
 
-def _default_patch_record() -> dict[str, Any]:
-    return {
-        "crop_id": None,
-        "last_crop_id": None,
-        "planted_at": 0,
-        "stage": 0,
-        "compost_tier": "none",
-        "lives": 0,
-        "diseased": False,
-        "dead": False,
-        "protected": False,
-        "livid_protected": False,
-        "watered": False,
-        "health_checked": False,
-        "stump": False,
-        "produce_count": 0,
-        "last_regrowth_at": 0,
-        "next_regrowth_at": 0,
-        "jade_state": None,
-        "jade_prunes": 0,
-        "jade_combat_encounter": {},
-        "jade_attack_style_index": 0,
-        "plan": None,
-    }
-
-
 def _default_bin_record() -> dict[str, Any]:
     return {
         "status": "empty",
@@ -198,35 +169,6 @@ def default_farming_state_pure() -> dict[str, Any]:
         "farm_juju_active_until": 0,
         "farming_counters": dict(FARM_COUNTER_DEFAULTS),
     }
-
-
-def _sanitize_plan(raw: Any) -> Optional[dict[str, Any]]:
-    if not isinstance(raw, Mapping):
-        return None
-    plan = dict(raw)
-    crop_id = plan.get("crop_id")
-    if not isinstance(crop_id, str) or crop_id not in FARMING_CROPS_BY_ID:
-        return None
-    tier = plan.get("compost_tier", "none")
-    plan["crop_id"] = crop_id
-    plan["compost_tier"] = tier if tier in COMPOST_TIERS else "none"
-    plan["protection_intent"] = bool(
-        plan.get("protection_intent", False)
-        and FARMING_CROPS_BY_ID[crop_id].protection is not None
-    )
-    plan["watering_intent"] = bool(plan.get("watering_intent", True))
-    plan["cure_intent"] = bool(plan.get("cure_intent", True))
-    preference = str(
-        plan.get("cure_route_preference", PLANT_CURE_ITEM_FIRST) or ""
-    )
-    plan["cure_route_preference"] = (
-        preference
-        if preference in CURE_ROUTE_PREFERENCES
-        else PLANT_CURE_ITEM_FIRST
-    )
-    plan["protection_paid"] = bool(plan.get("protection_paid", False))
-    plan["fertile_soil_applied"] = bool(plan.get("fertile_soil_applied", False))
-    return plan
 
 
 def _preset_plan_snapshot(raw: Any) -> Optional[dict[str, Any]]:
@@ -607,10 +549,6 @@ def _task_completed(player_data: Mapping[str, Any], keys: tuple[str, ...]) -> bo
     return any(_flag_enabled(player_data, key, "completed_task_sets", "task_sets", "completed_tasks") for key in keys)
 
 
-def _is_mature(record: Mapping[str, Any], crop: Any) -> bool:
-    return bool(crop.stages is not None and _int(record.get("stage", 0)) >= crop.stages and not record.get("dead"))
-
-
 def _flower_protected(updated: Mapping[str, Any], patch_id: str, crop_id: str) -> bool:
     patch = FARMING_PATCHES_BY_ID[patch_id]
     for other in FARMING_PATCHES:
@@ -730,8 +668,7 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
             # contract applies GM's one-cycle 0.9 watering factor.
             if record["stage"] > 1 and not _disease_exempt(updated, patch_id, record, crop):
                 tier = COMPOST_TIERS[record.get("compost_tier", "none")]
-                watering_factor = 0.9 if record.get("watered") else 1.0
-                disease_slots = math.floor(crop.disease_slots * tier.disease_factor * watering_factor)
+                disease_slots = watered_disease_slots(crop, record, tier)
                 if random_random() < disease_slots / 128:
                     record["diseased"] = True
                     _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)
@@ -1008,11 +945,7 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
         "dead": False,
         "protected": paid or livid_protected,
         "livid_protected": livid_protected,
-        "watered": (
-            watering_intent
-            and crop.patch_type in {"allotment", "flower", "hops"}
-            and any(_int(inventory.get(item)) > 0 for item in ("Watering can", "Watering can (8)"))
-        ),
+        "watered": automatic_watering_applies(crop, inventory, watering_intent),
         "health_checked": False,
         "stump": False,
         "produce_count": 0,
@@ -1140,7 +1073,7 @@ def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: C
         record["last_regrowth_at"] = updated["farm_clock_minutes"]
         if crop.regrowth_range_minutes:
             record["next_regrowth_at"] = updated["farm_clock_minutes"] + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
-    else:
+    else:  # PLACEHOLDER(farming.red_blossom_harvest_clears): retained True for Red pending cutoff Red post-harvest patch disposition evidence.
         _reset_patch(record)
     outputs = {crop.output_item: total_output}
     return True, f"Harvested {total_output} {crop.output_item}.", {"farming_xp": xp, "outputs": outputs, "juju_bonus": bonus}
@@ -1530,6 +1463,14 @@ def execute_farm_field_step_pure(
     updated = _copy_with_farm_state(player_data)
     ok, info = _execute_farm_field_step_in_place(updated, step, random_random)
     return updated, ok, info
+
+
+def shadow_setup_preview_pure(player_data):
+    return preview_shadow_field_setup(player_data, execute_farm_field_step_pure)
+
+
+def apply_shadow_setup_step_pure(player_data, random_random):
+    return apply_shadow_field_setup_step(player_data, random_random, execute_farm_field_step_pure)
 
 
 def farming_spell_target_locked_reasons_pure(
