@@ -7,6 +7,7 @@ from math import comb, floor, sqrt
 from typing import Iterable, Mapping, Optional
 
 from ..data.mining_data import MINING_REVIEW_DAY_CARDS, RED_SANDSTONE_DAILY_CAP
+from ..logic.farming.habitat_state import hunter_attraction_reasons_pure  # noqa: F401 (public admission)
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
@@ -702,14 +703,29 @@ def hunter_target_locked_reasons_pure(player_data, target, hunter_data, quest_un
             quest_unlock_rules,
         )
     )
+    if target == "track_shadow_jadinko":
+        from ..logic.farming_logic import shadow_setup_preview_pure
+        setup = shadow_setup_preview_pure(player_data)
+        if setup["status"] == "blocked":
+            reasons.append(setup["reason"])
     return tuple(dict.fromkeys(reasons))
 
 
-def can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
+def hunter_nonmaterial_locked_reasons_pure(reasons):
+    return tuple(
+        reason
+        for reason in reasons
+        if reason not in {"materials"} and not str(reason).startswith("Hunter level")
+    )
+
+
+def can_hunt_target_pure(hunter_level, inventory, target, hunter_data, *, player_data=None):
     spec = hunter_data.get(target)
     if not spec:
         return False
     if hunter_level < _positive_int(spec.get("level", 1), 1):
+        return False
+    if hunter_attraction_reasons_pure(player_data, target):
         return False
     return has_hunter_materials_pure(target, inventory, hunter_data) and has_hunter_tools_pure(target, inventory, hunter_data)
 
@@ -722,10 +738,11 @@ def apply_hunter_action_pure(
     r_action,
     success_level=None,
     r_secondary_rolls=(),
+    *, player_data=None,
 ):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
     spec = hunter_data.get(target)
-    if not spec or not can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
+    if not spec or not can_hunt_target_pure(hunter_level, inventory, target, hunter_data, player_data=player_data):
         return inventory, 0, False, None, tuple()
     success_probability = calculate_hunter_success_probability_pure(
         hunter_level if success_level is None else success_level,

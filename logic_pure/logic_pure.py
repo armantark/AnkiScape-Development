@@ -212,7 +212,7 @@ from .logic_pure_gathering import (  # noqa: F401  (re-export)
     _hunter_outputs_from_spec,
     _scape2011_interpolate_255,
     apply_fishing_action_pure,
-    apply_hunter_action_pure,
+    apply_hunter_action_pure, hunter_attraction_reasons_pure, hunter_nonmaterial_locked_reasons_pure,
     apply_mining_action_pure,
     apply_mining_pure,
     apply_open_bird_nests_pure,
