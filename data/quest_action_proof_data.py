@@ -1,5 +1,6 @@
 """Bindings from genuine player actions to durable quest proofs."""
 
+from .quest.watchtower_opening import COMMISSION_PROOF, SEARCH_PROOF, PRESENTATION_PROOF
 from .quest.toktz_opening import SERVICES as _TOKTZ_SERVICES, PROOFS as _TOKTZ_PROOFS
 
 from .quest.enakhra_opening import PROOFS as ENAKHRA_PROOFS, EVENT_PREFIX
@@ -22,6 +23,9 @@ SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
 QUEST_ACTION_PROOF_RULES = {
+    ("quest_service", "watchtower_commission"): ((), (COMMISSION_PROOF,)),
+    ("quest_service", "watchtower_bush_search"): ((COMMISSION_PROOF,), (SEARCH_PROOF,)),
+    ("quest_service", "watchtower_present_fingernails"): ((COMMISSION_PROOF, SEARCH_PROOF), (PRESENTATION_PROOF,)),
     **{(deed['event_type'], deed['event_id']): (OPENING_PROOFS[:index], (deed['proof'],))
        for index, deed in enumerate(OPENING_DEEDS)},
     **{("quest_service", service): (_TOKTZ_PROOFS[:index], (_TOKTZ_PROOFS[index],))

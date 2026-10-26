@@ -10,6 +10,12 @@ from ankiscape.logic_pure.logic_pure import quest_locked_reasons_pure, start_que
 
 # Expected start gates and readouts from the period-source ruling R1.
 PERIOD_START_GATES = {
+    # Watchtower's cache/archived-guide ruling retains the wiki's Magic 15 disagreement.
+    "watchtower": (
+        (("agility", 25), ("herblore", 14), ("magic", 14), ("mining", 40), ("thieving", 15)),
+        (),
+        ("Agility 25", "Herblore 14", "Magic 14", "Mining 40", "Thieving 15"),
+    ),
     "horror_from_the_deep": (
         (("agility", 35),),
         ("prayer",),
