@@ -6,14 +6,25 @@ from ....sources import *
 from ....item_names import *
 from ....contract import *
 from ....choices import *
+from ....hazeel_opening import REQUIRED_PROOFS, SOURCE
 
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
     HAZEEL_CULT_ID: (
         _stage_req(
             1,
-            "Choose whether to expose the cult or help revive Hazeel.",
-            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
-            required_actions=("Complete Hazeel Cult stage 1 objective",),
+            "Complete Ceril's commission, refuse Clivet and set all five valves correctly.",
+            SOURCE,
+            variant=HAZEEL_CULT_VARIANT_CARNILLEAN,
+            required_routes=(HAZEEL_CULT_ROUTE_CARNILLEAN,),
+            required_actions=REQUIRED_PROOFS[HAZEEL_CULT_VARIANT_CARNILLEAN],
+        ),
+        _stage_req(
+            1,
+            "Complete Ceril's commission, Clivet's poison-and-Mark task and all five correct valve settings.",
+            SOURCE,
+            variant=HAZEEL_CULT_VARIANT_HAZEEL,
+            required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
+            required_actions=REQUIRED_PROOFS[HAZEEL_CULT_VARIANT_HAZEEL],
         ),
         _stage_req(
             2,
@@ -79,7 +90,6 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
             "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
             variant=HAZEEL_CULT_VARIANT_HAZEEL,
             required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
-            produced_inventory=(("Mark of Hazeel", 1),),
             required_actions=("Complete Hazeel Cult stage 3 objective",),
         ),
     ),

@@ -605,6 +605,10 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
             )
         ),
     )
+    if quest.id == HAZEEL_CULT_ID:
+        requirements = tuple(sorted(requirements, key=lambda req: (
+            req.stage, req.stage == 1 and req.variant != HAZEEL_CULT_VARIANT_CARNILLEAN,
+        )))
     journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
     journal_stages = _murder_mystery_opening_journal_stages(quest.id, journal_stages)
     requirements, journal_stages = compose_opening(quest.id, requirements, journal_stages)

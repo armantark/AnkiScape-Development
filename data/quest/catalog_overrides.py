@@ -9,6 +9,7 @@ from .choices import *
 from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
+from .hazeel_opening import NEUTRAL_JOURNAL
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
 from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_JOURNAL_STAGES
 from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
@@ -176,6 +177,14 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 }
 
 
+def _hazeel_journal_stages() -> Tuple[QuestStage, ...]:
+    raw = next(row for row in PRE_EOC_QUEST_CATALOG if row["id"] == HAZEEL_CULT_ID)
+    return tuple(
+        QuestStage(row["stage"], NEUTRAL_JOURNAL if row["stage"] == 1 else tuple(row["journal"]))
+        for row in raw["journal_stages"]
+    )
+
+
 def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
     # Retained packet: 1300-tower-of-life-opening-journal-answers,
     # answer-source-mapping.json and source-index.json (qualified guide text).
@@ -337,6 +346,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
         if quest_row["id"] == "desert_treasure"
         for journal_row in quest_row["journal_stages"]
     ),
+    HAZEEL_CULT_ID: _hazeel_journal_stages(),
     # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
     # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
     # owner-selected and lacks period consensus.

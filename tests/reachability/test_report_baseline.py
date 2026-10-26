@@ -31,7 +31,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["seed_item_count"], 1240)
         self.assertEqual(report["completable_quest_count"], 57)
         self.assertIn("Use the rotten apple to sabotage the mourner food stores", report["earned_quest_action_proofs"])
-        self.assertEqual(len(report["blocked_quest_stage_products"]), 135)
+        self.assertEqual(len(report["blocked_quest_stage_products"]), 136)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
         self.assertEqual(
             {

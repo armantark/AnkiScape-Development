@@ -19,6 +19,8 @@ from ..logic_pure.logic_pure import (
 )
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
 from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
+from ..logic_pure.quest.hazeel_journal import hazeel_opening_announcement_pure
+from ..data.quest.hazeel_opening import OpeningAction
 from ..logic_pure.quest.review_steps import quest_review_phase_pure, quest_review_ready_pure, quest_review_feedback_pure
 from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, toktz_opening_message_pure
 from .runtime_actions_context import RuntimeActionContext
@@ -103,7 +105,16 @@ def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: 
     )
 
 
+def _announce_hazeel_step(ctx, action):
+    lines = hazeel_opening_announcement_pure(ctx.player_data, action)
+    for line in lines:
+        ctx.show_activity_gain(line)
+    return len(lines) < 2
+
+
 def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "") -> None:
+    if isinstance(repair_phase, OpeningAction) and _announce_hazeel_step(ctx, repair_phase):
+        return
     if opening_message:
         ctx.show_activity_gain(opening_message)
         return
@@ -142,7 +153,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     review_ready = (
         toktz_opening_review_ready_pure(player_data, quest_id, stage_blockers)
-        or quest_review_ready_pure(player_data, quest_id, stage_blockers)
+        or quest_review_ready_pure(player_data, quest_id, stage_blockers, quest_data=QUEST_DATA,
+                                   eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(
             player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
         )
