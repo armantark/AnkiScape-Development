@@ -8,6 +8,7 @@ from unittest import mock
 
 from tests import allow_modal_dialogs
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 from tests.test_main_menu_widget import HAS_AQT, _make_player_data, _open_bank_tab
 
 if HAS_AQT:
@@ -36,10 +37,10 @@ def _button(row, text: str):
 class BankClaimLampsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         self.data = _make_player_data()
         self.data["claims"]["tutorial_island_starter_kit"] = {"claimed": True}

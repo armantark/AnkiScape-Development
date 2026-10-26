@@ -27,8 +27,8 @@ from ankiscape.logic.farming_logic import (
     activate_livid_farm_allotment_pure,
     execute_farm_field_step_pure,
 )
+from tests.main_menu.activities.distractions.test_livid_farm import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _open_equipment_tab,
 )

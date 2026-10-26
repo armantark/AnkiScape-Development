@@ -31,6 +31,6 @@ blockers corrects the card state.
 
 - `python3 -m unittest tests.test_quest_catalog`
 - `python3 -m unittest tests.test_logic.TestLogic.test_source_backed_starter_quests_progress_through_stage_gates tests.test_logic.TestLogic.test_early_darkan_quests_progress_through_source_backed_stage_gates`
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements`
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements`
 - `python3 tools/audit_quest_local_item_gates.py`
 - `python3 run_tests.py` (713 passed, 133 skipped)

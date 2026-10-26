@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .toktz_opening import PENDING_LINES as _TOKTZ_PENDING_LINES
 from .dependencies import *
 from .contract import *
 from .ids import *
@@ -265,6 +266,65 @@ def _grand_tree_journal_stages() -> Tuple[QuestStage, ...]:
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     "the_grand_tree": _grand_tree_journal_stages(),
+    "toktz_ket_dill": tuple(
+        QuestStage(row["stage"], (_TOKTZ_PENDING_LINES[0],) if row["stage"] == 1 else tuple(row["journal"]))
+        for quest in PRE_EOC_QUEST_CATALOG if quest["id"] == "toktz_ket_dill"
+        for row in quest["journal_stages"]
+    ),
+    # Dream Mentor oldid 6550965, 2012-11-13T04:35:58Z:
+    # https://runescape.wiki/w/index.php?title=Dream_Mentor&oldid=6550965
+    # Retained: tools/generation/quest_sources.json.gz, wiki.wikitext_dream_mentor_old.
+    # Extracted literal-body SHA-256:
+    # 49cbd69d53e20688ea8c743a975a72a352da41b4b83971724d86e5ff485da78b
+    # Saved original and retained journal-source-map.json evidence directory:
+    # /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1480-dream-mentor-missing-opening-journal-phr/
+    # Original: sources/dream-mentor-6550965.txt; mapping: journal-source-map.json.
+    # Original line 72:
+    # *After four pieces, his '''Health''' status starts to gain and he opens his eyes. Speak with him.
+    # Original line 76:
+    # *After you raise his '''Spirit''' status up, his appetite returns, so feed him four more pieces of food.
+    # One-based opening paragraph -> source line:
+    # 1→57, 2→59, 3→61, 4→63, 5→65, 6→70, 7→72, 8→74, 9→76, 10→78, 11→80.
+    # Line 72 is a subset paraphrase; line 76 loses only marker/emphasis.
+    # Sal's Realm capture 20120110170945, 2012-01-10T17:09:45Z, HTML 209–211:
+    # https://web.archive.org/web/20120110170945id_/http://runescape.salmoneus.net:80/quests/dream-mentor.html
+    # Saved: sources/sals-20120110170945.html in the evidence directory; SHA-256:
+    # f241ad7c0da1e4b5375dd450c374857f433997f924196f5b1cf09b3c3d3c0fc8
+    # Corroborates eyes/talking after four, another four after encouragement,
+    # then six before the bank request; it describes Health gain per food.
+    # Dissent: RuneHQ capture 20120220020240, 2012-02-20T02:02:40Z, HTML 420:
+    # https://web.archive.org/web/20120220020240id_/http://www.runehq.com:80/quest/dream-mentor
+    # Saved: sources/runehq-20120220020240.html; SHA-256:
+    # 0cd096907823943ac3218ccdb7b23721a77d5c87fe3f17e6353a38f57bdf6fc0
+    # Says feed until 40% Health before talking; no separate second-four phase.
+    # Adopt the explicit dated wiki instruction corroborated by Sal's, without
+    # claiming consensus, numerical Health/Spirit rules or precise standing timing.
+    # Keep standing in its existing relative position. Fourteen (4+4+6) before
+    # the chest is not a whole-quest total; preserve twenty-food preparation
+    # and later armour approval/remaining feeding. Official overview/cache
+    # definitions do not state these instructions. Darkan's later restoration
+    # is reconstruction, not original server code or contemporary corroboration.
+    # Retained old quick-guide has no revision/body; current quick-guide oldid
+    # 36629635 (2025-01-11T19:33:40Z) supplies no period authority.
+    "dream_mentor": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=(
+                (
+                    *journal_row["journal"][:6],
+                    "After four pieces of food, he opens his eyes. Speak with him.",
+                    journal_row["journal"][6],
+                    "After you raise his Spirit status up, his appetite returns, so feed him four more pieces of food.",
+                    *journal_row["journal"][7:],
+                )
+                if journal_row["stage"] == 1
+                else tuple(journal_row["journal"])
+            ),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG
+        if quest_row["id"] == "dream_mentor"
+        for journal_row in quest_row["journal_stages"]
+    ),
     # Primary: https://runescape.wiki/w/index.php?title=Desert_Treasure&oldid=6563639
     # Revision 2012-11-16T08:24:12Z; literal-body SHA-256:
     # 927f963a829d508fe8b869f4cadf8a27061ea54fc1754ada6608f7de507cfeca

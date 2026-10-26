@@ -18,7 +18,8 @@ from ankiscape.logic.court_cases_logic import (
     apply_court_case_review_pure,
     apply_court_cases_command_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.main_menu.activities.distractions.test_court_cases import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
 
 

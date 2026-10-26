@@ -5,11 +5,12 @@ from contextlib import ExitStack
 from unittest.mock import patch
 
 from tests import test_integration_smoke as integration
+from tests.integration_smoke import fixtures as test_integration_smoke_behavior
 
 
 class TestUnproductiveActivityCaller(unittest.TestCase):
-    setUp = integration.TestIntegrationSmoke.setUp
-    tearDown = integration.TestIntegrationSmoke.tearDown
+    setUp = test_integration_smoke_behavior.TestIntegrationSmoke.setUp
+    tearDown = test_integration_smoke_behavior.TestIntegrationSmoke.tearDown
 
     def test_failed_review_builds_activity_context_only_for_a_match_and_keeps_tail(self):
         addon = integration._load_addon_as_package("ankiscape_unproductive_selector_integration")

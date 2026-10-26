@@ -9,6 +9,7 @@ from ankiscape.core.storage_pure import default_player_data
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from ankiscape.logic_pure.logic_pure_quest import quest_current_stage_blockers_pure
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 
 if _main_menu.HAS_AQT:
     from aqt.qt import QApplication, QColor, QLabel, QLineEdit, QPalette, QPushButton, QScrollArea, QWidget
@@ -58,10 +59,10 @@ def _dark_palette():
 class TestDesertTreasureMirrorJournalUI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         raw = next(row for row in PRE_EOC_QUEST_CATALOG if row["id"] == QUEST_ID)
         original = tuple(raw["journal_stages"][0]["journal"])

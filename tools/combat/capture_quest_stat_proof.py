@@ -9,7 +9,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from aqt.qt import QApplication, QColor, QLabel, QLineEdit, QPalette
-from tests.test_main_menu_widget import MainMenuWidgetTest, _expand_quest_card, _open_quests_tab
+from tests.main_menu.fixtures import MainMenuWidgetTest
+from tests.test_main_menu_widget import _expand_quest_card, _open_quests_tab
 from tests.test_combat_quest_gate import _maxed_player_for_quest
 
 

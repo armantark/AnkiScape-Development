@@ -47,9 +47,9 @@ simulation, and combat-stat enrichment gaps.
 ## Verification Snapshot
 
 - Targeted pure/catalog/registry/integration tests passed:
-  `python3 -m unittest tests.test_quest_catalog tests.test_logic.TestLogic.test_fight_arena_stage_gates_items_combat_and_reward tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_blocks_fight_arena_statless_combat`.
+  `python3 -m unittest tests.test_quest_catalog tests.test_logic.TestLogic.test_fight_arena_stage_gates_items_combat_and_reward tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_blocks_fight_arena_statless_combat`.
 - Targeted Qt tests passed:
-  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_keeps_historical_metadata_only_combat_rows_blocked tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_fight_arena_bouncer_gate_selection`.
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_keeps_historical_metadata_only_combat_rows_blocked tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_fight_arena_bouncer_gate_selection`.
 - Combat audit passed:
   `python3 -m unittest tests.test_quest_combat_stat_gap_audit tests.test_quest_historical_wiki_combat_stats`.
 - Required full suites passed:

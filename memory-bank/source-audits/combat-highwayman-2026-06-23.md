@@ -55,7 +55,7 @@ Status: implemented Highwayman ordinary-enemy slice.
 ## Verification
 
 - `python3 -m unittest tests.test_combat_logic.CombatLogicTest.test_highwayman_import_row_matches_source_and_quantity_range tests.test_combat_logic.CombatLogicTest.test_highwayman_quantity_range_drop_rolls_with_guaranteed_cape tests.test_target_metadata.TargetMetadataTest.test_combat_rows_expose_enabled_source_backed_enemy_targets tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_combat_items_are_registered_with_icons`
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_is_selectable_and_shows_simple_enemy_targets`
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.skills.test_combat_targets.MainMenuWidgetTest.test_combat_is_selectable_and_shows_simple_enemy_targets`
 - `python3 run_tests.py` passed with 571 tests (128 skipped).
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 571 tests.

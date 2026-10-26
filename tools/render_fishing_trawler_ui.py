@@ -15,8 +15,8 @@ from aqt.qt import QApplication, QColor, QPalette  # type: ignore
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.fishing_trawler_logic import enter_fishing_trawler_pure
+from tests.main_menu.activities.sessions.test_fishing_trawler import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _utility_row,
 )

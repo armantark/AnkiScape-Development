@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QLineEdit, QPalette, QTabWidget, QToolButton  # type: ignore
 
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data
+from tests.main_menu.test_help import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data
 
 
 def _dark_palette() -> QPalette:

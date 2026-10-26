@@ -2062,7 +2062,7 @@ def main() -> int:
         action="store_true",
         help=(
             "Exit 1 unless the report matches the baseline pinned in "
-            "tests/test_item_reachability_audit.py, or all four explicit counts."
+            "tests/reachability/test_report_baseline.py, or all four explicit counts."
         ),
     )
     parser.add_argument(

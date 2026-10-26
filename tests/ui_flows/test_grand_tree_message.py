@@ -10,6 +10,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 
 if _main_menu.HAS_AQT:
     from aqt.qt import (
@@ -73,10 +74,10 @@ def _fusion_palette(dark):
 class GrandTreeMessageDisplayTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         self.skill_save = Mock()
         self.player_save = Mock()

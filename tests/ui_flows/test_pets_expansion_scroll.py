@@ -6,6 +6,7 @@ import unittest
 from itertools import product
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows.test_first_cell_selection import _dark_palette, _player
 from tests.ui_flows.test_pets_visible_rows import reveal_widget, visible_rect
 from tests.ui_flows.test_tree_text_fit import _pump
@@ -25,10 +26,10 @@ def _scroll_ancestor(widget):
 class PetsExpansionScrollTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         app = QApplication.instance()
         self.addCleanup(app.setPalette, app.palette())
