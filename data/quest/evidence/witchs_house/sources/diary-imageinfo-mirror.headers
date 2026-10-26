@@ -1,0 +1,28 @@
+HTTP/2 200 
+date: Sat, 24 Oct 2026 11:07:05 GMT
+content-type: application/json; charset=utf-8
+content-length: 2737
+cf-ray: a4f8840ef8f666a1-LAX
+cf-cache-status: BYPASS
+accept-ranges: bytes
+cache-control: private, must-revalidate, max-age=0, no-store
+content-disposition: inline; filename=api-result.json
+server: cloudflare
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Accept-Encoding, Treat-as-Untrusted, Cookie
+nel: {"report_to":"nel","max_age":604800,"failure_fraction":0.01}
+report-to: {"endpoints":[{"url":"https://services.fandom.com/browser-errors/report"}],"group":"nel","include_subdomains":true,"max_age":604800}
+reporting-endpoints: nel="https://services.fandom.com/browser-errors/report"
+server-timing: beacon;desc="zDyFntca-5", b2;desc="FA8HsqhMdu.1792840025438", rayid;desc="a4f8840ef8f666a1", dc;desc="sjc", roaa;desc="active", roaadc;desc="sjc", roaareason;desc="closest_datacenter", roaavariant;desc="none"
+x-datacenter: SJC
+x-orig-cache-control: private, must-revalidate, max-age=0, no-store
+x-request-id: a4f8840ef8f666a1-LAX
+cache-tag: wiki-304,wiki-304-mediawiki
+x-content-type-options: nosniff
+x-envoy-upstream-service-time: 44
+x-frame-options: DENY
+set-cookie: exp_bucket=v9-38; domain=.fandom.com; path=/; expires=Mon, 23 Oct 2028 11:07:05 GMT
+set-cookie: exp_bucket_2=v5-43; domain=.fandom.com; path=/; expires=Mon, 23 Oct 2028 11:07:05 GMT
+set-cookie: Geo={%22region%22:%22CA%22%2C%22city%22:%22santa clarita%22%2C%22country_name%22:%22united states of america%22%2C%22country%22:%22US%22%2C%22continent%22:%22NA%22}; path=/; domain=.fandom.com; SameSite=None; Secure
+set-cookie: __cf_bm=o.97iQOtJ1Xi.X4.N8dMQBkXMkag2z.IJMVb1JBoIf0-1792840025.432241-1.0.1.1-lK5.W6Z9u9IB8n9TVPavK9U8POuCJGDbuncKP_RCrNaNzbdlrDrx42UeltWaXh3V6C.VdmQlHGeBVmoGalJ_1pDzoNIqLaMU.WWFfpIJjSBLhuKRgb4dFK8Ytw5X7.Y1; HttpOnly; SameSite=None; Secure; Path=/; Domain=fandom.com; Expires=Sat, 24 Oct 2026 11:37:05 GMT
+

@@ -1,0 +1,23 @@
+:''For the item encountered during the [[Animal Magnetism]] quest, see [[Bar magnet]].''
+:''For the item encountered during the [[Witch's House]] quest, see [[Magnet (Witch's House)]].''
+{{Infobox Item
+|name = Magnet
+|image = [[File:Magnet.png]]
+|release = [[2 November]] [[2004]]
+|update = The Fremennik Trials
+|members = Yes
+|quest = Yes
+|tradeable = No
+|equipable = No
+|stackable = No
+|high = 1
+|low = 1
+|value = 3
+|destroy = Drop
+|store = no
+|examine = A very attractive magnet.
+|weight = 0.0
+}}
+[[File:Detail Magnet.png|100px|left]]
+The '''Magnet''' is found during the [[Recruitment Drive]], [[Grim Tales]] and [[The Fremennik Trials]] [[quests]], however, it's not needed to do either of those quests. Its examine text is a physics pun.
+[[Category:The Fremennik Trials]]

@@ -1,0 +1,110 @@
+{{RSC page|Witch&#39;s House_(historical)}}
+{{Quick guide}}
+{{Infobox Quest
+| name = Witch's House
+| image = [[File:Witch's House.jpg]]
+| aka =
+| release = [[27 February]] [[2002]]
+| update = Latest RuneScape News (27 February 2002)
+| members = Yes
+| series =
+| difficulty = Intermediate
+| length = Medium
+| number = 17
+| developer = Paul Gower
+}}
+{{clear}}
+== Walkthrough ==
+
+{{Quest details
+|start=Talk to a crying boy West of [[Falador]].
+|difficulty = Intermediate
+|length=Short
+|members=Yes
+|requirements=You must be able to beat 4 monsters from level 19 to 53 without a break. This should not be hard for any player over level 40 with food, and over level 60 without food.
+|items=[[Leather gloves]] (can be obtained during quest) and [[Cheese]] (you may wish to bring several, in case the witch sees you)
+[[Food]] is recommended for players under level 55.
+|kills=[[Witch's experiment|Witch's Experiment]] fought over four forms:
+* [[Skavid]] (level 19)
+* [[Giant spider]] (level 30)
+* [[Bear]] (level 42)
+* [[Wolf]] (level 53)}}
+
+===The Boy===
+The start point of '''Witch's House''' is located South of [[Taverley]] and directly West of [[Falador]], near the building on the shore. Talk to the crying [[Boy]]. He tells you that he accidentally kicked his ball over into the garden and he asks you to retrieve it for him.
+
+After accepting the quest, head west to the front door of the house just north of the boy, where [[Nora T. Hagg]] lives. Search the pot, north of the door, to find a key.
+
+===In the house===
+[[File:Potted Plant.png|thumb|Searching the potted plant.]]
+[[File:Cupboardmagnet.png|thumb|Searching the cupboard.]]
+'''''Items required:''''' Gloves, [[Cheese]] (Preferably more than one, in case you get caught)
+
+Use the key to open the door. There is a diary on the table, which shows you how to unlock the door that leads to the inner smaller room, and finally into the garden. It also mentions that there is a secret compartment in the fountain (which has the [[Key (Witch's shed)|key]] to the shed). '''You must read the diary in order to obtain the key.'''
+
+Go into the basement. If you do not have gloves, search the nearby boxes until you get one. Wear the gloves, and go through the gate which is in the centre of the basement.
+
+'''Warning:''' If you are not wearing the [[leather gloves]], [[safety gloves]], [[void gloves]], [[ghostly gloves]] or [[penance gloves]], you will be hit for one fifth of your maximum life points. "Armoured gloves" such as [[slayer gloves]] or gloves from [[Recipe for Disaster]] will hit you for 120 damage, [[ice gloves]] will hit you for 190 damage and [[lunar gloves]] will hit you for 150 damage. Flame gloves (from All Fired Up) will do just fine too.
+
+In the room, search the cupboard for a [[Magnet (Witch's House)|magnet]]. Go back upstairs and into the small room.
+
+Use the cheese with the Mouse Hole on the eastern wall and a mouse will appear. Use the magnet on the mouse and through a mechanism, it will unlock the door.
+
+'''Be careful - do NOT eat the cheese!'''
+
+===Getting Past Nora T. Hagg===
+[[File:Hedgehide.png|thumb|Sneaking past the witch.]]
+Once you are in the garden you will see [[Nora T. Hagg]] walking up and down the middle.
+
+*The trick is to use the [[hedge]]s so she will not see you. Simply hide behind the hedge walls, and only move when the witch's back is turned to you.
+*Note that if you stand at the corner of one of the hedges, the witch may see you, so it is best to stand in the middle of each hedge.
+*If the witch catches you, she will teleport you outside the house.
+
+Make your way all the way around until you reach the fountain. Search around the sides of the fountain and you will find the [[Key (Witch's shed)|key]] to the shed.
+
+If you have been spotted by the Witch, with the key from the fountain in your inventory, you '''DO''' need to collect another one to open the shed.
+
+'''Note:''' You cannot walk across the path that the Witch passes, you must go all the way around.
+
+===Witch's experiment===
+
+Make your way to the shed and use the key on it. Attack the [[Witch's experiment]]. '''Do not take the ball yet.''' If you do, your combat stats will be decreased.
+
+If you are using ranged or magic there is a safe spot in the south-west corner.
+*First you must trap the Witch's experiment at the bags then stand on the hay, then you can use range or magic and it cannot attack you.
+
+Each time you kill the experiment, its next form will appear. You will have to kill the experiment a total of four times before it is defeated, the first stage being a '''Skavid''' (level 19), then a '''Spider''' (level 30), then a '''Bear''' (level 42) and finally a '''Wolf''' (level 53).
+
+Once you have killed the experiment in all of its forms, take the ball and head out. As before, '''do not''' let the witch see you or she will teleport you outside and you will lose the ball.
+*You can, however, teleport yourself out once you have got the ball, without losing it.
+*Having a Falador teleport or Falador home teleport can be used with the movement of the quest start
+*If you are caught, you do not need to obtain a magnet or the key from the fountain again - both doors remain unlocked.
+
+Finally, after escaping the house with the ball, give it back to the boy to complete the quest.
+
+==Rewards==
+[[File:Witch's House reward.png|Witch's House Reward|center]]
+*4 [[Quest points]]
+*6,325 {{Skill clickpic|Constitution}} [[Constitution]] experience
+*2 extra spins on the [[Squeal of Fortune]]
+
+==Required for completing==
+Completion of Witch's House is required for the following:
+*[[Grim Tales]]
+*[[Recipe for Disaster/Freeing the Lumbridge Sage]]
+
+==Trivia==
+*If you try to use Telekinetic Grab on the ball, the sentence "I can't reach that!" will appear in the text box.
+*The ball will respawn after being picked up, even when the player still has the ball in the inventory.
+*This was one of the first 5 quests to be released for RuneScape members.
+*Upon completing this quest, the [[Adventurer's Log]] will read: "When I lost a ball as a child, it would only involve chatting to the friendly neighbour. This quest involved a little more: some witch-dodging and even shapeshifter fighting!"
+*If you "Check" the fountain even if you didn't take the diary on the table inside the house, the message will still say: "You search for the secret compartment mentioned in the diary. Inside it you find a small key. You take the key."
+*The first form of the experiment keeps the same voice as an imp when attacked, even though it was changed to be a skavid later.
+
+==See also==
+*[[Grim Tales]]
+[[nl:Witch's House]]
+[[es:Witch's House]]
+[[fi:Witch&#39;s House|fi:Witch's House]]
+[[Category:Witch's House]]
+[[Category:Wikia Game Guides quests]]

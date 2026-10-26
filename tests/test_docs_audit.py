@@ -1,4 +1,6 @@
+import hashlib
 import importlib.util
+import json
 import subprocess
 import sys
 import tempfile
@@ -195,6 +197,148 @@ class DocumentationAuditTests(unittest.TestCase):
 
         self.assertTrue(report.ok, report.issues)
         self.assertEqual(report.markdown_files, 1)
+
+    def _capture(self, root: Path, local: str = "sources/capture.html") -> dict:
+        package = root / "data/quest/evidence/example"
+        path = package / local
+        path.parent.mkdir(parents=True, exist_ok=True)
+        raw = b'<html><body>original  \r\n<a href="old-relative.html">page</a></body></html>'
+        path.write_bytes(raw)
+        return {"id": "capture", "local": local, "url": "https://example.org/old",
+                "sha256": hashlib.sha256(raw).hexdigest(), "saved_bytes": len(raw)}
+
+    def _index(self, root: Path, records: object) -> Path:
+        index = root / "data/quest/evidence/example/source-index.json"
+        index.parent.mkdir(parents=True, exist_ok=True)
+        index.write_text(json.dumps(records), encoding="utf-8")
+        return index
+
+    def test_indexed_raw_captures_preserve_bytes_without_authored_rules(self) -> None:
+        root = self._repo()
+        html = self._capture(root)
+        markdown = self._capture(root, "sources/original.md")
+        markdown.update(id="markdown", path="archive/original.md")
+        del markdown["url"]
+        path = root / "data/quest/evidence/example/sources/original.md"
+        raw = b'[Old](missing-page.md)\r\n \t\r\n```unfinished'
+        path.write_bytes(raw)
+        markdown.update(sha256=hashlib.sha256(raw).hexdigest(), saved_bytes=len(raw))
+        self._index(root, [html, markdown, dict(html)])
+        originals = {record["local"]: (path.parent.parent / record["local"]).read_bytes()
+                     for record in (html, markdown)}
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertTrue(report.ok, report.issues)
+        for local, expected in originals.items():
+            self.assertEqual((path.parent.parent / local).read_bytes(), expected)
+
+    def test_capture_tampering_length_and_missing_files_fail_explicitly(self) -> None:
+        for mutation, expected in (("hash", "capture_hash_mismatch"),
+                                   ("length", "capture_size_mismatch"),
+                                   ("missing", "missing_capture")):
+            with self.subTest(mutation=mutation):
+                root = self._repo()
+                record = self._capture(root)
+                self._index(root, [record])
+                path = root / "data/quest/evidence/example" / record["local"]
+                raw = path.read_bytes()
+                if mutation == "hash":
+                    path.write_bytes(raw.replace(b"original", b"tampered"))
+                elif mutation == "length":
+                    path.write_bytes(raw + b"\n")
+                else:
+                    path.unlink()
+                issues = AUDIT_DOCS.audit_docs(root).issues
+                self.assertIn(expected, {issue.kind for issue in issues}, issues)
+                self.assertTrue(any(issue.path.endswith(record["local"]) for issue in issues))
+
+    def test_capture_registration_rejects_malformed_bindings_and_provenance(self) -> None:
+        changes = ({"sha256": "bad"}, {"sha256": None}, {"saved_bytes": -1},
+                   {"saved_bytes": True}, {"saved_bytes": "72"}, {"saved_bytes": None},
+                   {"url": ""}, {"url": "relative.html"}, {"url": []},
+                   {"url": "https://"}, {"url": "https://example.org/has space"},
+                   {"url": None, "path": ""}, {"url": None, "path": {}},
+                   {"url": None, "path": "\n"}, {"url": None}, {"local": None})
+        for change in changes:
+            with self.subTest(change=change):
+                root = self._repo()
+                record = self._capture(root)
+                record.update(change)
+                if record.get("url") is None:
+                    record.pop("url")
+                self._index(root, [record])
+                issues = AUDIT_DOCS.audit_docs(root).issues
+                self.assertIn("invalid_capture_record", {issue.kind for issue in issues}, issues)
+
+    def test_capture_indexes_require_a_list_of_records_and_valid_json(self) -> None:
+        for value in ({"local": "sources/capture.html"}, [None], ["capture"], None):
+            with self.subTest(value=value):
+                root = self._repo()
+                self._index(root, value)
+                self.assertIn("invalid_capture_index",
+                              {issue.kind for issue in AUDIT_DOCS.audit_docs(root).issues})
+        root = self._repo()
+        self._index(root, []).write_bytes(b"[")
+        self.assertIn("invalid_capture_index",
+                      {issue.kind for issue in AUDIT_DOCS.audit_docs(root).issues})
+
+    def test_capture_paths_must_be_canonical_and_strictly_under_sources(self) -> None:
+        for local in ("evidence.md", "README.md", "sources", "sources/../evidence.md",
+                      "../outside.md", "/tmp/outside.md", "sources//capture.html",
+                      "sources/./capture.html", "sources\\capture.html",
+                      "sources/capture.html/", "sources/\x00capture.html"):
+            with self.subTest(local=local):
+                root = self._repo()
+                record = self._capture(root)
+                record["local"] = local
+                self._index(root, [record])
+                self.assertIn("invalid_capture_record",
+                              {issue.kind for issue in AUDIT_DOCS.audit_docs(root).issues})
+
+    def test_capture_symlinks_are_refused_at_each_path_component(self) -> None:
+        for component in ("capture.html", "sources", "example", "source-index.json"):
+            with self.subTest(component=component):
+                root = self._repo()
+                record = self._capture(root)
+                index = self._index(root, [record])
+                package = index.parent
+                path = {"capture.html": package / record["local"],
+                        "sources": package / "sources", "example": package,
+                        "source-index.json": index}[component]
+                target = path.with_name(path.name + "-original")
+                path.rename(target)
+                path.symlink_to(target, target_is_directory=target.is_dir())
+                issues = AUDIT_DOCS.audit_docs(root).issues
+                self.assertIn("capture_symlink", {issue.kind for issue in issues}, issues)
+
+    def test_conflicting_capture_local_paths_and_ids_are_refused(self) -> None:
+        for change in ({"sha256": "0" * 64}, {"saved_bytes": 1},
+                       {"url": "https://different.example/old"},
+                       {"local": "sources/second.html"}):
+            with self.subTest(change=change):
+                root = self._repo()
+                record = self._capture(root)
+                other = dict(record, **change)
+                self._index(root, [record, other])
+                issues = AUDIT_DOCS.audit_docs(root).issues
+                self.assertIn("conflicting_capture_identity", {issue.kind for issue in issues}, issues)
+
+    def test_registry_cannot_exempt_authored_or_unregistered_documentation(self) -> None:
+        root = self._repo()
+        record = self._capture(root)
+        self._index(root, [record])
+        for relative in ("data/quest/evidence/example/evidence.md",
+                         "data/quest/evidence/example/README.md",
+                         "data/quest/evidence/example/sources/unregistered.md",
+                         "memory-bank/source-audits/canonical.md", "README.md"):
+            self._track(root, relative, "[Broken](missing.md)\n")
+        issues = AUDIT_DOCS.audit_docs(root).issues
+        self.assertEqual(len(issues), 5, issues)
+        self.assertEqual({issue.kind for issue in issues}, {"broken_local_link"})
+        # An index outside the exact package boundary never exempts prose.
+        (root / "source-index.json").write_text(json.dumps([record]), encoding="utf-8")
+        self.assertEqual(AUDIT_DOCS.audit_docs(root).issues, issues)
 
 
 if __name__ == "__main__":

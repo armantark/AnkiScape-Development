@@ -357,7 +357,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 125
+CURRENT_CONFIG_VERSION = 126
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {

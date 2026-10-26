@@ -969,6 +969,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "read_ragged_book_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "apply_murder_mystery_opening_items_pure", "record_quest_stage_action_proofs_pure"),
+                ("logic_pure/quest/witchs_house.py", "apply_witchs_house_service_pure", "record_quest_stage_action_proofs_pure"),
             },
         )
         self.assertEqual(
@@ -982,6 +983,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/quest/oronwen.py": 3,
                 "logic_pure/quest/elemental_workshop.py": 4,
                 "logic_pure/quest/murder_mystery.py": 1,
+                "logic_pure/quest/witchs_house.py": 1,
                 "logic_pure/quest_action_proofs.py": 25,
                 "runtime/runtime_actions_shared.py": 3,
             },

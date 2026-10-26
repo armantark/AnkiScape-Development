@@ -390,7 +390,11 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
 SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Rune sq shield"]
 # activity_assets fills this shared map; its binding preserves facade export order.
-QUEST_ITEM_IMAGES = {}
+QUEST_ITEM_IMAGES = {
+    "Diary (Witch's House)": os.path.join(
+        current_dir, "data", "quest", "evidence", "witchs_house", "sources", "diary-20111205.png"
+    ),
+}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
     "Ragged book": os.path.join(current_dir, "data", "quest", "assets", "ragged_book.png"),
     "Lever": "temple_lever.png",

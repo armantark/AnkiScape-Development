@@ -1,0 +1,33 @@
+{
+  "revision": "3a919d445bcdbd382b95a71ecc4273e1b9fb2c3b",
+  "existing_assets": {
+    "crafteditems/leather_gloves.png": {
+      "exists": true,
+      "sha256": "c0b89efec66001c992844504628649796ff2369a9d739efca7572a7d25846243"
+    },
+    "questitems/door_key.png": {
+      "exists": true,
+      "sha256": "cc8dc8fd9c32eaa4e42327e6d4e1608a90152853d3a8cd8935b3e67653d0347b"
+    },
+    "questitems/magnet.png": {
+      "exists": true,
+      "sha256": "2a12c2aeb9a28f7a6298437388c9e120ca4cbe86159dd6db25ce509670ae3d93"
+    },
+    "questitems/backroom_key.png": {
+      "exists": true,
+      "sha256": "35a693b8c2983888f70c46e1d7862c9e1c4dde22102c7b741e20c531df1ab784"
+    },
+    "questitems/ball.png": {
+      "exists": true,
+      "sha256": "0b8e619418e0b6ad56b71ed47d292640fc792fe4fd0294071ee3ff9fd5e81a2d"
+    }
+  },
+  "new_icon": {
+    "path": "sources/diary-20111205.png",
+    "sha256": "433dfc455d1b6a436a8513f7ce353c72e010df39f6df00bcacd9a3fd38d6482a",
+    "timestamp": "2011-12-05T06:16:36Z",
+    "proposed_product_path": "questitems/diary_witchs_house.png",
+    "installed": false
+  },
+  "registry": "Witch definition reward fragment contains keys/Magnet/Ball but no diary. Need qualified storage identity2408 and source_item_id, nonstackable/nontradeable, Read consumer, and image mapping/override for chosen storage name. activity_assets.py:22-28 maps only registered existing paths; core/item_registry.py:97 license note unaudited for existing assets. No new registry or asset installed."
+}

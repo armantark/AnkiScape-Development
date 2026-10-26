@@ -1,0 +1,2294 @@
+{
+  "1_diary": [
+    {
+      "path": "sources/witchs-house-6474931.txt",
+      "sha256": "b89036019923a1922f60068293aa7e334358a1631b54155f29863c5a5be9ffe1",
+      "lines": [
+        {
+          "line": 34,
+          "text": "The start point of '''Witch's House''' is located South of [[Taverley]] and directly West of [[Falador]], near the building on the shore. Talk to the crying [[Boy]]. He tells you that he accidentally kicked his ball over into the garden and he asks you to retrieve it for him."
+        },
+        {
+          "line": 36,
+          "text": "After accepting the quest, head west to the front door of the house just north of the boy, where [[Nora T. Hagg]] lives. Search the pot, north of the door, to find a key."
+        },
+        {
+          "line": 43,
+          "text": "Use the key to open the door. There is a diary on the table, which shows you how to unlock the door that leads to the inner smaller room, and finally into the garden. It also mentions that there is a secret compartment in the fountain (which has the [[Key (Witch's shed)|key]] to the shed). '''You must read the diary in order to obtain the key.'''"
+        }
+      ]
+    },
+    {
+      "path": "sources/witchs-house-quick-guide-6196397.txt",
+      "sha256": "f972508cfd2dedc220e183a0810987993623d10d6a28e3fefeb18ea23f3066e0",
+      "lines": [
+        {
+          "line": 21,
+          "text": "*Search the Northern potted plant."
+        },
+        {
+          "line": 22,
+          "text": "*Open the door."
+        },
+        {
+          "line": 23,
+          "text": "*Grab the [[Diary (Witch's House)|diary]] on the table and read it."
+        }
+      ]
+    },
+    {
+      "path": "sources/period-diary.txt",
+      "sha256": "e0e75c3b74a31ed704cf49d0356228480be1d21e179ab81890e0f904e7ddeef2",
+      "lines": [
+        {
+          "line": 2,
+          "text": "{{Infobox Item"
+        },
+        {
+          "line": 4,
+          "text": "|image = [[File:Diary (Witch's House).png]]"
+        },
+        {
+          "line": 10,
+          "text": "|tradeable = No"
+        },
+        {
+          "line": 12,
+          "text": "|stackable = No"
+        },
+        {
+          "line": 13,
+          "text": "|high = 0"
+        },
+        {
+          "line": 16,
+          "text": "|destroy = Drop"
+        },
+        {
+          "line": 18,
+          "text": "|examine = A daily journal"
+        },
+        {
+          "line": 24,
+          "text": "You can find it upstairs in the witch's house and is stored in the shelves in your [[Player-owned house|house]]."
+        },
+        {
+          "line": 53,
+          "text": "The security system is done. By Zamorak! Wow, is it contrived! Now, to open my own back door, I lure a mouse out of a hole in the back porch, I fit a magic curved piece of metal to the harness on its back, the mouse goes back in the hole, and the door unlocks! The prof tells me that this is cutting edge technology!"
+        },
+        {
+          "line": 54,
+          "text": "As an added precaution I have hidden the key to the shed in a secret compartment of the fountain in the garden. No one will ever look there!"
+        }
+      ]
+    },
+    {
+      "path": "sources/supplying-spawn.txt",
+      "sha256": "b5d496d3bb1216972357e7c52b19a8102797e5dd2bcb4ac0f4f0880d20369b16",
+      "lines": [
+        {
+          "line": 162,
+          "text": "  {"
+        },
+        {
+          "line": 163,
+          "text": "    \"comment\": \"Witchs Diary, Witchs House quest\","
+        },
+        {
+          "line": 164,
+          "text": "    \"itemId\": 2408,"
+        },
+        {
+          "line": 165,
+          "text": "    \"amount\": 1,"
+        },
+        {
+          "line": 166,
+          "text": "    \"tile\": {"
+        },
+        {
+          "line": 167,
+          "text": "      \"x\": 2895,"
+        },
+        {
+          "line": 168,
+          "text": "      \"y\": 3371,"
+        },
+        {
+          "line": 169,
+          "text": "      \"plane\": 0"
+        },
+        {
+          "line": 170,
+          "text": "    }"
+        },
+        {
+          "line": 171,
+          "text": "  },"
+        }
+      ]
+    },
+    {
+      "path": "sources/current-darkan-WitchsHouse.java.txt",
+      "sha256": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413",
+      "lines": [
+        {
+          "line": 95,
+          "text": "\tpublic static ItemClickHandler handleClickOnWitchDiary = new ItemClickHandler(new Object[] { WITCH_DIARY }, new String[] { \"Read\" }, e -> {"
+        },
+        {
+          "line": 96,
+          "text": "\t\te.getPlayer().getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(READ_DIARY, true);"
+        },
+        {
+          "line": 97,
+          "text": "\t\te.getPlayer().openBook(new WitchsDiary());"
+        },
+        {
+          "line": 98,
+          "text": "\t});"
+        },
+        {
+          "line": 121,
+          "text": "\tpublic static ObjectClickHandler handleFountain = new ObjectClickHandler(new Object[] { 2864 }, e -> {"
+        },
+        {
+          "line": 122,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 123,
+          "text": "\t\tif (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL) {"
+        },
+        {
+          "line": 124,
+          "text": "\t\t\tp.sendMessage(\"You find nothing of interest.\");"
+        },
+        {
+          "line": 125,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 126,
+          "text": "\t\t}"
+        },
+        {
+          "line": 127,
+          "text": "\t\tif (!p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(READ_DIARY)) {"
+        },
+        {
+          "line": 128,
+          "text": "\t\t\tp.sendMessage(\"You find nothing. Perhaps there is a clue somewhere in the house.\");"
+        },
+        {
+          "line": 129,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 130,
+          "text": "\t\t}"
+        },
+        {
+          "line": 131,
+          "text": "\t\tif(!p.getInventory().containsItem(BACKROOM_KEY, 1)) {"
+        },
+        {
+          "line": 132,
+          "text": "\t\t\tif(!p.getInventory().hasFreeSlots()) {"
+        },
+        {
+          "line": 133,
+          "text": "\t\t\t\tp.sendMessage(\"You don't have room...\");"
+        },
+        {
+          "line": 134,
+          "text": "\t\t\t\treturn;"
+        },
+        {
+          "line": 135,
+          "text": "\t\t\t}"
+        },
+        {
+          "line": 136,
+          "text": "\t\t\tp.getInventory().addItem(new Item(BACKROOM_KEY, 1));"
+        },
+        {
+          "line": 137,
+          "text": "\t\t\tp.sendMessage(\"You found a key!\");"
+        },
+        {
+          "line": 138,
+          "text": "\t\t}"
+        },
+        {
+          "line": 139,
+          "text": "\t});"
+        }
+      ]
+    },
+    {
+      "path": "sources/tipit-20120825005349-text.txt",
+      "sha256": "bfb5cc486a62446b16311a6105824ce858e56e73fc4ad41e6ed970100e9fc9ec",
+      "lines": [
+        {
+          "line": 75,
+          "text": "2. Make your way around the hedge to the door of the house. You find that it is locked. The door key is under the first pot to your left. Go in the door, take the diary on the table near you, and read it."
+        },
+        {
+          "line": 80,
+          "text": "Note: You must have read the whole diary to find the key."
+        }
+      ]
+    },
+    {
+      "path": "sources/sals-20121018060604-text.txt",
+      "sha256": "2d36bbb36126184661af923af811548a65f7d111d947a4a44e4e894723a6db9f",
+      "lines": [
+        {
+          "line": 49,
+          "text": "Now open the door and you'll be able to go inside. There is a Diary on the table. Pick it up and read it."
+        },
+        {
+          "line": 50,
+          "text": "Make sure to read the entire thing (or just click through it). If you did read it, you'll find out the old lady has a monster that she is feeding a mixture of fungus, tar, and clay. It also mentions she has it living in the garden shed. She wrote about how the 'pesky' kid keeps kicking his ball into her garden. Finally, the Diary also reveals the key to the lock on the garden door."
+        },
+        {
+          "line": 56,
+          "text": "If you do get caught, you'll be teleported out of the house and have to start all over. When you do make it to the shed, you'll find out that it is locked. Continue hiding behind hedges on the northern side to get to the fountain. Make sure you've read the entire Diary. Then check the fountain for a secret compartment and you'll find the key."
+        }
+      ]
+    },
+    {
+      "path": "sources/runehq-20121103135007-text.txt",
+      "sha256": "0dc26aed2b31382c2c01199bf5b68d8a2fa216de70daad17f95fb3c39587fb1d",
+      "lines": [
+        {
+          "line": 79,
+          "text": "Head northwest to the front door of the witch's house, only to find out that the door is locked. Look under one of the nearby potted plants to find a Door key. Use the key to open the door, and pick up the Diary from the table. Read it to learn more about the witch, Nora T. Hagg."
+        },
+        {
+          "line": 87,
+          "text": "Note: In order to obtain the Key from the fountain, you must have read the Diary and need to have it your inventory."
+        }
+      ]
+    },
+    {
+      "path": "sources/cache-727-items.txt",
+      "sha256": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "lines": [
+        {
+          "line": 2,
+          "text": "2408\tDiary\tmodel=2794\trecolors=[5018]->[334]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, drop]"
+        }
+      ]
+    },
+    {
+      "path": "sources/cache-742-items.txt",
+      "sha256": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "lines": [
+        {
+          "line": 2,
+          "text": "2408\tDiary\tmodel=2794\trecolors=[5018]->[334]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, drop]"
+        }
+      ]
+    }
+  ],
+  "2_gloves_magnet": [
+    {
+      "path": "sources/witchs-house-6474931.txt",
+      "sha256": "b89036019923a1922f60068293aa7e334358a1631b54155f29863c5a5be9ffe1",
+      "lines": [
+        {
+          "line": 45,
+          "text": "Go into the basement. If you do not have gloves, search the nearby boxes until you get one. Wear the gloves, and go through the gate which is in the centre of the basement."
+        },
+        {
+          "line": 47,
+          "text": "'''Warning:''' If you are not wearing the [[leather gloves]], [[safety gloves]], [[void gloves]], [[ghostly gloves]] or [[penance gloves]], you will be hit for one fifth of your maximum life points. \"Armoured gloves\" such as [[slayer gloves]] or gloves from [[Recipe for Disaster]] will hit you for 120 damage, [[ice gloves]] will hit you for 190 damage and [[lunar gloves]] will hit you for 150 damage. Flame gloves (from All Fired Up) will do just fine too."
+        },
+        {
+          "line": 49,
+          "text": "In the room, search the cupboard for a [[Magnet (Witch's House)|magnet]]. Go back upstairs and into the small room."
+        }
+      ]
+    },
+    {
+      "path": "sources/witchs-house-quick-guide-6196397.txt",
+      "sha256": "f972508cfd2dedc220e183a0810987993623d10d6a28e3fefeb18ea23f3066e0",
+      "lines": [
+        {
+          "line": 24,
+          "text": "*Go into the basement and, while wearing gloves, enter the gate."
+        },
+        {
+          "line": 25,
+          "text": "*Search the cupboard."
+        },
+        {
+          "line": 26,
+          "text": "*Go back up the ladder and into the small room to the south."
+        }
+      ]
+    },
+    {
+      "path": "sources/current-darkan-WitchsHouse.java.txt",
+      "sha256": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413",
+      "lines": [
+        {
+          "line": 65,
+          "text": "\tprivate static final int[] INSULATING_GLOVES = { 1059, 12629, 8842, 6110, 10553, 13660 };"
+        },
+        {
+          "line": 313,
+          "text": "\tpublic static ObjectClickHandler handleBasementBoxes = new ObjectClickHandler(new Object[] { 24692 }, e -> {"
+        },
+        {
+          "line": 314,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 315,
+          "text": "\t\tif (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL"
+        },
+        {
+          "line": 316,
+          "text": "\t\t\t\t|| !e.getObj().getTile().withinArea(2765, 9750, 2777, 9761))"
+        },
+        {
+          "line": 317,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 318,
+          "text": "\t\tif (p.getInventory().containsItem(1059, 1) || p.getEquipment().containsOneItem(1059)) {"
+        },
+        {
+          "line": 319,
+          "text": "\t\t\tp.sendMessage(\"You search the boxes but find nothing of interest.\");"
+        },
+        {
+          "line": 320,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 321,
+          "text": "\t\t}"
+        },
+        {
+          "line": 322,
+          "text": "\t\tif (!p.getInventory().hasFreeSlots()) {"
+        },
+        {
+          "line": 323,
+          "text": "\t\t\tp.sendMessage(\"You find a pair of leather gloves, but you don't have room to take them.\");"
+        },
+        {
+          "line": 324,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 325,
+          "text": "\t\t}"
+        },
+        {
+          "line": 326,
+          "text": "\t\tp.getInventory().addItem(new Item(1059, 1));"
+        },
+        {
+          "line": 327,
+          "text": "\t\tp.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(COLLECTED_BASEMENT_GLOVES, true);"
+        },
+        {
+          "line": 328,
+          "text": "\t\tp.sendMessage(\"You find a pair of leather gloves.\");"
+        },
+        {
+          "line": 329,
+          "text": "\t});"
+        },
+        {
+          "line": 330,
+          "text": ""
+        },
+        {
+          "line": 331,
+          "text": "\tpublic static ObjectClickHandler handleWitchHouseElectricGate = new ObjectClickHandler(new Object[] { 2866, 2865 }, e -> {"
+        },
+        {
+          "line": 332,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 333,
+          "text": "\t\tint gloves = p.getEquipment().getGlovesId();"
+        },
+        {
+          "line": 334,
+          "text": "\t\tif (contains(INSULATING_GLOVES, gloves))"
+        },
+        {
+          "line": 335,
+          "text": "            handleDoubleDoor(e.getPlayer(), e.getObj());"
+        },
+        {
+          "line": 336,
+          "text": "\t\telse {"
+        },
+        {
+          "line": 337,
+          "text": "\t\t\tint damage = gloves == 1580 ? 190 : gloves == 9099 ? 150 : gloves == 6708 || gloves >= 7453 && gloves <= 7462 ? 120 : Math.max(1, p.getMaxHitpoints() / 5);"
+        },
+        {
+          "line": 338,
+          "text": "            p.startConversation(new Conversation(e.getPlayer()) {"
+        },
+        {
+          "line": 339,
+          "text": "                {"
+        },
+        {
+          "line": 340,
+          "text": "\t\t\t\t\taddSimple(\"As you touch the gate you feel a shock.\", () -> p.applyHit(Hit.flat(p, damage)));"
+        },
+        {
+          "line": 341,
+          "text": "\t\t\t\t\taddPlayer(HeadE.SCARED, \"I will need some insulating gloves to stop the electric current...\");"
+        },
+        {
+          "line": 342,
+          "text": "                    create();"
+        },
+        {
+          "line": 343,
+          "text": "                }"
+        },
+        {
+          "line": 344,
+          "text": "            });"
+        },
+        {
+          "line": 345,
+          "text": "\t\t}"
+        },
+        {
+          "line": 371,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 372,
+          "text": "\t\tGameObject obj = e.getObj();"
+        },
+        {
+          "line": 373,
+          "text": "\t\tif(e.getOption().equalsIgnoreCase(\"open\")) {"
+        },
+        {
+          "line": 374,
+          "text": "\t\t\tp.setNextAnimation(new Animation(536));"
+        },
+        {
+          "line": 375,
+          "text": "\t\t\tp.lock(2);"
+        },
+        {
+          "line": 376,
+          "text": "\t\t\tGameObject openedChest = new GameObject(obj.getId() + 1, obj.getType(), obj.getRotation(), obj.getX(), obj.getY(), obj.getPlane());"
+        },
+        {
+          "line": 377,
+          "text": "\t\t\tp.faceObject(openedChest);"
+        },
+        {
+          "line": 378,
+          "text": "\t\t\tWorld.spawnObjectTemporary(openedChest, Ticks.fromMinutes(1));"
+        },
+        {
+          "line": 379,
+          "text": "\t\t}"
+        },
+        {
+          "line": 380,
+          "text": "\t\tif(e.getOption().equalsIgnoreCase(\"shut\")) {"
+        },
+        {
+          "line": 381,
+          "text": "\t\t\tp.setNextAnimation(new Animation(536));"
+        },
+        {
+          "line": 382,
+          "text": "\t\t\tp.lock(2);"
+        },
+        {
+          "line": 383,
+          "text": "\t\t\tGameObject openedChest = new GameObject(obj.getId() - 1, obj.getType(), obj.getRotation(), obj.getX(), obj.getY(), obj.getPlane());"
+        },
+        {
+          "line": 384,
+          "text": "\t\t\tp.faceObject(openedChest);"
+        },
+        {
+          "line": 385,
+          "text": "\t\t\tWorld.spawnObjectTemporary(openedChest, Ticks.fromMinutes(1));"
+        },
+        {
+          "line": 386,
+          "text": "\t\t}"
+        },
+        {
+          "line": 387,
+          "text": "\t\tif(e.getOption().equalsIgnoreCase(\"search\"))"
+        },
+        {
+          "line": 388,
+          "text": "\t\t\tif(p.getInventory().containsItem(MAGNET, 1))"
+        },
+        {
+          "line": 389,
+          "text": "\t\t\t\tp.sendMessage(\"The cupboard is empty.\");"
+        },
+        {
+          "line": 390,
+          "text": "\t\t\telse if(p.getInventory().hasFreeSlots())"
+        },
+        {
+          "line": 391,
+          "text": "\t\t\t\tp.getInventory().addItem(new Item(MAGNET, 1));"
+        },
+        {
+          "line": 392,
+          "text": "\t\t\telse"
+        },
+        {
+          "line": 393,
+          "text": "\t\t\t\tp.sendMessage(\"You need more inventory space.\");"
+        },
+        {
+          "line": 394,
+          "text": "\t});"
+        },
+        {
+          "line": 395,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "path": "sources/tipit-20120825005349-text.txt",
+      "sha256": "bfb5cc486a62446b16311a6105824ce858e56e73fc4ad41e6ed970100e9fc9ec",
+      "lines": [
+        {
+          "line": 66,
+          "text": "Items: Leather gloves (spawn south of Edgeville bank, or make/buy them), Cheese (spawn at the house of Aggie the Witch in Draynor)."
+        },
+        {
+          "line": 77,
+          "text": "3. Go downstairs into the basement. While wearing your leather gloves, go through the gate and search the cupboard for the magnet. Go back upstairs and into the little room with the door that leads to the garden and drop your cheese. Suddenly a mouse will come out! Attach the magnet to the mouse and it will unlock the door. Caution: Be fast! The mouse disappears in about 20 seconds and you lose your cheese if you fail to attach the magnet in time."
+        }
+      ]
+    },
+    {
+      "path": "sources/sals-20121018060604-text.txt",
+      "sha256": "2d36bbb36126184661af923af811548a65f7d111d947a4a44e4e894723a6db9f",
+      "lines": [
+        {
+          "line": 51,
+          "text": "Now, go down the ladder, and put your gloves on. If you forgot to bring gloves, search the boxes and crates until you get some. Now open the gate (with Gloves on or you will be dealt damage), and search the cupboard on the wall to get a magnet."
+        },
+        {
+          "line": 52,
+          "text": "Now, once you have the magnet, head back out through the gates and upstairs. Go to the small southern room. Use your cheese on the mouse hole. This will lure the mouse out of the hole; quickly use the magnet on the mouse while it's out. When it goes back in its hole, the door to the garden will unlock."
+        }
+      ]
+    },
+    {
+      "path": "sources/runehq-20121103135007-text.txt",
+      "sha256": "0dc26aed2b31382c2c01199bf5b68d8a2fa216de70daad17f95fb3c39587fb1d",
+      "lines": [
+        {
+          "line": 80,
+          "text": "Open the door to the north and go down the ladder into the basement. Put on the Leather gloves and go through the gate. Open and search the wall cupboard for a Magnet."
+        },
+        {
+          "line": 81,
+          "text": "Note: Make sure you are wearing the Leather gloves when you try to open the gate, or you will be dealt some damage. If you forgot to bring the gloves, then search the nearby crates, boxes, and sacks until you find a set of gloves."
+        }
+      ]
+    },
+    {
+      "path": "sources/cache-727-items.txt",
+      "sha256": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "lines": [
+        {
+          "line": 4,
+          "text": "2410\tMagnet\tmodel=2798\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, drop]"
+        },
+        {
+          "line": 6,
+          "text": "1059\tLeather gloves\tmodel=58609\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=true\toptions=[null, Wear, null, null, drop]"
+        }
+      ]
+    },
+    {
+      "path": "sources/cache-742-items.txt",
+      "sha256": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "lines": [
+        {
+          "line": 4,
+          "text": "2410\tMagnet\tmodel=2798\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, drop]"
+        },
+        {
+          "line": 6,
+          "text": "1059\tLeather gloves\tmodel=58609\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=true\toptions=[null, Wear, null, null, drop]"
+        }
+      ]
+    }
+  ],
+  "3_complete_route": [
+    {
+      "path": "sources/witchs-house-6474931.txt",
+      "sha256": "b89036019923a1922f60068293aa7e334358a1631b54155f29863c5a5be9ffe1",
+      "lines": [
+        {
+          "line": 34,
+          "text": "The start point of '''Witch's House''' is located South of [[Taverley]] and directly West of [[Falador]], near the building on the shore. Talk to the crying [[Boy]]. He tells you that he accidentally kicked his ball over into the garden and he asks you to retrieve it for him."
+        },
+        {
+          "line": 36,
+          "text": "After accepting the quest, head west to the front door of the house just north of the boy, where [[Nora T. Hagg]] lives. Search the pot, north of the door, to find a key."
+        },
+        {
+          "line": 51,
+          "text": "Use the cheese with the Mouse Hole on the eastern wall and a mouse will appear. Use the magnet on the mouse and through a mechanism, it will unlock the door."
+        },
+        {
+          "line": 57,
+          "text": "Once you are in the garden you will see [[Nora T. Hagg]] walking up and down the middle."
+        },
+        {
+          "line": 59,
+          "text": "*The trick is to use the [[hedge]]s so she will not see you. Simply hide behind the hedge walls, and only move when the witch's back is turned to you."
+        },
+        {
+          "line": 61,
+          "text": "*If the witch catches you, she will teleport you outside the house."
+        },
+        {
+          "line": 63,
+          "text": "Make your way all the way around until you reach the fountain. Search around the sides of the fountain and you will find the [[Key (Witch's shed)|key]] to the shed."
+        },
+        {
+          "line": 65,
+          "text": "If you have been spotted by the Witch, with the key from the fountain in your inventory, you '''DO''' need to collect another one to open the shed."
+        },
+        {
+          "line": 71,
+          "text": "Make your way to the shed and use the key on it. Attack the [[Witch's experiment]]. '''Do not take the ball yet.''' If you do, your combat stats will be decreased."
+        },
+        {
+          "line": 76,
+          "text": "Each time you kill the experiment, its next form will appear. You will have to kill the experiment a total of four times before it is defeated, the first stage being a '''Skavid''' (level 19), then a '''Spider''' (level 30), then a '''Bear''' (level 42) and finally a '''Wolf''' (level 53)."
+        },
+        {
+          "line": 78,
+          "text": "Once you have killed the experiment in all of its forms, take the ball and head out. As before, '''do not''' let the witch see you or she will teleport you outside and you will lose the ball."
+        },
+        {
+          "line": 79,
+          "text": "*You can, however, teleport yourself out once you have got the ball, without losing it."
+        },
+        {
+          "line": 81,
+          "text": "*If you are caught, you do not need to obtain a magnet or the key from the fountain again - both doors remain unlocked."
+        },
+        {
+          "line": 83,
+          "text": "Finally, after escaping the house with the ball, give it back to the boy to complete the quest."
+        },
+        {
+          "line": 87,
+          "text": "*4 [[Quest points]]"
+        },
+        {
+          "line": 88,
+          "text": "*6,325 {{Skill clickpic|Constitution}} [[Constitution]] experience"
+        },
+        {
+          "line": 89,
+          "text": "*2 extra spins on the [[Squeal of Fortune]]"
+        }
+      ]
+    },
+    {
+      "path": "sources/restoration-period-guide.txt",
+      "sha256": "08579fdc73855d0135240a1c40a8628db3ad6948479e15cc25bc6a228d879b5e",
+      "lines": [
+        {
+          "line": 61,
+          "text": "*If the witch catches you, she will teleport you outside the house, and you will lose any items you collected while in the house. The door that requires cheese will lock again, requiring another magnet and a piece of [[cheese]]."
+        },
+        {
+          "line": 65,
+          "text": "If you have been spotted by the Witch, with the key from the fountain in your inventory, you '''DO''' need to collect another one to open the shed."
+        },
+        {
+          "line": 81,
+          "text": "*If you are caught, you do not need to obtain a magnet or the key from the fountain again - both doors remain unlocked."
+        }
+      ]
+    },
+    {
+      "path": "sources/current-darkan-WitchsHouse.java.txt",
+      "sha256": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413",
+      "lines": [
+        {
+          "line": 177,
+          "text": "\tpublic static NPCDeathHandler handleExperiment1 = new NPCDeathHandler(EXPERIMENT1, e -> {"
+        },
+        {
+          "line": 178,
+          "text": "\t\tif (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {"
+        },
+        {
+          "line": 179,
+          "text": "\t\t\tNPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT2, Tile.of(2927, 3363, 0), true);"
+        },
+        {
+          "line": 180,
+          "text": "\t\t\tnext.setCombatTarget(e.getKiller());"
+        },
+        {
+          "line": 181,
+          "text": "\t\t}"
+        },
+        {
+          "line": 182,
+          "text": "\t});"
+        },
+        {
+          "line": 183,
+          "text": ""
+        },
+        {
+          "line": 184,
+          "text": "\tpublic static NPCDeathHandler handleExperiment2 = new NPCDeathHandler(EXPERIMENT2, e -> {"
+        },
+        {
+          "line": 185,
+          "text": "\t\tif (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {"
+        },
+        {
+          "line": 186,
+          "text": "\t\t\tNPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT3, Tile.of(2927, 3363, 0), true);"
+        },
+        {
+          "line": 187,
+          "text": "\t\t\tnext.setCombatTarget(e.getKiller());"
+        },
+        {
+          "line": 188,
+          "text": "\t\t}"
+        },
+        {
+          "line": 189,
+          "text": "\t});"
+        },
+        {
+          "line": 190,
+          "text": ""
+        },
+        {
+          "line": 191,
+          "text": "\tpublic static NPCDeathHandler handleExperiment3 = new NPCDeathHandler(EXPERIMENT3, e -> {"
+        },
+        {
+          "line": 192,
+          "text": "\t\tif (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {"
+        },
+        {
+          "line": 193,
+          "text": "\t\t\tNPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT4, Tile.of(2927, 3363, 0), true);"
+        },
+        {
+          "line": 194,
+          "text": "\t\t\tnext.setCombatTarget(e.getKiller());"
+        },
+        {
+          "line": 195,
+          "text": "\t\t}"
+        },
+        {
+          "line": 196,
+          "text": "\t});"
+        },
+        {
+          "line": 197,
+          "text": ""
+        },
+        {
+          "line": 198,
+          "text": "\tpublic static NPCDeathHandler handleExperiment4 = new NPCDeathHandler(EXPERIMENT4, e-> {"
+        },
+        {
+          "line": 199,
+          "text": "\t\tif (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {"
+        },
+        {
+          "line": 200,
+          "text": "\t\t\tPlayer p = (Player) e.getKiller();"
+        },
+        {
+          "line": 201,
+          "text": "\t\t\tif (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) == FIND_BALL)"
+        },
+        {
+          "line": 202,
+          "text": "\t\t\t\tp.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(KILLED_EXPERIMENT, true);"
+        },
+        {
+          "line": 203,
+          "text": "\t\t}"
+        },
+        {
+          "line": 204,
+          "text": "\t});"
+        },
+        {
+          "line": 205,
+          "text": ""
+        },
+        {
+          "line": 206,
+          "text": "\tpublic static PickupItemHandler handleBallPickup = new PickupItemHandler(new Object[] { BALL }, Tile.of(2927, 3360, 0), e -> {"
+        },
+        {
+          "line": 207,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 208,
+          "text": "\t\tif(p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL) {"
+        },
+        {
+          "line": 209,
+          "text": "\t\t\te.cancelPickup();"
+        },
+        {
+          "line": 210,
+          "text": "\t\t\tp.startConversation(new Dialogue().addSimple(\"I better not touch it...\"));"
+        },
+        {
+          "line": 211,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 212,
+          "text": "\t\t}"
+        },
+        {
+          "line": 213,
+          "text": "\t\tif(!p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT)) {"
+        },
+        {
+          "line": 214,
+          "text": "\t\t\tfor(NPC npc : World.getNPCsInChunkRange(e.getPlayer().getChunkId(), 1))"
+        },
+        {
+          "line": 215,
+          "text": "\t\t\t\tif(npc instanceof OwnedNPC experiment && experiment.getOwner() == p"
+        },
+        {
+          "line": 216,
+          "text": "\t\t\t\t\t\t&& (npc.getId() == EXPERIMENT1 || npc.getId() == EXPERIMENT2 || npc.getId() == EXPERIMENT3 || npc.getId() == EXPERIMENT4))"
+        },
+        {
+          "line": 217,
+          "text": "\t\t\t\t\tnpc.setCombatTarget(p);"
+        },
+        {
+          "line": 218,
+          "text": "\t\t\te.cancelPickup();"
+        },
+        {
+          "line": 219,
+          "text": "\t\t\tp.sendMessage(\"The experiment won't let you pick up the ball\");"
+        },
+        {
+          "line": 220,
+          "text": "\t\t}"
+        },
+        {
+          "line": 267,
+          "text": "\t\t\te.getPlayer().getInventory().removeItems(new Item(1985, 1));"
+        },
+        {
+          "line": 292,
+          "text": "\tpublic static ItemOnNPCHandler handleItemOnMouse = new ItemOnNPCHandler(MOUSE, e -> {"
+        },
+        {
+          "line": 293,
+          "text": "\t\tif(e.getItem().getId() == MAGNET && e.getNPC() instanceof OwnedNPC mouse && mouse.getOwner() == e.getPlayer()) {"
+        },
+        {
+          "line": 294,
+          "text": "\t\t\te.getPlayer().startConversation(new Conversation(e.getPlayer()) {"
+        },
+        {
+          "line": 295,
+          "text": "\t\t\t\t{"
+        },
+        {
+          "line": 296,
+          "text": "\t\t\t\t\taddSimple(\"You attach the magnet to the mouse's harness. The mouse finishes the cheese and runs back into its hole. You hear some\" +"
+        },
+        {
+          "line": 297,
+          "text": "\t\t\t\t\t\t\t\" odd noises from inside the walls. There is a strange whirring noise from above the door frame.\");"
+        },
+        {
+          "line": 298,
+          "text": "\t\t\t\t\tcreate();"
+        },
+        {
+          "line": 299,
+          "text": "\t\t\t\t}"
+        },
+        {
+          "line": 300,
+          "text": "\t\t\t});"
+        },
+        {
+          "line": 301,
+          "text": "\t\t\te.getNPC().finish();"
+        },
+        {
+          "line": 302,
+          "text": "\t\t\te.getPlayer().getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(MOUSE_SOLVED, true);"
+        },
+        {
+          "line": 355,
+          "text": "\tstatic void handleCaughtByWitch(Player player) {"
+        },
+        {
+          "line": 356,
+          "text": "\t\tboolean defeatedExperiment = player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT);"
+        },
+        {
+          "line": 357,
+          "text": "\t\tplayer.getInventory().deleteItem(BALL, player.getInventory().getAmountOf(BALL));"
+        },
+        {
+          "line": 358,
+          "text": "\t\tplayer.getInventory().deleteItem(WITCH_DIARY, player.getInventory().getAmountOf(WITCH_DIARY));"
+        },
+        {
+          "line": 359,
+          "text": "\t\tplayer.getInventory().deleteItem(BACKROOM_KEY, player.getInventory().getAmountOf(BACKROOM_KEY));"
+        },
+        {
+          "line": 360,
+          "text": "\t\tif (player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(COLLECTED_BASEMENT_GLOVES)) {"
+        },
+        {
+          "line": 361,
+          "text": "\t\t\tplayer.getInventory().deleteItem(1059, 1);"
+        },
+        {
+          "line": 362,
+          "text": "\t\t\tplayer.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(COLLECTED_BASEMENT_GLOVES, false);"
+        },
+        {
+          "line": 363,
+          "text": "\t\t}"
+        },
+        {
+          "line": 364,
+          "text": "\t\tif (!defeatedExperiment) {"
+        },
+        {
+          "line": 365,
+          "text": "\t\t\tplayer.getInventory().deleteItem(MAGNET, player.getInventory().getAmountOf(MAGNET));"
+        },
+        {
+          "line": 366,
+          "text": "\t\t\tplayer.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(MOUSE_SOLVED, false);"
+        },
+        {
+          "line": 367,
+          "text": "\t\t}"
+        },
+        {
+          "line": 368,
+          "text": "\t}"
+        }
+      ]
+    },
+    {
+      "path": "sources/supplying-boy.txt",
+      "sha256": "2af1646e7049f72f2b88b967b8fd8fb34d8bc3850838477b97ee85d9aa8ad19a",
+      "lines": [
+        {
+          "line": 66,
+          "text": "\t\tcase FIND_BALL -> {"
+        },
+        {
+          "line": 67,
+          "text": "\t\t\tif(player.getInventory().containsItem(BALL, 1)) {"
+        },
+        {
+          "line": 68,
+          "text": "\t\t\t\taddPlayer(HeadE.HAPPY_TALKING, \"Hi, I have got your ball back. It was MUCH harder than I thought it would be.\");"
+        },
+        {
+          "line": 69,
+          "text": "\t\t\t\taddSimple(\"You give the ball back.\");"
+        },
+        {
+          "line": 70,
+          "text": "\t\t\t\taddNPC(BOY, HeadE.CHEERFUL, \"Thank you so much!\");"
+        },
+        {
+          "line": 71,
+          "text": "\t\t\t\taddNext(() -> {"
+        },
+        {
+          "line": 72,
+          "text": "\t\t\t\t\tplayer.getInventory().removeItems(new Item(BALL, 1));"
+        },
+        {
+          "line": 73,
+          "text": "\t\t\t\t\tplayer.getQuestManager().completeQuest(Quest.WITCHS_HOUSE);"
+        },
+        {
+          "line": 74,
+          "text": "\t\t\t\t});"
+        },
+        {
+          "line": 75,
+          "text": "\t\t\t} else {"
+        },
+        {
+          "line": 76,
+          "text": "\t\t\t\taddNPC(BOY, HeadE.CHILD_HAPPY_TALK, \"I can't wait to get my ball...\");"
+        },
+        {
+          "line": 77,
+          "text": "\t\t\t\taddPlayer(HeadE.CALM, \"...\");"
+        },
+        {
+          "line": 78,
+          "text": "\t\t\t}"
+        },
+        {
+          "line": 79,
+          "text": "\t\t}"
+        },
+        {
+          "line": 80,
+          "text": "\t\tcase QUEST_COMPLETE -> {"
+        },
+        {
+          "line": 81,
+          "text": "\t\t\taddNPC(BOY, HeadE.CHILD_SAD, \"I kicked my ball into the witch's garden again...\");"
+        },
+        {
+          "line": 82,
+          "text": "\t\t\taddPlayer(HeadE.FRUSTRATED, \"I am not getting it for you again...\");"
+        },
+        {
+          "line": 83,
+          "text": "\t\t}"
+        },
+        {
+          "line": 84,
+          "text": "\t\t}"
+        },
+        {
+          "line": 85,
+          "text": "\t}"
+        }
+      ]
+    },
+    {
+      "path": "sources/tipit-20120825005349-text.txt",
+      "sha256": "bfb5cc486a62446b16311a6105824ce858e56e73fc4ad41e6ed970100e9fc9ec",
+      "lines": [
+        {
+          "line": 73,
+          "text": "1. Make your way west of Falador. The witch's house is directly west of the agility shortcut over the crumbling wall. South of the house is a little boy standing by the hedge. Talk to him and he asks if you can get his ball back for him."
+        },
+        {
+          "line": 75,
+          "text": "2. Make your way around the hedge to the door of the house. You find that it is locked. The door key is under the first pot to your left. Go in the door, take the diary on the table near you, and read it."
+        },
+        {
+          "line": 77,
+          "text": "3. Go downstairs into the basement. While wearing your leather gloves, go through the gate and search the cupboard for the magnet. Go back upstairs and into the little room with the door that leads to the garden and drop your cheese. Suddenly a mouse will come out! Attach the magnet to the mouse and it will unlock the door. Caution: Be fast! The mouse disappears in about 20 seconds and you lose your cheese if you fail to attach the magnet in time."
+        },
+        {
+          "line": 79,
+          "text": "4. Now you are in the garden. You will see the witch patrolling the garden. The tricky part here is to not let her see you! If she does, she teleports you outside of the house and takes away the magnet from the mouse. You will have to go in all over again. Make your way all the way round until you reach the fountain. Search around the sides of the fountain (may take several attempts but it is there) and you will find the key to the shed."
+        },
+        {
+          "line": 80,
+          "text": "Note: You must have read the whole diary to find the key."
+        },
+        {
+          "line": 82,
+          "text": "5. Head for the shed and use the key on it. When you try to take the ball, a shape shifter or \"Witches Experiment\" will appear and turn into 4 different monsters, each one harder than the other: it's original form, a spider, a bear and a wolf. Once you beat all four forms of the Shape Shifter, take the ball. Be careful not to get caught on your way out or you'll have to start again! Give the ball to the boy to complete the quest. You can only re-enter the witches house again while doing the Grim Tales quest."
+        },
+        {
+          "line": 83,
+          "text": "Note: When you have the ball, you must still not be seen by the witch. If she sees you, you'll be teleported out, and you will lose the key to the shed and the ball. If you prefer you can teleport away to not be seen."
+        },
+        {
+          "line": 85,
+          "text": "6,325 Constitution experience"
+        },
+        {
+          "line": 86,
+          "text": "Quest points gained upon completion: 4"
+        }
+      ]
+    },
+    {
+      "path": "sources/sals-20121018060604-text.txt",
+      "sha256": "2d36bbb36126184661af923af811548a65f7d111d947a4a44e4e894723a6db9f",
+      "lines": [
+        {
+          "line": 55,
+          "text": "This is actually very simple, just make sure the old lady (Nora T. Hagg) doesn't catch you. Move from hedge to hedge while she isn't around. When she walks by you, make sure you are in the center of the hedge or you may get caught."
+        },
+        {
+          "line": 56,
+          "text": "If you do get caught, you'll be teleported out of the house and have to start all over. When you do make it to the shed, you'll find out that it is locked. Continue hiding behind hedges on the northern side to get to the fountain. Make sure you've read the entire Diary. Then check the fountain for a secret compartment and you'll find the key."
+        },
+        {
+          "line": 57,
+          "text": "Return to the shed once again and use the key on the door. Be prepared for a fight. If you think you're ready, grab the ball and the first form of the experiment, level 19, will attack you. You will have to kill all four forms to be able to grab the ball. The forms are:"
+        },
+        {
+          "line": 58,
+          "text": "Level: 19 - Odd Experiment"
+        },
+        {
+          "line": 59,
+          "text": "Level: 30 - Spider"
+        },
+        {
+          "line": 60,
+          "text": "Level: 42 - Bear"
+        },
+        {
+          "line": 61,
+          "text": "Level: 53 - Wolf"
+        },
+        {
+          "line": 62,
+          "text": "If you flee at any time, you will have to start the battle over again. Once you've killed the fourth form (Wolf), you are able to grab the ball. Grab the ball and exit the shed, you aren't able to teleport."
+        },
+        {
+          "line": 63,
+          "text": "Note: If the Witch catches you, you will be teleported outside, without the ball. You will have to go back in and get the ball again, but you will not have to fight the experiments again."
+        },
+        {
+          "line": 64,
+          "text": "You are going to have to sneak past the witch to her house for the last time. Once at her house, go through the doors and leave. Now return to the boy. Talk to him and give him the ball back."
+        }
+      ]
+    },
+    {
+      "path": "sources/runehq-20121103135007-text.txt",
+      "sha256": "0dc26aed2b31382c2c01199bf5b68d8a2fa216de70daad17f95fb3c39587fb1d",
+      "lines": [
+        {
+          "line": 82,
+          "text": "Head back upstairs to the main room, and enter the small room to the south. Use the piece of Cheese with the mouse hole to lure the mouse out. Then, quickly use the Magnet with the mouse. It will flee back into its hole and with it unlocking the door to the garden."
+        },
+        {
+          "line": 83,
+          "text": "Note: If you leave the house, then you will have to gather another piece of Cheese to unlock the door to the garden again."
+        },
+        {
+          "line": 84,
+          "text": "Enter the garden and make your way to the shed at the very end of it. Hide behind the hedges as the witch walks by to prevent her from seeing you. Make sure you are standing next to the center of each hedge or she will still be able to catch you. When you have made it to the shed, try to open the door only to find out that it is locked."
+        },
+        {
+          "line": 85,
+          "text": "Note: If Nora T. Hagg does catch you, she will teleport you out of her house and take the ball and key. You will then have to gather another piece of Cheese to unlock the door to the garden again and start all over."
+        },
+        {
+          "line": 86,
+          "text": "Walk along the hedges towards the fountain on the other end of the garden and check it to find a Key. Remember to stay hidden when the witch approaches."
+        },
+        {
+          "line": 87,
+          "text": "Note: In order to obtain the Key from the fountain, you must have read the Diary and need to have it your inventory."
+        },
+        {
+          "line": 88,
+          "text": "Return to the shed and use the Key to access it. When you enter it and try to grab the Ball, the Witch's experiment you will attack you. You must have defeated all its four forms before you will be able to grab the Ball."
+        },
+        {
+          "line": 89,
+          "text": "1st form: Experiment (level 19)"
+        },
+        {
+          "line": 90,
+          "text": "2nd form: Spider (level 30)"
+        },
+        {
+          "line": 91,
+          "text": "3rd form: Bear (level 42)"
+        },
+        {
+          "line": 92,
+          "text": "4th form: Wolf (level 53)"
+        },
+        {
+          "line": 93,
+          "text": "Note: If you leave the shed during the battle, you will have to kill the Experiment's previous forms again. So make sure you have enough food to eat when you enter the shed. There is, however, a safespot between the sacks and a crate."
+        },
+        {
+          "line": 94,
+          "text": "Once you have defeated the Experiment, grab the Ball. And you can teleport out and give the Ball back to the Boy."
+        }
+      ]
+    }
+  ],
+  "4_product_transaction_and_persistence": [
+    {
+      "path": "sources/ankiscape-logic_pure__logic_pure_quest.py.txt",
+      "sha256": "564db4d91400e100a59c7c6caca9377df337a058e4a7b2059129b515d3d6d790",
+      "lines": [
+        {
+          "line": 390,
+          "text": "    inventory = player_data.get(\"inventory\", {}) or {}"
+        },
+        {
+          "line": 391,
+          "text": "    # The belt holds one of each tool; a stage asking for several wants stock."
+        },
+        {
+          "line": 392,
+          "text": "    if inventory.get(tool_name, 0) >= amount or (amount == 1 and tool_on_belt(player_data, tool_name)):"
+        },
+        {
+          "line": 393,
+          "text": "        return True"
+        },
+        {
+          "line": 394,
+          "text": "    equipment = player_data.get(\"equipment\", {}) or {}"
+        },
+        {
+          "line": 395,
+          "text": "    if isinstance(equipment, Mapping) and tool_name in {str(item_name) for item_name in equipment.values()}:"
+        },
+        {
+          "line": 396,
+          "text": "        return True"
+        },
+        {
+          "line": 397,
+          "text": "    suffixes = _GENERIC_TOOL_SUFFIXES.get(tool_name.lower())"
+        },
+        {
+          "line": 398,
+          "text": "    return bool(suffixes) and any("
+        },
+        {
+          "line": 399,
+          "text": "        str(name).lower().endswith(suffixes) and count >= amount for name, count in inventory.items()"
+        },
+        {
+          "line": 400,
+          "text": "    )"
+        },
+        {
+          "line": 729,
+          "text": "    for tool_name, amount in _quest_stage_item_pairs(requirement, \"required_tools\"):"
+        },
+        {
+          "line": 730,
+          "text": "        if not _has_quest_tool(player_data, tool_name, amount):"
+        },
+        {
+          "line": 731,
+          "text": "            quantity = f\" x{amount}\" if amount > 1 else \"\""
+        },
+        {
+          "line": 732,
+          "text": "            blockers.append("
+        },
+        {
+          "line": 733,
+          "text": "                _quest_blocker("
+        },
+        {
+          "line": 734,
+          "text": "                    stage,"
+        },
+        {
+          "line": 735,
+          "text": "                    \"missing_tool\","
+        },
+        {
+          "line": 736,
+          "text": "                    f\"Needs {tool_name}{quantity}\","
+        },
+        {
+          "line": 737,
+          "text": "                    source,"
+        },
+        {
+          "line": 738,
+          "text": "                    tool_name=tool_name,"
+        },
+        {
+          "line": 739,
+          "text": "                    quantity=amount,"
+        },
+        {
+          "line": 740,
+          "text": "                )"
+        },
+        {
+          "line": 741,
+          "text": "            )"
+        },
+        {
+          "line": 742,
+          "text": ""
+        },
+        {
+          "line": 743,
+          "text": "    for action_id in _quest_stage_strings(requirement, \"required_actions\"):"
+        },
+        {
+          "line": 744,
+          "text": "        if not quest_action_proof_completed_pure(player_data, action_id):"
+        },
+        {
+          "line": 745,
+          "text": "            blockers.append("
+        },
+        {
+          "line": 746,
+          "text": "                _quest_blocker("
+        },
+        {
+          "line": 747,
+          "text": "                    stage,"
+        },
+        {
+          "line": 748,
+          "text": "                    \"required_action\","
+        },
+        {
+          "line": 749,
+          "text": "                    f\"Action required: {action_id}\","
+        },
+        {
+          "line": 750,
+          "text": "                    source,"
+        },
+        {
+          "line": 751,
+          "text": "                    action_id=action_id,"
+        },
+        {
+          "line": 752,
+          "text": "                )"
+        },
+        {
+          "line": 1088,
+          "text": "    inventory = data[\"inventory\"]"
+        },
+        {
+          "line": 1089,
+          "text": "    requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})"
+        },
+        {
+          "line": 1090,
+          "text": "    if blockers:"
+        },
+        {
+          "line": 1091,
+          "text": "        return"
+        },
+        {
+          "line": 1092,
+          "text": "    for requirement in requirements:"
+        },
+        {
+          "line": 1093,
+          "text": "        record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, \"auto_actions\"))"
+        },
+        {
+          "line": 1094,
+          "text": "        for item_name, amount in _quest_stage_item_pairs(requirement, \"consumed_inventory\"):"
+        },
+        {
+          "line": 1095,
+          "text": "            inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)"
+        },
+        {
+          "line": 1096,
+          "text": "        for options in _quest_stage_item_option_groups(requirement, \"consumed_inventory_options\"):"
+        },
+        {
+          "line": 1097,
+          "text": "            for item_name, amount in options:"
+        },
+        {
+          "line": 1098,
+          "text": "                if _positive_int(inventory.get(item_name, 0), 0) >= amount:"
+        },
+        {
+          "line": 1099,
+          "text": "                    inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)"
+        },
+        {
+          "line": 1100,
+          "text": "                    break"
+        },
+        {
+          "line": 1101,
+          "text": "        if bool(requirement.get(\"repeatable_until_consumed\")):"
+        },
+        {
+          "line": 1102,
+          "text": "            continue"
+        },
+        {
+          "line": 1103,
+          "text": "        for item_name, amount in _quest_stage_item_pairs(requirement, \"produced_inventory\"):"
+        },
+        {
+          "line": 1104,
+          "text": "            inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount"
+        },
+        {
+          "line": 1318,
+          "text": "def apply_quest_progress_pure("
+        },
+        {
+          "line": 1319,
+          "text": "    player_data, quest_id, quest_data, *, include_clue_refusal=False"
+        },
+        {
+          "line": 1320,
+          "text": "):"
+        },
+        {
+          "line": 1321,
+          "text": "    empty_refusal = (\"\",) if include_clue_refusal else ()"
+        },
+        {
+          "line": 1322,
+          "text": "    data, ok = start_quest_pure(player_data, quest_id, quest_data, assign_greeting=False)"
+        },
+        {
+          "line": 1323,
+          "text": "    state = quest_state_pure(data, quest_id)"
+        },
+        {
+          "line": 1324,
+          "text": "    if not ok or state[\"completed\"]:"
+        },
+        {
+          "line": 1325,
+          "text": "        return (data, False, False, *empty_refusal)"
+        },
+        {
+          "line": 1326,
+          "text": "    blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)"
+        },
+        {
+          "line": 1327,
+          "text": "    data, repair_result = apply_oronwen_review_pure(data, quest_id, blockers)"
+        },
+        {
+          "line": 1328,
+          "text": "    if repair_result == \"handed_in\":"
+        },
+        {
+          "line": 1329,
+          "text": "        return (data, True, False, *empty_refusal)"
+        },
+        {
+          "line": 1330,
+          "text": "    if repair_result == \"collected\":"
+        },
+        {
+          "line": 1331,
+          "text": "        blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)"
+        },
+        {
+          "line": 1332,
+          "text": "    if blockers:"
+        },
+        {
+          "line": 1333,
+          "text": "        return (player_data, False, False, *empty_refusal)"
+        },
+        {
+          "line": 1334,
+          "text": "    quest = quest_data[quest_id]"
+        },
+        {
+          "line": 1335,
+          "text": "    if quest_id == \"cold_war\":"
+        },
+        {
+          "line": 1336,
+          "text": "        data[\"cold_war_greeting\"] = ensure_cold_war_greeting_pure(data)"
+        },
+        {
+          "line": 1337,
+          "text": "    current_stage = quest_current_stage_pure(data, quest_id, quest_data)"
+        },
+        {
+          "line": 1338,
+          "text": "    if _produce_repeatable_quest_stage_items(data, quest_id, quest):"
+        },
+        {
+          "line": 1339,
+          "text": "        state[\"progress\"] = current_stage"
+        },
+        {
+          "line": 1340,
+          "text": "        data.setdefault(\"quests\", {})[quest_id] = state"
+        },
+        {
+          "line": 1341,
+          "text": "        return (data, True, False, *empty_refusal)"
+        },
+        {
+          "line": 1342,
+          "text": "    _consume_quest_current_stage_items(data, quest_id, quest)"
+        },
+        {
+          "line": 1343,
+          "text": "    total_stages = _positive_int(quest.get(\"stages\", 1), 1)"
+        },
+        {
+          "line": 1344,
+          "text": "    state[\"progress\"] = min(total_stages, current_stage + 1)"
+        },
+        {
+          "line": 1345,
+          "text": "    completed_now = state[\"progress\"] >= total_stages"
+        },
+        {
+          "line": 1346,
+          "text": "    clue_reward_refusal_reason = \"\""
+        },
+        {
+          "line": 1347,
+          "text": "    if completed_now:"
+        },
+        {
+          "line": 1348,
+          "text": "        state[\"completed\"] = True"
+        },
+        {
+          "line": 1349,
+          "text": "        data[\"quest_points\"] = max(0, _positive_int(data.get(\"quest_points\", 0), 0)) + _positive_int(quest.get(\"point_reward\", 0), 0)"
+        },
+        {
+          "line": 1350,
+          "text": "        inventory = data[\"inventory\"]"
+        },
+        {
+          "line": 1351,
+          "text": "        offered_rewards = quest.get(\"rewards\", {}) or {}"
+        },
+        {
+          "line": 1352,
+          "text": "        rewards = filter_clue_scroll_outputs_pure(data, offered_rewards)"
+        },
+        {
+          "line": 1353,
+          "text": "        clue_reward_refusal_reason = clue_refusal_reason_pure("
+        },
+        {
+          "line": 1354,
+          "text": "            player_data, offered_rewards, rewards"
+        },
+        {
+          "line": 1355,
+          "text": "        )"
+        },
+        {
+          "line": 1356,
+          "text": "        for item_name, amount in rewards.items():"
+        },
+        {
+          "line": 1357,
+          "text": "            inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)"
+        },
+        {
+          "line": 1358,
+          "text": "        if quest_id == \"family_crest\":"
+        },
+        {
+          "line": 1359,
+          "text": "            data[\"family_gauntlet_enchantment\"] = \"family\""
+        },
+        {
+          "line": 1360,
+          "text": "        if quest_id == \"nomads_requiem\":"
+        },
+        {
+          "line": 1361,
+          "text": "            # Nomad's Requiem pays 70 Zeal points, a Soul Wars currency, not an"
+        },
+        {
+          "line": 1362,
+          "text": "            # inventory item (RuneScape Wiki Nomad's Requiem oldid=6386610)."
+        },
+        {
+          "line": 1363,
+          "text": "            data[\"soul_wars_zeal\"] = min("
+        },
+        {
+          "line": 1364,
+          "text": "                SOUL_WARS_ZEAL_CAP,"
+        },
+        {
+          "line": 1365,
+          "text": "                max(0, int(data.get(\"soul_wars_zeal\") or 0)) + 70,"
+        },
+        {
+          "line": 1366,
+          "text": "            )"
+        },
+        {
+          "line": 1367,
+          "text": "        _apply_quest_xp_rewards(data, quest)"
+        },
+        {
+          "line": 1368,
+          "text": "    data.setdefault(\"quests\", {})[quest_id] = state"
+        },
+        {
+          "line": 1369,
+          "text": "    if include_clue_refusal:"
+        },
+        {
+          "line": 1370,
+          "text": "        return data, True, completed_now, clue_reward_refusal_reason"
+        },
+        {
+          "line": 1371,
+          "text": "    return data, True, completed_now"
+        },
+        {
+          "line": 1372,
+          "text": ""
+        },
+        {
+          "line": 1373,
+          "text": ""
+        },
+        {
+          "line": 1374,
+          "text": "def _apply_quest_xp_rewards(data, quest):"
+        },
+        {
+          "line": 1375,
+          "text": "    trainable_exp_keys = _trainable_exp_keys()"
+        },
+        {
+          "line": 1376,
+          "text": "    pending = data.get(\"pending_skill_exp_rewards\", {})"
+        },
+        {
+          "line": 1377,
+          "text": "    if not isinstance(pending, Mapping):"
+        },
+        {
+          "line": 1378,
+          "text": "        pending = {}"
+        },
+        {
+          "line": 1420,
+          "text": "def quest_journal_rows_pure(player_data, quest_id, quest_data):"
+        },
+        {
+          "line": 1421,
+          "text": "    quest = quest_data.get(quest_id)"
+        },
+        {
+          "line": 1422,
+          "text": "    if not quest:"
+        },
+        {
+          "line": 1423,
+          "text": "        return tuple()"
+        },
+        {
+          "line": 1424,
+          "text": "    state = quest_state_pure(player_data, quest_id)"
+        },
+        {
+          "line": 1425,
+          "text": "    progress = state[\"progress\"]"
+        },
+        {
+          "line": 1426,
+          "text": "    if state[\"started\"] and progress <= 0:"
+        },
+        {
+          "line": 1427,
+          "text": "        progress = 1"
+        },
+        {
+          "line": 1428,
+          "text": "    if state[\"completed\"]:"
+        },
+        {
+          "line": 1429,
+          "text": "        progress = _positive_int(quest.get(\"stages\", progress), progress)"
+        },
+        {
+          "line": 1430,
+          "text": "    journal_stages = quest.get(\"journal_stages\", {}) or {}"
+        },
+        {
+          "line": 1431,
+          "text": "    rows = []"
+        },
+        {
+          "line": 1432,
+          "text": "    for stage in sorted(journal_stages):"
+        },
+        {
+          "line": 1433,
+          "text": "        if stage > progress:"
+        },
+        {
+          "line": 1434,
+          "text": "            continue"
+        },
+        {
+          "line": 1435,
+          "text": "        rows.append("
+        },
+        {
+          "line": 1436,
+          "text": "            {"
+        },
+        {
+          "line": 1437,
+          "text": "                \"stage\": stage,"
+        },
+        {
+          "line": 1438,
+          "text": "                \"lines\": cold_war_journal_lines_pure(player_data, quest_id, stage, journal_stages.get(stage, ())),"
+        },
+        {
+          "line": 1439,
+          "text": "                \"completed\": state[\"completed\"] or stage < progress,"
+        },
+        {
+          "line": 1440,
+          "text": "                \"current\": (not state[\"completed\"] and stage == progress),"
+        },
+        {
+          "line": 1441,
+          "text": "            }"
+        },
+        {
+          "line": 1442,
+          "text": "        )"
+        },
+        {
+          "line": 1443,
+          "text": "    return tuple(rows)"
+        }
+      ]
+    },
+    {
+      "path": "sources/ankiscape-core__quest_storage.py.txt",
+      "sha256": "b8801a7f2f23dc564847afeee3f035968a817a1a0e061cc809c5817059119a8a",
+      "lines": [
+        {
+          "line": 40,
+          "text": "def _migrate_quest_state(data: Dict[str, Any]) -> None:"
+        },
+        {
+          "line": 41,
+          "text": "    quests = data.get(\"quests\")"
+        },
+        {
+          "line": 42,
+          "text": "    clean_quests = default_quest_states()"
+        },
+        {
+          "line": 43,
+          "text": "    if isinstance(quests, dict):"
+        },
+        {
+          "line": 44,
+          "text": "        for quest_id, default_state in clean_quests.items():"
+        },
+        {
+          "line": 45,
+          "text": "            raw_state = quests.get(quest_id)"
+        },
+        {
+          "line": 46,
+          "text": "            if not isinstance(raw_state, dict):"
+        },
+        {
+          "line": 47,
+          "text": "                continue"
+        },
+        {
+          "line": 48,
+          "text": "            state = dict(default_state)"
+        },
+        {
+          "line": 49,
+          "text": "            state[\"started\"] = bool(raw_state.get(\"started\", state[\"started\"]))"
+        },
+        {
+          "line": 50,
+          "text": "            state[\"completed\"] = bool(raw_state.get(\"completed\", state[\"completed\"]))"
+        },
+        {
+          "line": 51,
+          "text": "            try:"
+        },
+        {
+          "line": 52,
+          "text": "                progress = int(raw_state.get(\"progress\", state[\"progress\"]))"
+        },
+        {
+          "line": 53,
+          "text": "            except (TypeError, ValueError):"
+        },
+        {
+          "line": 54,
+          "text": "                progress = int(state[\"progress\"])"
+        },
+        {
+          "line": 55,
+          "text": "            state[\"progress\"] = max(0, progress)"
+        },
+        {
+          "line": 56,
+          "text": "            if state[\"completed\"] and state[\"progress\"] < 1:"
+        },
+        {
+          "line": 57,
+          "text": "                state[\"progress\"] = 1"
+        },
+        {
+          "line": 58,
+          "text": "            clean_quests[quest_id] = state"
+        },
+        {
+          "line": 59,
+          "text": "    data[\"quests\"] = clean_quests"
+        },
+        {
+          "line": 124,
+          "text": "def _migrate_quest_action_proofs(data, loaded_config_version, current_config_version, retired_proofs):"
+        },
+        {
+          "line": 125,
+          "text": "    proofs = sanitize_quest_action_proofs_pure(data.get(\"quest_action_proofs\")) if loaded_config_version >= 122 else []"
+        },
+        {
+          "line": 126,
+          "text": "    if loaded_config_version < current_config_version:"
+        },
+        {
+          "line": 127,
+          "text": "        proofs = [proof for proof in proofs if proof not in retired_proofs]"
+        },
+        {
+          "line": 128,
+          "text": "    data[\"quest_action_proofs\"] = proofs"
+        }
+      ]
+    },
+    {
+      "path": "sources/ankiscape-__init__.py.txt",
+      "sha256": "6e475caba39fd28c432d0faf63ed4f7ff713eb51cdb4bbf71fce02f83063bb44",
+      "lines": [
+        {
+          "line": 1147,
+          "text": "def _capture_player_data_snapshot(*, review_answer=False):"
+        },
+        {
+          "line": 1148,
+          "text": "    if review_answer:"
+        },
+        {
+          "line": 1149,
+          "text": "        before_player_data = dict(_state.player_data)"
+        },
+        {
+          "line": 1150,
+          "text": "        # Achievement checks append in place; review handlers replace their other"
+        },
+        {
+          "line": 1151,
+          "text": "        # top-level values, so only this small list needs an independent copy."
+        },
+        {
+          "line": 1152,
+          "text": "        if \"completed_achievements\" in _state.player_data:"
+        },
+        {
+          "line": 1153,
+          "text": "            before_player_data[\"completed_achievements\"] = copy.deepcopy("
+        },
+        {
+          "line": 1154,
+          "text": "                _state.player_data[\"completed_achievements\"]"
+        },
+        {
+          "line": 1155,
+          "text": "            )"
+        },
+        {
+          "line": 1156,
+          "text": "    else:"
+        },
+        {
+          "line": 1157,
+          "text": "        before_player_data = copy.deepcopy(_state.player_data)"
+        },
+        {
+          "line": 1158,
+          "text": "    return {"
+        },
+        {
+          "line": 1159,
+          "text": "        \"player_data\": before_player_data,"
+        },
+        {
+          "line": 1160,
+          "text": "        \"current_skill\": _state.current_skill,"
+        },
+        {
+          "line": 1161,
+          "text": "        \"random_state\": random.getstate(),"
+        },
+        {
+          "line": 1162,
+          "text": "        \"pending_dialogs\": len(_state.pending_review_dialogs),"
+        },
+        {
+          "line": 1163,
+          "text": "        \"pending_notice\": _state.pending_bankstanding_notice,"
+        },
+        {
+          "line": 1164,
+          "text": "    }"
+        },
+        {
+          "line": 1174,
+          "text": "def _remember_review_award_snapshot(before_state) -> None:"
+        },
+        {
+          "line": 1175,
+          "text": "    \"\"\"Keep one complete deterministic transaction snapshot for answer undo.\"\"\""
+        },
+        {
+          "line": 1176,
+          "text": "    before_player_data = before_state.get(\"player_data\", before_state)"
+        },
+        {
+          "line": 1177,
+          "text": "    changed_values = {}"
+        },
+        {
+          "line": 1178,
+          "text": "    removed_keys = []"
+        },
+        {
+          "line": 1179,
+          "text": "    all_keys = set(before_player_data) | set(_state.player_data)"
+        },
+        {
+          "line": 1180,
+          "text": "    for key in all_keys:"
+        },
+        {
+          "line": 1181,
+          "text": "        had_before = key in before_player_data"
+        },
+        {
+          "line": 1182,
+          "text": "        has_after = key in _state.player_data"
+        },
+        {
+          "line": 1183,
+          "text": "        if had_before and (not has_after or before_player_data[key] != _state.player_data[key]):"
+        },
+        {
+          "line": 1184,
+          "text": "            changed_values[key] = copy.deepcopy(before_player_data[key])"
+        },
+        {
+          "line": 1185,
+          "text": "        elif not had_before and has_after:"
+        },
+        {
+          "line": 1186,
+          "text": "            removed_keys.append(key)"
+        },
+        {
+          "line": 1187,
+          "text": ""
+        },
+        {
+          "line": 1188,
+          "text": "    skill_changed = before_state.get(\"current_skill\", _state.current_skill) != _state.current_skill"
+        },
+        {
+          "line": 1189,
+          "text": "    random_changed = before_state.get(\"random_state\") != random.getstate()"
+        },
+        {
+          "line": 1190,
+          "text": "    if not changed_values and not removed_keys and not skill_changed and not random_changed:"
+        },
+        {
+          "line": 1191,
+          "text": "        return"
+        },
+        {
+          "line": 1192,
+          "text": ""
+        },
+        {
+          "line": 1193,
+          "text": "    _state.review_undo_stack.append({"
+        },
+        {
+          "line": 1194,
+          "text": "        \"values\": changed_values,"
+        },
+        {
+          "line": 1195,
+          "text": "        \"remove\": removed_keys,"
+        },
+        {
+          "line": 1196,
+          "text": "        \"current_skill\": before_state.get(\"current_skill\", _state.current_skill),"
+        },
+        {
+          "line": 1197,
+          "text": "        \"random_state\": before_state.get(\"random_state\"),"
+        },
+        {
+          "line": 1198,
+          "text": "    })"
+        },
+        {
+          "line": 1199,
+          "text": "    if len(_state.review_undo_stack) > _MAX_REVIEW_UNDO_SNAPSHOTS:"
+        },
+        {
+          "line": 1200,
+          "text": "        del _state.review_undo_stack[:-_MAX_REVIEW_UNDO_SNAPSHOTS]"
+        },
+        {
+          "line": 1201,
+          "text": ""
+        },
+        {
+          "line": 1202,
+          "text": ""
+        },
+        {
+          "line": 1203,
+          "text": "def _save_player_data_if_anki_ready() -> None:"
+        },
+        {
+          "line": 1204,
+          "text": "    try:"
+        },
+        {
+          "line": 1256,
+          "text": "def _restore_direct_action_snapshot(snapshot) -> None:"
+        },
+        {
+          "line": 1257,
+          "text": "    _state.player_data.clear()"
+        },
+        {
+          "line": 1258,
+          "text": "    _state.player_data.update(copy.deepcopy(snapshot[\"player_data\"]))"
+        },
+        {
+          "line": 1259,
+          "text": "    _state.current_skill = snapshot.get(\"current_skill\", _state.current_skill)"
+        },
+        {
+          "line": 1260,
+          "text": "    random_state = snapshot.get(\"random_state\")"
+        },
+        {
+          "line": 1261,
+          "text": "    if random_state is not None:"
+        },
+        {
+          "line": 1262,
+          "text": "        random.setstate(random_state)"
+        },
+        {
+          "line": 1263,
+          "text": "    save_player_data()"
+        },
+        {
+          "line": 1264,
+          "text": "    try:"
+        },
+        {
+          "line": 1265,
+          "text": "        mw.col.set_config(\"ankiscape_current_skill\", _state.current_skill)"
+        },
+        {
+          "line": 1266,
+          "text": "    except (AttributeError, RuntimeError):"
+        },
+        {
+          "line": 1267,
+          "text": "        pass"
+        },
+        {
+          "line": 1268,
+          "text": "    try:"
+        },
+        {
+          "line": 1269,
+          "text": "        update_review_hud(_state.player_data, _state.current_skill)"
+        },
+        {
+          "line": 1270,
+          "text": "        update_review_status_badge("
+        },
+        {
+          "line": 1271,
+          "text": "            _state.player_data, _open_activities_sheet, _open_farming_sheet"
+        },
+        {
+          "line": 1272,
+          "text": "        )"
+        },
+        {
+          "line": 1273,
+          "text": "        update_review_fill_drawer(_state.player_data)"
+        },
+        {
+          "line": 1274,
+          "text": "        update_review_event_log_drawer(_state.player_data)"
+        },
+        {
+          "line": 1275,
+          "text": "        _update_review_bank_run_surface()"
+        },
+        {
+          "line": 1276,
+          "text": "        _update_review_context_surface()"
+        },
+        {
+          "line": 1277,
+          "text": "        _refresh_skill_availability()"
+        },
+        {
+          "line": 1278,
+          "text": "    except Exception:"
+        },
+        {
+          "line": 1279,
+          "text": "        pass"
+        },
+        {
+          "line": 1280,
+          "text": ""
+        },
+        {
+          "line": 1281,
+          "text": ""
+        },
+        {
+          "line": 1282,
+          "text": "def _on_state_did_undo(changes=None) -> None:"
+        },
+        {
+          "line": 1283,
+          "text": "    if _looks_like_direct_action_undo(changes):"
+        },
+        {
+          "line": 1284,
+          "text": "        if _state.direct_action_undo_stack:"
+        },
+        {
+          "line": 1285,
+          "text": "            _restore_direct_action_snapshot(_state.direct_action_undo_stack.pop())"
+        },
+        {
+          "line": 1286,
+          "text": "        return"
+        },
+        {
+          "line": 1287,
+          "text": "    if not _state.review_undo_stack or not _looks_like_review_undo(changes):"
+        },
+        {
+          "line": 1288,
+          "text": "        return"
+        },
+        {
+          "line": 1289,
+          "text": "    snapshot = _state.review_undo_stack.pop()"
+        }
+      ]
+    },
+    {
+      "path": "sources/game-main-game.yml.txt",
+      "sha256": "60508dbe5e12ee9d4d17d4ebde3b7380dce0ee1a22d462828dbcb81c57b70b5a",
+      "lines": [
+        {
+          "line": 5,
+          "text": "revision: 667"
+        }
+      ]
+    },
+    {
+      "path": "sources/game-main-quest_tab.plugin.kts.txt",
+      "sha256": "35d8f416eb7696acd18ecb68cab0143304b58d340cc872cd9a611ec0d0b2116d",
+      "lines": [
+        {
+          "line": 10,
+          "text": "    /**"
+        },
+        {
+          "line": 11,
+          "text": "     * Set undeveloped quest stages to complete, then remove them here to implement them."
+        },
+        {
+          "line": 12,
+          "text": "     */"
+        },
+        {
+          "line": 231,
+          "text": "    // slot 109"
+        },
+        {
+          "line": 232,
+          "text": "    player.setVarp(Varps.WITCHS_HOUSE_PROGRESS, 7)"
+        }
+      ]
+    }
+  ]
+}

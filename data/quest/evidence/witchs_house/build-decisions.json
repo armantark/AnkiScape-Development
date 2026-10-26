@@ -1,0 +1,952 @@
+{
+  "scope": "Build choices and product predicates, separate from the retained historical evidence.md and source-index.json.",
+  "baseline": {
+    "inspected_contract_head": "4dff2c542b7e0842e6de599ec1d12305f05681e0",
+    "leased_head": "bc72038d7218e89a8837ca0681edcb3e5808b4a1",
+    "adaptation": "Preserve later Tower of Life catalog overrides and intervening Murder Mystery integration. Witch definition and shared quest integration match inspected HEAD."
+  },
+  "evidence_resolution": {
+    "index": "source-index.json",
+    "exact_lines": "sources/exact-source-lines.json",
+    "paths": "Every source reference below is relative to sources/. Original bytes, index, extraction records, receipts, qualifications and exclusions copied without refetching.",
+    "excluded_executable_helpers": [
+      "parse_archives.py",
+      "finalize_packet.py",
+      "OpenRs2CacheItemSearch.java"
+    ]
+  },
+  "stage_transactions": [
+    {
+      "stage": 1,
+      "selected_product_behavior": "Plant search produces Door key x1; commission grants nothing.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:34-43"
+      ]
+    },
+    {
+      "stage": 2,
+      "selected_product_behavior": "Retained Door key opens the house.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:43"
+      ]
+    },
+    {
+      "stage": 3,
+      "selected_product_behavior": "Inventory-only duplicate check; take table diary x1 or advance without pickup proof.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:43",
+        "tipit-20120825005349-text.txt:75",
+        "sals-20121018060604-text.txt:49",
+        "runehq-20121103135007-text.txt:79"
+      ]
+    },
+    {
+      "stage": 4,
+      "selected_product_behavior": "Separate nonconsuming Read requires inventory diary; records the Read action.",
+      "retained_line_references": [
+        "supplying-handler.txt:95-98",
+        "witchs-house-6474931.txt:43",
+        "tipit-20120825005349-text.txt:80"
+      ]
+    },
+    {
+      "stage": 5,
+      "selected_product_behavior": "Require Read; enter basement; boxes produce Leather gloves x1 only if neither inventory nor hands holds Leather gloves.",
+      "retained_line_references": [
+        "supplying-handler.txt:313-329",
+        "sals-20121018060604-text.txt:49-56"
+      ]
+    },
+    {
+      "stage": 6,
+      "selected_product_behavior": "Require Read and current hands insulation; record passage only on success.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:45-49",
+        "supplying-handler.txt:65,331-345",
+        "tipit-20120825005349-text.txt:77"
+      ]
+    },
+    {
+      "stage": 7,
+      "selected_product_behavior": "Require earned gate passage; cupboard produces Magnet x1 unless already in inventory. Gloves need not remain worn.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:45-49",
+        "supplying-handler.txt:331-345"
+      ]
+    },
+    {
+      "stage": 8,
+      "selected_product_behavior": "One Cheese consumed to lure the actual mouse and attach Magnet; Magnet retained.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:51",
+        "supplying-handler.txt:292-302"
+      ]
+    },
+    {
+      "stage": 9,
+      "selected_product_behavior": "One target-local patrol avoidance transaction.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:53-61"
+      ]
+    },
+    {
+      "stage": 10,
+      "selected_product_behavior": "Require earlier Read, without continued diary custody. Backroom key x1 only when absent in inventory.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:63-65",
+        "supplying-handler.txt:121-139"
+      ]
+    },
+    {
+      "stage": 11,
+      "selected_product_behavior": "Require retained Backroom key and Read; unlock shed. Recover missing key in a separate review at unchanged progress.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:63-71"
+      ]
+    },
+    {
+      "stage": 12,
+      "selected_product_behavior": "Preserve all four qualified encounters; each later form requires its immediate predecessor. Existing engine earns flags/counts.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:71-83"
+      ]
+    },
+    {
+      "stage": 13,
+      "selected_product_behavior": "Require all four flags/counts independently of progress and Ball possession; produce Ball x1 only if absent.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:71-83"
+      ]
+    },
+    {
+      "stage": 14,
+      "selected_product_behavior": "Consume Ball x1 and return to Harvey. Missing Ball recovery needs all four fights, no key, no repeated fights, and keeps progress.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:71-83"
+      ]
+    },
+    {
+      "stage": 15,
+      "selected_product_behavior": "Completion sentinel: existing completion handling pays 4 quest points and 6325 Constitution XP once.",
+      "retained_line_references": [
+        "witchs-house-6474931.txt:87-88"
+      ]
+    }
+  ],
+  "identities": {
+    "storage_name": "Diary (Witch's House)",
+    "source_item_id": 2408,
+    "category": "tool",
+    "stackable": false,
+    "tradeable": false,
+    "completion_reward": false,
+    "references": [
+      "period-diary.txt:2-24",
+      "cache-727-items.txt:2",
+      "cache-742-items.txt:2",
+      "retained-cache-identity.json:12-22"
+    ],
+    "other_items": {
+      "Door key": 2409,
+      "Magnet": 2410,
+      "Backroom key": 2411,
+      "Ball": 2407,
+      "Leather gloves": 1059,
+      "Cheese": 1985
+    }
+  },
+  "insulation": {
+    "hands_only": {
+      "Leather gloves": 1059,
+      "Safety gloves": 12629,
+      "Void knight gloves": 8842,
+      "Ghostly gloves": 6110,
+      "Penance gloves": 10553,
+      "Flame gloves": 13660
+    },
+    "references": [
+      "supplying-handler.txt:65,331-345",
+      "witchs-house-6474931.txt:47",
+      "retained-cache-identity.json:18-22"
+    ],
+    "limitation": "Independent period guides establish worn leather gloves; each alternative is not separately corroborated. No alternative equipment definitions or acquisition routes added."
+  },
+  "conflicts_and_limits": [
+    {
+      "topic": "fountain custody",
+      "selected": "Earlier Read proof, no continued diary possession",
+      "references": [
+        "supplying-handler.txt:121-139",
+        "runehq-20121103135007-text.txt:87",
+        "tipit-20120825005349-text.txt:80",
+        "sals-20121018060604-text.txt:56"
+      ],
+      "limitation": "RuneHQ explicitly requires continued custody. Preserve that positive conflicting evidence; other guides silence does not disprove it."
+    },
+    {
+      "topic": "diary floor",
+      "selected": "Table after keyed entry; no floor gate",
+      "references": [
+        "period-diary.txt:24",
+        "witchs-house-6474931.txt:43"
+      ],
+      "limitation": "Diary article upstairs wording conflicts with the table route and remains retained."
+    },
+    {
+      "topic": "Read semantics",
+      "selected": "One distinct review transaction through existing quest presentation",
+      "references": [
+        "supplying-handler.txt:95-98",
+        "tipit-20120825005349-text.txt:80"
+      ],
+      "limitation": "Guides ask for reading the whole diary. No pagination, book window or page counter is inferred."
+    },
+    {
+      "topic": "reconstruction dates",
+      "selected": "Use restored Read flag and nonconsuming behavior as qualified reconstruction",
+      "references": [
+        "original-handler.txt:95-105,133-146",
+        "restored-handler.txt:94-98,126-130",
+        "supplying-handler.txt:95-98,121-139"
+      ],
+      "limitation": "Original 1bc2d48174b6319eb0878b9c905d2578e36100db lacks fountain Read check; restoration 88db0f79dfa881b21db697646b27ce5157b69eab adds it; supply c73c79aae7d5fb45e7677376f70fb108447c8dd2 retains it. Commit dates are reconstruction dates, not period publication dates or independent corroboration."
+    },
+    {
+      "topic": "client caches",
+      "selected": "2408 identity, Read option, nonstackability and non-exchangeability",
+      "references": [
+        "cache-727-items.txt:2",
+        "cache-742-items.txt:2",
+        "cache-query-receipts.json"
+      ],
+      "limitation": "Build 727/cache 309 dated 2012-07-24 and build 742/cache 544 dated 2012-11-07 establish client fields only, never the fountain prerequisite."
+    },
+    {
+      "topic": "Magnet debit",
+      "selected": "Retain Magnet as supplying handler and existing product do",
+      "references": [
+        "supplying-handler.txt:292-302",
+        "witchs-house-6474931.txt:51"
+      ],
+      "limitation": "Period prose does not independently settle inventory debit. Magnet oldid 6541708 describes a different magnet and is excluded; original body retained."
+    },
+    {
+      "topic": "wiki lineage",
+      "selected": "Main 6474931, Quick guide 6196397 and earlier guide 5933243 agree on route",
+      "references": [
+        "witchs-house-6474931.txt:34-83",
+        "witchs-house-quick-guide-6196397.txt:21-26",
+        "restoration-period-guide.txt:43"
+      ],
+      "limitation": "Same wiki lineage, not independent corroboration. Tip.It, Sal's and RuneHQ are the separate contemporary guides."
+    },
+    {
+      "topic": "icon",
+      "selected": "Retain 31x29 diary-20111205.png bytes, explicit quest-item map",
+      "references": [
+        "diary-20111205.png",
+        "diary-imageinfo.json",
+        "diary-imageinfo-mirror.json",
+        "period-diary.txt"
+      ],
+      "sha256": "433dfc455d1b6a436a8513f7ce353c72e010df39f6df00bcacd9a3fd38d6482a",
+      "historic_upload_utc": "2011-12-05T06:16:36Z",
+      "limitation": "Imageinfo and article filename binding establish one source lineage; no independent pixel-level corroboration."
+    }
+  ],
+  "save_repair": {
+    "authority": "Owner answer 2026-10-24: Keep earned progress; perform the missing diary and worn-glove steps, then resume.",
+    "version": 126,
+    "scalars": {
+      "witchs_house_resume_stage": 0,
+      "witchs_house_legacy_completed": false
+    },
+    "old_incomplete_0_to_3": "Retain progress, no resume.",
+    "old_incomplete_4_to_11": {
+      "4": 8,
+      "5": 9,
+      "6": 10,
+      "7": 10,
+      "8": 11,
+      "9": 12,
+      "10": 13,
+      "11": 14
+    },
+    "repair": "Mapped saves go to 3; genuinely take/read diary, prepare basement, wear gloves and pass gate. Successful stage 6 atomically clears resume and returns to mapped position. Refusal never clears it.",
+    "version_126_reopen": "Pending integer 8-14 retained only while started/incomplete at stages 3-6; no repeated mapping. Legacy completion scalar retained only for completed saves.",
+    "custody": "Never fabricate Read or gate proof, refund Cheese, replace Magnet, replay fights or replay rewards. Preserve existing proofs, items and partial combat lifepoints. Legacy-completed journal displays final completion row only."
+  },
+  "adaptations": [
+    "Existing copied-player transaction and stage proof store only; no external state.",
+    "Conditional item producers omit both item and acquisition proof when already held; possession never implies a deed.",
+    "Recovery is an independent deed-only review at stage 11 or 14 only when the named missing item is the sole blocker; no XP, combat credit or quest points.",
+    "Journal is observational; missing Read, gate and four-fight claims remain uncompleted; pending remediation explains preserved progress.",
+    "Local searches, mouse mechanism and patrol use current quest presentation. No floors, coordinates, timers, search chance, damage or capture events.",
+    "Existing glove recipe, 13.8 crafting XP, equipment statistics, generated scaffold and generic tool semantics remain unchanged."
+  ],
+  "uncommitted_build_evidence": {
+    "head": "bc72038d7218e89a8837ca0681edcb3e5808b4a1",
+    "file_sha256": {
+      "core/constants_parts/skill_assets.py": "d4e11005e2ceb20ad0b4b494e2fd7f70f32bd617a8b47f5a3b895515a8fc32f8",
+      "core/quest_storage.py": "eab06449c21ec2bfaf2531abad74b4647da937b2a17eeaeb9eeba23efac696a6",
+      "core/storage_pure.py": "3442ebdaba92cb44cf1bad3e27a53304c717318f86abdab8f50d3b3d3d9771a7",
+      "data/quest/definitions/members/witchs_house.py": "97d794273a952b848a03b304521511bcd42a200166fbbf2d04bee13eac361430",
+      "data/quest/evidence/witchs_house/evidence.md": "d6a62d484e9a7e111a5d8b3d5c5df444bf611e32dc5c88e1a4e5dbbe27a27db0",
+      "data/quest/evidence/witchs_house/source-index.json": "c0b892fdfe5a1de7662aed88714b5491e63e844ad6470cc0ec461e107e6aba10",
+      "data/quest/evidence/witchs_house/sources/ankiscape-__init__.py.txt": "6e475caba39fd28c432d0faf63ed4f7ff713eb51cdb4bbf71fce02f83063bb44",
+      "data/quest/evidence/witchs_house/sources/ankiscape-core__constants_parts__activity_assets.py.txt": "2810226e148b356f903069e8af933689f7c1929f22f8268449797d50cba2ad98",
+      "data/quest/evidence/witchs_house/sources/ankiscape-core__constants_parts__quest_items.py.txt": "c461a9d119db2008f151e43b389ae3a66eb903bfc3f21ad3a0051ea4e2afe68f",
+      "data/quest/evidence/witchs_house/sources/ankiscape-core__constants_parts__skill_assets.py.txt": "29771fc670d27581ca86c93b25bce2e6adf3e7b8505fab7c62d3ee9473bf0af1",
+      "data/quest/evidence/witchs_house/sources/ankiscape-core__item_registry.py.txt": "448f158ce1df5208b1ecd41c754745b9a87dce589a8aa1e27adc482b100ec175",
+      "data/quest/evidence/witchs_house/sources/ankiscape-core__quest_storage.py.txt": "b8801a7f2f23dc564847afeee3f035968a817a1a0e061cc809c5817059119a8a",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__crafting_data.py.txt": "6e0eeae9a347c477caac67a5ed8b3bd4b92f96740d8de2883ba35d06301ad4d9",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__equipment_data.py.txt": "fdb521569dfac5c436f71ba9eb562d289071039fc073879c4e0d5a45efe61421",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__quest__catalog.py.txt": "191251c5ca028542174ede5c2de6ec14774b795abd98d5afc3d6054f36b46c1d",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__quest__definitions__members__witchs_house.py.txt": "bcc72928c49a594d819a3aeb4689a74b04f299899c9349b9a9445fd30f29aec6",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__quest__reward_items.py.txt": "4c6868f057c266a786938d98a4ef6bea6179360cd2b773ee6098787c03443bfc",
+      "data/quest/evidence/witchs_house/sources/ankiscape-data__quest_action_proof_data.py.txt": "74d92538fb511efa8f50a8006291bae3c291885c81355f51ae204f083a75c537",
+      "data/quest/evidence/witchs_house/sources/ankiscape-logic_pure__logic_pure_quest.py.txt": "564db4d91400e100a59c7c6caca9377df337a058e4a7b2059129b515d3d6d790",
+      "data/quest/evidence/witchs_house/sources/ankiscape-logic_pure__logic_pure_state.py.txt": "b2c8725ddf95cf2e4e73c2de98692303a10a497261fee1ebe5291f43a0ac06ac",
+      "data/quest/evidence/witchs_house/sources/ankiscape-logic_pure__quest_action_proofs.py.txt": "da958fea22e53b9e7e10b1c029d7d586216e2eecccf3229f56a04dc311faf353",
+      "data/quest/evidence/witchs_house/sources/ankiscape-memory-bank__source-audits__quest-witchs-house-stage-detail-2026-06-22.md.txt": "782838b36bfca066efe1ed05f40df4865ef0460791a1de0547eaa90950058668",
+      "data/quest/evidence/witchs_house/sources/ankiscape-memory-bank__source-audits__witchs-house-complete-diary-key-boundary-2026-10-15.md.txt": "ca682cd604d0c8dc2ce2e4f9abf2b1f1ea16fe5f83f52f39b0827d81c8cc08c6",
+      "data/quest/evidence/witchs_house/sources/ankiscape-runtime__runtime_actions_quest.py.txt": "b2c12f8cabcf7ca521adccba7b6cfbe18cc3bf97ebcc47828ec3e2993f9df8ec",
+      "data/quest/evidence/witchs_house/sources/ankiscape-runtime__runtime_actions_shared.py.txt": "7d52e9fc84b0a956006a831a7d1a7474ee1e42bd63d11f8375e687f6702c87be",
+      "data/quest/evidence/witchs_house/sources/ankiscape-ui__ui_tab_quests.py.txt": "4b0d65c39a30ab588046bb68c2ed6e54424a11d0624747b75eb9517385ad288a",
+      "data/quest/evidence/witchs_house/sources/archive-verification.json": "36aa1bca560689b634d2411519174aeb047c26221dee6c760eb9dd7cd913fc13",
+      "data/quest/evidence/witchs_house/sources/asset-coverage.json": "97163983fd019a5fd22466476140975ceb013d5d036f82a6fa0b67aad71fc9ca",
+      "data/quest/evidence/witchs_house/sources/authority-design-queue-nit-rulings-2026-10-15.md": "ad2e9c2b72c324d41568c46356fe64e401a2a34f9d22d66c777c79fd344a4aad",
+      "data/quest/evidence/witchs_house/sources/authority-design-thread-queue.md": "8d30a2752ae7c69836d9fe862f85a8cd3c86f9e50a5137f36083f3b28f500188",
+      "data/quest/evidence/witchs_house/sources/authority-pre-eoc-source-verification-standard.md": "97d2c83d41c614308e7569e3796f0d0ebd8444ea7436c49d50165d8b9e4f3721",
+      "data/quest/evidence/witchs_house/sources/cache-727-items.txt": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "data/quest/evidence/witchs_house/sources/cache-727-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "data/quest/evidence/witchs_house/sources/cache-742-items.txt": "0660b1134d55ae854ccfb8b5bba2c3fbc89edb57e1458ce6a3590842cf84dfc5",
+      "data/quest/evidence/witchs_house/sources/cache-742-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "data/quest/evidence/witchs_house/sources/cache-query-receipts.json": "b3356a4bed2836c0fa7d47487c3e8a6e7b009b7f4ab2a6e8b50f9bfbb9545800",
+      "data/quest/evidence/witchs_house/sources/cdx-official-spoilers.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "data/quest/evidence/witchs_house/sources/cdx-official.headers": "a64e342a50639f305fa8b082753a02b5e27a95ad18312b395051f48540cd818f",
+      "data/quest/evidence/witchs_house/sources/cdx-official.json": "8c56e06fbcc7baf3f2c33ca32d7915ce92849cd83a1d5a743887091f93d71b55",
+      "data/quest/evidence/witchs_house/sources/cdx-runehq-all2012.json": "4b32412eaad1753f6e01a9b3ddfb5f794dbf3dc28b27c04fa09515cf5306357a",
+      "data/quest/evidence/witchs_house/sources/cdx-runehq.json": "3d543b9efbf54bda2d9f306c09d60cb5f37b80deee35074e000a87a3a5cd432e",
+      "data/quest/evidence/witchs_house/sources/cdx-sals-all2012.json": "d0f839e05a50f3bdbdbadce58adb53196b964d4fc1d4ccb4da984b8a46bc8005",
+      "data/quest/evidence/witchs_house/sources/cdx-sals.json": "e0a26173ed2cb120ae32eeb19b94a2d17041e8ad5dde6780645332360468b161",
+      "data/quest/evidence/witchs_house/sources/cdx-tipit-correct.json": "3a8bd77fc0b4aa25519210daff24d664835913389060387460e4ce288b6029d7",
+      "data/quest/evidence/witchs_house/sources/cdx-tipit.headers": "35b05cf6f27d0eafa6f2c86b0caec9f5075b248c3c883623f8a69e734e770354",
+      "data/quest/evidence/witchs_house/sources/cdx-tipit.json": "b4ca9c6ccab7513d47b5579aaca3c9397427b478532ec0ee4821e87b82c7b325",
+      "data/quest/evidence/witchs_house/sources/current-darkan-BoyWitchsHouseD.java.txt": "2af1646e7049f72f2b88b967b8fd8fb34d8bc3850838477b97ee85d9aa8ad19a",
+      "data/quest/evidence/witchs_house/sources/current-darkan-WitchsDiary.java.txt": "6ac8b2f7c5da14a626fec0d13915394a58b486d65ac25885fad539f67a6fb669",
+      "data/quest/evidence/witchs_house/sources/current-darkan-WitchsHouse.java.txt": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413",
+      "data/quest/evidence/witchs_house/sources/current-darkan-spawns.json.txt": "88af65310cb946c2824ea161217719a8a50c27e7be9f539def9fc88aefa2136e",
+      "data/quest/evidence/witchs_house/sources/diary-20111205.headers": "0abb63cd2358ac039819ee449f9589a3917fde3babe664be9958ef80d0e94cae",
+      "data/quest/evidence/witchs_house/sources/diary-20111205.png": "433dfc455d1b6a436a8513f7ce353c72e010df39f6df00bcacd9a3fd38d6482a",
+      "data/quest/evidence/witchs_house/sources/diary-imageinfo-mirror.headers": "1d92d8970ee766bc14e3d89cc515cb8e09bca2c26af29c48ae603223e487b839",
+      "data/quest/evidence/witchs_house/sources/diary-imageinfo-mirror.json": "d53e06db46bb8ebc76cbd81875e2487a6ce27680893b4ae0fcefbaca72a90dea",
+      "data/quest/evidence/witchs_house/sources/diary-imageinfo.headers": "a5cc6d002230bed61df5dbbab9f411ab820a95bd507b23748f2fb8e6a85cbf07",
+      "data/quest/evidence/witchs_house/sources/diary-imageinfo.json": "499c3724e5e0b8751b6e99b40960814b0861c7a7540509950963c286a70d94d6",
+      "data/quest/evidence/witchs_house/sources/exact-source-lines.json": "5d67085552cf53e198368e6a0c5195653e595fb012dae2e8c8224b633e2e6524",
+      "data/quest/evidence/witchs_house/sources/game-main-LeatherData.kt.txt": "df9b2359b08742ca87a9378e2dc53cc69b126d203b651b709fb27c84ce4c6de0",
+      "data/quest/evidence/witchs_house/sources/game-main-Varps.kt.txt": "dbd5402708bfce1fa5e708716dffc495a90062a6fd85e493c77ed37ab088e9bb",
+      "data/quest/evidence/witchs_house/sources/game-main-coverage.json": "c9a09008c70eb438f412c501eb93d9057725c02393ea838267dc0e3b2b3ec6a5",
+      "data/quest/evidence/witchs_house/sources/game-main-game.yml.txt": "60508dbe5e12ee9d4d17d4ebde3b7380dce0ee1a22d462828dbcb81c57b70b5a",
+      "data/quest/evidence/witchs_house/sources/game-main-quest_tab.plugin.kts.txt": "35d8f416eb7696acd18ecb68cab0143304b58d340cc872cd9a611ec0d0b2116d",
+      "data/quest/evidence/witchs_house/sources/leather-gloves-6454522.txt": "69ea396e2bd37f4a890dc8c6eb69b33e2e7efcb89d4ac94af691ab7db0506c28",
+      "data/quest/evidence/witchs_house/sources/ledger-append-receipt.json": "b9b896f63507be5f64e4da41faaadf4a18d2019e28f299e6af63d3eab39374e3",
+      "data/quest/evidence/witchs_house/sources/ledger-reconciliation.json": "07073e2a1795d375107d0f572185d93929a61af8e593e1f9d11c14401bbe5afd",
+      "data/quest/evidence/witchs_house/sources/magnet-6541708.headers": "6b80f8282213afc7c0f36d34ee3f07cb9b2f34bca345d5a8ed54460e7b16320e",
+      "data/quest/evidence/witchs_house/sources/magnet-6541708.txt": "d33e1dcdb9e0263fd4911a11245a63c520f30ba39404d31ef49d9c2d3b9df135",
+      "data/quest/evidence/witchs_house/sources/magnet-cutoff.headers": "32f03017b8ad8d94a915b54161ce98a2a7cb21e2159524b1a51e7863e7458ac9",
+      "data/quest/evidence/witchs_house/sources/magnet-cutoff.json": "9f55048ec77d727f28e34617914fda1f49c98969403d8075498607c879ffcc6d",
+      "data/quest/evidence/witchs_house/sources/official-text.txt": "d8da6217bfd07632af55fd7a931ba2943ad57a2556f72c8a1f5b037827cb219d",
+      "data/quest/evidence/witchs_house/sources/official.headers": "6053858ce8cd1fb630dc34612d00be9e9ae388fdbdbd097afa90eba9626dd529",
+      "data/quest/evidence/witchs_house/sources/official.html": "f897eb49944effe1b7f23c3b32bfc0a4b3f9112f7fd94bc7c75d6f72a288c036",
+      "data/quest/evidence/witchs_house/sources/original-handler.txt": "cf486be4cf5fc3ea30c2be15959a02bf548819478d1796137b8c537f37aabc23",
+      "data/quest/evidence/witchs_house/sources/original-spawn.txt": "7a201f9d0b63b18a14038c78bacc7edfbd36cd86c2e485777b8b1333569593e0",
+      "data/quest/evidence/witchs_house/sources/period-diary.json": "0b8de9c6b1afb10b659c83bfc7707d63f49a10f546636203fa1bc112e4a9b5e1",
+      "data/quest/evidence/witchs_house/sources/period-diary.txt": "e0e75c3b74a31ed704cf49d0356228480be1d21e179ab81890e0f904e7ddeef2",
+      "data/quest/evidence/witchs_house/sources/prior-qualification.json": "bcb3b41b134dfebadea2f93a2b8d34bab6815127ef07c0d6eb67f7fd5f4356ce",
+      "data/quest/evidence/witchs_house/sources/prior-report.md": "98ac3798b747d2ff6003dd6f1e21bd01f76a43e452257a1c361bebb5d90ff00e",
+      "data/quest/evidence/witchs_house/sources/prior-root-binding.json": "f1b1a516aaa2655bfdb5189a8119761370460cf3d39798b9af4cadf15bc7a9a4",
+      "data/quest/evidence/witchs_house/sources/restoration-period-guide.json": "a1d79393500313ae50e4970ef823a7e8752ab023d880954e774b5d84a8455aef",
+      "data/quest/evidence/witchs_house/sources/restoration-period-guide.txt": "08579fdc73855d0135240a1c40a8628db3ad6948479e15cc25bc6a228d879b5e",
+      "data/quest/evidence/witchs_house/sources/restored-handler.txt": "7ccd08b2f2d3719c4d60d4c858607bfca822f409ee3e3642dbeaf57dc04aa037",
+      "data/quest/evidence/witchs_house/sources/retained-cache-identity.json": "b0c46fbb5ce64818b27205d5c37246dc247ab41f6def7ccac3174d3cd5b38f24",
+      "data/quest/evidence/witchs_house/sources/runehq-20121103135007-text.txt": "0dc26aed2b31382c2c01199bf5b68d8a2fa216de70daad17f95fb3c39587fb1d",
+      "data/quest/evidence/witchs_house/sources/runehq-20121103135007.headers": "20e67c05cbdf71a67967b1ef8690bddcba3c78756901d8719ccf390b3fff3178",
+      "data/quest/evidence/witchs_house/sources/runehq-20121103135007.html": "0d5a80fc3360adc40ac64a6f981bfa8b09cf5737fd95a4896fbe34873593fa8a",
+      "data/quest/evidence/witchs_house/sources/runehq-text.txt": "0b3814d7f96c4a947a8eaeaca46c7794978f6cd5e1947e6d3e5a4e9b9f3c9d88",
+      "data/quest/evidence/witchs_house/sources/runehq.headers": "0a6a4189655d760a644cd8a37b71af70820d0a6f6f5a542d4d3a476cf62a346e",
+      "data/quest/evidence/witchs_house/sources/runehq.html": "a65277621e5c2268b2da4fb31c201488defe1649846bbd90d24f90077d7c86ec",
+      "data/quest/evidence/witchs_house/sources/sals-20121018060604-text.txt": "2d36bbb36126184661af923af811548a65f7d111d947a4a44e4e894723a6db9f",
+      "data/quest/evidence/witchs_house/sources/sals-20121018060604.headers": "cbe6511de44004c5d7e58afd5e3ef7249a491ef8fcc1ee38ef4a86cbd4c5da4a",
+      "data/quest/evidence/witchs_house/sources/sals-20121018060604.html": "5f74e6d81c3088b339907a53eb389e535739dbac18b69406b44182992919e5eb",
+      "data/quest/evidence/witchs_house/sources/sals-text.txt": "e2e3776ca39bb5761e7ccfcdcdcfb5a352d17e8dcb48f43f501c2ec23b27372f",
+      "data/quest/evidence/witchs_house/sources/sals.headers": "f869d3ebc51ee5c906f054a6e70d258c9aef07e06f304a123be2aa4dc3b7e521",
+      "data/quest/evidence/witchs_house/sources/sals.html": "0b9bcadcb98ea7d2a85163c6b0b16a65c566d9097c1069e395e84f3a61f3392a",
+      "data/quest/evidence/witchs_house/sources/supplying-boy.txt": "2af1646e7049f72f2b88b967b8fd8fb34d8bc3850838477b97ee85d9aa8ad19a",
+      "data/quest/evidence/witchs_house/sources/supplying-diary.txt": "6ac8b2f7c5da14a626fec0d13915394a58b486d65ac25885fad539f67a6fb669",
+      "data/quest/evidence/witchs_house/sources/supplying-handler.txt": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413",
+      "data/quest/evidence/witchs_house/sources/supplying-spawn.txt": "b5d496d3bb1216972357e7c52b19a8102797e5dd2bcb4ac0f4f0880d20369b16",
+      "data/quest/evidence/witchs_house/sources/tipit-20120825005349-text.txt": "bfb5cc486a62446b16311a6105824ce858e56e73fc4ad41e6ed970100e9fc9ec",
+      "data/quest/evidence/witchs_house/sources/tipit-20120825005349.headers": "7b4f877e7f915e73a91e668ad8277acbd21624953960d7f0a489df6c9f9cd90c",
+      "data/quest/evidence/witchs_house/sources/tipit-20120825005349.html": "e3c6a8697c3ac80e89e81da1176a782afda97965bdb0d006ff8981619d7235ad",
+      "data/quest/evidence/witchs_house/sources/tipit-20121119221131-text.txt": "2fb45398f63e79ad774e0e37ac5dfadfbafdb0a9ff1ad9e6d7110ec68589a176",
+      "data/quest/evidence/witchs_house/sources/tipit-20121119221131.headers": "7cae97302e7a8129555509768547ad425bbc5d91604918a6e391f291c83a3376",
+      "data/quest/evidence/witchs_house/sources/tipit-20121119221131.html": "e27c20b6eecc7ff2d834777a0c40d1cd07e7d8fa506951f381512de836537e35",
+      "data/quest/evidence/witchs_house/sources/tipit-discovery.headers": "88f457bdfcabb50303e3d01446634b89471b328e771254461f265f7086e9f0cf",
+      "data/quest/evidence/witchs_house/sources/tipit-discovery.json": "6656e21c726e2efe565e6d9a02cf350bc00358ddafe1989beba8792d57dd652f",
+      "data/quest/evidence/witchs_house/sources/witchs-house-6474931.txt": "b89036019923a1922f60068293aa7e334358a1631b54155f29863c5a5be9ffe1",
+      "data/quest/evidence/witchs_house/sources/witchs-house-quick-guide-6196397.txt": "f972508cfd2dedc220e183a0810987993623d10d6a28e3fefeb18ea23f3066e0",
+      "data/quest/witchs_house.py": "8d1edcc175dd3f20f2f9a01ff7ca006cadbd746b5a97e788ebd33a7cb967b1c2",
+      "logic_pure/logic_pure_quest.py": "08d3108b88d826cbf9a726748a5b9183e20496c32d63a65e3c292bcd0812f59d",
+      "logic_pure/quest/journal.py": "97d16f3de148f929a73ca6514553423fc7f033286b6537a052e69113bc6a0578",
+      "logic_pure/quest/review_services.py": "33962dea0257006357730ac78f72901d147b64bda0229386a6548adb6d046bb5",
+      "logic_pure/quest/witchs_house.py": "2c4a3603871ee9f9fc7976d6084a735245fab5a34aad847ddee3a7b5dca4fa0b",
+      "runtime/runtime_actions_quest.py": "a91d4bbaadd06ec5b2cb5aec1bfee429e3cd7773819976bc108997d4806e1093",
+      "tests/quests/__init__.py": "edd9c776947676ea32abdd95bd68c0401987624be672d86bf69ddf3a2b499d68",
+      "tests/quests/test_witchs_house.py": "2ceeedb29df1c90bd7ad36dbc853281824cada73d6f00aed924c5486dcfd357e",
+      "tests/quests/test_witchs_house_runtime.py": "ebf7626c3cd4cd4d3b3d88bce6e535c23bfee377635202c7475eecd59d9d0b37",
+      "tests/quests/test_witchs_house_storage.py": "13c5499fb5ad4071675d429ec908cbab5002d95e89966e58d16ca3c50d809f19",
+      "tests/quests/test_witchs_house_undo.py": "d09b48a28853f287ccc988b32bd81f351bc9708babbf3a87546803fe32fe1c33",
+      "tests/test_integration_smoke.py": "f5b80b61945ce2cce65a09d49004b013da0a6e6d28c602ded1ddb89aa62e8f85",
+      "tests/test_logic.py": "0f910e4f8e26e93572aa662a604209ae16094e82e78aa55236b65261e1892a99",
+      "tests/test_main_menu_widget.py": "338bf39b5447a6fdffc8ee5c02f4d61cbf1c8d9fca313836127b5a35a5c4ef4d",
+      "tests/test_quest_action_proofs.py": "9552cb2cf9ead2a307d14d76de3e7980379f370397f562631d07f9d65a310e42",
+      "tests/test_quest_catalog.py": "88b130602709ee2303b6cfcf70c7074600762c6fb4434ed3daf807d4f88c3e3b",
+      "tests/test_runtime_actions.py": "48c585ca88dc4fe6420a4692f124e8d317d7c438f58af838868d483729803a7f",
+      "tests/test_single_valued_route_steps.py": "7613466777b33bc30cd72f76e830d7214f231542e4d40727e99f3f4965102425",
+      "tests/test_cold_war_greeting.py": "0cdb17b7d4a13d13a5e7746d752d5b0b11ee0a9e721a0cc016bd1cc9e0122ec2",
+      "tests/equipment/test_spirit_shield_requirements.py": "3d8e01874049cef68db6a902111e642dec9f48cc5de289ebece69dff05b6030c",
+      "tests/achievement_diaries/test_period_lamp_migration.py": "1a40fe79d6798c416e5a1319ba8af714588975e3eabbb3345c5b8783df7aba92",
+      "tests/test_item_reachability_audit.py": "0a781e17d62d5461c3de4a6b69c8f70ee33126f2dfe85659f0439445de716d13"
+    },
+    "self_hash": "Excluded from this manifest to avoid self-reference; emitted by the build tool output.",
+    "passing_checks": [
+      {
+        "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_witchs_house test_witchs_house_storage test_witchs_house_runtime test_witchs_house_undo --verbosity 1",
+        "tests": 26,
+        "skipped": 0,
+        "result": "OK",
+        "details": "Includes actual disposable Anki Collections, collection.undo, registered state_did_undo callbacks, replay and save/reopen. All four modules and product hashes above match this run."
+      },
+      {
+        "check": "Every retained packet file compared byte for byte",
+        "files": 103,
+        "result": "passed; evidence.md and source-index.json also unchanged"
+      },
+      {
+        "check": "New quest helper and test function metrics through the existing slop-gate instruments",
+        "result": "No CCN, cognitive complexity or Halstead violations; final changed Undo helper remeasured."
+      },
+      {
+        "check": "git diff --check and existing oversized-file no-growth check",
+        "result": "passed"
+      },
+      {
+        "check": "Remote focused plain lane",
+        "runner": "tools/run_remote_tests.py",
+        "tests": 173,
+        "skipped": 0,
+        "result": "OK",
+        "seconds": 40.484,
+        "run_id": "plain-1792948288-024d3830",
+        "expected_tests": 173,
+        "count_command": "python3 run_tests.py test_witchs_house test_witchs_house_storage WitchsHouseRuntimeTest quest_action_proof single_valued_route_steps test_quest_catalog combat_stat oronwen murder_mystery test_quest_combat_placeholders test_quest_combat_gate_fallback test_witchs_house_experiment_forms_are_resolver_ready test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item --count",
+        "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-5-resources-efccb39a0991752c.json",
+        "claims": "Loop-owned; no second claim acquired or released. Existing runner queue allowed to complete.",
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792948288-024d3830.log",
+            "sha256": "daf925630e25d212ac646039cf6a1821829f68d6ca38b23335f553394a68f76e"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792948288-024d3830.report",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        }
+      },
+      {
+        "check": "Remote focused Qt lane",
+        "runner": "tools/run_remote_tests.py",
+        "tests": 180,
+        "skipped": 0,
+        "result": "OK",
+        "seconds": 61.431,
+        "run_id": "qt-1792948351-6de5c5f3",
+        "expected_tests": 180,
+        "count_command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_witchs_house test_witchs_house_storage test_witchs_house_runtime test_witchs_house_undo quest_action_proof single_valued_route_steps test_quest_catalog combat_stat oronwen murder_mystery test_quest_combat_placeholders test_quest_combat_gate_fallback witchs_house --count",
+        "details": "All four new suites, changed Witch cases, action proofs, catalog, combat qualification, Oronwen and Murder Mystery. Zero skips, including actual Collection Undo/replay/reopen and shown offscreen dialogs.",
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792948351-6de5c5f3.log",
+            "sha256": "91700bad67a5c9184581169848f6f9c877fb41e34b8118a5e939e7ae5561574b"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792948351-6de5c5f3.report",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        }
+      },
+      {
+        "command": "python3 run_tests.py test_cold_war_greeting test_spirit_shield_requirements test_period_lamp_migration",
+        "count_command": "python3 run_tests.py test_cold_war_greeting test_spirit_shield_requirements test_period_lamp_migration --count",
+        "tests": 29,
+        "skipped": 0,
+        "seconds": 31.603,
+        "result": "OK",
+        "details": "Regression tests updated for extracted journal dependency and schema version 126; all original custody, equipment, XP and idempotence assertions preserved."
+      },
+      {
+        "check": "Remote full plain regression gate",
+        "runner": "tools/run_remote_tests.py",
+        "tests": 5967,
+        "skipped": 679,
+        "active": 5288,
+        "seconds": 1320.163,
+        "result": "OK",
+        "run_id": "plain-1792951464-ab9f5516",
+        "count_command": "python3 run_tests.py --count",
+        "measured_tests": 5967,
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792951464-ab9f5516.log",
+            "sha256": "89280b16e28a7d7356ca7f74505485292d0dc5225711d34d22d60586ecfb7631"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792951464-ab9f5516.report",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        },
+        "custody": "Existing interrupted-attempt run completed without signaling its processes. All 131 recorded local and tested mirror hashes matched before accepting its final report. Existing runner summary and active-test minimum checks passed; following project runner reconciles the completed pending run."
+      },
+      {
+        "check": "Remote full Qt regression gate",
+        "runner": "tools/run_remote_tests.py",
+        "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" qt",
+        "tests": 5967,
+        "skipped": 5,
+        "active": 5962,
+        "seconds": 1156.443,
+        "result": "OK",
+        "run_id": "qt-1792952841-f6d75633",
+        "count_command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py --count",
+        "measured_tests": 5967,
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792952841-f6d75633.log",
+            "sha256": "fd45518f5816399b315faefb6a6956fdb114630511cf518b063ad82b638659d9"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792952841-f6d75633.report",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        },
+        "phase_seconds": {
+          "preparation": 4.457,
+          "sync": 5.985,
+          "execution": 1169.565
+        },
+        "custody": "Project runner exited 0 after its summary, active coverage, process cleanup and pending-record checks. Full plain and Qt lanes ran serially. All 131 tested mirror and local file hashes match; no passing product verification repeated to repair bookkeeping."
+      }
+    ],
+    "remaining_build_checks": [],
+    "remote_attempt": {
+      "build": "build-4",
+      "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-4-resources-4cde6483a793c549.json",
+      "runner": "tools/run_remote_tests.py",
+      "acquisition": "project tool",
+      "host": "armans-macbook-pro",
+      "lock": "/Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.lock",
+      "queue": "/Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue",
+      "expected_tests": 173,
+      "count_command": "python3 run_tests.py test_witchs_house test_witchs_house_storage WitchsHouseRuntimeTest quest_action_proof single_valued_route_steps test_quest_catalog combat_stat oronwen murder_mystery test_quest_combat_placeholders test_quest_combat_gate_fallback test_witchs_house_experiment_forms_are_resolver_ready test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item --count",
+      "measured_tests": 173,
+      "result": "Capacity refused at mirror queue before acquisition or sync. Returned immediately through runner error handling without waiting, slot polling, a second claim, releasing loop claims or signaling other processes. Remote preparation finished in 10.647s; sync and execution never started.",
+      "prepared_config": "No acquisition occurred, so no acquired frozen config exists.",
+      "slot_or_ports": "Not configured by this fixed-host project runner.",
+      "preserved_verification": "All 127 recorded file hashes matched. Prior 26 passing tests including real Collection Undo retained without replaying product checks.",
+      "external_pending_run": "Runner reported preexisting plain-1792926513-f5c7fdb4; no custody, cleanup, mutation or success claim made for that run."
+    },
+    "preservation": "Preserve successful checks while their recorded file hashes match. Native Anki verification, independent review, commit and promotion remain loop-owned later steps; none is claimed here.",
+    "prior_remote_attempts": [
+      {
+        "build": "build-3",
+        "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-3-resources-d819c7d6f472be98.json",
+        "runner": "tools/run_remote_tests.py",
+        "host": "armans-macbook-pro",
+        "lock": "/Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.lock",
+        "queue": "/Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue",
+        "expected_tests": 173,
+        "count_command": "python3 run_tests.py test_witchs_house test_witchs_house_storage WitchsHouseRuntimeTest quest_action_proof single_valued_route_steps test_quest_catalog combat_stat oronwen murder_mystery test_quest_combat_placeholders test_quest_combat_gate_fallback test_witchs_house_experiment_forms_are_resolver_ready test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item --count",
+        "measured_tests": 173,
+        "result": "Capacity refused at mirror queue before acquisition or sync. Immediately interrupted only the runner started by this build; no slot polling, second claim or loop-claim release. Remote preparation finished in 3.359s; sync and execution never started.",
+        "prepared_config": "No acquisition occurred, so no acquired frozen config exists.",
+        "slot_or_ports": "Not configured by this fixed-host project runner.",
+        "preserved_verification": "All 127 recorded file hashes matched. Existing passing checks retained without repeating product verification."
+      }
+    ],
+    "failed_checks": [
+      {
+        "check": "First full plain regression lane",
+        "tests": 5967,
+        "result": "FAILED",
+        "failures": 28,
+        "errors": 7,
+        "skipped": 679,
+        "seconds": 1112.041,
+        "run_id": "plain-1792949410-a15bfdbb",
+        "cause": "Moved Cold War journal patch target; schema version 125 expectations after version 126 migration; reachable/seed item pins each need +1 for newly registered Diary. No product-code failure.",
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792949410-a15bfdbb.log",
+            "sha256": "d517814c32b8c8705f5487688fd277b655b26760eae5383482986c5858008d2b"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792949410-a15bfdbb.report",
+            "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+          }
+        }
+      }
+    ],
+    "regression_test_adaptations": {
+      "files": [
+        "tests/test_cold_war_greeting.py",
+        "tests/equipment/test_spirit_shield_requirements.py",
+        "tests/achievement_diaries/test_period_lamp_migration.py",
+        "tests/test_item_reachability_audit.py"
+      ],
+      "changes": "In-place patch-location, current schema expectation and +1 Diary reachability pin updates only; no test removed or skipped, no existing file grew.",
+      "preserved_checks": "All 127 original hashes match; focused plain/Qt and prior 26-test Undo passes retained. Four regression test files added to final manifest."
+    },
+    "build_completion": {
+      "result": "complete",
+      "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-5-resources-efccb39a0991752c.json",
+      "claims": "Loop-owned claims retained; no second claim or release. Existing runner timeouts, queue, baseline, acceptance, custody, cleanup and report retention checks preserved.",
+      "preserved_verification": "Original 26-test zero-skip acceptance result, focused plain 173/Qt 180 zero-skip results and 29 regression-test passes remain valid under their matching recorded hashes. Final full gates cover all 131 files.",
+      "later_loop_steps": [
+        "commit",
+        "independent taste review",
+        "native Anki verification",
+        "promotion"
+      ],
+      "uncommitted": true,
+      "final_scope_check": "Only allowed product/test/evidence paths differ; no existing file of 1000 or more lines grew. Generated scaffold, glove recipe and equipment statistics unchanged.",
+      "self_hash": "build-decisions.json is excluded from file_sha256 to avoid self-reference; its final SHA-256 is emitted in the build result.",
+      "retained_artifact_hashes_verified": 10
+    },
+    "hook_repair_build_6": {
+      "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-6-resources-c64aa811bdbabde5.json",
+      "cause": "Commit hook rejected one E303 spacing violation and increased complexity in the shared route-test helper.",
+      "repair": "Remove the extra top-level blank line; extract stage combat resolution with all combat assertions intact. Route test file remains 551 lines. No product code changed.",
+      "prior_file_sha256": {
+        "tests/quests/test_witchs_house_storage.py": "1850e93e072234764281266740be8c9a5867af670c2a9f7cf16869855c96c62b",
+        "tests/test_single_valued_route_steps.py": "d076c8da5cabc357fd8e30c92c7de952c21bf1320544ae56ae88de533353dbcd"
+      },
+      "current_file_sha256": {
+        "tests/quests/test_witchs_house_storage.py": "13c5499fb5ad4071675d429ec908cbab5002d95e89966e58d16ca3c50d809f19",
+        "tests/test_single_valued_route_steps.py": "7613466777b33bc30cd72f76e830d7214f231542e4d40727e99f3f4965102425"
+      },
+      "preserved_verification": "All 131 hashes matched before repair; 129 remain identical afterward. Earlier focused acceptance, real Collection Undo and full plain/Qt results remain retained evidence for unchanged product and test code. Only these two changed test modules are refreshed; no unchanged product check is replayed to repair bookkeeping.",
+      "retained_artifact_hashes_verified": 16,
+      "scope_check": "Allowed paths only; oversized files do not grow; generated scaffold, glove recipe and equipment data unchanged. All 103 copied source files and the original evidence/index remain byte-identical. git diff HEAD --check passes excluding the byte-preserved original source bodies.",
+      "passing_checks": [
+        {
+          "command": "python3 tools/maintenance/slop_gate_preflight.py",
+          "exit": 0,
+          "result": "PASS; real index untouched"
+        },
+        {
+          "count_command": "python3 run_tests.py test_witchs_house_storage test_single_valued_route_steps --count",
+          "tests": 30
+        },
+        {
+          "command": "python3 run_tests.py test_witchs_house_storage test_single_valued_route_steps",
+          "tests": 30,
+          "skipped": 0,
+          "seconds": 3.705,
+          "result": "OK"
+        },
+        {
+          "count_command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_witchs_house_storage test_single_valued_route_steps --count",
+          "tests": 30
+        },
+        {
+          "check": "Refreshed remote focused plain lane",
+          "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" plain --select test_witchs_house_storage --select test_single_valued_route_steps --expected-tests 30",
+          "expected_tests": 30,
+          "tests": 30,
+          "skipped": 0,
+          "seconds": 2.516,
+          "result": "OK",
+          "exit": 0,
+          "run_id": "plain-1792956471-5e39104f",
+          "artifacts": {
+            "log": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792956471-5e39104f.log",
+              "sha256": "b27d925eab492db2397dd0c1627b37a8a2cbda2c5b9914482281b2ea88b4743a"
+            },
+            "report": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792956471-5e39104f.report",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "skips": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792956471-5e39104f.skips.json",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          },
+          "phase_seconds": {
+            "preparation": 2.979,
+            "sync": 12.001,
+            "execution": 15.585
+          },
+          "custody": "Existing project runner completed with summary, exact-count, zero-skip, cleanup and pending-record checks intact. Plain runner waited in its queue until admitted. No process outside this build was signaled."
+        },
+        {
+          "check": "Refreshed remote focused qt lane",
+          "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" qt --select test_witchs_house_storage --select test_single_valued_route_steps --expected-tests 30",
+          "expected_tests": 30,
+          "tests": 30,
+          "skipped": 0,
+          "seconds": 2.293,
+          "result": "OK",
+          "exit": 0,
+          "run_id": "qt-1792956501-4ddb5d66",
+          "artifacts": {
+            "log": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792956501-4ddb5d66.log",
+              "sha256": "803b659c946cf75f5cd0dd8a01085995b95ec57f9527399e1ced0b87f29f2567"
+            },
+            "report": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792956501-4ddb5d66.report",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "skips": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792956501-4ddb5d66.skips.json",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          },
+          "phase_seconds": {
+            "preparation": 4.779,
+            "sync": 5.548,
+            "execution": 15.938
+          },
+          "custody": "Existing project runner completed with summary, exact-count, zero-skip, cleanup and pending-record checks intact. Plain runner waited in its queue until admitted. No process outside this build was signaled."
+        }
+      ],
+      "remaining_checks": [],
+      "claims": "Loop-owned claims retained; no second acquisition or release. Existing remote runner time limits and queue waiting preserved. Acceptance, baseline, custody, cleanup and archive checks unchanged.",
+      "uncommitted": true,
+      "result": "complete",
+      "tested_custody": "All 131 local and tested mirror hashes matched when both completed test reports were available, before the shared mirror moved to another queued run. Local hashes still match. Original 10 artifacts plus 6 refreshed artifacts retained and hash-verified.",
+      "bookkeeping": "A later mirror recheck saw another queued run replacing the shared mirror. Preserve the earlier matching snapshot measurement and completed runner results; no product check replayed for that bookkeeping race.",
+      "later_loop_steps": [
+        "commit",
+        "independent taste review",
+        "native Anki verification",
+        "promotion"
+      ]
+    },
+    "merge_repair_build_7": {
+      "cause": "The loop merge of main conflicted in logic_pure/logic_pure_quest.py and runtime/runtime_actions_quest.py. The interrupted attempt left resolved working files but no final verification record.",
+      "resolution": "Keep the Witch review service dispatcher, conditional stage projection, blockers and resume transition alongside main\u2019s Elemental Workshop opening blockers/readiness/application. The extracted journal retains Cold War, Murder Mystery, Elemental Workshop and Witch projections.",
+      "git": "No Git command run during this resumed build. Merge-index completion remains with the loop.",
+      "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-7-resources-69972624a0f7410b.json",
+      "snapshot_basis": "The original file_sha256 manifest above remains immutable. Override or extend it with current_file_sha256 below to reconstruct the merged 138-file verification manifest.",
+      "current_file_sha256": {
+        "core/constants_parts/skill_assets.py": "ad616d4f1a04242bb59e09049cb383c714810bd98636dcba815ea19fd66f9485",
+        "data/quest/elemental_workshop_iii.py": "fddc0aad761099454e2fa15262cee0d87f9252938af8e2fe6d2cf82d5037844f",
+        "logic_pure/logic_pure_quest.py": "b8735684c0de5b8f95c0efe99a14c3e7509484db6eeab68aa8c33afef3b0fece",
+        "logic_pure/quest/elemental_workshop.py": "80af015b20fdee2de81ae4bf08de145c79296139f8cfc41b6effb6783aa981dc",
+        "logic_pure/quest/journal.py": "cb9015d8679b6092d0f16be0ba50982c8f2945daff8f6574ac9882a99686a9e9",
+        "runtime/runtime_actions_quest.py": "2efb3fb0bd65d080e1bd1ff6f74652da74a0b9dc460690128b9d48f38f793faf",
+        "tests/elemental_workshop/__init__.py": "f48859d933797e0d7939c0053e9afea0ff89813734d4dd081c72569ce338b3a6",
+        "tests/elemental_workshop/later_contract.json": "94f690e8c0f8e5e1ec76d8ff6100db07777034cd05a6e86cd3bfc2ea2352cf18",
+        "tests/elemental_workshop/test_opening_catalog.py": "2facf8be97051322962f3bae256843c5874f37683c01ea6d51ab1a527f971cf5",
+        "tests/elemental_workshop/test_opening_persistence.py": "ca4b02d6e9dba9fca0924718e2109f25312d934cdc26004c9fc9c066b4d4cf57",
+        "tests/elemental_workshop/test_opening_review.py": "1084ff02267bb10fc41e6d231144b86e7b72a7aaf79ac7789c8ded7e76b69714",
+        "tests/test_logic.py": "7fda9856e95fa5ac398cc86ef995ae0f1bd6d50b3e2e42833bcff277ca69d45a",
+        "tests/test_quest_action_proofs.py": "ded83e290eecb9e0c9066d46e5510e8315e366b0c7cbf06d04b59283ff8994aa"
+      },
+      "verified_snapshot_files": 138,
+      "custody": "All 138 current local and tested mirror file hashes match. Original 16 verification artifacts are hash-verified. All 105 evidence/index/source files remain byte-identical to the retained packet. Existing acceptance, baseline, custody, cleanup and archive checks are preserved.",
+      "passing_checks": [
+        {
+          "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_witchs_house test_witchs_house_storage test_witchs_house_runtime test_witchs_house_undo --count",
+          "tests": 26
+        },
+        {
+          "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_witchs_house test_witchs_house_storage test_witchs_house_runtime test_witchs_house_undo --quiet",
+          "tests": 26,
+          "skipped": 0,
+          "seconds": 32.297,
+          "result": "OK; includes real Collection Undo/replay/reopen"
+        },
+        {
+          "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py test_defender_museum_readout test_desert_treasure_mirror_journal_ui",
+          "tests": 4,
+          "skipped": 0,
+          "seconds": 33.584,
+          "result": "OK; isolated diagnosis of prior merged Qt fixture errors"
+        },
+        {
+          "check": "Merged full plain regression gate",
+          "run_id": "plain-1792960926-7195c16d",
+          "count_command": "python3 run_tests.py --count",
+          "measured_tests": 6029,
+          "tests": 6029,
+          "skipped": 686,
+          "seconds": 1161.694,
+          "result": "OK",
+          "artifacts": {
+            "log": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792960926-7195c16d.log",
+              "sha256": "e617c15e2ed4442a33ac0865642bbe8816587f8e3b0497cacfa8c71581cb8d47"
+            },
+            "report": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792960926-7195c16d.report",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            }
+          },
+          "custody": "Preserved the already launched lane and waited for its exit-0 report. Validated success summary, active-test threshold and exact measured count. The subsequent project Qt runner reconciled this completed run before sync."
+        },
+        {
+          "check": "Merged full Qt regression gate",
+          "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" qt",
+          "run_id": "qt-1792962145-9591dccd",
+          "count_command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py --count",
+          "measured_tests": 6029,
+          "tests": 6029,
+          "skipped": 5,
+          "seconds": 1057.301,
+          "result": "OK",
+          "exit": 0,
+          "artifacts": {
+            "log": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792962145-9591dccd.log",
+              "sha256": "59f73c1fa7677bab204baffa08801d16b31fdcd394e705fea12b21e1b1e86b3d"
+            },
+            "report": {
+              "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792962145-9591dccd.report",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            }
+          },
+          "phase_seconds": {
+            "preparation": 3.551,
+            "sync": 5.0,
+            "execution": 1067.782
+          },
+          "custody": "All 138 local and tested-mirror hashes matched after the exit-0 receipt and before recording completion. Existing project runner validated summary and active coverage, confirmed process cleanup, cleared its pending record and exited 0. No timeout, skip, custody, baseline or archive gate was weakened."
+        }
+      ],
+      "prior_failed_check": {
+        "run_id": "qt-1792959593-45b169ff",
+        "cause": "Earlier merged Qt run reported missing MainMenuWidgetTest attributes in two dialog fixture setUpClass methods, and worker-count errors. The isolated current four-test suite passes; the merged full Qt gate remains required.",
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792959593-45b169ff.log",
+            "sha256": "b0a533f07ea09c6dbb70714ca6128e5159759df082537f5727d83aa520e92f76"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1792959593-45b169ff.report",
+            "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+          }
+        },
+        "resolution": "Current isolated four-test dialog suite and the full 6029-test Qt gate both pass; retain the failed report as historical evidence."
+      },
+      "remaining_checks": [],
+      "result": "complete",
+      "claims": "Loop-owned claims retained; no second claim acquired or released. Native Anki manual verification is not a build check and was not run.",
+      "retained_artifact_hashes_verified": 22,
+      "uncommitted": true,
+      "final_scope": "Resumed build wrote only this permitted evidence file; the interrupted attempt\u2019s resolved quest orchestrator, runtime and journal content is preserved. Quest orchestrator is 1366 lines, below the contract\u2019s 1430-line baseline. No conflict markers remain in product Python files. Original source packet bytes, recipe, equipment statistics and generated scaffold remain preserved.",
+      "later_loop_steps": [
+        "finish merge/commit",
+        "independent taste review",
+        "native Anki verification",
+        "promotion"
+      ],
+      "self_hash": "This file is excluded from the manifest to avoid self-reference; its final hash is emitted in the build result."
+    },
+    "audit_repair_build_9": {
+      "resource_snapshot": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1470-witchs-house-diary-and-glove-order/build-9-resources-a60b05fb2f443c03.json",
+      "head": "d7e7da7201206253701b23ad8387b92682b81ceb",
+      "result": "stopped",
+      "cause": "audit_docs has 605 findings in immutable retained source captures and one stale selector in a protected historical audit. Fixing tools/audit_docs.py and memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md is outside the permitted paths; changing original source bytes to satisfy documentation formatting is forbidden.",
+      "authorized_repair": "Restore 20 CRLF/mixed-line-ending source files from the retained packet; add sources/** -text in the evidence-local .gitattributes so Git preserves their original bytes. No source text or product behavior changes.",
+      "restored_packet_files": [
+        "data/quest/evidence/witchs_house/sources/cdx-official.headers",
+        "data/quest/evidence/witchs_house/sources/cdx-tipit.headers",
+        "data/quest/evidence/witchs_house/sources/diary-20111205.headers",
+        "data/quest/evidence/witchs_house/sources/diary-imageinfo-mirror.headers",
+        "data/quest/evidence/witchs_house/sources/diary-imageinfo.headers",
+        "data/quest/evidence/witchs_house/sources/magnet-6541708.headers",
+        "data/quest/evidence/witchs_house/sources/magnet-cutoff.headers",
+        "data/quest/evidence/witchs_house/sources/official.headers",
+        "data/quest/evidence/witchs_house/sources/official.html",
+        "data/quest/evidence/witchs_house/sources/runehq-20121103135007.headers",
+        "data/quest/evidence/witchs_house/sources/runehq-20121103135007.html",
+        "data/quest/evidence/witchs_house/sources/runehq.headers",
+        "data/quest/evidence/witchs_house/sources/runehq.html",
+        "data/quest/evidence/witchs_house/sources/sals-20121018060604.headers",
+        "data/quest/evidence/witchs_house/sources/sals.headers",
+        "data/quest/evidence/witchs_house/sources/tipit-20120825005349.headers",
+        "data/quest/evidence/witchs_house/sources/tipit-20120825005349.html",
+        "data/quest/evidence/witchs_house/sources/tipit-20121119221131.headers",
+        "data/quest/evidence/witchs_house/sources/tipit-20121119221131.html",
+        "data/quest/evidence/witchs_house/sources/tipit-discovery.headers"
+      ],
+      "current_file_sha256": {
+        "data/quest/evidence/witchs_house/.gitattributes": "db44599b09cb542671e1042ea2824860669abc26023ffc5c5559f4be5e3562af",
+        "tests/quests/test_witchs_house_evidence.py": "257fc75fc655f835458fd76125cc6e8391d763903a2221511cd3d9ece4c377e7"
+      },
+      "manifest_basis": "Original file_sha256 plus hook_repair_build_6.current_file_sha256 and merge_repair_build_7.current_file_sha256: all 138 hashes now match, including the 20 restored source files. Add the two hashes above to bind this repair.",
+      "packet_verification": "All 105 retained evidence/index/source files match the packet byte for byte; executable helpers remain excluded. No fetch performed.",
+      "verification_preserved": "All 22 recorded verification artifacts match their saved hashes. Existing focused acceptance, real Collection Undo/replay/reopen, full plain and Qt passes retained; no product check repeated for bookkeeping.",
+      "local_check": {
+        "count_command": "python3 run_tests.py test_witchs_house_evidence --count",
+        "command": "python3 run_tests.py test_witchs_house_evidence",
+        "tests": 3,
+        "skipped": 0,
+        "result": "OK",
+        "seconds": 0.127
+      },
+      "remote_check": {
+        "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" plain --select test_witchs_house_evidence --expected-tests 3",
+        "expected_tests": 3,
+        "result": "OK",
+        "exit": 0,
+        "tests": 3,
+        "skipped": 0,
+        "seconds": 0.064,
+        "run_id": "plain-1792979188-7b2c98c3",
+        "artifacts": {
+          "log": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792979188-7b2c98c3.log",
+            "sha256": "a9db00593efd4fea75979d8d210c07b6f9d5438fb59c8efa1df97a207d490be0"
+          },
+          "report": {
+            "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1792979188-7b2c98c3.report",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        },
+        "custody": "Runner waited for mirror admission, retained its existing timeout, passed exact-count and zero-skip checks, completed its existing cleanup/pending checks and exited 0. No queued runner was interrupted."
+      },
+      "audit_check": {
+        "command": "python3 tools/audit_docs.py --json",
+        "exit": 1,
+        "issues": 606,
+        "source_capture_issues": 605,
+        "stale_selectors": 1,
+        "report_sha256": "b73f69a5bcc0884dbbde7c483ac3498abdd6416ba9f3176c00c7924c3802c970"
+      },
+      "scope_check": "Only allowed data/ and tests/ files changed. No oversized file grew; no product code, generated scaffold, glove recipe or equipment statistics changed. Non-source git diff --check passes. Original source whitespace is preserved.",
+      "claims": "Loop-owned claims retained; no second claim acquired or released. No process outside this build signaled. No commit, push, Git config change or native Anki launch.",
+      "remaining_checks": [
+        "Resolve documentation-auditor scope for byte-preserved captures and the protected stale selector, then rerun audit_docs. All original acceptance, baseline, custody, cleanup and archive requirements remain mandatory."
+      ],
+      "uncommitted": true,
+      "self_hash": "Excluded from the manifest to avoid self-reference; final SHA-256 emitted in the build result.",
+      "style_check": "New evidence-test module passes pycodestyle --ignore=E501. No existing code file grew.",
+      "retained_artifact_hashes_verified": 24
+    }
+  }
+}
