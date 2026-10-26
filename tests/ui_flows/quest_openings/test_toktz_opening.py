@@ -5,6 +5,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as menu
+from tests.main_menu import fixtures as menu_class_fixture
 from tests.quest_catalog.test_toktz_opening import (
     player, advance, opening_snapshot, QUEST_ID, TABLET, GUIDE, COMPLETED_LINES, PENDING_LINES,
     LEGACY_LINE, RECOVERY_INSTRUCTION,
@@ -25,10 +26,10 @@ def pump():
 class ToktzOpeningPresentationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        menu.MainMenuWidgetTest.setUpClass()
+        menu_class_fixture.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = menu.MainMenuWidgetTest(methodName='runTest')
+        self.menu = menu_class_fixture.MainMenuWidgetTest(methodName='runTest')
         self.menu.setUp()
         self.original_palette = QApplication.palette()
         self.original_style = QApplication.style().objectName()

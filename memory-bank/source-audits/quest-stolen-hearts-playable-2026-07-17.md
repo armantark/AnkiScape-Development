@@ -103,10 +103,10 @@ definitions.
   absence of generated placeholder actions.
 - `tests.test_logic.TestLogic.test_stolen_hearts_stage_chain_resolves_combat_items_and_exact_rewards`
   runs the complete pure stage/combat/reward chain.
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_stolen_hearts_review_flow_resolves_the_real_mercenary_stage`
+- `tests.integration_smoke.test_quest_combat.TestIntegrationSmoke.test_stolen_hearts_review_flow_resolves_the_real_mercenary_stage`
   proves three Combat reviews followed by the quest review produce the ransom
   note through the live add-on dispatch.
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_stolen_hearts_mercenary_stage_selection`
+- `tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_stolen_hearts_mercenary_stage_selection`
   proves the real offscreen Qt surface shows both blockers, enables the action,
   and contains no placeholder objective.
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`

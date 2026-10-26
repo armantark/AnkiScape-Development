@@ -142,12 +142,12 @@ python3 -m unittest \
   tests.test_logic.TestLogic.test_fishing_contest_real_stage_emitters_complete_and_reward_once \
   tests.test_logic.TestLogic.test_scorpion_catcher_real_stage_emitters_preserve_jailer_gate_and_complete \
   tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_fishing_contest_pass_emitter \
-  tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_fishing_contest_pass_emitter \
+  tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_progresses_fishing_contest_pass_emitter \
   tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons
 ```
 
 ```bash
-QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_current_stage_blocker
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_current_stage_blocker
 ```
 
 Required full-suite verification after this batch:

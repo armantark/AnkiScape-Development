@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from tests import test_main_menu_widget as menu_fixture
+from tests.main_menu import fixtures as menu_class_fixture
 from tests.one_small_favour.test_opening_transactions import player, progress
 from ankiscape.core.constants import QUEST_DATA, QUEST_ITEM_IMAGES
 from ankiscape.data.quest.one_small_favour import QUEST_ID, BLUNT_HATCHET
@@ -26,10 +27,10 @@ def pump():
 class ExistingOpeningSurfaceTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        menu_fixture.MainMenuWidgetTest.setUpClass()
+        menu_class_fixture.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = menu_fixture.MainMenuWidgetTest(methodName='runTest')
+        self.menu = menu_class_fixture.MainMenuWidgetTest(methodName='runTest')
         self.menu.setUp()
         self.addCleanup(self.menu.tearDown)
         self.app = QApplication.instance()

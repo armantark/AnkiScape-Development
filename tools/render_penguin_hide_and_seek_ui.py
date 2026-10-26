@@ -15,8 +15,8 @@ from aqt.qt import QApplication, QWidget  # type: ignore
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
+from tests.main_menu.activities.distractions.test_penguin import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _utility_row,
 )

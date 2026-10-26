@@ -18,8 +18,8 @@ from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     default_big_chinchompa_state_pure,
 )
+from tests.main_menu.fixtures import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _goto_hunter,
     _make_player_data,
 )

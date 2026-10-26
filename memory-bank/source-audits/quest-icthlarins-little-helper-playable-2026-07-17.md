@@ -148,10 +148,10 @@ state, a separate puzzle interface, or wall-clock delay.
 - `tests.test_logic.TestLogic.test_icthlarins_little_helper_stage_chain_resolves_guardian_ceremony_and_priest`
   runs the complete pure chain, both Combat boundaries, all transactions, and
   exact completion XP.
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_icthlarins_little_helper_review_flow_resolves_the_canopic_guardian`
+- `tests.integration_smoke.test_quest_combat.TestIntegrationSmoke.test_icthlarins_little_helper_review_flow_resolves_the_canopic_guardian`
   proves authorization consumes the jar and token before the guardian review,
   then a later review advances the ceremony transaction.
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_icthlarins_canopic_guardian_selection`
+- `tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_icthlarins_canopic_guardian_selection`
   protects the real offscreen Qt blocker and action surface.
 - `tests.test_fetch_assets.TestFetchAssets.test_historical_lookup_requests_newest_revision_before_cutoff`
   protects the reusable historical file-revision query.

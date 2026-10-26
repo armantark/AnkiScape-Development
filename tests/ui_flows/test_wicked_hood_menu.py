@@ -5,6 +5,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as main
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 
 if main.HAS_AQT:
     from aqt.qt import QApplication, QPoint
@@ -21,10 +22,10 @@ def _pump():
 class WickedHoodMenuTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        main.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.harness = main.MainMenuWidgetTest(methodName="runTest")
+        self.harness = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.harness.setUp()
 
     def tearDown(self):

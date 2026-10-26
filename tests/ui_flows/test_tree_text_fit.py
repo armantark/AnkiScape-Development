@@ -15,6 +15,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows.test_pets_visible_rows import assert_pet_rows_visible
 
 if _main_menu.HAS_AQT:
@@ -38,10 +39,10 @@ def _rows(tree) -> list:
 class TreeTextFitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self) -> None:

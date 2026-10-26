@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 from tests import test_main_menu_widget as menu_tests
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 
 if menu_tests.HAS_AQT:
     from aqt.qt import QApplication, QComboBox, QLineEdit, QLabel, QListWidget, Qt, QToolButton, QTreeWidget, QWidget
@@ -20,10 +21,10 @@ def pump():
 class SharedSearchWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        menu_tests.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = menu_tests.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self):
