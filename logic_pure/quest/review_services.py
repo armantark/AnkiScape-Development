@@ -6,6 +6,13 @@ from .enakhra import (
     enakhra_opening_blockers_pure, apply_enakhra_opening_action_pure,
 )
 from ...data.quest.enakhra_opening import QUEST_ID, PROOFS
+from .watchtower import (
+    apply_watchtower_review_pure, watchtower_requirement_pure,
+    watchtower_review_ready_pure, watchtower_phase_pure, watchtower_journal_row_pure,
+)
+from .oronwen import oronwen_requirement_pure
+from .murder_mystery import murder_mystery_journal_row_pure
+from ...logic.cold_war_greeting_logic import cold_war_journal_lines_pure
 
 
 def quest_service_review_ready_pure(player_data, quest_id, blockers):
@@ -34,3 +41,30 @@ def quest_service_phase_pure(player_data, quest_id):
     if quest_id == QUEST_ID:
         return enakhra_opening_next_action_pure(player_data)
     return oronwen_phase_pure(player_data, quest_id)
+
+
+def apply_quest_review_service_pure(player_data, quest_id, blockers):
+    if quest_id != "watchtower":
+        return apply_quest_service_review_pure(player_data, quest_id, blockers)
+    data, result = apply_watchtower_review_pure(player_data, quest_id, blockers)
+    return data, {"pending": "handed_in", "completed": "collected"}.get(result, result)
+
+
+def quest_review_requirement_pure(player_data, quest_id, requirement):
+    requirement = oronwen_requirement_pure(player_data, quest_id, requirement)
+    return watchtower_requirement_pure(player_data, quest_id, requirement)
+
+
+def quest_review_ready_pure(player_data, quest_id, blockers):
+    return (quest_service_review_ready_pure(player_data, quest_id, blockers)
+            or watchtower_review_ready_pure(player_data, quest_id, blockers))
+
+
+def quest_review_phase_pure(player_data, quest_id):
+    return quest_service_phase_pure(player_data, quest_id) or watchtower_phase_pure(player_data, quest_id)
+
+
+def quest_review_journal_row_pure(player_data, quest_id, row):
+    row = dict(row, lines=cold_war_journal_lines_pure(player_data, quest_id, row["stage"], row["lines"]))
+    row = murder_mystery_journal_row_pure(player_data, quest_id, row)
+    return watchtower_journal_row_pure(player_data, quest_id, row)

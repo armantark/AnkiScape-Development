@@ -3,6 +3,7 @@ battle per review, and the notice when the quest completes."""
 
 from __future__ import annotations
 
+from textwrap import fill
 from typing import Any
 
 from ..core.constants import CLAIM_DATA, EQUIPMENT_DATA, QUEST_DATA
@@ -103,7 +104,21 @@ def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: 
     )
 
 
+def _announce_watchtower_progress(ctx, phase):
+    messages = {
+        "commission": "The Watchtower Wizard asked you to investigate the missing power crystals. You can now use the ladder.",
+        "search": "You searched the bushes outside the Watchtower and found Fingernails. Return them to the Wizard.",
+        "present": "The Wizard took the Fingernails and identified the thieves as Skavids, servants of the ogres. He asked you to recover the four crystals.",
+    }
+    # The shared floating label sizes to its text without automatic wrapping.
+    # Keep the full explanation readable within a laptop reviewer window.
+    ctx.show_activity_gain(fill(messages[phase], width=48))
+
+
 def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "") -> None:
+    if quest_id == "watchtower" and repair_phase:
+        _announce_watchtower_progress(ctx, repair_phase)
+        return
     if opening_message:
         ctx.show_activity_gain(opening_message)
         return

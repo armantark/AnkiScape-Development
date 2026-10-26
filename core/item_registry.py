@@ -96,7 +96,7 @@ def _definition(
         category=category,
         asset_path=images.get(name),
         source=source,
-        license_note="private-fork asset; provenance not audited",
+        license_note=str(spec.get("license_note", "private-fork asset; provenance not audited")),
         source_item_id=_source_item_id(spec),
         stackable=_bool_value(spec, "stackable", True),
         required_level=_level_value(spec),
