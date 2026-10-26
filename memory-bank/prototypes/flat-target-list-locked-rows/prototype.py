@@ -37,7 +37,7 @@ def player_data(level: int) -> dict:
 
 
 def open_dialog(skill: str, level: int):
-    from tests.test_main_menu_widget import MainMenuWidgetTest
+    from tests.main_menu.fixtures import MainMenuWidgetTest
 
     MainMenuWidgetTest.setUpClass()
     harness = MainMenuWidgetTest(methodName="runTest")

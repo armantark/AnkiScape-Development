@@ -40,7 +40,7 @@ def _pin_assertion(node: ast.AST) -> tuple[str, int] | None:
 
 
 def read_reachability_pins(root: Path) -> dict[str, int]:
-    path = root / "tests" / "test_item_reachability_audit.py"
+    path = root / "tests" / "reachability/test_report_baseline.py"
     try:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     except (OSError, SyntaxError) as exc:

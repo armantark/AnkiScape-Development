@@ -3,6 +3,7 @@ import copy
 import unittest
 
 from tests import test_main_menu_widget as menu_fixture
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 
 if menu_fixture.HAS_AQT:
     from aqt.qt import QApplication, QTabWidget, Qt
@@ -12,14 +13,14 @@ if menu_fixture.HAS_AQT:
 class HelmetRatPoleShopTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        menu_fixture.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def test_shop_controls_refuse_lit_helmet_and_rat_pole_but_sell_unlit_helmet(self):
         from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
         from ankiscape.core.storage_pure import default_player_data
         from ankiscape.logic.shop_logic import SHOP_DATA
 
-        menu = menu_fixture.MainMenuWidgetTest(methodName="runTest")
+        menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         menu.setUp()
         self.addCleanup(menu.tearDown)
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

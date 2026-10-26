@@ -42,7 +42,7 @@ level-7 Farmer row and its shared allotment seed drop table.
 ## Verification
 
 - `python3 -m py_compile combat_data.py target_metadata.py tests/test_combat_logic.py tests/test_skill_and_item_registry.py tests/test_target_metadata.py tests/test_main_menu_widget.py`
-- `python3 -m unittest tests.test_combat_logic tests.test_skill_and_item_registry tests.test_target_metadata tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_is_selectable_and_shows_simple_enemy_targets`
+- `python3 -m unittest tests.test_combat_logic tests.test_skill_and_item_registry tests.test_target_metadata tests.main_menu.skills.test_combat_targets.MainMenuWidgetTest.test_combat_is_selectable_and_shows_simple_enemy_targets`
 - `python3 run_tests.py`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 - `git diff --check`

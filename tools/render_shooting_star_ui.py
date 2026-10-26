@@ -18,7 +18,8 @@ from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     default_shooting_star_state_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data
+from tests.main_menu.fixtures import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data
 from tools.render_big_chinchompa_ui import _dark_palette
 
 

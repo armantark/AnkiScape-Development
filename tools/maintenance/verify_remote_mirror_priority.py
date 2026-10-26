@@ -13,7 +13,7 @@ from tools.promotion.lane_execution import _hold_remote_mirror
 
 SELECTORS = (
     "test_remote_mirror_priority", "test_remote_mirror_lock", "test_remote_test_host",
-    "test_promotion_gate.", "test_memory_bank_queue_packet.",
+    "tests.promotion_gate.test_behavior.", "test_memory_bank_queue_packet.",
 )
 
 

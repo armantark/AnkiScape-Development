@@ -18,7 +18,8 @@ from ankiscape.logic.shades_of_mortton_logic import (
     apply_shades_of_mortton_command_pure,
     default_shades_of_mortton_state_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.main_menu.activities.sessions.test_shades_of_mortton import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
 
 

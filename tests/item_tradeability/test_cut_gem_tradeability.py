@@ -7,6 +7,7 @@ import unittest
 from tests import test_grand_exchange_logic as ge_support
 from tests import test_integration_smoke as smoke_support
 from tests import test_main_menu_widget as widget_support
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 from ankiscape.logic.grand_exchange_logic import (
     advance_ge_market_tick_pure,
     collect_ge_offer_pure,
@@ -130,8 +131,8 @@ class CutGemTradeabilityTest(unittest.TestCase):
 
     @unittest.skipUnless(widget_support.HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
     def test_cut_gem_alchemy_picker_uses_existing_shop_price_gate(self):
-        widget_support.MainMenuWidgetTest.setUpClass()
-        fixture = widget_support.MainMenuWidgetTest("runTest")
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
+        fixture = test_main_menu_widget_behavior.MainMenuWidgetTest("runTest")
         fixture.setUp()
         self.addCleanup(fixture.tearDown)
 

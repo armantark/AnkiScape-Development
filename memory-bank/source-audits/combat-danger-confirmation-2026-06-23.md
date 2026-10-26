@@ -26,7 +26,7 @@ a persistent confirmation flag to the flat save model.
 ## Tests
 
 - `tests.test_target_metadata.TargetMetadataTest.test_combat_rows_mark_death_possible_targets_for_confirmation`
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_death_possible_target_requires_confirmation`
+- `tests.main_menu.skills.test_combat_controls.MainMenuWidgetTest.test_combat_death_possible_target_requires_confirmation`
 
 ## Deferred
 

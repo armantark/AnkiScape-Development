@@ -29,7 +29,10 @@ def _player():
     player["current_magic"] = TARGET
     player["current_quest"] = "enakhras_lament"
     player["magic_level"] = 39
-    player["inventory"] = {"Air rune": 2, "Earth rune": 2, "Chaos rune": 1, "Candle": 1}
+    player["inventory"] = {
+        "Air rune": 2, "Earth rune": 2, "Chaos rune": 1, "Candle": 1,
+        "Logs": 1, "Oak logs": 1, "Willow logs": 1, "Maple logs": 1, "Coal": 1,
+    }
     return player
 
 

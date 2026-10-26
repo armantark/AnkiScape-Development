@@ -117,7 +117,8 @@ class TargetLevelOrderTest(unittest.TestCase):
 
 
 try:
-    from tests import test_main_menu_widget as _main_menu  # noqa: E402  (sets up Qt)
+    from tests import test_main_menu_widget as _main_menu
+    from tests.main_menu import fixtures as test_main_menu_widget_behavior  # noqa: E402  (sets up Qt)
     from tests.test_main_menu_widget import (  # noqa: E402
         _find_list_with_user_role,
         _find_tree_with_user_role,
@@ -142,10 +143,10 @@ class TargetLevelOrderWidgetTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self) -> None:

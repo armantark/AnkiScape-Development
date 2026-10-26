@@ -148,7 +148,7 @@ class ColdWarGreetingTest(unittest.TestCase):
 
     def assert_journal_preserves_rows_and_state(self, player, quest_id, expected_count):
         before, random_before = copy.deepcopy(player), random.getstate()
-        with patch("ankiscape.logic_pure.logic_pure_quest.cold_war_journal_lines_pure",
+        with patch("ankiscape.logic_pure.quest.journal.cold_war_journal_lines_pure",
                    side_effect=lambda _p, _q, _s, lines: tuple(lines)):
             old_rows = quest_journal_rows_pure(player, quest_id, QUEST_DATA)
         with patch(SAMPLER) as sample:

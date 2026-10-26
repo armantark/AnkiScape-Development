@@ -461,7 +461,7 @@ class PapercutToolTests(unittest.TestCase):
         from tools import audit_item_reachability
 
         report = audit_item_reachability.build_reachability_report()
-        pin_source = (ROOT / "tests" / "test_item_reachability_audit.py").read_text(encoding="utf-8")
+        pin_source = (ROOT / "tests" / "reachability/test_report_baseline.py").read_text(encoding="utf-8")
         blocked = report["unresolved_action_count"]
         pin = f'self.assertEqual(report["unresolved_action_count"], {blocked})'
         self.assertEqual(pin_source.count(pin), 1)
@@ -485,8 +485,8 @@ class PapercutToolTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             stale_root = Path(temp_dir)
-            (stale_root / "tests").mkdir()
-            (stale_root / "tests" / "test_item_reachability_audit.py").write_text(
+            (stale_root / "tests/reachability").mkdir(parents=True)
+            (stale_root / "tests" / "reachability/test_report_baseline.py").write_text(
                 pin_source.replace(pin, f'self.assertEqual(report["unresolved_action_count"], {blocked + 1})'),
                 encoding="utf-8",
             )

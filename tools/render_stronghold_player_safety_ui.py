@@ -20,8 +20,8 @@ from ankiscape.data.stronghold_player_safety_data import (
 from ankiscape.logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
 )
+from tests.main_menu.activities.rewards.test_stronghold import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _utility_row,
 )

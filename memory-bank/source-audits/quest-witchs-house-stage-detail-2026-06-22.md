@@ -48,9 +48,9 @@ simulation, optional/branch handling, and remaining combat-stat enrichment gaps.
 ## Verification Snapshot
 
 - Targeted pure/catalog/registry/integration/runtime tests passed:
-  `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog tests.test_logic.TestLogic.test_witchs_house_stage_gates_items_route_combat_and_reward tests.test_logic.TestLogic.test_witchs_house_experiment_forms_are_resolver_ready tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons` ran 18 tests.
+  `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog tests.test_logic.TestLogic.test_witchs_house_stage_gates_items_route_combat_and_reward tests.test_logic.TestLogic.test_witchs_house_experiment_forms_are_resolver_ready tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons` ran 18 tests.
 - Targeted Qt tests passed:
-  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_witchs_house_mouse_stage_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection`.
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_witchs_house_mouse_stage_blocker tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection`.
 - Post-slice stage audit:
   `python3 tools/audit_quest_stage_gate_coverage.py` reports 194/194 quests with stage requirements, 458 stage requirement rows, 174 quests with item/tool blockers, 120 quests with combat blockers, 285 combat rows, 180 rows with any stats, 177 resolver-ready combat rows, and 42 produced-inventory rows.
 - Required full suites passed:

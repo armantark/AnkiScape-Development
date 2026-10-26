@@ -34,9 +34,9 @@ Backend cleanup for quest-stage blockers that looked like impossible inventory r
   `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog.test_generated_pseudo_items_are_not_inventory_stage_blockers tests.test_quest_catalog.TestQuestCatalog.test_same_quest_products_are_not_required_before_they_are_produced tests.test_quest_catalog.TestQuestCatalog.test_dwarf_cannon_has_source_backed_noncombat_stage_requirements tests.test_quest_catalog.TestQuestCatalog.test_shield_of_arrav_has_source_backed_route_stage_requirements`
 - Targeted logic/integration tests passed:
   `python3 -m unittest tests.test_logic.TestLogic.test_dwarf_cannon_real_stage_emitters_complete_and_reward_once tests.test_logic.TestLogic.test_shield_of_arrav_black_arm_route_uses_contextual_contact_and_isolates_variant_rewards`
-  `python3 -m unittest tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_dwarf_cannon_repairs_without_combat_gate tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_shield_of_arrav_route_combat_gate`
+  `python3 -m unittest tests.integration_smoke.test_quest_stages.TestIntegrationSmoke.test_quest_answer_progresses_dwarf_cannon_repairs_without_combat_gate tests.integration_smoke.test_quest_combat.TestIntegrationSmoke.test_quest_answer_resolves_shield_of_arrav_route_combat_gate`
 - Targeted Qt test passed:
-  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_offers_shield_black_arm_contextual_combat`
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_offers_shield_black_arm_contextual_combat`
 - Strict same-quest product-order audit reports `same_quest_required_before_produced: 0`.
 - `python3 tools/audit_quest_stage_gate_coverage.py` reports 194/194 quests with stage requirements, 1,119 stage rows, 120 produced-inventory rows, 174 quests with item/tool blockers, 190 quests with action blockers, 32 quests with route blockers, 120 quests with combat blockers, and 185/288 resolver-ready combat encounters.
 

@@ -163,7 +163,7 @@ def owned_items(data):
 
 
 def contact_draws(index, length=2):
-    fraction = (index + 0.5) / 15
+    fraction = (index + 0.5) / 23
     return _draws((0.3, fraction, fraction) if length == 2 else (0.0, fraction))
 
 
@@ -242,8 +242,18 @@ class NpcCatalogTest(unittest.TestCase):
 
     def test_live_pool_has_fifteen_rows_and_preserves_legacy_definitions(self):
         expected = {**LEGACY_EXPECTED, **NEW_EXPECTED}
-        self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), list(expected))
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 15)
+        added_keys = (
+            "simple_sinclair_mansion_donovan",
+            "simple_sinclair_mansion_staff",
+            "simple_falador_general_store_crates",
+            "simple_lumbridge_duke_bedroom_chest",
+            "simple_draynor_manor_crates",
+            "simple_varrock_horvik_armoury_crates",
+            "simple_port_sarim_fishing_shop_crates",
+            "simple_catherby_archery_shop_drawers",
+        )
+        self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), [*expected, *added_keys])
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 23)
         for step_id, definition in expected.items():
             with self.subTest(step_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], definition)

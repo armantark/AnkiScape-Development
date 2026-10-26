@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.quest_catalog.defender_museum_fixture import (
     CLAIM_REASON, DEFENDER, LEVELS, PREREQUISITES, ready_defender_player, typed_snapshot,
 )
@@ -45,10 +46,10 @@ def _claim_and_undo_states(check):
 class DefenderMuseumReadoutTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
         self.old_palette = QApplication.palette()
         self.old_style = QApplication.style().objectName()

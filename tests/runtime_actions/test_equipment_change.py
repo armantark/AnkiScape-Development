@@ -8,11 +8,12 @@ from unittest.mock import patch
 
 from tests import test_direct_action_undo_seam as undo_seam
 from tests import test_integration_smoke as integration
+from tests.integration_smoke import fixtures as test_integration_smoke_behavior
 
 
 class TestEquipmentChange(unittest.TestCase):
-    setUp = integration.TestIntegrationSmoke.setUp
-    tearDown = integration.TestIntegrationSmoke.tearDown
+    setUp = test_integration_smoke_behavior.TestIntegrationSmoke.setUp
+    tearDown = test_integration_smoke_behavior.TestIntegrationSmoke.tearDown
 
     def test_unequipping_an_empty_slot_refuses_and_leaves_the_save_alone(self):
         addon = integration._load_addon_as_package("ankiscape_equipment_change_refusal")

@@ -16,6 +16,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 
 if _main_menu.HAS_AQT:
     from aqt.qt import (
@@ -95,10 +96,10 @@ def _dark_palette() -> "QPalette":
 class FirstCellSelectionTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = _main_menu_fixtures.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self) -> None:
