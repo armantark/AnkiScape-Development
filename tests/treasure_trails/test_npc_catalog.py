@@ -15,6 +15,7 @@ from ankiscape.data.treasure_trails_data import TREASURE_TRAILS_EASY_STEPS
 from ankiscape.logic import treasure_trails_logic as trails
 from tests import test_storage_runtime as storage_fixture
 from tests.test_treasure_trails import _draws
+from tests.treasure_trails import SEARCH_ROWS
 
 EXPECTED_SOURCE = (
     "RuneScape Wiki Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z); "
@@ -163,7 +164,7 @@ def owned_items(data):
 
 
 def contact_draws(index, length=2):
-    fraction = (index + 0.5) / 15
+    fraction = (index + 0.5) / len(TREASURE_TRAILS_EASY_STEPS)
     return _draws((0.3, fraction, fraction) if length == 2 else (0.0, fraction))
 
 
@@ -240,10 +241,15 @@ class NpcCatalogTest(unittest.TestCase):
         self.assertEqual(owned_items(after), owned_items(before))
         self.assertEqual(skill, 'Activities')
 
-    def test_live_pool_has_fifteen_rows_and_preserves_legacy_definitions(self):
+    def test_live_pool_has_twenty_two_rows_and_preserves_legacy_definitions(self):
         expected = {**LEGACY_EXPECTED, **NEW_EXPECTED}
+        expected.update({
+            step_id: dict(step_id=step_id, kind="simple", text=text,
+                          equipment=(), bare=False, source=EXPECTED_SOURCE)
+            for step_id, text in SEARCH_ROWS
+        })
         self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), list(expected))
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 15)
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 22)
         for step_id, definition in expected.items():
             with self.subTest(step_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], definition)

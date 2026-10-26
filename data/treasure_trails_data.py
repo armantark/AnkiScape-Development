@@ -150,6 +150,62 @@ TREASURE_TRAILS_EASY_STEPS: dict[str, dict[str, Any]] = {
         # RuneHQ 2012-11-03 lines 811–813; Tip.It 2012-10-26 lines 335–336.
         # Simple clues oldid=6579176, literal lines 396–398.
         _step("simple_al_kharid_zeke", "simple", "Talk to Zeke in Al Kharid."),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 106/107/108; RuneHQ capture 20121103160103,
+        # clue/answer lines 1266–1267 (destination corroboration only).
+        _step(
+            "simple_hemenster_crate",
+            "simple",
+            "Search for a crate in a building in Hemenster.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 114/115/116; RuneHQ capture 20121103160103,
+        # clue/answer lines 1451–1452 (destination corroboration only).
+        _step(
+            "simple_seers_village_ground_floor_crate",
+            "simple",
+            "Search for a crate on the ground floor of a house in Seers' Village.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 131/132/135; RuneHQ capture 20121103160103,
+        # clue/answer lines 1296–1297 (destination corroboration only).
+        _step(
+            "simple_varrock_south_entrance_boxes",
+            "simple",
+            "Search the boxes in the house near the South entrance of Varrock.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 137/138/139; RuneHQ capture 20121103160103,
+        # clue/answer lines 1301–1302 (destination corroboration only).
+        _step(
+            "simple_east_ardougne_armour_shop_boxes",
+            "simple",
+            "Search the boxes just outside the Armour shop in east Ardougne.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 153/154/155; RuneHQ capture 20121103160103,
+        # clue/answer lines 1321–1322 (destination corroboration only).
+        _step(
+            "simple_camelot_left_tower_chest",
+            "simple",
+            "Search the chest in the left-hand tower of Camelot castle.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 157/158/159; RuneHQ capture 20121103160103,
+        # clue/answer lines 1461–1462 (destination corroboration only).
+        _step(
+            "simple_dwarven_mine_chests",
+            "simple",
+            "Search the chests in the Dwarven Mine.",
+        ),
+        # Wiki Simple clues oldid=6579176 (2012-11-18T16:48:49Z),
+        # clue/answer/level lines 170/171/172; RuneHQ capture 20121103160103,
+        # clue/answer lines 1341–1342 (destination corroboration only).
+        _step(
+            "simple_port_khazard_cart_crate",
+            "simple",
+            "Search the crate near a cart in Port Khazard.",
+        ),
     )
 }
 
