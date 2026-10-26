@@ -1,3 +1,5 @@
+from ...data.quest.toktz_opening import OPENING_IMAGES as _TOKTZ_OPENING_IMAGES
+
 import os
 import re
 
@@ -26,6 +28,7 @@ for _item_name in _QUEST_REWARD_ITEM_DATA:
     )
     if os.path.exists(_path):
         QUEST_ITEM_IMAGES[_item_name] = _path
+QUEST_ITEM_IMAGES.update(_TOKTZ_OPENING_IMAGES)
 for _item_name, _filename in (("Sandstone (32kg)", "sandstone_32kg.png"), ("Sandstone base", "sandstone_base.png")):
     QUEST_ITEM_IMAGES[_item_name] = os.path.join(current_dir, "data", "quest", "enakhra_assets", _filename)
 for _item_name in COMBAT_EXTRA_ITEM_DATA:

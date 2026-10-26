@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .toktz_opening import PENDING_LINES as _TOKTZ_PENDING_LINES
 from .dependencies import *
 from .contract import *
 from .ids import *
@@ -240,6 +241,11 @@ def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "toktz_ket_dill": tuple(
+        QuestStage(row["stage"], (_TOKTZ_PENDING_LINES[0],) if row["stage"] == 1 else tuple(row["journal"]))
+        for quest in PRE_EOC_QUEST_CATALOG if quest["id"] == "toktz_ket_dill"
+        for row in quest["journal_stages"]
+    ),
     # Dream Mentor oldid 6550965, 2012-11-13T04:35:58Z:
     # https://runescape.wiki/w/index.php?title=Dream_Mentor&oldid=6550965
     # Retained: tools/generation/quest_sources.json.gz, wiki.wikitext_dream_mentor_old.
