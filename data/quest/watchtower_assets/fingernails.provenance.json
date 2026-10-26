@@ -1,0 +1,52 @@
+{
+  "retrieved_utc": "2026-10-24T07:40:07.941960+00:00",
+  "file_title": "File:Fingernails.png",
+  "file_revision": {
+    "revid": 6410504,
+    "parentid": 4959786,
+    "timestamp": "2012-10-15T02:21:48Z",
+    "slots": {
+      "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "*": "{{Inventory license|Fingernails}}\n[[Category:Quest item images]]\n[[Category:Watchtower Quest]]"
+      }
+    }
+  },
+  "upload": {
+    "timestamp": "2011-11-21T01:58:16Z",
+    "user": "Image optimisation bot",
+    "size": 1210,
+    "width": 29,
+    "height": 25,
+    "comment": "(Automated) PNG recompression",
+    "url": "https://runescape.wiki/images/archive/20140502073535%21Fingernails.png?fcd15",
+    "descriptionurl": "https://runescape.wiki/w/File:Fingernails.png",
+    "descriptionshorturl": "https://runescape.wiki/index.php?curid=29082",
+    "sha1": "c352bdb1f569fc4914628e56b1f023c279edb8d5",
+    "mime": "image/png"
+  },
+  "download_sha1": "c352bdb1f569fc4914628e56b1f023c279edb8d5",
+  "download_sha256": "ee15a818232c7cb563574bd77dcd7ab75e118e56382debe95b9c4edf71437e99",
+  "sha1_matches": true,
+  "raw_matches_metadata": true,
+  "requests": [
+    {
+      "file": "sources/fingernails-file-6410504.txt",
+      "url": "https://runescape.wiki/w/index.php?title=File%3AFingernails.png&oldid=6410504&action=raw",
+      "exit": 0,
+      "http": "200",
+      "stderr": ""
+    },
+    {
+      "file": "sources/fingernails-20111121.png",
+      "url": "https://runescape.wiki/images/archive/20140502073535%21Fingernails.png?fcd15",
+      "exit": 0,
+      "http": "200",
+      "stderr": ""
+    }
+  ],
+  "raw_file_body_sha256": "8babb6a54becb9d2e6a943b9ceb507d71eca44786579244440b382559a14b3e4",
+  "license_note": "Inventory license template observed; template terms not resolved.",
+  "archive_boundary_note": "The 2014 archive filename is the replacement boundary, not the selected upload date."
+}
