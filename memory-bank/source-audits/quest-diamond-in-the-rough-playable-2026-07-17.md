@@ -145,10 +145,10 @@ an inventory puzzle, a camera-facing minigame, or wall-clock delay.
 - `tests.test_logic.TestLogic.test_diamond_in_the_rough_stage_chain_resolves_two_fights_and_exact_rewards`
   runs the complete pure chain, proves both claims stay optional at completion,
   proves the level-79/80 boundary, and claims both exact XP-and-item payouts.
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_diamond_in_the_rough_review_flow_resolves_the_sundial_ambush`
+- `tests.integration_smoke.test_quest_combat.TestIntegrationSmoke.test_diamond_in_the_rough_review_flow_resolves_the_sundial_ambush`
   proves six Combat reviews followed by one quest review produce the gnomon
   and four waterskins through live add-on dispatch.
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_diamond_in_the_rough_ambush_selection`
+- `tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_diamond_in_the_rough_ambush_selection`
   protects the real offscreen Qt blockers and action.
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
   protects both period assets and their pre-cutoff provenance timestamps.

@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QListWidget, Qt  # type: ignore
 
+from tests.main_menu.test_shop_services import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _open_shop_tab,
 )

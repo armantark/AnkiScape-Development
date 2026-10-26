@@ -18,6 +18,7 @@ from ankiscape.logic_pure.quest.review_services import (
 from ankiscape.runtime import runtime_actions_quest
 from tests import test_main_menu_widget as menu_fixture
 from tests import test_integration_smoke as runtime_fixture
+from tests.main_menu.fixtures import MainMenuWidgetTest
 from tests.test_runtime_actions import _context
 from tests.test_early_quest_item_routes import _answer_review
 from .test_witchs_house import player_at, blockers, finished_fights
@@ -108,10 +109,10 @@ class WitchsHouseRuntimeTest(unittest.TestCase):
 class WitchsHouseControlsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        menu_fixture.MainMenuWidgetTest.setUpClass()
+        MainMenuWidgetTest.setUpClass()
 
     def setUp(self):
-        self.fixture = menu_fixture.MainMenuWidgetTest(methodName='runTest')
+        self.fixture = MainMenuWidgetTest(methodName='runTest')
         self.fixture.setUp()
         self.addCleanup(self.fixture.tearDown)
 

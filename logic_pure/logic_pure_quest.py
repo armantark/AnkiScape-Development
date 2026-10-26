@@ -3,19 +3,25 @@
 from typing import Iterable, Mapping, Optional
 
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
-from .quest.eligibility import (  # noqa: F401 (re-export)
-    _skill_requirement_reason, quest_locked_reasons_pure, quest_eligibility_reasons_pure,
+from .quest.eligibility import quest_locked_reasons_pure, quest_eligibility_reasons_pure  # noqa: F401 (re-export)
+from .quest.skill_requirements import _skill_requirement_reason
+from .quest.journal import quest_current_stage_pure, quest_journal_rows_pure  # noqa: F401 (re-export)
+from .quest.toktz_opening import (
+    toktz_opening_phase_pure, toktz_opening_review_ready_pure,
+    toktz_opening_next_event_pure, apply_toktz_opening_review_pure,
 )
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure, apply_opening_review_pure,
 )
-from .quest.oronwen import oronwen_requirement_pure
-from .quest.review_services import apply_quest_review_service_pure, quest_review_service_ready_pure
+from .quest.review_steps import (
+    apply_quest_review_step_pure, quest_review_requirement_pure,
+    quest_review_ready_pure, quest_review_blockers_pure,
+)
+from .quest.enakhra import enakhra_opening_blockers_pure
 from .quest.witchs_house import (
     witchs_house_stage_rows_pure, witchs_house_extra_blockers_pure, witchs_house_next_progress_pure,
 )
-from .quest.journal import quest_journal_rows_pure  # noqa: F401 (re-export)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 from ..core.tool_belt import tool_on_belt
@@ -118,18 +124,6 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
 
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
-
-def quest_current_stage_pure(player_data, quest_id, quest_data):
-    quest = quest_data.get(quest_id)
-    if not quest:
-        return 0
-    state = quest_state_pure(player_data, quest_id)
-    if not state["started"]:
-        return 0
-    total_stages = _positive_int(quest.get("stages", 1), 1)
-    if state["completed"]:
-        return total_stages
-    return min(total_stages, max(1, state["progress"]))
 
 def _quest_stage_item_pairs(requirement, key):
     raw_items = requirement.get(key, {}) if isinstance(requirement, Mapping) else {}
@@ -606,158 +600,119 @@ def _quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirem
     )
 
 
-def _quest_requirement_blockers(player_data, quest_id, requirement):
-    requirement = oronwen_requirement_pure(player_data, quest_id, requirement)
-    stage = _positive_int(requirement.get("stage", 0), 0)
-    source = str(requirement.get("source", ""))
+def _quest_requirement_inventory_blockers(player_data, requirement, stage, source):
     inventory = player_data.get("inventory", {}) or {}
-    blockers = []
-    repeatable_consumed_items = {
-        item_name
-        for item_name, _amount in _quest_stage_item_pairs(
-            requirement, "consumed_inventory"
-        )
-    } if bool(requirement.get("repeatable_until_consumed")) else set()
-
+    consumed = _quest_stage_item_pairs(requirement, "consumed_inventory")
+    repeatable = {name for name, _ in consumed} if requirement.get("repeatable_until_consumed") else set()
     required_items = {}
-    for item_name, amount in (
-        _quest_stage_item_pairs(requirement, "required_inventory")
-        + _quest_stage_item_pairs(requirement, "consumed_inventory")
-    ):
+    for item_name, amount in _quest_stage_item_pairs(requirement, "required_inventory") + consumed:
         required_items[item_name] = max(required_items.get(item_name, 0), amount)
+    blockers = []
     for item_name, amount in required_items.items():
         owned = _positive_int(inventory.get(item_name, 0), 0)
-        if owned < amount:
-            if item_name in repeatable_consumed_items:
-                continue
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "missing_item",
-                    f"Needs {item_name} x{amount}",
-                    source,
-                    item_name=item_name,
-                    quantity=amount,
-                    owned=owned,
-                )
-            )
+        if owned < amount and item_name not in repeatable:
+            blockers.append(_quest_blocker(
+                stage, "missing_item", f"Needs {item_name} x{amount}", source,
+                item_name=item_name, quantity=amount, owned=owned,
+            ))
+    return blockers
 
-    seen_option_blockers = set()
+
+def _quest_requirement_option_met(player_data, option_key, options):
+    if option_key == "required_inventory_options":
+        return any(_has_quest_tool(player_data, name, amount) for name, amount in options)
+    inventory = player_data.get("inventory", {}) or {}
+    return any(_positive_int(inventory.get(name, 0), 0) >= amount for name, amount in options)
+
+
+def _quest_requirement_option_blockers(player_data, requirement, stage, source):
+    blockers, seen = [], set()
     for option_key in ("required_inventory_options", "consumed_inventory_options"):
         for options in _quest_stage_item_option_groups(requirement, option_key):
-            if option_key == "required_inventory_options":
-                option_met = any(_has_quest_tool(player_data, item_name, amount) for item_name, amount in options)
-            else:
-                option_met = any(
-                    _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
-                )
-            if option_met:
+            met = _quest_requirement_option_met(player_data, option_key, options)
+            signature = tuple(options)
+            if met or signature in seen:
                 continue
-            option_signature = tuple(options)
-            if option_signature in seen_option_blockers:
-                continue
-            seen_option_blockers.add(option_signature)
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "missing_item_option",
-                    _quest_item_option_reason(options),
-                    source,
-                    options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
-                )
-            )
+            seen.add(signature)
+            blockers.append(_quest_blocker(
+                stage, "missing_item_option", _quest_item_option_reason(options), source,
+                options=tuple({"item_name": name, "quantity": amount} for name, amount in options),
+            ))
+    return blockers
 
-    blockers.extend(
-        _quest_stage_skill_blockers(
-            player_data,
-            stage,
-            source,
-            requirement.get("required_skills"),
-        )
-    )
 
+def _quest_requirement_contact_blockers(player_data, quest_id, requirement, stage, source):
+    blockers = []
     for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
         if not _has_quest_tool(player_data, tool_name, amount):
             quantity = f" x{amount}" if amount > 1 else ""
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "missing_tool",
-                    f"Needs {tool_name}{quantity}",
-                    source,
-                    tool_name=tool_name,
-                    quantity=amount,
-                )
-            )
-
+            blockers.append(_quest_blocker(
+                stage, "missing_tool", f"Needs {tool_name}{quantity}", source,
+                tool_name=tool_name, quantity=amount,
+            ))
     for action_id in _quest_stage_strings(requirement, "required_actions"):
         if not quest_action_proof_completed_pure(player_data, action_id):
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "required_action",
-                    f"Action required: {action_id}",
-                    source,
-                    action_id=action_id,
-                )
-            )
-
+            blockers.append(_quest_blocker(
+                stage, "required_action", f"Action required: {action_id}", source, action_id=action_id,
+            ))
     for route_id in _quest_stage_strings(requirement, "required_routes"):
         if not _quest_route_completed(player_data, quest_id, route_id):
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "unmet_route",
-                    f"Route required: {route_id}",
-                    source,
-                    route_id=route_id,
-                )
-            )
+            blockers.append(_quest_blocker(
+                stage, "unmet_route", f"Route required: {route_id}", source, route_id=route_id,
+            ))
+    return blockers
 
-    blockers.extend(_quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirement))
+
+def _quest_requirement_encounter_blocker(player_data, quest_id, encounter, stage, source):
+    encounter_id = encounter.get("encounter_id")
+    display_name, level, quantity, level_text, _, encounter_source = _quest_combat_display(encounter, source)
+    completed = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
+    remaining = _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter)
+    if remaining <= 0:
+        return None
+    quantity_text = f" x{remaining}" if remaining > 1 else ""
+    label = f"{display_name}{level_text}{quantity_text}"
+    fight = dict(
+        encounter_id=encounter_id, display_name=display_name, level=level, quantity=remaining,
+        total_quantity=quantity, completed_quantity=completed, remaining_quantity=remaining,
+    )
+    if not quest_combat_encounter_has_stats_pure(encounter):
+        reason = f"This fight is not modelled yet (combat stats missing): {label}"
+        return _quest_blocker(stage, "combat_missing_stats", reason, encounter_source, **fight)
+    player_level = player_combat_level_pure(player_data)
+    minimum = _positive_int(_quest_combat_configs(encounter).get("minimum_player_combat", 0), 0)
+    fight["minimum_player_combat"] = minimum
+    if minimum > 0 and player_level < minimum:
+        reason = f"Requires combat level {minimum} for battle: {label}"
+        return _quest_blocker(
+            stage, "combat_underpowered", reason, encounter_source, player_combat_level=player_level, **fight,
+        )
+    return _quest_blocker(stage, "combat_encounter", f"Battle required: {label}", encounter_source, **fight)
+
+
+def _quest_requirement_combat_blockers(player_data, quest_id, requirement, stage, source):
+    blockers = list(_quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirement))
     for encounter in requirement.get("combat_encounters", ()) or ():
-        if not isinstance(encounter, Mapping):
+        if not isinstance(encounter, Mapping) or not isinstance(encounter.get("encounter_id"), str):
             continue
-        encounter_id = encounter.get("encounter_id")
-        if not isinstance(encounter_id, str):
-            continue
-        display_name, level, quantity, level_text, _, encounter_source = _quest_combat_display(encounter, source)
-        completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
-        remaining_quantity = _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter)
-        if remaining_quantity <= 0:
-            continue
-        remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
-        label = f"{display_name}{level_text}{remaining_quantity_text}"
-        fight = dict(
-            encounter_id=encounter_id,
-            display_name=display_name,
-            level=level,
-            quantity=remaining_quantity,
-            total_quantity=quantity,
-            completed_quantity=completed_quantity,
-            remaining_quantity=remaining_quantity,
-        )
-        if not quest_combat_encounter_has_stats_pure(encounter):
-            reason = f"This fight is not modelled yet (combat stats missing): {label}"
-            blockers.append(_quest_blocker(stage, "combat_missing_stats", reason, encounter_source, **fight))
-            continue
-        player_level = player_combat_level_pure(player_data)
-        minimum_player_combat = _positive_int(
-            _quest_combat_configs(encounter).get("minimum_player_combat", 0), 0
-        )
-        fight["minimum_player_combat"] = minimum_player_combat
-        if minimum_player_combat > 0 and player_level < minimum_player_combat:
-            reason = f"Requires combat level {minimum_player_combat} for battle: {label}"
-            blockers.append(
-                _quest_blocker(
-                    stage, "combat_underpowered", reason, encounter_source, player_combat_level=player_level, **fight
-                )
-            )
-            continue
-        reason = f"Battle required: {label}"
-        blockers.append(_quest_blocker(stage, "combat_encounter", reason, encounter_source, **fight))
-    blockers.extend(witchs_house_extra_blockers_pure(player_data, quest_id, requirement))
-    return tuple(blockers)
+        blocker = _quest_requirement_encounter_blocker(player_data, quest_id, encounter, stage, source)
+        if blocker:
+            blockers.append(blocker)
+    return blockers
+
+
+def _quest_requirement_blockers(player_data, quest_id, requirement):
+    requirement = quest_review_requirement_pure(player_data, quest_id, requirement)
+    stage = _positive_int(requirement.get("stage", 0), 0)
+    source = str(requirement.get("source", ""))
+    return tuple((
+        *_quest_requirement_inventory_blockers(player_data, requirement, stage, source),
+        *_quest_requirement_option_blockers(player_data, requirement, stage, source),
+        *_quest_stage_skill_blockers(player_data, stage, source, requirement.get("required_skills")),
+        *_quest_requirement_contact_blockers(player_data, quest_id, requirement, stage, source),
+        *_quest_requirement_combat_blockers(player_data, quest_id, requirement, stage, source),
+        *witchs_house_extra_blockers_pure(player_data, quest_id, requirement),
+    ))
 
 
 def _quest_current_stage_selected_requirements(player_data, quest_id, quest_data):
@@ -817,11 +772,12 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return tuple()
+    service_blockers = enakhra_opening_blockers_pure(player_data, quest_id)
     choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
     if choice_blockers:
-        return (*choice_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
+        return quest_review_blockers_pure(player_data, quest_id, (*choice_blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)))
     _, blockers = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
-    return (*blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure))
+    return quest_review_blockers_pure(player_data, quest_id, (*blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)))
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
@@ -982,11 +938,14 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
 
 
 def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
+    if toktz_opening_phase_pure(player_data, quest_id) == "toktz_invalid_opening":
+        return False
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
     return (
-        quest_review_service_ready_pure(player_data, quest_id, blockers)
+        toktz_opening_review_ready_pure(player_data, quest_id, blockers)
+        or quest_review_ready_pure(player_data, quest_id, blockers)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
@@ -1284,8 +1243,12 @@ def apply_quest_progress_pure(
     if not ok or state["completed"]:
         return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
-    data, repair_result = apply_quest_review_service_pure(data, quest_id, blockers)
-    if repair_result in ("handed_in", "deed_only"):
+    if toktz_opening_phase_pure(data, quest_id) is not None:
+        event = toktz_opening_next_event_pure(data, quest_id)
+        candidate, success = apply_toktz_opening_review_pure(data, quest_id, blockers, event)
+        return (candidate if success else player_data, success, False, *empty_refusal)
+    data, review_result = apply_quest_review_step_pure(data, quest_id, blockers)
+    if review_result in ("partial", "deed_only"):
         return (data, True, False, *empty_refusal)
     data, opening_ok = apply_opening_review_pure(
         data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,

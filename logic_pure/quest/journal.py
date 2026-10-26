@@ -1,10 +1,25 @@
-"""Observational quest journal projections, independent of quest mutations."""
+"""Read-only quest journal projections, independent of progression controllers."""
 
 from ...logic.cold_war_greeting_logic import cold_war_journal_lines_pure
 from ..logic_pure_state import quest_state_pure, _positive_int
-from .elemental_workshop import opening_journal_rows_pure
 from .murder_mystery import murder_mystery_journal_row_pure
+from .elemental_workshop import opening_journal_rows_pure
+from .enakhra import enakhra_opening_journal_row_pure
+from .toktz_opening import toktz_opening_journal_row_pure
 from .witchs_house import witchs_house_journal_rows_pure
+
+
+def quest_current_stage_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return 0
+    state = quest_state_pure(player_data, quest_id)
+    if not state["started"]:
+        return 0
+    total_stages = _positive_int(quest.get("stages", 1), 1)
+    if state["completed"]:
+        return total_stages
+    return min(total_stages, max(1, state["progress"]))
 
 
 def quest_journal_rows_pure(player_data, quest_id, quest_data):
@@ -28,6 +43,8 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
             "completed": state["completed"] or stage < progress,
             "current": (not state["completed"] and stage == progress),
         }
-        rows.append(murder_mystery_journal_row_pure(player_data, quest_id, row))
+        row = murder_mystery_journal_row_pure(player_data, quest_id, row)
+        row = toktz_opening_journal_row_pure(player_data, quest_id, row)
+        rows.append(enakhra_opening_journal_row_pure(player_data, quest_id, row))
     rows = opening_journal_rows_pure(player_data, quest_id, tuple(rows))
     return witchs_house_journal_rows_pure(player_data, quest_id, rows)

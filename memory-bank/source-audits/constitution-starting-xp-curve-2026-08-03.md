@@ -59,5 +59,5 @@ does not change the 2012 contract.
   result, and one-time migration behavior.
 - `tests.test_runtime_actions.TestRuntimeActions.test_combat_level_refresh_leaves_the_old_level_for_the_level_up_gate`
   pins the runtime level-up boundary.
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_fractional_constitution_xp_is_not_displayed_as_zero`
+- `tests.integration_smoke.test_xp_events.TestIntegrationSmoke.test_fractional_constitution_xp_is_not_displayed_as_zero`
   pins visible fractional Constitution XP.

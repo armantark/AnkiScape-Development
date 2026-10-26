@@ -15,8 +15,8 @@ from aqt.qt import QApplication  # type: ignore
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.great_orb_project_logic import enter_great_orb_project_pure
+from tests.main_menu.activities.sessions.test_great_orb_project import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _utility_row,
 )

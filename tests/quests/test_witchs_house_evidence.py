@@ -1,6 +1,7 @@
 """Retained Witch's House sources survive Git without newline conversion."""
 
 import hashlib
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -38,8 +39,9 @@ class WitchsHouseEvidenceTest(unittest.TestCase):
     def test_git_preserves_mixed_line_endings_in_retained_html(self):
         path = EVIDENCE / 'sources/tipit-20120825005349.html'
         raw = path.read_bytes()
-        self.assertIn(b'\r\n', raw)
-        self.assertIn(b'\n', raw.replace(b'\r\n', b''))
+        with io.TextIOWrapper(io.BytesIO(raw), encoding='latin-1', newline='') as stream:
+            self.assertEqual(stream.read().encode('latin-1'), raw)
+            self.assertEqual(stream.newlines, ('\n', '\r\n'))
         checkout = Path(self.enterContext(tempfile.TemporaryDirectory()))
         subprocess.run(['git', 'init', '-q', str(checkout)], check=True)
         relative = path.relative_to(ROOT).as_posix()

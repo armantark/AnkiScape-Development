@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from aqt.qt import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QSpinBox, QWidget
 from tests import test_main_menu_widget as menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.pace.test_pace_settings_qt import _cut_off, _dark_palette
 from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
 from ankiscape.ui.ui_pace_settings import PaceDialog
@@ -46,7 +47,7 @@ def control_geometry(page):
 
 
 def capture_settings(output, theme, height):
-    case = menu.MainMenuWidgetTest()
+    case = _main_menu_fixtures.MainMenuWidgetTest()
     case.setUp()
     try:
         dialog = case._open(menu._make_player_data())
@@ -106,7 +107,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     output = parser.parse_args().output
     output.mkdir(parents=True, exist_ok=False)
-    menu.MainMenuWidgetTest.setUpClass()
+    _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
     app = QApplication.instance()
     app.setStyle("Fusion")
     reports = {}

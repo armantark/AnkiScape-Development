@@ -18,7 +18,8 @@ from ankiscape.logic.ranging_guild_logic import (
     apply_ranging_guild_command_pure,
     default_ranging_guild_state_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.main_menu.activities.rewards.test_ranging_guild import MainMenuWidgetTest
+from tests.test_main_menu_widget import _make_player_data, _utility_row
 from tools.render_big_chinchompa_ui import _dark_palette
 
 

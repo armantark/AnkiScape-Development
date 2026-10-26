@@ -31,8 +31,8 @@ Focused backend/frontend slice for Shield of Arrav. The goal was to remove the q
 ## Verification Snapshot
 
 - Targeted pure/catalog/registry tests passed: `python3 -m unittest tests.test_logic tests.test_quest_catalog tests.test_skill_and_item_registry`.
-- Targeted Qt test passed: `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_shield_of_arrav_route_branch_blockers`.
-- Targeted integration smoke coverage includes `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_shield_of_arrav_route_combat_gate`.
+- Targeted Qt test passed: `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_shield_of_arrav_route_branch_blockers`.
+- Targeted integration smoke coverage includes `tests.integration_smoke.test_quest_combat.TestIntegrationSmoke.test_quest_answer_resolves_shield_of_arrav_route_combat_gate`.
 - Post-slice audit at the original Shield scope: 194/194 quests with stage requirements, 440 stage requirement rows, 174 quests with item/tool blockers, 120 quests with combat blockers, 285 combat rows, and 177 resolver-ready combat rows.
 - Follow-up 2026-06-23: a stricter same-quest product-order audit found the Black Arm `Weapon store key` as a remaining false blocker. The focused correction moved it to Phoenix-partner action gates and stage-local `produced_inventory`; the invariant now reports zero same-quest products required or consumed before production.
 - `tools/audit_quest_combat_stat_gaps.py` still reports 108 statless combat rows. Full all-quest minute-detail parity remains open.

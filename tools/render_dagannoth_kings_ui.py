@@ -18,8 +18,8 @@ from ankiscape.data.dagannoth_kings_data import DAGANNOTH_KINGS_ENEMY_DATA
 from ankiscape.logic.dagannoth_kings_logic import (
     default_dagannoth_kings_state_pure,
 )
+from tests.main_menu.activities.sessions.test_dagannoth_kings import MainMenuWidgetTest
 from tests.test_main_menu_widget import (
-    MainMenuWidgetTest,
     _make_player_data,
     _utility_row,
 )

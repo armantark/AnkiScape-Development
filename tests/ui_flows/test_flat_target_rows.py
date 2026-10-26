@@ -6,6 +6,7 @@ from __future__ import annotations
 import unittest
 
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 from tests.test_main_menu_widget import HAS_AQT, _find_named_line_edit, _make_player_data
 
 if HAS_AQT:
@@ -46,10 +47,10 @@ def _row_fits(target_list, item) -> bool:
 class FlatTargetRowsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self) -> None:

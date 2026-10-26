@@ -6,6 +6,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows import test_first_cell_selection as _selection
 
 if _main_menu.HAS_AQT:
@@ -17,7 +18,7 @@ if _main_menu.HAS_AQT:
 class TreeKeyboardSearchTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        _main_menu_fixtures.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
         self.flow = _selection.FirstCellSelectionTest(methodName="runTest")

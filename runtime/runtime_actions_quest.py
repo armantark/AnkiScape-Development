@@ -17,9 +17,11 @@ from ..logic_pure.logic_pure import (
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_lamps_waiting_text_pure,
 )
-from ..logic_pure.quest.review_services import quest_review_service_phase_pure, quest_review_service_ready_pure
+from ..logic_pure.quest.review_services import quest_review_service_phase_pure
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
 from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
+from ..logic_pure.quest.review_steps import quest_review_phase_pure, quest_review_ready_pure, quest_review_feedback_pure
+from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, toktz_opening_message_pure
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import (
     _combat_review_ticks,
@@ -102,23 +104,27 @@ def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: 
     )
 
 
-def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any) -> None:
+def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "") -> None:
     if repair_phase == "recover_key":
         ctx.show_activity_gain("Recovered the backroom key from the fountain.")
         return
     if repair_phase == "recover_ball":
         ctx.show_activity_gain("Recovered Harvey's ball from the shed.")
         return
-    if repair_phase == "hand_in":
-        ctx.show_activity_gain("Oronwen took the damaged trousers, 2 Silk and 1 Bear fur. Review one more card to collect the repaired trousers.")
+    if opening_message:
+        ctx.show_activity_gain(opening_message)
         return
-    if repair_phase == "collect":
-        ctx.show_activity_gain("Oronwen returned the repaired mourner trousers.")
     state = ctx.player_data.get("quests", {}).get(quest_id, {})
-    ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
+    progress_notice = f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}"
+    for message in quest_review_feedback_pure(repair_phase, progress_notice):
+        ctx.show_activity_gain(message)
 
 
 def _report_quest_progress_refusal(ctx, quest_id, quest):
+    blockers = quest_current_stage_blockers_pure(ctx.player_data, quest_id, QUEST_DATA)
+    if toktz_opening_review_ready_pure(ctx.player_data, quest_id, blockers):
+        ctx.show_error_message("Quest item not received", "The quest item could not be added. No opening progress was saved.")
+        return
     stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(ctx.player_data, quest_id, QUEST_DATA)
     if stage_blocker_reasons:
         _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
@@ -142,7 +148,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     review_ready = (
-        quest_review_service_ready_pure(player_data, quest_id, stage_blockers)
+        toktz_opening_review_ready_pure(player_data, quest_id, stage_blockers)
+        or quest_review_ready_pure(player_data, quest_id, stage_blockers)
         or opening_review_ready_pure(
             player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
         )
@@ -158,7 +165,9 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    repair_phase = quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
+    opening_message = toktz_opening_message_pure(player_data, quest_id)
+    repair_phase = (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
+                    or quest_review_phase_pure(player_data, quest_id))
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(
@@ -188,5 +197,5 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         _announce_quest_completion(ctx, quest_id, quest, clue_reward_refusal_reason)
     else:
-        _announce_quest_progress(ctx, quest_id, quest, repair_phase)
+        _announce_quest_progress(ctx, quest_id, quest, repair_phase, opening_message)
     return True

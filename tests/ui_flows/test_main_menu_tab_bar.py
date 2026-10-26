@@ -6,6 +6,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.main_menu import fixtures as test_main_menu_widget_behavior
 
 if _main_menu.HAS_AQT:
     from aqt.qt import QApplication, QStyle, QStyleFactory, QStyleOptionTab, Qt, QToolButton
@@ -46,10 +47,10 @@ def _scroll_to_end(arrow: "QToolButton", tab_count: int) -> None:
 class MainMenuTabBarTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _main_menu.MainMenuWidgetTest.setUpClass()
+        test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
 
     def setUp(self) -> None:
-        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
         self.menu.setUp()
 
     def tearDown(self) -> None:

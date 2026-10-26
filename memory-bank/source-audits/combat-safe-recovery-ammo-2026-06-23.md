@@ -22,7 +22,7 @@ boundary rule.
 ## Tests
 
 - `tests.test_combat_logic.CombatLogicTest.test_safe_recovery_refills_ranged_ammo_at_safe_boundary`
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it`
+- `tests.integration_smoke.test_equipment_and_crafting_undo.TestIntegrationSmoke.test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it`
 
 ## Deferred
 
