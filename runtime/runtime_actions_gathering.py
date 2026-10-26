@@ -59,7 +59,7 @@ from ..logic_pure.logic_pure import (
     apply_fishing_action_pure,
     apply_fletching_pure,
     apply_herblore_action_pure,
-    apply_hunter_action_pure,
+    apply_hunter_action_pure, hunter_attraction_reasons_pure, hunter_nonmaterial_locked_reasons_pure,
     apply_quest_combat_encounter_pure,
     apply_mining_action_pure,
     apply_magic_action_pure,
@@ -560,6 +560,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     if target not in HUNTER_DATA:
         _switch_material_failure_to_bankstanding(ctx)
         return False
+    if hunter_attraction_reasons_pure(player_data, target):
+        return False
     spec = HUNTER_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("hunter_level", 1)
@@ -569,11 +571,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     inventory = player_data.get("inventory", {})
 
     locked_reasons = hunter_target_locked_reasons_pure(player_data, target, HUNTER_DATA, QUEST_UNLOCK_RULES)
-    unlock_locked = tuple(
-        reason
-        for reason in locked_reasons
-        if reason not in {"materials"} and not str(reason).startswith("Hunter level")
-    )
+    unlock_locked = hunter_nonmaterial_locked_reasons_pure(locked_reasons)
     if unlock_locked:
         ctx.deactivate_current_skill()
         ctx.show_error_message(
@@ -606,6 +604,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
+        player_data=player_data,
         r_secondary_rolls=tuple(
             (ctx.random_random(), ctx.random_random())
             for _table in secondary_drop_tables
