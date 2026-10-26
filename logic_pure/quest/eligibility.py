@@ -5,7 +5,8 @@ from collections.abc import Mapping
 from ...core.skill_registry import get_skill
 from ...data.quest.elemental_workshop_iii import QUEST_ID
 from ..logic_pure_combat_engine import player_combat_level_pure
-from ..logic_pure_state import _positive_int, quest_completed_pure, quest_state_pure
+from ..logic_pure_state import _positive_int, quest_state_pure
+from .start_requirements import _quest_prerequisite_reasons_pure, _quest_museum_claim_reasons_pure
 
 
 def _skill_requirement_reason(player_data, requirement):
@@ -28,22 +29,6 @@ def _skill_requirement_reason(player_data, requirement):
     if _positive_int(player_data.get(level_key, 1), 1) < level_required:
         return f"{label} {level_required}"
     return None
-
-
-def _prerequisite_reasons(player_data, quest, quest_data):
-    reasons = []
-    for requirement in quest.get("required_quests", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        required_id = requirement.get("quest_id")
-        if not isinstance(required_id, str):
-            continue
-        label = requirement.get("display_name") or required_id.replace("_", " ").title()
-        if not isinstance(quest_data.get(required_id), Mapping):
-            reasons.append(f"{label} (not implemented)")
-        elif not quest_completed_pure(player_data, required_id):
-            reasons.append(str(label))
-    return reasons
 
 
 def _skill_evaluation_view(player_data, quest_id):
@@ -86,9 +71,10 @@ def quest_eligibility_reasons_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
     if not quest:
         return ("unknown quest",)
-    reasons = _prerequisite_reasons(player_data, quest, quest_data)
+    reasons = _quest_prerequisite_reasons_pure(player_data, quest, quest_data)
     reasons.extend(_skill_reasons(player_data, quest_id, quest))
     reasons.extend(_point_and_item_reasons(player_data, quest))
+    reasons.extend(_quest_museum_claim_reasons_pure(player_data, quest_id))
     return tuple(dict.fromkeys(reasons))
 
 

@@ -59,6 +59,7 @@ PERIOD_START_GATES = {
             "Shield of Arrav", "The Knight's Sword", "Family Crest", "What Lies Below",
             "Demon Slayer", "Temple of Ikov", "Garden of Tranquillity", "Agility 51",
             "Hunter 51", "Mining 59", "Smithing 54",
+            "Claim Varrock Museum Kudos for completing Shield of Arrav",
         ),
     ),
     "recruitment_drive": (
@@ -117,6 +118,8 @@ def _player_ready_to_start(quest_id):
             "progress": QUEST_DATA[required_id]["stages"],
             "completed": True,
         }
+    if quest_id == "defender_of_varrock":
+        player["varrock_museum"]["quest_stories_claimed"] = ["shield_of_arrav"]
     return player
 
 
