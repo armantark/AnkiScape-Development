@@ -35,7 +35,6 @@ REQUIREMENTS = (
     "Underground Pass",
     "Waterfall Quest",
     "Agility 50",
-    "Combat 75",
     "Crafting 50",
     "Herblore 45",
     "Magic 56",
@@ -48,7 +47,7 @@ REQUIREMENTS = (
 )
 
 
-def _ready_legends_player():
+def _ready_legends_player(attack_level=70):
     player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
     # Isolate start eligibility; prerequisite acquisition is outside this fixture.
     for quest_id, _name in PREREQUISITES:
@@ -61,7 +60,10 @@ def _ready_legends_player():
         if requirement["skill_id"] != "combat":
             skill = get_skill(requirement["skill_id"])
             player[skill.level_key] = requirement["level"]
-    player.update(attack_level=75, defense_level=75, constitution_level=75, strength_level=75)
+    player.update(
+        attack_level=attack_level, defense_level=60, constitution_level=60,
+        strength_level=50, prayer_level=42, magic_level=56, ranged_level=1, summoning_level=1,
+    )
     player["quest_points"] = 108
     return player
 
@@ -91,6 +93,11 @@ class TestQuestRootPrerequisites(unittest.TestCase):
         expected_skills = tuple(
             dict(req, level=42) if req["skill_id"] == "prayer" else dict(req)
             for req in raw["required_skills"]
+            if req["skill_id"] != "combat"
+        )
+        self.assertEqual(
+            next(req["level"] for req in raw["required_skills"] if req["skill_id"] == "combat"),
+            75,
         )
         self.assertEqual(
             next(req["level"] for req in raw["required_skills"] if req["skill_id"] == "prayer"),
@@ -112,25 +119,55 @@ class TestQuestRootPrerequisites(unittest.TestCase):
         self.assertEqual(quests_as_dict()[QUEST_ID], quest)
         self.assertEqual(PRE_EOC_QUEST_CATALOG, before)
 
-    def test_legends_prayer_boundary_and_start_nonmutation(self):
+    def test_legends_combat_prayer_boundaries_and_start_nonmutation(self):
         for level in (41, 42, 43):
-            with self.subTest(prayer_level=level):
+            for combat, attack in ((74, 70), (75, 73), (76, 76)):
+                with self.subTest(prayer_level=level, combat=combat):
+                    # Synthetic combat boundaries; Prayer 41 needs one extra Attack level.
+                    player = _ready_legends_player(attack_level=attack + int(level == 41))
+                    player["prayer_level"] = level
+                    before = copy.deepcopy(player)
+                    self.assertEqual(player_combat_level_pure(player), combat)
+                    self.assertEqual(QUEST_DATA[QUEST_ID]["requirements"], REQUIREMENTS)
+                    self.assertEqual(
+                        quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA),
+                        ("Prayer 42",) if level == 41 else (),
+                    )
+                    self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), level >= 42)
+                    self.assertEqual(player, before)
+
+                    result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+
+                    self.assertEqual(started, level >= 42)
+                    expected = copy.deepcopy(before)
+                    if level == 41:
+                        self.assertIs(result, player)
+                    else:
+                        expected["quests"][QUEST_ID] = {
+                            "started": True, "progress": 0, "completed": False,
+                        }
+                        expected["current_quest"] = QUEST_ID
+                    self.assertEqual(result, expected)
+                    self.assertEqual(player, before)
+
+    def test_legends_quest_point_boundary(self):
+        for points in (107, 108, 109):
+            with self.subTest(points=points):
                 player = _ready_legends_player()
-                player["prayer_level"] = level
+                player["quest_points"] = points
                 before = copy.deepcopy(player)
-                self.assertEqual(QUEST_DATA[QUEST_ID]["requirements"], REQUIREMENTS)
-                self.assertEqual(
-                    quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA),
-                    ("Prayer 42",) if level == 41 else (),
-                )
-                self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), level >= 42)
+                self.assertFalse(quest_state_pure(player, "regicide")["started"])
+                self.assertEqual(player_combat_level_pure(player), 74)
+                expected_reasons = ("108 quest points",) if points == 107 else ()
+                self.assertEqual(quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA), expected_reasons)
+                self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), points >= 108)
                 self.assertEqual(player, before)
 
                 result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
 
-                self.assertEqual(started, level >= 42)
+                self.assertEqual(started, points >= 108)
                 expected = copy.deepcopy(before)
-                if level == 41:
+                if points == 107:
                     self.assertIs(result, player)
                 else:
                     expected["quests"][QUEST_ID] = {
@@ -139,25 +176,6 @@ class TestQuestRootPrerequisites(unittest.TestCase):
                     expected["current_quest"] = QUEST_ID
                 self.assertEqual(result, expected)
                 self.assertEqual(player, before)
-
-    def test_legends_quest_point_boundary(self):
-        for points in (107, 108, 109):
-            with self.subTest(points=points):
-                player = _ready_legends_player()
-                player["quest_points"] = points
-                self.assertFalse(quest_state_pure(player, "regicide")["started"])
-                self.assertGreaterEqual(player_combat_level_pure(player), 75)
-                expected_reasons = ("108 quest points",) if points == 107 else ()
-                self.assertEqual(quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA), expected_reasons)
-                self.assertEqual(can_start_quest_pure(player, QUEST_ID, QUEST_DATA), points >= 108)
-
-                result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
-
-                self.assertEqual(started, points >= 108)
-                self.assertEqual(result["quest_points"], points)
-                self.assertEqual(player["quest_points"], points)
-                self.assertEqual(result["quests"][QUEST_ID]["started"], points >= 108)
-                self.assertEqual(result["quests"][QUEST_ID]["progress"], 0)
 
     def test_each_legends_prerequisite_is_required(self):
         for quest_id, name in PREREQUISITES:
@@ -169,33 +187,49 @@ class TestQuestRootPrerequisites(unittest.TestCase):
                         "progress": 1 if started else 0,
                         "completed": False,
                     }
+                    before = copy.deepcopy(player)
+                    self.assertEqual(player_combat_level_pure(player), 74)
                     for other_id, _other_name in PREREQUISITES:
                         if other_id != quest_id:
                             self.assertTrue(player["quests"][other_id]["completed"])
                     self.assertEqual(quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA), (name,))
                     self.assertFalse(can_start_quest_pure(player, QUEST_ID, QUEST_DATA))
+                    self.assertEqual(player, before)
                     result, accepted = start_quest_pure(player, QUEST_ID, QUEST_DATA)
                     self.assertFalse(accepted)
-                    self.assertFalse(result["quests"][QUEST_ID]["started"])
+                    self.assertIs(result, player)
+                    self.assertEqual(result, before)
+                    self.assertEqual(player, before)
 
     def test_regicide_cannot_replace_the_five_prerequisites(self):
-        player = _ready_legends_player()
-        for quest_id, _name in PREREQUISITES:
-            del player["quests"][quest_id]
-        player["quests"]["regicide"] = {
-            "started": True,
-            "progress": QUEST_DATA["regicide"]["stages"],
-            "completed": True,
-        }
-
-        self.assertEqual(
-            quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA),
-            tuple(name for _quest_id, name in PREREQUISITES),
-        )
-        self.assertFalse(can_start_quest_pure(player, QUEST_ID, QUEST_DATA))
-        result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
-        self.assertFalse(started)
-        self.assertFalse(result["quests"][QUEST_ID]["started"])
+        for missing in (*PREREQUISITES, None):
+            with self.subTest(missing=missing):
+                player = _ready_legends_player()
+                if missing is None:
+                    for quest_id, _name in PREREQUISITES:
+                        del player["quests"][quest_id]
+                    reasons = tuple(name for _quest_id, name in PREREQUISITES)
+                else:
+                    quest_id, name = missing
+                    player["quests"][quest_id] = {
+                        "started": False, "progress": 0, "completed": False,
+                    }
+                    reasons = (name,)
+                player["quests"]["regicide"] = {
+                    "started": True,
+                    "progress": QUEST_DATA["regicide"]["stages"],
+                    "completed": True,
+                }
+                before = copy.deepcopy(player)
+                self.assertEqual(player_combat_level_pure(player), 74)
+                self.assertEqual(quest_locked_reasons_pure(player, QUEST_ID, QUEST_DATA), reasons)
+                self.assertFalse(can_start_quest_pure(player, QUEST_ID, QUEST_DATA))
+                self.assertEqual(player, before)
+                result, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+                self.assertFalse(started)
+                self.assertIs(result, player)
+                self.assertEqual(result, before)
+                self.assertEqual(player, before)
 
     def test_legends_start_refusal_is_non_mutating(self):
         cases = [("points", False)] + [
