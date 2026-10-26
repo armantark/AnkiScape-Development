@@ -4,6 +4,7 @@ from .dependencies import *
 from .catalog_overrides import *
 from .catalog import _quest_reward_item_name
 
+from .one_small_favour import BLUNT_HATCHET_ITEMS
 from .oronwen_repair_data import ORONWEN_REPAIR_ITEMS
 from .enakhra_opening import ENAKHRA_OPENING_ITEMS
 from . import definitions as _definitions
@@ -58,6 +59,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     COLD_WAR_SUIT_ITEMS,
     ORONWEN_REPAIR_ITEMS,
     RAGGED_BOOK_ITEMS,
+    BLUNT_HATCHET_ITEMS,
     ENAKHRA_OPENING_ITEMS,
 )
 

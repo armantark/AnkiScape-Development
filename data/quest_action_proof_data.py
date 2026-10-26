@@ -3,6 +3,8 @@
 from .quest.enakhra_opening import PROOFS as ENAKHRA_PROOFS, EVENT_PREFIX
 from .quest.elemental_workshop_iii import ACQUIRE_EVENT, ACQUIRE_PROOF, READ_EVENT, READ_PROOF
 
+from .quest.one_small_favour import OPENING_DEEDS, OPENING_PROOFS
+
 ORONWEN_REPAIR_PROOF = "Have Oronwen repair the mourner trousers"
 
 DO_NO_EVIL_MAMULET_MOULD_PROOF = (
@@ -18,6 +20,8 @@ SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
 QUEST_ACTION_PROOF_RULES = {
+    **{(deed['event_type'], deed['event_id']): (OPENING_PROOFS[:index], (deed['proof'],))
+       for index, deed in enumerate(OPENING_DEEDS)},
     ACQUIRE_EVENT: ((), (ACQUIRE_PROOF,)),
     READ_EVENT: ((), (READ_PROOF,)),
     ("quest_service", "oronwen_repair"): ((), (ORONWEN_REPAIR_PROOF,)),

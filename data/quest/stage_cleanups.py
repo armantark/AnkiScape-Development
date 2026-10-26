@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .one_small_favour import OPENING_PROOFS, OPENING_SOURCE
 from .dependencies import *
 from .enakhra_opening import ENAKHRA_OPENING_CLEANUPS
 from .contract import *
@@ -16,6 +17,9 @@ from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_CLE
 from .stage_overrides.members.classic.observatory_quest import OBSERVATORY_QUEST_CLEANUPS
 
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
+    'one_small_favour': (QuestStageRequirementCleanup(stage=1, remove_required_inventory=('Empty Pot',),
+        remove_required_actions=('Complete One Small Favour stage 1 objective',),
+        add_required_actions=OPENING_PROOFS, source=OPENING_SOURCE),),
     "murder_mystery": _MURDER_MYSTERY_OPENING_CLEANUPS,
     "zogre_flesh_eaters": tuple(QuestStageRequirementCleanup(**row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_STAGE_REQUIREMENT_CLEANUPS),
     "creature_of_fenkenstrain": CREATURE_OF_FENKENSTRAIN_CLEANUPS,
