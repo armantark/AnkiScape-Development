@@ -1,0 +1,2400 @@
+{
+  "created_at": "2026-10-24T08:24:47.170779+00:00",
+  "cutoff_exclusive": "2012-11-20T00:00:00Z",
+  "sources": [
+    {
+      "id": "W1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-6579784.txt",
+      "sha256": "f50999d247ef9d737655cd1519c18c118ddb02877242166199b6b001cb06a9f4",
+      "bytes": 9602,
+      "title": "Hazeel Cult",
+      "rung": "dated wiki cross-corroboration",
+      "date_utc": "2012-11-19T03:57:34Z",
+      "revision": "6579784",
+      "url": "https://runescape.wiki/w/index.php?title=Hazeel_Cult&oldid=6579784&action=raw",
+      "origin": "reused saved original API container and quest_sources bundle"
+    },
+    {
+      "id": "W2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-quick-guide-6191416.txt",
+      "sha256": "6f0a49515d5bfb489a79111280d9c3d649cfee1d43b9f8e4b1a1722b2a738e40",
+      "bytes": 2821,
+      "title": "Hazeel Cult/Quick guide",
+      "rung": "dated wiki; same editorial lineage as W1",
+      "date_utc": "2012-09-04T05:08:20Z",
+      "revision": "6191416",
+      "url": "https://runescape.wiki/w/index.php?title=Hazeel_Cult/Quick_guide&oldid=6191416&action=raw",
+      "origin": "reused quest_sources bundle"
+    },
+    {
+      "id": "W0",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-5952565.txt",
+      "sha256": "a8b647c0fc47db137e270289df1b47edce64493aa9139ce821f8b98c73d3e0ef",
+      "bytes": 9268,
+      "title": "Hazeel Cult",
+      "rung": "dated wiki; same editorial lineage as W1",
+      "date_utc": "2012-07-18T14:08:33Z",
+      "revision": "5952565",
+      "url": "https://runescape.wiki/w/index.php?title=Hazeel_Cult&oldid=5952565&action=raw",
+      "origin": "reused Darkan saved API container"
+    },
+    {
+      "id": "WC",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/clivet-5905681.txt",
+      "sha256": "d6e21b9f7d4e8f854a6ffb25900b11b48499e4a15bc24ff7f2467382f6da0026",
+      "bytes": 1065,
+      "title": "Clivet",
+      "rung": "dated wiki; beta marker; noncombat statements only",
+      "date_utc": "2012-07-08T10:34:22Z",
+      "revision": "5905681",
+      "url": "https://runescape.wiki/w/index.php?title=Clivet&oldid=5905681&action=raw",
+      "origin": "reused source-selection-2541-exact-oldids-20261021.json"
+    },
+    {
+      "id": "I1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/poison-item-6150798.txt",
+      "sha256": "7d36908f4685350db25e6be1a0e2ab76406a83636eb770a162b17be01b3410d8",
+      "bytes": 2050,
+      "title": "Poison (item)",
+      "rung": "dated wiki cross-corroboration",
+      "date_utc": "2012-08-26T18:50:59Z",
+      "revision": "6150798",
+      "url": "https://runescape.wiki/w/index.php?title=Poison+%28item%29&oldid=6150798&action=raw",
+      "origin": null
+    },
+    {
+      "id": "I2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-5812161.txt",
+      "sha256": "52ff58a40fa2407d06410b6de80bce7816cfd50132bfafcdc29cfefec7d2dc63",
+      "bytes": 1692,
+      "title": "Hazeel's mark",
+      "rung": "dated wiki cross-corroboration",
+      "date_utc": "2012-06-23T11:06:08Z",
+      "revision": "5812161",
+      "url": "https://runescape.wiki/w/index.php?title=Hazeel%27s+mark&oldid=5812161&action=raw",
+      "origin": null
+    },
+    {
+      "id": "I3",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-5825929.txt",
+      "sha256": "95b11a873d383ef79fe2800bcd4d171dfd320c118d1abb2f2779009aa72af965",
+      "bytes": 1701,
+      "title": "Hazeel's mark",
+      "rung": "dated wiki cross-corroboration; beta marker",
+      "date_utc": "2012-06-25T19:41:08Z",
+      "revision": "5825929",
+      "url": "https://runescape.wiki/w/index.php?title=Hazeel%27s+mark&oldid=5825929&action=raw",
+      "origin": null
+    },
+    {
+      "id": "F1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/poison-item-file-6415953.txt",
+      "sha256": "05aaeaccb0dca1b372c663bdbc551914cb6c4f1ad19f603a94ed7a6a422de2b3",
+      "bytes": 98,
+      "title": "File:Poison (item).png",
+      "rung": "dated wiki cross-corroboration",
+      "date_utc": "2012-10-15T08:25:42Z",
+      "revision": "6415953",
+      "url": "https://runescape.wiki/w/index.php?title=File%3APoison+%28item%29.png&oldid=6415953&action=raw",
+      "origin": null
+    },
+    {
+      "id": "F2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-file-6412175.txt",
+      "sha256": "e616196b0c8f7eed1162a77552b0e6445947d0d5aa724e3bc9efd059c997c99f",
+      "bytes": 91,
+      "title": "File:Hazeel's mark.png",
+      "rung": "dated wiki cross-corroboration",
+      "date_utc": "2012-10-15T04:43:03Z",
+      "revision": "6412175",
+      "url": "https://runescape.wiki/w/index.php?title=File%3AHazeel%27s+mark.png&oldid=6412175&action=raw",
+      "origin": null
+    },
+    {
+      "id": "H1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/runehq-20121107054914.html",
+      "sha256": "a29310046e210a5a9f40c081252f36f4e9d27388a8b8251d88387df777c155ca",
+      "bytes": 22511,
+      "title": "Hazeel Cult - RuneHQ",
+      "rung": "independent contemporary walkthrough",
+      "date_utc": "2012-11-07T05:49:14Z",
+      "revision": "Wayback 20121107054914",
+      "url": "https://web.archive.org/web/20121107054914id_/http://www.runehq.com:80/quest/hazeel-cult",
+      "origin": null
+    },
+    {
+      "id": "H1T",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/runehq-20121107054914.txt",
+      "sha256": "e521420a4e226255e9e5791d0af47f0b1ea8a130d3a2c075969c103330a59b80",
+      "bytes": 5661,
+      "title": "RuneHQ decoded text",
+      "rung": "derived locator; Windows-1252 HTML, entities decoded, script/style removed, whitespace collapsed",
+      "date_utc": "2012-11-07T05:49:14Z",
+      "revision": "derived from H1",
+      "url": "https://web.archive.org/web/20121107054914id_/http://www.runehq.com:80/quest/hazeel-cult",
+      "origin": null
+    },
+    {
+      "id": "H2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/sals-20121006133620.html",
+      "sha256": "2581feea4a0b61b14bbd6dcc6ce5187df4c77cdd88baf0ffe4592d8843712627",
+      "bytes": 24763,
+      "title": "Quest: Hazeel Cult | Sal's Realm of RuneScape",
+      "rung": "independent contemporary walkthrough",
+      "date_utc": "2012-10-06T13:36:20Z",
+      "revision": "Wayback 20121006133620",
+      "url": "https://web.archive.org/web/20121006133620id_/http://runescape.salmoneus.net/quests/hazeel-cult.html",
+      "origin": null
+    },
+    {
+      "id": "H2T",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/sals-20121006133620.txt",
+      "sha256": "3edc2887245e603beadf85e95fc5c725d1d69e20fb245739f1fbf5265530c29f",
+      "bytes": 4458,
+      "title": "Sal's decoded text",
+      "rung": "derived locator; UTF-8 HTML, entities decoded, script/style removed, whitespace collapsed",
+      "date_utc": "2012-10-06T13:36:20Z",
+      "revision": "derived from H2",
+      "url": "https://web.archive.org/web/20121006133620id_/http://runescape.salmoneus.net/quests/hazeel-cult.html",
+      "origin": null
+    },
+    {
+      "id": "D1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/Darkan-HazeelCult.java",
+      "sha256": "7447aca193a8dcc3a106812e7d7c79de7a7a793374139e4f82561fef6fff5fec",
+      "bytes": 22407,
+      "title": "Darkan HazeelCult.java",
+      "rung": "rung 1: modern restoration; not independent period server code",
+      "date_utc": "2026-07-11T10:16:17Z",
+      "revision": "cf3df8547bd2882caf3ed0cca1a8a3f48644b3ee",
+      "url": "local canonical checkout; see Darkan-provenance.txt",
+      "origin": "/Users/armantarkhanian/Documents/CodexWorktrees/.treehouse/darkan-world-server-0e01c4/2/darkan-world-server/src/main/java/com/rs/game/content/quests/hazeelcult/HazeelCult.java"
+    },
+    {
+      "id": "C0",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/openrs2-cache-727-hazeel-cult.json",
+      "sha256": "493bdc55d9d4fa09cc38eee894762afe38f3283e6fdc02338bd62f62d511ae5f",
+      "bytes": 7161,
+      "title": "Retained build727 Hazeel definitions",
+      "rung": "build727 facts; client affordances only",
+      "date_utc": "2012-07-24; UTC time not stated",
+      "revision": "727 / OpenRS2 309",
+      "url": "https://archive.openrs2.org/caches/runescape/309",
+      "origin": "/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-hazeel-cult.json"
+    },
+    {
+      "id": "C727I",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-727-items.txt",
+      "sha256": "331f09e75585190175c433458469e49beb047c92132303450f1067611cd36c31",
+      "bytes": 452,
+      "title": "Build 727 items",
+      "rung": "build727 facts",
+      "date_utc": "2012-07-24; UTC time not stated",
+      "revision": "727 / OpenRS2 309",
+      "url": "https://archive.openrs2.org/caches/runescape/309",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "C727O",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-727-objects.txt",
+      "sha256": "3a8eed046ad1182601c1ab7046c31da4647d334811aa1fe5b19479f88bc826e6",
+      "bytes": 397,
+      "title": "Build 727 objects",
+      "rung": "build727 facts",
+      "date_utc": "2012-07-24; UTC time not stated",
+      "revision": "727 / OpenRS2 309",
+      "url": "https://archive.openrs2.org/caches/runescape/309",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "C727P",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-727-object-params.txt",
+      "sha256": "428ae5fea0539858bf4d6e7af31a645a053aa73ff9c595af5fdee6ed777eb218",
+      "bytes": 156,
+      "title": "Build 727 object-params",
+      "rung": "build727 facts",
+      "date_utc": "2012-07-24; UTC time not stated",
+      "revision": "727 / OpenRS2 309",
+      "url": "https://archive.openrs2.org/caches/runescape/309",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "C742I",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-742-items.txt",
+      "sha256": "331f09e75585190175c433458469e49beb047c92132303450f1067611cd36c31",
+      "bytes": 452,
+      "title": "Build 742 items",
+      "rung": "other historical cache",
+      "date_utc": "2012-11-07; UTC time not stated",
+      "revision": "742 / OpenRS2 544",
+      "url": "https://archive.openrs2.org/caches/runescape/544",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "C742O",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-742-objects.txt",
+      "sha256": "3a8eed046ad1182601c1ab7046c31da4647d334811aa1fe5b19479f88bc826e6",
+      "bytes": 397,
+      "title": "Build 742 objects",
+      "rung": "other historical cache",
+      "date_utc": "2012-11-07; UTC time not stated",
+      "revision": "742 / OpenRS2 544",
+      "url": "https://archive.openrs2.org/caches/runescape/544",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "C742P",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-742-object-params.txt",
+      "sha256": "428ae5fea0539858bf4d6e7af31a645a053aa73ff9c595af5fdee6ed777eb218",
+      "bytes": 156,
+      "title": "Build 742 object-params",
+      "rung": "other historical cache",
+      "date_utc": "2012-11-07; UTC time not stated",
+      "revision": "742 / OpenRS2 544",
+      "url": "https://archive.openrs2.org/caches/runescape/544",
+      "origin": "local dated cache working-copy query; see cache-copy-custody.json"
+    },
+    {
+      "id": "A1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/poison-20110817.png",
+      "sha256": "37976b752b2fda7c9a15c2a858181f2de49584d2c01e4a9127c3efcb7171b99e",
+      "bytes": 442,
+      "title": "File:Poison (item).png",
+      "rung": "historical uploaded inventory bitmap",
+      "date_utc": "2011-08-17T01:05:38Z",
+      "revision": "upload 2011-08-17T01:05:38Z",
+      "url": "https://runescape.wiki/images/archive/20160502063257%21Poison_%28item%29.png?7c655",
+      "origin": null,
+      "imageinfo": "sources/poison-imageinfo.json",
+      "sha1": "12c44f0595cbfbfd94e27bcd134606063b3f8b6f",
+      "metadata_sha1": "12c44f0595cbfbfd94e27bcd134606063b3f8b6f",
+      "dimensions": [
+        17,
+        31
+      ]
+    },
+    {
+      "id": "A2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-20100404.png",
+      "sha256": "7727f58e3597f1c0e5038e5474c99f6ddcf2a7abd47db14d3373ddcda7b8b8f5",
+      "bytes": 253,
+      "title": "File:Hazeel's mark.png",
+      "rung": "historical uploaded inventory bitmap",
+      "date_utc": "2010-04-04T00:52:14Z",
+      "revision": "upload 2010-04-04T00:52:14Z",
+      "url": "https://runescape.wiki/images/archive/20131111000938%21Hazeel%27s_mark.png?b71bb",
+      "origin": null,
+      "imageinfo": "sources/mark-imageinfo.json",
+      "sha1": "11fd466e741dcffce5e3db4fefe6dd39ebba2296",
+      "metadata_sha1": "11fd466e741dcffce5e3db4fefe6dd39ebba2296",
+      "dimensions": [
+        28,
+        29
+      ]
+    },
+    {
+      "id": "I4",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/mark-of-hazeel-526862.txt",
+      "sha256": "b19818487d26657ec29c487edd5465e2b55f392f7443d827f4c3d2780073cfb5",
+      "bytes": 27,
+      "title": "Mark of Hazeel",
+      "rung": "dated wiki alias, same wiki lineage",
+      "date_utc": "2008-07-30T20:36:49Z",
+      "revision": "526862",
+      "url": "https://runescape.wiki/w/index.php?title=Mark_of_Hazeel&oldid=526862&action=raw",
+      "origin": null
+    }
+  ],
+  "literal_passages": [
+    {
+      "source_id": "W1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-6579784.txt",
+      "sha256": "f50999d247ef9d737655cd1519c18c118ddb02877242166199b6b001cb06a9f4",
+      "literal_lines": [
+        {
+          "line": 19,
+          "text": "|start = Central Ardougne, south-west of King Lathas's castle. The easiest way to reach it is to use a [[Spirit tree]] teleport to the Khazard battlefield. Talk to [[Ceril Carnillean]]."
+        },
+        {
+          "line": 20,
+          "text": "|difficulty = Novice"
+        },
+        {
+          "line": 21,
+          "text": "|length = Short"
+        },
+        {
+          "line": 22,
+          "text": "|members = Yes"
+        },
+        {
+          "line": 23,
+          "text": "|requirements = *Able to defeat a level 13 NPC (this applies only if you're taking the good side of the quest)"
+        },
+        {
+          "line": 24,
+          "text": "|kills = *[[Alomone]] (13) (Carnillean side)}}"
+        },
+        {
+          "line": 25,
+          "text": ""
+        },
+        {
+          "line": 26,
+          "text": "==Introduction=="
+        },
+        {
+          "line": 27,
+          "text": "You will have a choice between two sides in this quest. You can either choose to help [[Ceril Carnillean]] get his family armour back and foil the plan to revive [[Hazeel]], or you can choose to help [[Hazeel Cultist|Hazeel's followers]] resurrect their master."
+        },
+        {
+          "line": 28,
+          "text": ""
+        },
+        {
+          "line": 29,
+          "text": "==Walkthrough for the Carnillean's side=="
+        },
+        {
+          "line": 30,
+          "text": "From Ceril's house, walk south and cross the bridge. Go past the clock tower, then go east until you find a cave. Enter it. Talk to [[Clivet]] to learn about [[Hazeel]], an ancient and powerful follower of Zamorak who was killed by an ancestor of Ceril. He will ask for your help in reviving Hazeel. Refuse."
+        },
+        {
+          "line": 31,
+          "text": ""
+        },
+        {
+          "line": 32,
+          "text": "Clivet will sail away on a raft, saying that you'll never be able to find him. You need to find five [[Sewer valve]]s and turn them the proper direction to stop the currents, stopping the boat."
+        },
+        {
+          "line": 33,
+          "text": ""
+        },
+        {
+          "line": 34,
+          "text": "(NOTE: The valves are only able to be turned one direction. If the valve \"turn\" option says the opposite of what way you have to turn it, then it's already turned the proper direction. [ ie: Valve 1 is supposed to be turned '''right'''. If it says \"Turn valve '''left'''\" then it's already the right way.])"
+        },
+        {
+          "line": 35,
+          "text": ""
+        },
+        {
+          "line": 36,
+          "text": "[[File:HazeelCultMap.png|frame|The location of the valves.]]"
+        },
+        {
+          "line": 37,
+          "text": ""
+        },
+        {
+          "line": 38,
+          "text": "*'''Valve 1''' - This is west of the Clock Tower. Turn it '''right'''."
+        },
+        {
+          "line": 39,
+          "text": ""
+        },
+        {
+          "line": 40,
+          "text": "*'''Valve 2''' - This is directly behind Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 41,
+          "text": ""
+        },
+        {
+          "line": 42,
+          "text": "*'''Valve 3''' - This is north of the cave. Turn it '''left'''."
+        },
+        {
+          "line": 43,
+          "text": ""
+        },
+        {
+          "line": 44,
+          "text": "*'''Valve 4''' - This is south of the zoo's penguin cage. Turn it '''right'''."
+        },
+        {
+          "line": 45,
+          "text": ""
+        },
+        {
+          "line": 46,
+          "text": "*'''Valve 5''' - Go south-east of the fourth valve, near Brother Cedric and his broken cart. Turn it '''right'''."
+        },
+        {
+          "line": 70,
+          "text": "From Ceril's house, walk south and cross the bridge. Go past the clock tower, then go east until you find a cave. Enter it. Talk to [[Clivet]] to learn about [[Hazeel]], an ancient and powerful follower of Zamorak who was killed by an ancestor of Ceril. He will ask for your help in reviving Hazeel. Accept."
+        },
+        {
+          "line": 71,
+          "text": ""
+        },
+        {
+          "line": 72,
+          "text": "The first thing you need to do is kill a member of the Carnillean family. Go to the basement of Ceril's house and use the bottle of poison that he gives you on the range. Then go upstairs and talk to the Carnilleans to learn that Scruffy the dog is dead."
+        },
+        {
+          "line": 73,
+          "text": ""
+        },
+        {
+          "line": 74,
+          "text": "Talk to Clivet again to begin the next part of the ritual. He'll give you the [[Mark of Hazeel]] (a golden Z), which can be retrieved from [[Clivet]], then tell you to find the cult hideout. You need to find five [[Sewer valve]]s and turn them the proper direction."
+        },
+        {
+          "line": 75,
+          "text": ""
+        },
+        {
+          "line": 76,
+          "text": "*'''Valve 1''' - This is right across the bridge south of the Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 77,
+          "text": ""
+        },
+        {
+          "line": 78,
+          "text": "*'''Valve 2''' - This is right behind Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 79,
+          "text": ""
+        },
+        {
+          "line": 80,
+          "text": "*'''Valve 3''' - This is north of the cave. Turn it '''left'''."
+        },
+        {
+          "line": 81,
+          "text": ""
+        },
+        {
+          "line": 82,
+          "text": "*'''Valve 4''' - This is south of the zoo's penguin cage. Turn it '''right'''."
+        },
+        {
+          "line": 83,
+          "text": ""
+        },
+        {
+          "line": 84,
+          "text": "*'''Valve 5''' - Go south-east of the fourth valve, near [[Brother Cedric]]. Turn it '''right'''."
+        },
+        {
+          "line": 85,
+          "text": ""
+        },
+        {
+          "line": 86,
+          "text": "[[File:The_Revival_of_Hazeel.png|thumb|Hazeel is revived!]]Go back to the cave and board the raft. Once you're in the main hideout, talk to [[Alomone]]. He'll tell you to find a [[Hazeel scroll|scroll]]. Go back to the Carnilleans' house. Talk to [[Butler Jones]], then search the crates in the basement for a [[Chest key (Hazeel Cult)|chest key]]. Go back up the ladder to the ground floor, then go upstairs, knock on the odd wall (the north wall of the west room) and go up the ladder. Unlock the chest to get the [[Hazeel scroll]], then return to Alomone. [[Hazeel]] will emerge from the coffin and you'll be rewarded."
+        },
+        {
+          "line": 97,
+          "text": "* 1 [[Quest Point]]s"
+        },
+        {
+          "line": 98,
+          "text": "* 1,500 {{Skill clickpic|Thieving}} Experience"
+        },
+        {
+          "line": 99,
+          "text": "* 2,005 [[coins]] (5 from the first part and 2000 for the second part)"
+        },
+        {
+          "line": 100,
+          "text": "* [[Mark of Hazeel]] (if you sided with [[Hazeel]])"
+        },
+        {
+          "line": 101,
+          "text": "* [[Carnillean armour]] (if you sided with Ceril, and killed Alomone twice, dropping the armour the first time and receiving another one, then picking them both up.)"
+        },
+        {
+          "line": 102,
+          "text": "* Can talk to [[Historian Minas]] at the [[Varrock Museum]] to receive 5 [[Kudos]]"
+        },
+        {
+          "line": 103,
+          "text": "* 2 extra spins on the [[Squeal of Fortune]]"
+        }
+      ]
+    },
+    {
+      "source_id": "W2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-quick-guide-6191416.txt",
+      "sha256": "6f0a49515d5bfb489a79111280d9c3d649cfee1d43b9f8e4b1a1722b2a738e40",
+      "literal_lines": [
+        {
+          "line": 17,
+          "text": "*Talk to [[Ceril Carnillean]] in [[East Ardougne]]."
+        },
+        {
+          "line": 18,
+          "text": "*Exit his house and go South across a bridge and past the clock tower."
+        },
+        {
+          "line": 19,
+          "text": "*Head East until a cave is found."
+        },
+        {
+          "line": 20,
+          "text": "*Talk to [[Clivet]] and refuse to help."
+        },
+        {
+          "line": 21,
+          "text": "*Exit the cave."
+        },
+        {
+          "line": 22,
+          "text": "[[File:HazeelCultMap.png|frame|Valve locations.]]"
+        },
+        {
+          "line": 23,
+          "text": "*There are five valves that must be turned in this order:"
+        },
+        {
+          "line": 24,
+          "text": "**Valve 1 is West of the clock tower. Turn it '''right'''."
+        },
+        {
+          "line": 25,
+          "text": "**Valve 2 is directly behind the Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 26,
+          "text": "**Valve 3 is north of the cave. Turn it '''left'''."
+        },
+        {
+          "line": 27,
+          "text": "**Valve 4 is south of [[Ardougne Zoo]]'s penguin cage. Turn it '''right'''."
+        },
+        {
+          "line": 28,
+          "text": "**Valve 5 is south-east of the fourth valve, near [[Brother Cedric]]. Turn it '''right'''."
+        },
+        {
+          "line": 29,
+          "text": "*Head back to the cave and take the raft."
+        },
+        {
+          "line": 30,
+          "text": "**'''Note:''' If Clivet is by the raft, kill him."
+        },
+        {
+          "line": 40,
+          "text": "*Talk to [[Ceril Carnillean]] in [[East Ardougne]]."
+        },
+        {
+          "line": 41,
+          "text": "*Exit his house and go South across a bridge and past the clock tower."
+        },
+        {
+          "line": 42,
+          "text": "*Head East until a cave is found."
+        },
+        {
+          "line": 43,
+          "text": "*Talk to [[Clivet]] and agree to help."
+        },
+        {
+          "line": 44,
+          "text": "*Go to the basement of Ceril's house and use the bottle of poison on the range."
+        },
+        {
+          "line": 45,
+          "text": "*Talk to one of the Carnilleans."
+        },
+        {
+          "line": 46,
+          "text": "*Talk to Clivet."
+        },
+        {
+          "line": 47,
+          "text": "[[File:HazeelCultMap.png|frame|Valve locations.]]"
+        },
+        {
+          "line": 48,
+          "text": "*There are five valves that must be turned in this order:"
+        },
+        {
+          "line": 49,
+          "text": "**Valve 1 is West of the clock tower. Turn it '''right'''."
+        },
+        {
+          "line": 50,
+          "text": "**Valve 2 is directly behind the Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 51,
+          "text": "**Valve 3 is north of the cave. Turn it '''left'''."
+        },
+        {
+          "line": 52,
+          "text": "**Valve 4 is south of [[Ardougne Zoo]]'s penguin cage. Turn it '''right'''."
+        },
+        {
+          "line": 53,
+          "text": "**Valve 5 is south-east of the fourth valve, near [[Brother Cedric]]. Turn it '''right'''."
+        },
+        {
+          "line": 54,
+          "text": "*Head back to the cave and take the raft."
+        }
+      ]
+    },
+    {
+      "source_id": "W0",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeel-cult-5952565.txt",
+      "sha256": "a8b647c0fc47db137e270289df1b47edce64493aa9139ce821f8b98c73d3e0ef",
+      "literal_lines": [
+        {
+          "line": 65,
+          "text": "From Ceril's house, walk south and cross the bridge. Go past the clock tower, then go east until you find a cave. Enter it. Talk to [[Clivet]] to learn about [[Hazeel]], an ancient and powerful follower of Zamorak who was killed by an ancestor of Ceril. He will ask for your help in reviving Hazeel. Accept."
+        },
+        {
+          "line": 66,
+          "text": ""
+        },
+        {
+          "line": 67,
+          "text": "The first thing you need to do is kill a member of the Carnillean family. Go to the basement of Ceril's house and use the bottle of poison that he gives you on the range. Then go upstairs and talk to the Carnilleans to learn that Scruffy the dog is dead."
+        },
+        {
+          "line": 68,
+          "text": ""
+        },
+        {
+          "line": 69,
+          "text": "Talk to Clivet again to begin the next part of the ritual. He'll give you the [[Mark of Hazeel]] (a golden Z), which can be retrieved from [[Clivet]], then tell you to find the cult hideout. You need to find five [[Sewer valve]]s and turn them the proper direction."
+        },
+        {
+          "line": 70,
+          "text": ""
+        },
+        {
+          "line": 71,
+          "text": "*'''Valve 1''' - This is right across the bridge south of the Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 72,
+          "text": ""
+        },
+        {
+          "line": 73,
+          "text": "*'''Valve 2''' - This is right behind Carnilleans' house. Turn it '''right'''."
+        },
+        {
+          "line": 74,
+          "text": ""
+        },
+        {
+          "line": 75,
+          "text": "*'''Valve 3''' - This is north of the cave. Turn it '''left'''."
+        },
+        {
+          "line": 76,
+          "text": ""
+        },
+        {
+          "line": 77,
+          "text": "*'''Valve 4''' - This is south of the zoo's penguin cage. Turn it '''right'''."
+        },
+        {
+          "line": 78,
+          "text": ""
+        },
+        {
+          "line": 79,
+          "text": "*'''Valve 5''' - Go south-east of the fourth valve, near [[Brother Cedric]]. Turn it '''right'''."
+        }
+      ]
+    },
+    {
+      "source_id": "I1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/poison-item-6150798.txt",
+      "sha256": "7d36908f4685350db25e6be1a0e2ab76406a83636eb770a162b17be01b3410d8",
+      "literal_lines": [
+        {
+          "line": 1,
+          "text": ":''This article is about the bottle of poison used in several quests. For the potion made using [[Herblore]], see [[Weapon poison]]. For the rat poison used in other quests, see [[Rat Poison]].''"
+        },
+        {
+          "line": 2,
+          "text": "{{Infobox Item"
+        },
+        {
+          "line": 3,
+          "text": "|name = Poison"
+        },
+        {
+          "line": 4,
+          "text": "|image = [[File:Poison (item).png|Poison]]"
+        },
+        {
+          "line": 5,
+          "text": "|release = [[21 January]] [[2001]] (''for the poison used in [[Ernest the Chicken]]'')"
+        },
+        {
+          "line": 6,
+          "text": "|update = Newsletter 1"
+        },
+        {
+          "line": 7,
+          "text": "|members = No"
+        },
+        {
+          "line": 8,
+          "text": "|quest = Yes"
+        },
+        {
+          "line": 9,
+          "text": "|tradeable = No"
+        },
+        {
+          "line": 10,
+          "text": "|equipable = No"
+        },
+        {
+          "line": 11,
+          "text": "|stackable = No"
+        },
+        {
+          "line": 12,
+          "text": "|high = No"
+        },
+        {
+          "line": 13,
+          "text": "|low = No"
+        },
+        {
+          "line": 14,
+          "text": "|value = 1"
+        },
+        {
+          "line": 15,
+          "text": "|destroy = Hopefully, there is some more in Draynor Manor."
+        },
+        {
+          "line": 16,
+          "text": "|store = 1"
+        },
+        {
+          "line": 17,
+          "text": "|examine = This stuff looks nasty."
+        },
+        {
+          "line": 18,
+          "text": "|weight = 0|seller = Rasolo}}"
+        },
+        {
+          "line": 19,
+          "text": ""
+        },
+        {
+          "line": 20,
+          "text": "[[File:Poison (item) detail.png|100px|left]]"
+        },
+        {
+          "line": 21,
+          "text": "'''Poison''' is an item used in several [[quests]]. This item should not be confused with the poison potion made through [[Herblore]]."
+        },
+        {
+          "line": 22,
+          "text": ""
+        },
+        {
+          "line": 23,
+          "text": "It is used to poison the fish food and the piranhas found in the fountain on the grounds of [[Draynor Manor]] during the [[Ernest the Chicken]] quest. This item is found inside of the manor. This item is not tradeable, so the player will have to either buy it from Rasolo near the Baxtorian Falls, Jossik in the lighthouse, or pick it up in Draynor Manor."
+        },
+        {
+          "line": 24,
+          "text": ""
+        },
+        {
+          "line": 25,
+          "text": "It is also used to poison the infected [[sheep]] in the [[Sheep Herder]] quest. Finally, it is used to poison the Carnillean household's food in [[Hazeel Cult]]. You can try to use the poison obtained from the [[Hazeel Cult]] to poison the sheep in [[Sheep Herder]], but a message will appear saying: ''\"The sheep isn't going to drink the poison from the bottle. Perhaps you should try feeding it something else more appropriate.\"''"
+        }
+      ]
+    },
+    {
+      "source_id": "I2",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-5812161.txt",
+      "sha256": "52ff58a40fa2407d06410b6de80bce7816cfd50132bfafcdc29cfefec7d2dc63",
+      "literal_lines": [
+        {
+          "line": 1,
+          "text": "{{Infobox Item"
+        },
+        {
+          "line": 2,
+          "text": "|name = Hazeel's mark"
+        },
+        {
+          "line": 3,
+          "text": "|image = [[File:Hazeel Mark New.png|Hazeel's mark]]"
+        },
+        {
+          "line": 4,
+          "text": "|release = [[15 August]] [[2002]]"
+        },
+        {
+          "line": 5,
+          "text": "|update = Sheep and cults"
+        },
+        {
+          "line": 6,
+          "text": "|members = Yes"
+        },
+        {
+          "line": 7,
+          "text": "|quest = [[Hazeel Cult]]"
+        },
+        {
+          "line": 8,
+          "text": "|tradeable = No"
+        },
+        {
+          "line": 9,
+          "text": "|stackable = No"
+        },
+        {
+          "line": 10,
+          "text": "|equipable = Yes"
+        },
+        {
+          "line": 11,
+          "text": "|high = No"
+        },
+        {
+          "line": 12,
+          "text": "|low = No"
+        },
+        {
+          "line": 13,
+          "text": "|value = 1"
+        },
+        {
+          "line": 14,
+          "text": "|destroy = Drop"
+        },
+        {
+          "line": 15,
+          "text": "|store = No"
+        },
+        {
+          "line": 16,
+          "text": "|examine = A sign of my commitment to [[Hazeel]]."
+        },
+        {
+          "line": 17,
+          "text": "|weight = 0"
+        },
+        {
+          "line": 18,
+          "text": "}}"
+        },
+        {
+          "line": 19,
+          "text": ""
+        },
+        {
+          "line": 20,
+          "text": "'''Hazeel's mark''' is a [[quest item]] from the [[quest]] [[Hazeel Cult]]. Players who have lost their mark can get it back by speaking to [[Clivet]]. Hazeel's mark has no stat bonuses, and there is little reason to keep it after completing [[Hazeel Cult]] aside from aesthetic reasons. You will not earn this item if you choose the [[Ceril]] side."
+        },
+        {
+          "line": 21,
+          "text": "{{Infobox Bonuses"
+        },
+        {
+          "line": 22,
+          "text": "|slot = neck"
+        },
+        {
+          "line": 23,
+          "text": "|image = Hazeel's mark equipped.png{{!}}150px"
+        }
+      ]
+    },
+    {
+      "source_id": "I3",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/hazeels-mark-5825929.txt",
+      "sha256": "95b11a873d383ef79fe2800bcd4d171dfd320c118d1abb2f2779009aa72af965",
+      "literal_lines": [
+        {
+          "line": 1,
+          "text": "{{beta}}"
+        },
+        {
+          "line": 2,
+          "text": "{{Infobox Item"
+        },
+        {
+          "line": 3,
+          "text": "|name = Hazeel's mark"
+        },
+        {
+          "line": 4,
+          "text": "|image = [[File:Hazeel Mark New.png|Hazeel's mark]]"
+        }
+      ]
+    },
+    {
+      "source_id": "H1T",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/runehq-20121107054914.txt",
+      "sha256": "e521420a4e226255e9e5791d0af47f0b1ea8a130d3a2c075969c103330a59b80",
+      "literal_lines": [
+        {
+          "line": 56,
+          "text": "Quest Requirements:"
+        },
+        {
+          "line": 57,
+          "text": "None"
+        },
+        {
+          "line": 58,
+          "text": "Skill/Other Requirements:"
+        },
+        {
+          "line": 59,
+          "text": "None."
+        },
+        {
+          "line": 60,
+          "text": "Quests Unlocked/Partially Unlocked by completing this Quest:"
+        },
+        {
+          "line": 61,
+          "text": "Ritual of the Mahjarrat"
+        },
+        {
+          "line": 62,
+          "text": "Carnillean Rising"
+        },
+        {
+          "line": 63,
+          "text": "Items Needed at Quest Start:"
+        },
+        {
+          "line": 64,
+          "text": "None."
+        },
+        {
+          "line": 65,
+          "text": "Items Acquired During Quest:"
+        },
+        {
+          "line": 66,
+          "text": "Poison, Hazeel's mark, Chest key, Hazeel scroll."
+        },
+        {
+          "line": 67,
+          "text": "Quest Points:"
+        },
+        {
+          "line": 68,
+          "text": "1"
+        },
+        {
+          "line": 69,
+          "text": "Reward:"
+        },
+        {
+          "line": 70,
+          "text": "2,000 coins, 1,500 Thieving XP, Hazeel's mark if you side with Clivet, and 2 free spins on the Squeal of Fortune."
+        },
+        {
+          "line": 71,
+          "text": "Start Point:"
+        },
+        {
+          "line": 72,
+          "text": "The Carnillean Mansion, southwest of East Ardougne Castle."
+        },
+        {
+          "line": 73,
+          "text": "To Start:"
+        },
+        {
+          "line": 74,
+          "text": "Speak to Sir Ceril Carnillean"
+        },
+        {
+          "line": 75,
+          "text": "Instructions:"
+        },
+        {
+          "line": 76,
+          "text": "Head over to the Carnillean Mansion, southwest of East Ardougne Castle, and talk to Sir Ceril Carnillean"
+        },
+        {
+          "line": 77,
+          "text": "Now, go south and cross a bridge. Go around the Clock Tower and enter the cave. Talk to Clivet and choose whom to join up with. For a more interesting plot, join Clivet, or go the easy route and join Ceril."
+        },
+        {
+          "line": 78,
+          "text": "Join Clivet"
+        },
+        {
+          "line": 79,
+          "text": "Listen to what Clivet says and agree to help him. Clivet will give you Poison and tell you to kill a member of the Carnillean family."
+        },
+        {
+          "line": 80,
+          "text": "Go into Carnillean mansion and take the ladder to the back of the mansion downwards into the basement. Now use your Poison on the range. Climb back up and talk to Philipe to find that you have killed their dog."
+        },
+        {
+          "line": 81,
+          "text": "Return to Clivet and tell him the good news. He will give you Hazeel's mark that looks somewhat like a golden symbol of Zamorak. Wear it, and exit the cave."
+        },
+        {
+          "line": 82,
+          "text": "Next turn all the sewer valves but the one closest to the dungeon right. And turn the one closest to the dungeon, left (See the map below)."
+        },
+        {
+          "line": 83,
+          "text": "Return to the cave and take the raft near Clivet. Follow the path to Alomone. He will tell you to find a magical scroll in the Carnillean mansion. Leave via the raft and climb out of the cave."
+        },
+        {
+          "line": 84,
+          "text": "Return to the Carnillean mansion with your symbol still equipped and talk to the butler. Then climb down the ladder into the basement and search the crates for a Chest Key. After wards go up the ladder and to another flight of steps. Knock on the wall to find a secret passage. Then go up the ladder and use your key with the chest and search the chest to obtain the scroll. Talk to the butler and leave the mansion."
+        },
+        {
+          "line": 85,
+          "text": "Go back into the cave but do not tamper with the sewer valves. Take the raft back to Alamone talk to him. He will start a ritual and summon Hazeel (level 296) back from the dead. Hazeel will reward you Quest Complete."
+        },
+        {
+          "line": 86,
+          "text": "Congratulations! Quest Complete!"
+        },
+        {
+          "line": 87,
+          "text": "Join Ceril"
+        },
+        {
+          "line": 88,
+          "text": "Talk to Clivet and listen to what he has to say but do not agree to anything he says. Return to Ceril and talk to him."
+        },
+        {
+          "line": 89,
+          "text": "Next turn all the sewer valves but the one closest to the dungeon right. And turn the one closest to the dungeon, left (See the map below)."
+        },
+        {
+          "line": 90,
+          "text": "Enter the cave and take the raft to Alamone. Talk to him and find out the butler is his spy. He should then attack you. If he doesn't, try again. He is less only level 13, so if you should be able to kill him fairly easily. He will drop the Carnillean armor."
+        },
+        {
+          "line": 91,
+          "text": "Note:If you want to get this armor for yourself, leave the island via the raft and exit the cave when you killed Alamone. Then take the raft back to the hideout. Drop the armor that you already have, wait for Alamone to come back and fight him again. He will drop another one. Pick up both armor pieces and put on one in your bank before you talk to Ceril."
+        },
+        {
+          "line": 92,
+          "text": "Talk to Ceril and give him the armor. Then, tell him about his butler. Ceril will not believe you so go to the second floor and search the Butler's wardrobe for some poison. Return to Ceril and receive your reward."
+        },
+        {
+          "line": 93,
+          "text": "Congratulations! Quest Complete!"
+        },
+        {
+          "line": 94,
+          "text": "This Quest Guide was written by Firkløver, G I Jew, MarilynManson, and MrStormy. Thanks to Fudge, joesmo, watsermetjou, DRAVAN, Alfawarlord, and CraigEr for corrections."
+        },
+        {
+          "line": 95,
+          "text": "This Quest Guide was entered into the database on Tue, Apr 27, 2004, at 05:18:50 PM by DRAVAN and CJH, and it was last updated on Sun, Jun 24, 2012, at 02:20:20 PM by Keata Kat."
+        }
+      ]
+    },
+    {
+      "source_id": "H2T",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/sals-20121006133620.txt",
+      "sha256": "3edc2887245e603beadf85e95fc5c725d1d69e20fb245739f1fbf5265530c29f",
+      "literal_lines": [
+        {
+          "line": 19,
+          "text": "Essential Info"
+        },
+        {
+          "line": 20,
+          "text": "Start Point"
+        },
+        {
+          "line": 21,
+          "text": "Begin by speaking to Sir Ceril Carnillean in the southwest corner of Ardougne."
+        },
+        {
+          "line": 22,
+          "text": "Required"
+        },
+        {
+          "line": 23,
+          "text": "Skills: None."
+        },
+        {
+          "line": 24,
+          "text": "Quests: None."
+        },
+        {
+          "line": 25,
+          "text": "Items: None."
+        },
+        {
+          "line": 26,
+          "text": "Recommended"
+        },
+        {
+          "line": 27,
+          "text": "Skills: None."
+        },
+        {
+          "line": 28,
+          "text": "Quests: None."
+        },
+        {
+          "line": 29,
+          "text": "Items: None."
+        },
+        {
+          "line": 34,
+          "text": "First off, speak with Sir Ceril Carnillean, located in"
+        },
+        {
+          "line": 35,
+          "text": "a mansion in the southwest corner of East Ardougne. The mansion is a short distance"
+        },
+        {
+          "line": 36,
+          "text": "west of the Ardougne Zoo. Ceril says that cultists keep breaking into his house"
+        },
+        {
+          "line": 37,
+          "text": "and they have stolen his family armor. Now head south over the bridge behind"
+        },
+        {
+          "line": 38,
+          "text": "the mansion, and enter the cave just east of the Clocktower."
+        },
+        {
+          "line": 39,
+          "text": "Speak to Clivet and"
+        },
+        {
+          "line": 40,
+          "text": "ask him what he means about the Carnilleans. Now you must choose to recover the"
+        },
+        {
+          "line": 41,
+          "text": "armor for Ceril, or side with the evil cult and revive Hazeel."
+        },
+        {
+          "line": 42,
+          "text": "The Good Side (Easy)"
+        },
+        {
+          "line": 43,
+          "text": "When you speak to Clivet, refuse to help him with his plans."
+        },
+        {
+          "line": 44,
+          "text": "He will board the raft and"
+        },
+        {
+          "line": 45,
+          "text": "leave, but before you can follow after him you need to redirect the water. Go"
+        },
+        {
+          "line": 46,
+          "text": "back to Ceril and speak to him, and then you'll need to turn each of the valves,"
+        },
+        {
+          "line": 47,
+          "text": "as indicated on the map to the right. If you don't turn the valves correctly,"
+        },
+        {
+          "line": 48,
+          "text": "you'll end up somewhere elsewhere than the hideout."
+        },
+        {
+          "line": 59,
+          "text": "The Evil Side (Slightly Longer)"
+        },
+        {
+          "line": 60,
+          "text": "When you speak to Clivet, agree to help him. He will give you"
+        },
+        {
+          "line": 61,
+          "text": "some poison, and he says that you need to kill someone from the Carnillean family."
+        },
+        {
+          "line": 62,
+          "text": "Head back to the mansion and go downstairs. Use your poison on the stew that"
+        },
+        {
+          "line": 63,
+          "text": "the cook is cooking. Go back upstairs and speak to Ceril of Philippe to find"
+        },
+        {
+          "line": 64,
+          "text": "out that someone (you) has killed their dog."
+        },
+        {
+          "line": 65,
+          "text": "Go back to Clivet, tell him the good news, and he will give you"
+        },
+        {
+          "line": 66,
+          "text": "the Mark of Hazeel. Wear the mark, leave the mansion and then turn the valves"
+        },
+        {
+          "line": 67,
+          "text": "as indicated above. Don't forget, you'll end up somewhere else if you turn the"
+        },
+        {
+          "line": 68,
+          "text": "levers the wrong way. Go back into the cave and take the raft. Speak to Alomone,"
+        },
+        {
+          "line": 69,
+          "text": "who now needs a scroll the resurrect Hazeel! Go back to the mansion and talk"
+        },
+        {
+          "line": 70,
+          "text": "to the butler (while wearing the mark). Now go downstairs and search the crates"
+        },
+        {
+          "line": 71,
+          "text": "for a key."
+        },
+        {
+          "line": 72,
+          "text": "Go back upstairs and knock on the butler's wall to find a secret passage"
+        },
+        {
+          "line": 73,
+          "text": "leading to a ladder heading up. Use the key on the chest to find a Scroll to"
+        },
+        {
+          "line": 74,
+          "text": "resurrect Hazeel. Go back to Alomone who will now start the ritual... and he"
+        },
+        {
+          "line": 75,
+          "text": "will appear! Hazeel is level 296, and non-attackable. Quest complete, and you'll"
+        },
+        {
+          "line": 76,
+          "text": "receive your reward!"
+        },
+        {
+          "line": 77,
+          "text": "Rewards"
+        },
+        {
+          "line": 78,
+          "text": "1 Quest Point"
+        },
+        {
+          "line": 79,
+          "text": "2,000gp"
+        },
+        {
+          "line": 80,
+          "text": "1,500 Thieving experience"
+        },
+        {
+          "line": 81,
+          "text": "Good Side - Carnillean Armor, if you get an extra by leaving the cave and then killing Alomone again."
+        },
+        {
+          "line": 82,
+          "text": "Evil Side - Mark of Hazeel"
+        },
+        {
+          "line": 83,
+          "text": "Published on: March 31, 2005 10:00 PM EST by Salmoneus"
+        },
+        {
+          "line": 84,
+          "text": "Updated on: April 05, 2011 09:42 PM EDT by Salmoneus"
+        }
+      ]
+    },
+    {
+      "source_id": "D1",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/Darkan-HazeelCult.java",
+      "sha256": "7447aca193a8dcc3a106812e7d7c79de7a7a793374139e4f82561fef6fff5fec",
+      "literal_lines": [
+        {
+          "line": 133,
+          "text": "\tpublic static NPCClickHandler cerilDialogue = new NPCClickHandler(new Object[] { CERIL }, new String[] { \"Talk-to\" }, e -> {"
+        },
+        {
+          "line": 134,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 135,
+          "text": "\t\tint stage = stage(p);"
+        },
+        {
+          "line": 136,
+          "text": "\t\tif (stage == NOT_STARTED) {"
+        },
+        {
+          "line": 137,
+          "text": "\t\t\tp.startConversation(new Dialogue()"
+        },
+        {
+          "line": 138,
+          "text": "\t\t\t\t\t.addNPC(CERIL, HeadE.SAD, \"Please, adventurer, I need your help. A cult has taken over the caves beneath my land and threatens my family.\")"
+        },
+        {
+          "line": 139,
+          "text": "\t\t\t\t\t.addOptions(\"Help Ceril Carnillean?\", new Options() {"
+        },
+        {
+          "line": 140,
+          "text": "\t\t\t\t\t\t@Override"
+        },
+        {
+          "line": 141,
+          "text": "\t\t\t\t\t\tpublic void create() {"
+        },
+        {
+          "line": 142,
+          "text": "\t\t\t\t\t\t\toption(\"Yes, I'll help.\", new Dialogue()"
+        },
+        {
+          "line": 143,
+          "text": "\t\t\t\t\t\t\t\t\t.addPlayer(HeadE.CALM_TALK, \"I'll see what I can do.\")"
+        },
+        {
+          "line": 144,
+          "text": "\t\t\t\t\t\t\t\t\t.addNPC(CERIL, HeadE.HAPPY_TALKING, \"Thank you. The cave entrance is south of here, near the river.\", () -> {"
+        },
+        {
+          "line": 145,
+          "text": "\t\t\t\t\t\t\t\t\t\tif (stage(p) == NOT_STARTED)"
+        },
+        {
+          "line": 146,
+          "text": "\t\t\t\t\t\t\t\t\t\t\tp.getQuestManager().setStage(Quest.HAZEEL_CULT, STARTED);"
+        },
+        {
+          "line": 147,
+          "text": "\t\t\t\t\t\t\t\t\t}));"
+        },
+        {
+          "line": 148,
+          "text": "\t\t\t\t\t\t\toption(\"Not right now.\", new Dialogue().addPlayer(HeadE.CALM_TALK, \"I can't help right now.\"));"
+        },
+        {
+          "line": 149,
+          "text": "\t\t\t\t\t\t}"
+        },
+        {
+          "line": 150,
+          "text": "\t\t\t\t\t}));"
+        },
+        {
+          "line": 151,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 152,
+          "text": "\t\t}"
+        },
+        {
+          "line": 153,
+          "text": "\t\tif (isCultist(p) && stage == SIDE_TASK_STARTED) {"
+        },
+        {
+          "line": 154,
+          "text": "\t\t\tconfirmScruffy(p, CERIL);"
+        },
+        {
+          "line": 155,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 182,
+          "text": "\tpublic static NPCClickHandler familyDialogue = new NPCClickHandler(new Object[] { PHILIPE, HENRYETA }, new String[] { \"Talk-to\" }, e -> {"
+        },
+        {
+          "line": 183,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 184,
+          "text": "\t\tif (isCultist(p) && stage(p) == SIDE_TASK_STARTED)"
+        },
+        {
+          "line": 185,
+          "text": "\t\t\tconfirmScruffy(p, e.getNPCId());"
+        },
+        {
+          "line": 186,
+          "text": "\t\telse"
+        },
+        {
+          "line": 187,
+          "text": "\t\t\tp.startConversation(new Dialogue().addNPC(e.getNPCId(), HeadE.CALM_TALK, \"Good day.\"));"
+        },
+        {
+          "line": 188,
+          "text": "\t});"
+        },
+        {
+          "line": 189,
+          "text": ""
+        },
+        {
+          "line": 190,
+          "text": "\tpublic static NPCClickHandler clivetDialogue = new NPCClickHandler(new Object[] { CLIVET }, new String[] { \"Talk-to\" }, e -> {"
+        },
+        {
+          "line": 191,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 192,
+          "text": "\t\tint stage = stage(p);"
+        },
+        {
+          "line": 193,
+          "text": "\t\tif (stage < STARTED) {"
+        },
+        {
+          "line": 194,
+          "text": "\t\t\tp.startConversation(new Dialogue().addNPC(CLIVET, HeadE.SECRETIVE, \"You have no business here.\"));"
+        },
+        {
+          "line": 195,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 196,
+          "text": "\t\t}"
+        },
+        {
+          "line": 197,
+          "text": "\t\tif (stage == STARTED || stage == SPOKEN_TO_CLIVET) {"
+        },
+        {
+          "line": 198,
+          "text": "\t\t\tif (stage == STARTED)"
+        },
+        {
+          "line": 199,
+          "text": "\t\t\t\tp.getQuestManager().setStage(Quest.HAZEEL_CULT, SPOKEN_TO_CLIVET);"
+        },
+        {
+          "line": 200,
+          "text": "\t\t\tp.startConversation(new Dialogue()"
+        },
+        {
+          "line": 201,
+          "text": "\t\t\t\t\t.addNPC(CLIVET, HeadE.SECRETIVE, \"Ceril's ancestor stole this land from Lord Hazeel. Help us restore him and justice will be done.\")"
+        },
+        {
+          "line": 202,
+          "text": "\t\t\t\t\t.addOptions(\"Choose a side. This choice cannot be changed.\", new Options() {"
+        },
+        {
+          "line": 203,
+          "text": "\t\t\t\t\t\t@Override"
+        },
+        {
+          "line": 204,
+          "text": "\t\t\t\t\t\tpublic void create() {"
+        },
+        {
+          "line": 205,
+          "text": "\t\t\t\t\t\t\toption(\"I will help the cult.\", new Dialogue()"
+        },
+        {
+          "line": 206,
+          "text": "\t\t\t\t\t\t\t\t\t.addPlayer(HeadE.SECRETIVE, \"I'll help restore Hazeel.\")"
+        },
+        {
+          "line": 207,
+          "text": "\t\t\t\t\t\t\t\t\t.addNPC(CLIVET, HeadE.HAPPY_TALKING, \"Take this poison and pour it into the range in the mansion basement.\")"
+        },
+        {
+          "line": 208,
+          "text": "\t\t\t\t\t\t\t\t\t.addNext(() -> chooseSide(p, true)));"
+        },
+        {
+          "line": 209,
+          "text": "\t\t\t\t\t\t\toption(\"I will stop the cult.\", new Dialogue()"
+        },
+        {
+          "line": 210,
+          "text": "\t\t\t\t\t\t\t\t\t.addPlayer(HeadE.ANGRY, \"No. I won't help you murder the Carnilleans.\")"
+        },
+        {
+          "line": 211,
+          "text": "\t\t\t\t\t\t\t\t\t.addNPC(CLIVET, HeadE.ANGRY, \"Then Alomone will deal with you. The valves control the raft route.\")"
+        },
+        {
+          "line": 212,
+          "text": "\t\t\t\t\t\t\t\t\t.addNext(() -> chooseSide(p, false)));"
+        },
+        {
+          "line": 213,
+          "text": "\t\t\t\t\t\t}"
+        },
+        {
+          "line": 214,
+          "text": "\t\t\t\t\t}));"
+        },
+        {
+          "line": 215,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 216,
+          "text": "\t\t}"
+        },
+        {
+          "line": 217,
+          "text": "\t\tif (isCultist(p) && stage == CHOSEN_SIDE) {"
+        },
+        {
+          "line": 218,
+          "text": "\t\t\tgiveMissing(p, POISON, \"Clivet gives you another vial of poison.\");"
+        },
+        {
+          "line": 219,
+          "text": "\t\t\tp.startConversation(new Dialogue().addNPC(CLIVET, HeadE.SECRETIVE, \"Use the poison on the range in the mansion basement.\"));"
+        },
+        {
+          "line": 220,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 221,
+          "text": "\t\t}"
+        },
+        {
+          "line": 222,
+          "text": "\t\tif (isCultist(p) && stage == SIDE_TASK_STARTED) {"
+        },
+        {
+          "line": 223,
+          "text": "\t\t\tif (!p.getQuestManager().getAttribs(Quest.HAZEEL_CULT).getB(SCRUFFY_CONFIRMED)) {"
+        },
+        {
+          "line": 224,
+          "text": "\t\t\t\tp.startConversation(new Dialogue().addNPC(CLIVET, HeadE.SKEPTICAL, \"Do not return until you have confirmed the poison did its work.\"));"
+        },
+        {
+          "line": 225,
+          "text": "\t\t\t\treturn;"
+        },
+        {
+          "line": 226,
+          "text": "\t\t\t}"
+        },
+        {
+          "line": 227,
+          "text": "\t\t\tgiveMissing(p, HAZEELS_MARK, \"Clivet gives you Hazeel's mark.\");"
+        },
+        {
+          "line": 228,
+          "text": "\t\t\tp.startConversation(new Dialogue()"
+        },
+        {
+          "line": 229,
+          "text": "\t\t\t\t\t.addNPC(CLIVET, HeadE.HAPPY_TALKING, \"Good. Wear Hazeel's mark with pride. Set the valves right, right, left, right, right and take the raft.\")"
+        },
+        {
+          "line": 230,
+          "text": "\t\t\t\t\t.addSimple(\"Alomone waits in the hideout across the river.\"));"
+        },
+        {
+          "line": 231,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 232,
+          "text": "\t\t}"
+        },
+        {
+          "line": 233,
+          "text": "\t\tif (isCultist(p) && stage >= SIDE_TASK_FINISHED && stage < QUEST_COMPLETE) {"
+        },
+        {
+          "line": 234,
+          "text": "\t\t\tgiveMissing(p, HAZEELS_MARK, \"Clivet replaces Hazeel's mark.\");"
+        },
+        {
+          "line": 235,
+          "text": "\t\t\tp.startConversation(new Dialogue().addNPC(CLIVET, HeadE.SECRETIVE, \"Alomone waits across the river. The valves are right, right, left, right, right.\"));"
+        },
+        {
+          "line": 236,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 237,
+          "text": "\t\t}"
+        },
+        {
+          "line": 238,
+          "text": "\t\tp.startConversation(new Dialogue().addNPC(CLIVET, HeadE.ANGRY, \"You made your choice.\"));"
+        },
+        {
+          "line": 312,
+          "text": "\tpublic static ItemOnObjectHandler poisonRange = new ItemOnObjectHandler(new Object[] { 2859 }, new Object[] { POISON }, e -> {"
+        },
+        {
+          "line": 313,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 314,
+          "text": "\t\tif (!isCultist(p) || stage(p) != CHOSEN_SIDE) {"
+        },
+        {
+          "line": 315,
+          "text": "\t\t\tp.sendMessage(\"You have no reason to poison the range.\");"
+        },
+        {
+          "line": 316,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 317,
+          "text": "\t\t}"
+        },
+        {
+          "line": 318,
+          "text": "\t\tp.startConversation(new Dialogue()"
+        },
+        {
+          "line": 319,
+          "text": "\t\t\t\t.addSimple(\"You pour the poison into the range. Upstairs, a dog begins barking and then falls silent.\")"
+        },
+        {
+          "line": 320,
+          "text": "\t\t\t\t.addNext(() -> {"
+        },
+        {
+          "line": 321,
+          "text": "\t\t\t\t\tif (!isCultist(p) || stage(p) != CHOSEN_SIDE || !p.getInventory().containsItem(POISON, 1))"
+        },
+        {
+          "line": 322,
+          "text": "\t\t\t\t\t\treturn;"
+        },
+        {
+          "line": 323,
+          "text": "\t\t\t\t\tp.getInventory().deleteItem(POISON, 1);"
+        },
+        {
+          "line": 324,
+          "text": "\t\t\t\t\tp.getQuestManager().setStage(Quest.HAZEEL_CULT, SIDE_TASK_STARTED);"
+        },
+        {
+          "line": 325,
+          "text": "\t\t\t\t}));"
+        },
+        {
+          "line": 326,
+          "text": "\t});"
+        },
+        {
+          "line": 327,
+          "text": ""
+        },
+        {
+          "line": 328,
+          "text": "\tpublic static ObjectClickHandler caveEntrance = new ObjectClickHandler(new Object[] { 2852 }, CAVE_ENTRANCE, e -> e.getPlayer().useStairs(-1, CAVE_INTERIOR, 0, 1));"
+        },
+        {
+          "line": 329,
+          "text": "\tpublic static ObjectClickHandler caveExit = new ObjectClickHandler(new Object[] { 2853 }, e -> e.getPlayer().useStairs(-1, CAVE_ENTRANCE.transform(0, 1, 0), 0, 1));"
+        },
+        {
+          "line": 330,
+          "text": ""
+        },
+        {
+          "line": 331,
+          "text": "\tpublic static ObjectClickHandler valves = new ObjectClickHandler(new Object[] { 2844, 2845, 2846, 2847, 2848 }, e -> {"
+        },
+        {
+          "line": 332,
+          "text": "\t\tPlayer p = e.getPlayer();"
+        },
+        {
+          "line": 333,
+          "text": "\t\tint index = e.getObj().getId() - 2844;"
+        },
+        {
+          "line": 334,
+          "text": "\t\tboolean turnedRight = e.getOption().equalsIgnoreCase(\"turn-right\");"
+        },
+        {
+          "line": 335,
+          "text": "\t\tboolean correct = index == 2 ? !turnedRight : turnedRight;"
+        },
+        {
+          "line": 336,
+          "text": "\t\tint mask = p.getQuestManager().getAttribs(Quest.HAZEEL_CULT).getI(VALVES);"
+        },
+        {
+          "line": 337,
+          "text": "\t\tmask = correct ? mask | (1 << index) : mask & ~(1 << index);"
+        },
+        {
+          "line": 338,
+          "text": "\t\tp.getQuestManager().getAttribs(Quest.HAZEEL_CULT).setI(VALVES, mask);"
+        },
+        {
+          "line": 339,
+          "text": "\t\tp.getVars().setVarBit(4846 + index, correct ? 1 : 2);"
+        },
+        {
+          "line": 340,
+          "text": "\t\tp.setNextAnimation(new Animation(832));"
+        },
+        {
+          "line": 341,
+          "text": "\t\tp.sendMessage(\"You turn the valve \" + (turnedRight ? \"right.\" : \"left.\"));"
+        },
+        {
+          "line": 434,
+          "text": "\tprivate static void chooseSide(Player p, boolean cultist) {"
+        },
+        {
+          "line": 435,
+          "text": "\t\tif (stage(p) != SPOKEN_TO_CLIVET)"
+        },
+        {
+          "line": 436,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 437,
+          "text": "\t\tp.getQuestManager().getAttribs(Quest.HAZEEL_CULT).setI(CULT_SIDE, cultist ? 1 : 0);"
+        },
+        {
+          "line": 438,
+          "text": "\t\tp.set(CULT_SIDE, cultist ? 1 : 0);"
+        },
+        {
+          "line": 439,
+          "text": "\t\tp.getQuestManager().setStage(Quest.HAZEEL_CULT, CHOSEN_SIDE);"
+        },
+        {
+          "line": 440,
+          "text": "\t\tsyncVars(p);"
+        },
+        {
+          "line": 441,
+          "text": "\t\tif (cultist)"
+        },
+        {
+          "line": 442,
+          "text": "\t\t\tgiveMissing(p, POISON, \"Clivet gives you a vial of poison.\");"
+        },
+        {
+          "line": 443,
+          "text": "\t}"
+        },
+        {
+          "line": 444,
+          "text": ""
+        },
+        {
+          "line": 445,
+          "text": "\tprivate static void confirmScruffy(Player p, int npcId) {"
+        },
+        {
+          "line": 446,
+          "text": "\t\tp.getQuestManager().getAttribs(Quest.HAZEEL_CULT).setB(SCRUFFY_CONFIRMED, true);"
+        },
+        {
+          "line": 447,
+          "text": "\t\tp.startConversation(new Dialogue()"
+        },
+        {
+          "line": 448,
+          "text": "\t\t\t\t.addNPC(npcId, HeadE.SAD, \"Scruffy ate from the range and died. Someone poisoned our poor dog!\")"
+        },
+        {
+          "line": 449,
+          "text": "\t\t\t\t.addPlayer(HeadE.SAD, \"I'm sorry to hear that.\"));"
+        },
+        {
+          "line": 476,
+          "text": "\tprivate static void giveMissing(Player p, int itemId, String message) {"
+        },
+        {
+          "line": 477,
+          "text": "\t\tif (p.containsItem(itemId))"
+        },
+        {
+          "line": 478,
+          "text": "\t\t\treturn;"
+        },
+        {
+          "line": 479,
+          "text": "\t\tp.getInventory().addItemDrop(itemId, 1);"
+        },
+        {
+          "line": 480,
+          "text": "\t\tp.sendMessage(message);"
+        },
+        {
+          "line": 504,
+          "text": "\t@Override"
+        },
+        {
+          "line": 505,
+          "text": "\tpublic void complete(Player player) {"
+        },
+        {
+          "line": 506,
+          "text": "\t\tplayer.getSkills().addXpQuest(Constants.THIEVING, 1_500);"
+        },
+        {
+          "line": 507,
+          "text": "\t\tplayer.getInventory().addCoins(2_000);"
+        },
+        {
+          "line": 508,
+          "text": "\t\tsendQuestCompleteInterface(player, player.getI(CULT_SIDE, 0) == 1 ? HAZEELS_MARK : CARNILLEAN_ARMOUR);"
+        },
+        {
+          "line": 509,
+          "text": "\t}"
+        }
+      ]
+    },
+    {
+      "source_id": "C727I",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-727-items.txt",
+      "sha256": "331f09e75585190175c433458469e49beb047c92132303450f1067611cd36c31",
+      "literal_lines": [
+        {
+          "line": 1,
+          "text": "273\tPoison\tmodel=2714\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, Destroy]"
+        },
+        {
+          "line": 2,
+          "text": "2406\tHazeel's mark\tmodel=40909\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, Wear, null, null, drop]"
+        }
+      ]
+    },
+    {
+      "source_id": "C742I",
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1370-hazeel-cult-branch-openings-and-valves/sources/cache-742-items.txt",
+      "sha256": "331f09e75585190175c433458469e49beb047c92132303450f1067611cd36c31",
+      "literal_lines": [
+        {
+          "line": 1,
+          "text": "273\tPoison\tmodel=2714\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, Destroy]"
+        },
+        {
+          "line": 2,
+          "text": "2406\tHazeel's mark\tmodel=40909\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, Wear, null, null, drop]"
+        }
+      ]
+    }
+  ],
+  "archive_literal_passages": [
+    {
+      "body": "sources/runehq-20121107054914.html",
+      "sha256": "a29310046e210a5a9f40c081252f36f4e9d27388a8b8251d88387df777c155ca",
+      "encoding": "windows-1252",
+      "literal_html_lines": [
+        {
+          "line": 246,
+          "text": "<div class=\"undersubheader\">Difficulty:</div><div class=\"guide\">Novice</div><div class=\"undersubheader\">Length:</div><div class=\"guide\">Medium</div><div class=\"undersubheader\">Quest Requirements:<br /></div><div class=\"guide\">None</div><div class=\"undersubheader\">Skill/Other Requirements:<br /></div><div class=\"guide\">None.</div><div class=\"undersubheader\">Quests Unlocked/Partially Unlocked by completing this Quest:<br /></div><div class=\"guide\"><a href=\"/guide.php?type=quest&amp;id=1099\">Ritual of the Mahjarrat</a><br /><a href=\"/guide.php?type=quest&amp;id=1106\">Carnillean Rising</a></div><div class=\"undersubheader\">Items Needed at Quest Start:</div><div class=\"guide\">None.</div><div class=\"undersubheader\">Items Acquired During Quest:</div><div class=\"guide\">Poison, Hazeel's mark, Chest key, Hazeel scroll.</div><div class=\"undersubheader\">Quest Points:</div><div class=\"guide\">1</div><div class=\"undersubheader\">Reward:</div><div class=\"guide\">2,000 coins, 1,500 <a href=\"/guide.php?type=skill&amp;id=312\">Thieving</a> XP, Hazeel's mark if you side with Clivet, and 2 free spins on the <a href=\"/guide.php?type=minigame&amp;id=987\">Squeal of Fortune</a>.</div><div class=\"undersubheader\">Start Point:</div><div class=\"guide\">The Carnillean Mansion, southwest of <a href=\"/guide.php?type=city&amp;id=269\">East Ardougne</a> Castle.</div><div class=\"undersubheader\">To Start:</div><div class=\"guide\">Speak to <a href=\"/database.php?type=person&amp;id=271\">Sir Ceril Carnillean</a></div><div class=\"undersubheader\">Instructions:</div><div class=\"guidecontent\"><ol>"
+        },
+        {
+          "line": 249,
+          "text": "Head over to the Carnillean Mansion, southwest of <a href=\"/guide.php?type=city&amp;id=269\">East Ardougne</a> Castle, and talk to <a href=\"/database.php?type=person&amp;id=271\">Sir Ceril Carnillean</a>"
+        },
+        {
+          "line": 256,
+          "text": "Now, go south and cross a bridge. Go around the Clock Tower and enter the cave. Talk to Clivet and choose whom to join up with. For a more interesting plot, join <a href=\"/database.php?type=monster&amp;id=312\">Clivet</a>, or go the easy route and join <a href=\"/database.php?type=person&amp;id=271\">Ceril</a>."
+        },
+        {
+          "line": 269,
+          "text": "Listen to what Clivet says and agree to help him. Clivet will give you Poison and tell you to kill a member of the Carnillean family."
+        },
+        {
+          "line": 270,
+          "text": "<br /><br />"
+        },
+        {
+          "line": 271,
+          "text": "</li>"
+        },
+        {
+          "line": 272,
+          "text": ""
+        },
+        {
+          "line": 273,
+          "text": "<li>"
+        },
+        {
+          "line": 274,
+          "text": "Go into Carnillean mansion and take the ladder to the back of the mansion downwards into the basement. Now use your Poison on the range. Climb back up and talk to Philipe to find that you have killed their dog."
+        },
+        {
+          "line": 275,
+          "text": "<br /><br /> "
+        },
+        {
+          "line": 276,
+          "text": "</li>"
+        },
+        {
+          "line": 277,
+          "text": ""
+        },
+        {
+          "line": 278,
+          "text": "<li>"
+        },
+        {
+          "line": 279,
+          "text": "Return to Clivet and tell him the good news. He will give you Hazeel's mark that looks somewhat like a golden symbol of Zamorak. Wear it, and exit the cave."
+        },
+        {
+          "line": 280,
+          "text": "<br /><br />"
+        },
+        {
+          "line": 281,
+          "text": "</li>"
+        },
+        {
+          "line": 282,
+          "text": ""
+        },
+        {
+          "line": 283,
+          "text": "<li>"
+        },
+        {
+          "line": 284,
+          "text": "Next turn all the sewer valves but the one closest to the dungeon right. And turn the one closest to the dungeon, left (See the map below)."
+        },
+        {
+          "line": 291,
+          "text": "Return to the cave and take the raft near Clivet. Follow the path to Alomone. He will tell you to find a magical scroll in the Carnillean mansion. Leave via the raft and climb out of the cave."
+        },
+        {
+          "line": 298,
+          "text": "Return to the Carnillean mansion with your symbol still equipped and talk to the butler. Then climb down the ladder into the basement and search the crates for a Chest Key. After wards go up the ladder and to another flight of steps.  Knock on the wall to find a secret passage. Then go up the ladder and use your key with the chest and search the chest to obtain the scroll. Talk to the butler and leave the mansion."
+        },
+        {
+          "line": 305,
+          "text": "Go back into the cave but <span class=\"smallbold\">do not tamper with the sewer valves</span>. Take the raft back to Alamone talk to him. He will start a ritual and summon Hazeel (level 296) back from the dead. Hazeel will reward you Quest Complete. "
+        },
+        {
+          "line": 317,
+          "text": "Talk to Clivet and listen to what he has to say but do not agree to anything he says. Return to Ceril and talk to him."
+        },
+        {
+          "line": 318,
+          "text": "<br /><br /> "
+        },
+        {
+          "line": 319,
+          "text": "</li>"
+        },
+        {
+          "line": 320,
+          "text": ""
+        },
+        {
+          "line": 321,
+          "text": "<li>"
+        },
+        {
+          "line": 322,
+          "text": "Next turn all the sewer valves but the one closest to the dungeon right. And turn the one closest to the dungeon, left (See the map below)."
+        },
+        {
+          "line": 329,
+          "text": "Enter the cave and take the raft to Alamone. Talk to him and find out the butler is his spy. He should then attack you. If he doesn't, try again. He is less only level 13, so if you should be able to kill him fairly easily. He will drop the Carnillean armor. "
+        },
+        {
+          "line": 330,
+          "text": "<br /><br/>"
+        },
+        {
+          "line": 331,
+          "text": "<span class=\"smallbold\">Note:</span>If you want to get this armor for yourself, leave the island via the raft and exit the cave when you killed Alamone. Then take the raft back to the hideout. Drop the armor that you already have, wait for Alamone to come back and fight him again. He will drop another one. Pick up both armor pieces and put on one in your bank before you talk to Ceril."
+        },
+        {
+          "line": 332,
+          "text": "<br /><br />"
+        },
+        {
+          "line": 333,
+          "text": "</li>"
+        },
+        {
+          "line": 334,
+          "text": ""
+        },
+        {
+          "line": 335,
+          "text": "<li>"
+        },
+        {
+          "line": 336,
+          "text": "Talk to Ceril and give him the armor. Then, tell him about his butler. Ceril will not believe you so go to the second floor and search the Butler's wardrobe for some poison. Return to Ceril and receive your reward. "
+        },
+        {
+          "line": 351,
+          "text": "<p></p><p>This Quest Guide was written by <strong>Firkløver, G I Jew, MarilynManson, and MrStormy</strong>. Thanks to <strong>Fudge, joesmo, watsermetjou, DRAVAN, Alfawarlord, and CraigEr</strong> for corrections.<br />This Quest Guide was entered into the database on Tue, Apr 27, 2004, at 05:18:50 PM by <strong>DRAVAN and CJH</strong>, and it was last updated on Sun, Jun 24, 2012, at 02:20:20 PM by <strong>Keata Kat</strong>.</p><p>If you see this guide on any other site, please report it to us so we can take legal action against anyone found stealing our content. This guide is copyrighted by RuneHQ, and its use on other sites is expressly forbidden. Do not ask if you can use our guides or images, the answer is and always will be NO!</p>"
+        }
+      ]
+    },
+    {
+      "body": "sources/sals-20121006133620.html",
+      "sha256": "2581feea4a0b61b14bbd6dcc6ce5187df4c77cdd88baf0ffe4592d8843712627",
+      "encoding": "utf-8",
+      "literal_html_lines": [
+        {
+          "line": 168,
+          "text": "<p>Begin by speaking to Sir Ceril Carnillean in the southwest corner of <a href=\"locations/east-ardougne.html\">Ardougne</a>.</p>"
+        },
+        {
+          "line": 169,
+          "text": ""
+        },
+        {
+          "line": 170,
+          "text": "<h3 id=\"requirements_1\">Required</h3>"
+        },
+        {
+          "line": 171,
+          "text": "<ul>"
+        },
+        {
+          "line": 172,
+          "text": "    <li><strong>Skills:</strong> None.</li>"
+        },
+        {
+          "line": 173,
+          "text": "    <li><strong>Quests:</strong> None.</li>"
+        },
+        {
+          "line": 174,
+          "text": "    <li><strong>Items:</strong> None.</li>"
+        },
+        {
+          "line": 190,
+          "text": "<p><img class=\"left\" src=\"assets/images/quests/hazeel-cult/ceril.gif\" alt=\"Ceril Carnillean\" width=\"61\" height=\"84\" />First off, speak with <strong>Sir Ceril Carnillean</strong>, located in"
+        },
+        {
+          "line": 191,
+          "text": "a mansion in the southwest corner of <a href=\"locations/east-ardougne.html\">East Ardougne</a>. The mansion is a short distance"
+        },
+        {
+          "line": 192,
+          "text": "west of the Ardougne Zoo. Ceril says that cultists keep breaking into his house"
+        },
+        {
+          "line": 193,
+          "text": "and they have stolen his family armor. Now head south over the bridge behind"
+        },
+        {
+          "line": 194,
+          "text": "the mansion, and enter the cave just east of the Clocktower. </p>"
+        },
+        {
+          "line": 195,
+          "text": "<p>Speak to <strong>Clivet</strong> and"
+        },
+        {
+          "line": 196,
+          "text": "ask him what he means about the Carnilleans. Now you must choose to recover the"
+        },
+        {
+          "line": 197,
+          "text": "armor for Ceril, or side with the evil cult and revive Hazeel.</p>"
+        },
+        {
+          "line": 198,
+          "text": "<h2 id=\"good_side\">The Good Side (Easy)</h2>"
+        },
+        {
+          "line": 199,
+          "text": "<p>When you speak to Clivet, refuse to help him with his plans."
+        },
+        {
+          "line": 200,
+          "text": "He will board the raft and"
+        },
+        {
+          "line": 201,
+          "text": "leave, but before you can follow after him you need to redirect the water. Go"
+        },
+        {
+          "line": 202,
+          "text": "back to Ceril and speak to him, and then you'll need to turn each of the valves,"
+        },
+        {
+          "line": 203,
+          "text": "as indicated on the map to the right. If you don't turn the valves correctly,"
+        },
+        {
+          "line": 204,
+          "text": "you'll end up somewhere elsewhere than the hideout.</p>"
+        },
+        {
+          "line": 205,
+          "text": "<img class=\"center frame\" src=\"assets/images/quests/hazeel-cult/hazeelmap.png\" alt=\"Map of valves\" width=\"290\" height=\"257\" /><p><img class=\"left\" src=\"assets/images/quests/hazeel-cult/carnarmor.gif\" alt=\"Carnillean armor\" width=\"32\" height=\"32\" />Now"
+        },
+        {
+          "line": 206,
+          "text": "go back inside of the cave and board the raft. Head south and speak with <strong>Alomone</strong> (level"
+        },
+        {
+          "line": 207,
+          "text": "13). He is the leader of the cult ,and he says that the butler is part of their"
+        },
+        {
+          "line": 208,
+          "text": "group. Attack him and once he is dead, he should drop the Carnillean Armor!</p>"
+        },
+        {
+          "line": 209,
+          "text": "<p>Bring this back to Ceril and tell him about the butler, but he"
+        },
+        {
+          "line": 210,
+          "text": "won't believe you. Go upstairs and speak with him again, but he still doesn't"
+        },
+        {
+          "line": 211,
+          "text": "believe you that Butler Jones is a Hazeel member. He will then give you 5gp as"
+        },
+        {
+          "line": 212,
+          "text": "a \"reward.\" Search the Cupboard in Jones' room to find some poison"
+        },
+        {
+          "line": 213,
+          "text": "and an Mark of Hazeel, which proves to Ceril about it. You'll then receive your"
+        },
+        {
+          "line": 214,
+          "text": "reward! </p>"
+        },
+        {
+          "line": 215,
+          "text": "<h2 id=\"evil_side\">The Evil Side (Slightly Longer) </h2>"
+        },
+        {
+          "line": 216,
+          "text": "<p>When you speak to Clivet, agree to help him. He will give you"
+        },
+        {
+          "line": 217,
+          "text": "some poison, and he says that you need to kill someone from the Carnillean family."
+        },
+        {
+          "line": 218,
+          "text": "Head back to the mansion and go downstairs. Use your poison on the stew that"
+        },
+        {
+          "line": 219,
+          "text": "the cook is cooking. Go back upstairs and speak to Ceril of Philippe to find"
+        },
+        {
+          "line": 220,
+          "text": "out that someone (you) has killed their dog.</p>"
+        },
+        {
+          "line": 221,
+          "text": "<p><img class=\"left\" src=\"assets/images/quests/hazeel-cult/markhazeel.gif\" alt=\"Mark of hazeel\" width=\"28\" height=\"27\" />Go back to Clivet, tell him the good news, and he will give you"
+        },
+        {
+          "line": 222,
+          "text": "the Mark of Hazeel. Wear the mark, leave the mansion and then turn the valves"
+        },
+        {
+          "line": 223,
+          "text": "as indicated above. Don't forget, you'll end up somewhere else if you turn the"
+        },
+        {
+          "line": 224,
+          "text": "levers the wrong way. Go back into the cave and take the raft. Speak to <strong>Alomone</strong>,"
+        },
+        {
+          "line": 225,
+          "text": "who now needs a scroll the resurrect Hazeel! Go back to the mansion and talk"
+        },
+        {
+          "line": 226,
+          "text": "to the butler (while wearing the mark). Now go downstairs and search the crates"
+        },
+        {
+          "line": 227,
+          "text": "for a key.</p>"
+        },
+        {
+          "line": 228,
+          "text": "<p>Go back upstairs and knock on the butler's wall to find a secret passage"
+        },
+        {
+          "line": 229,
+          "text": "leading to a ladder heading up. Use the key on the chest to find a Scroll to"
+        },
+        {
+          "line": 230,
+          "text": "resurrect Hazeel. Go back to Alomone who will now start the ritual... and he"
+        },
+        {
+          "line": 231,
+          "text": "will appear! Hazeel is level 296, and non-attackable. Quest complete, and you'll"
+        },
+        {
+          "line": 232,
+          "text": "receive your reward!</p>"
+        },
+        {
+          "line": 264,
+          "text": "                    Published on: March 31, 2005 10:00 PM EST by Salmoneus"
+        }
+      ]
+    }
+  ],
+  "fact_bindings": {
+    "commission_briefing_refusal": {
+      "sources": [
+        "W1:19,27,30,32",
+        "W2:17–28",
+        "H1:HTML249,256; text76–82",
+        "H2:HTML190–224; text34–48"
+      ]
+    },
+    "acceptance_supply_range_confirmation_mark": {
+      "sources": [
+        "W1:70,72,74",
+        "W2:40–53",
+        "H1:HTML317,322; text88–89",
+        "H2:text60–68",
+        "D1:434–442,312–325,222–235,445–449"
+      ]
+    },
+    "valves": {
+      "sources": [
+        "W1:38–46,76–84",
+        "W2:17–28,40–53",
+        "H1:HTML269,274,279,284",
+        "H2:HTML190–224",
+        "C0",
+        "C727O:6–8",
+        "C742O:6–8"
+      ],
+      "directions": [
+        "right",
+        "right",
+        "left",
+        "right",
+        "right"
+      ],
+      "objects": [
+        2844,
+        2845,
+        2846,
+        2847,
+        2848
+      ],
+      "varbits": [
+        4846,
+        4847,
+        4848,
+        4849,
+        4850
+      ]
+    },
+    "opposite_option": {
+      "sources": [
+        "W1:34",
+        "C727O:6–8",
+        "C742O:6–8"
+      ],
+      "meaning": "An opposite option indicates the current requested direction. Display/Inspect is read-only; executing the opposite Turn genuinely turns to its named wrong direction and earns that directional proof."
+    },
+    "period_item_identities": {
+      "sources": [
+        "C727I:1–2",
+        "C742I:1–2",
+        "I1:1,8–11,21",
+        "I2:8–10,20–22",
+        "I4"
+      ],
+      "Poison": {
+        "item_id": 273,
+        "model_id": 2714
+      },
+      "Mark of Hazeel": {
+        "item_id": 2406,
+        "model_id": 40909
+      },
+      "stackable": false,
+      "tradeable": false,
+      "build_742_date": "2012-11-07",
+      "utc_time": "not stated"
+    },
+    "missing_only_supply": {
+      "sources": [
+        "D1:476–479"
+      ],
+      "owner_decision": "2026-10-24 08:56 PDT: Keep owned copies; Clivet supplies only a missing item, while every branch deed remains required."
+    },
+    "no_prerequisites": {
+      "sources": [
+        "H1:text56–59",
+        "H2:text22–25"
+      ],
+      "meaning": "No quest, skill or combat gate. Spirit-tree travel is optional context."
+    },
+    "later_work": {
+      "sources": [
+        "W1:49,86"
+      ],
+      "meaning": "Raft travel and subsequent work follow the valves; outside this opening."
+    },
+    "asset": {
+      "sources": [
+        "I2",
+        "F2",
+        "A2"
+      ],
+      "historical_upload": "2010-04-04T00:52:14Z",
+      "file_page_oldid": 6412175,
+      "file_page_date": "2012-10-15T04:43:03Z",
+      "file_page_sha256": "e616196b0c8f7eed1162a77552b0e6445947d0d5aa724e3bc9efd059c997c99f"
+    }
+  },
+  "adopted_conflicts_and_limits": [
+    "W2 shares wiki lineage with W1; not independent corroboration. H1 and H2 are independent period guide corroboration.",
+    "Sal's says stew; use the basement range from W1/W2/H1, D1 and cache object 2859.",
+    "H1/H2 include a second Ceril conversation after refusal. Owner answer 2026-10-24 08:56 PDT excludes it as a mandatory step: proceed directly to valves.",
+    "Use the family conversation in W1/W2 without a named-member choice or hidden gate.",
+    "D1 is modern restoration code, not original period server code. Exact inventory deletion/no output and duplicate-holder checks have no independent period-server consensus. Overflow is not adopted.",
+    "C0/C727O/C742O establish client affordances, not historical server completion behavior.",
+    "I3 is beta-marked and is not used for combat fields. No combat/equipment bonuses are added.",
+    "Authored journal sentences are AnkiScape paraphrases, not recovered historical journal quotations.",
+    "One review per deed is an AnkiScape grouping, not a period duration. No product acceptance is claimed by these source bindings."
+  ]
+}

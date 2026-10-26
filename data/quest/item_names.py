@@ -11,6 +11,7 @@ QUEST_REWARD_NON_ITEM_NAMES = frozenset({
 
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
+    "Hazeel's mark": "Mark of Hazeel",
     "Amulet of ghostspeak": "Ghostspeak amulet",
     "Ring of charos": "Ring of Charos",
     "Sapphires": "Sapphire",
@@ -25,6 +26,7 @@ QUEST_REWARD_ITEM_NAME_OVERRIDES = {
 # plurals, or historical display-name ordering. Keep those source words in the
 # generated catalogue, then resolve them onto the storage keys used by actions.
 QUEST_STAGE_ITEM_NAME_OVERRIDES = {
+    "Hazeel's mark": "Mark of Hazeel",
     "Amulet of Ghostspeak": "Ghostspeak amulet",
     "Bananas": "Banana",
     "Bat Bones": "Bat bones",

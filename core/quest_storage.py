@@ -11,6 +11,7 @@ from ..data.quest.oronwen_repair_data import PENDING_KEY
 from ..logic_pure.logic_pure_quest import default_quest_combat_active_encounters_pure
 from ..logic_pure.logic_pure_state import sanitize_quest_combat_active_encounters_pure
 from ..logic_pure.quest_action_proofs import sanitize_quest_action_proofs_pure
+from ..logic_pure.quest.hazeel import sanitize_hazeel_valve_states_pure
 from ..logic_pure.quest.oronwen import migrate_oronwen_repair_state
 from ..logic_pure.quest.enakhra import migrate_enakhra_opening_state
 from ..data.quest.enakhra_opening import MASS_KEY
@@ -28,10 +29,12 @@ def default_quest_side_state():
         PENDING_KEY: False,
         MASS_KEY: 0,
         "quest_route_states": {},
+        "hazeel_cult_valve_states": {},
     }
 
 
 def migrate_quest_data(data, loaded_config_version, current_config_version, retired_proofs):
+    data["hazeel_cult_valve_states"] = sanitize_hazeel_valve_states_pure(data.get("hazeel_cult_valve_states"))
     _migrate_quest_state(data)
     data["cold_war_greeting"] = ensure_cold_war_greeting_pure(data)
     _migrate_quest_stage_side_state(data, loaded_config_version)
