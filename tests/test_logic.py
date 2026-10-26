@@ -277,7 +277,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
     "back_to_my_roots": frozenset({("Jade vine seed", 1)}),
-    "biohazard": frozenset({}),
+    "biohazard": frozenset({}), "nature_spirit": frozenset(),
     "cabin_fever": frozenset({("Book o' piracy", 1)}),
     "carnillean_rising": frozenset({("Coins", 5000), ("Mahogany plank", 10), ("Oak plank", 100), ("Philipe's sweets", 1), ("Teak plank", 30), ("Treasure chest (Carnillean Rising)", 1)}),
     "catapult_construction": frozenset({("Adamant halberd", 1), ("Coins", 2000), ("Sailor's hat", 1), ("Teak plank", 30)}),
@@ -11699,7 +11699,7 @@ class TestLogic(unittest.TestCase):
             "back_to_my_roots": {
                 "Jade vine seed": 1,
             },
-            "biohazard": {},
+            "biohazard": {}, "nature_spirit": {},
             "black_knights_fortress": {"Coins": 2500},
             "catapult_construction": {
                 "Adamant halberd": 1,

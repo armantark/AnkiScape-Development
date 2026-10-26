@@ -11,10 +11,12 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
     NATURE_SPIRIT_ID: (
         _stage_req(
             1,
-            "Speak to Drezel in the passage beneath Paterdomus.",
-            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            "Accept Drezel's commission to find Filliman Tarlock and receive three Meat pies and three Apple pies.",
+            f"{NATURE_SPIRIT_SOURCE}; {NATURE_SPIRIT_STAGE_ACTION_SOURCE}",
+            produced_inventory=(("Meat pie", 3), ("Apple pie", 3)),
             auto_actions=(
                 "Talk to Drezel who is located in the passageway between Silvarea and Morytania.",
+                "Receive three Meat pies and three Apple pies from Drezel.",
             ),
         ),
         _stage_req(

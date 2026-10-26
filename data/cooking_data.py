@@ -536,6 +536,9 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
 
 SOURCE_NONSTACKABLE_ITEMS = frozenset(
     {
+        # Whole pies: OpenRS2 caches 727/309 and 742/544, items 2327/2323.
+        "Meat pie",
+        "Apple pie",
         "Raw tiger shark",
         "Tiger shark",
         "Burnt tiger shark",
