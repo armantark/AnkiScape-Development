@@ -42,7 +42,10 @@ the Codex native check and the promotion gate.
 - Focused tests, run from your worktree, one lane after the other:
   `python3 run_tests.py <selectors>` (plain) and
   `QT_QPA_PLATFORM=offscreen /Users/armantarkhanian/Code/AnkiScape/.venv-qt/bin/python -m unittest <modules>` (Qt).
-- Before you commit, run the full plain lane once: `python3 run_tests.py`.
+- Before your final ticket commit, run the full plain lane once:
+  `python3 run_tests.py`, in the background with a two-hour timeout, because
+  parallel implementers share the machine and one lane took over 30 minutes
+  on 2026-10-27. Hill-climb round commits need only your focused tests.
   The promotion gate runs the full offscreen Qt lane later; you run the Qt
   tests your change touches. Homebrew `python3` has no Pillow on this
   MacBook, so tests that import it can fail on the base too; a failure that
