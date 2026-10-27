@@ -1605,7 +1605,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import ElidedLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -2345,7 +2345,7 @@ if HAS_QT:
                 )
                 if icon is not None:
                     icon_lbl.setPixmap(icon.pixmap(QSize(18, 18)))
-                value_lbl = ElidedLabel() if resource_id == "prayer" else QLabel()
+                value_lbl = FittingLabel() if resource_id == "prayer" else QLabel()
                 value_lbl.setObjectName(f"combatHudResourceValue_{resource_id}")
                 value_lbl.setStyleSheet(
                     "color: rgba(255,255,255,0.85); font-size: 10px;"
@@ -2795,7 +2795,7 @@ if HAS_QT:
                 self.combat_resource_labels["lifepoints"].setText(
                     f"{state['player_lifepoints']}/{state['player_max_lifepoints']}"
                 )
-                self.combat_resource_labels["prayer"].setText(state["prayer_text"])
+                self.combat_resource_labels["prayer"].set_texts(state["prayer_texts"])
                 self.combat_resource_labels["summoning"].setText(
                     f"{state['summoning_points']}/{state['summoning_max_points']}"
                 )

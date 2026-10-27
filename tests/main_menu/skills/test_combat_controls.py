@@ -570,8 +570,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
         self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength"])
-        self.assertEqual(status.text(), "Next fight runs Burst of Strength, all fight.")
-        self.assertTrue(max_hit.text().startswith("Your max hit: 150 LP"))
+        self.assertEqual(status.text(), "Next fight runs Burst of Strength for the whole fight.")
+        self.assertTrue(max_hit.text().startswith("Your max hit: 150 LP with Burst of Strength"))
         self.assertIn("Your max hit: 150 LP", _tree_row(_find_tree_with_user_role(dialog, "chicken"), "chicken").toolTip(0))
 
     def test_choosing_a_preset_or_book_redraws_the_boxes_it_changed(self) -> None:

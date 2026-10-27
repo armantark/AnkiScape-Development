@@ -1,14 +1,17 @@
 """ui_combat_setup_panel.py - the Equipment tab's combat setup column.
 
 The current target and the max hit the next fight rolls against it, then every
-setting that fight reads, in sight and grouped: Attack, Prayer, Food and loot,
-Presets, Lunar spells. The saved settings and what the next fight gets from
+setting that fight reads, in sight and grouped: Prayer, Attack, Food and loot,
+Presets, Lunar spells. Prayer comes first because it is the group a player
+changes between fights. The saved settings and what the next fight gets from
 them come from ``combat_setup_panel_view_pure``. Every change goes out through
 the ``on_set_*`` callbacks the main menu was given, then ``on_changed``, the
 main menu's refresh, re-reads this panel and rebuilds the combat target list,
 so no readout lags behind its control. ``build_combat_setup_panel`` returns
 the panel with its refresh, which the main menu also runs after gear changes.
 """
+
+import os
 
 try:
     from aqt.qt import (  # type: ignore
@@ -41,18 +44,18 @@ from ..logic_pure.logic_pure import (
     combat_attack_style_for_equipment_pure,
     combat_dream_thrift_locked_reasons_pure,
     combat_hud_state_pure,
-    combat_weapon_style_options_pure,
 )
 from ..logic_pure.logic_pure_combat_hud import (
     combat_setup_panel_view_pure,
     toggled_combat_prayer_selection_pure,
 )
 from .ui import _COMBAT_HUB_NAME, current_target_display_name, dim_text_css
-from .ui_text_fit import FlowLayout, WrappingCheckBox, side_pair
+from .ui_text_fit import FlowLayout, WrappingCheckBox, on_resize, side_pair
 
 _LABEL_STYLE = "color: palette(text);"
 
-_UPTIME_CHOICES = (("All fight", "100"), ("70% of the fight", "70"), ("40% of the fight", "40"))
+_PRAYER_TIME_CHOICES = (("Whole fight", "100"), ("70% of the fight", "70"), ("40% of the fight", "40"))
+_CHECK_MARK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icon", "check_mark.svg")
 
 
 def combat_mode_text(player_data: dict) -> str:
@@ -77,9 +80,10 @@ def build_combat_setup_panel(
 ):
     """Return ``(panel, refresh)``; ``refresh`` re-reads every section."""
     panel = QWidget()
+    panel.setStyleSheet(_check_box_css(panel))
     layout = QVBoxLayout(panel)
     layout.setContentsMargins(0, 0, 0, 0)
-    layout.setSpacing(8)
+    layout.setSpacing(6)
     syncs = []
 
     def refresh() -> None:
@@ -101,12 +105,12 @@ def build_combat_setup_panel(
 
     send_config = then_refresh(on_set_combat_prayer_config)
     syncs.append(_add_target_header(layout, player_data))
+    syncs.append(_add_prayer_section(layout, player_data, send_config))
     _add_section_header(layout, "Attack")
     syncs.append(_add_action_row(layout, player_data, then_refresh(on_set_combat_action)))
     syncs.append(_add_style_row(layout, player_data, then_refresh(on_set_combat_style)))
     syncs.append(_add_spell_row(layout, then_refresh(on_set_combat_spell)))
     syncs.append(_add_borrowed_power_row(layout, player_data, send_config))
-    syncs.append(_add_prayer_section(layout, player_data, send_config))
     syncs.append(_add_food_and_loot(layout, on_set_combat_auto_eat_threshold, send_config, on_set_loot_threshold))
     if loot_override_rows:
         _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_override)
@@ -141,8 +145,23 @@ def _text_label(text: str) -> "QLabel":
 
 def _add_section_header(layout, text: str) -> None:
     header = QLabel(text)
-    header.setStyleSheet("color: palette(text); font-weight: 600; padding-top: 6px;")
+    header.setStyleSheet("color: palette(text); font-weight: 600; padding-top: 4px;")
     layout.addWidget(header)
+
+
+def _check_box_css(panel) -> str:
+    """Boxes drawn from the theme's text colour, so an empty box keeps its
+    outline on a dark base and a disabled label stays readable on a light one."""
+    dim = dim_text_css(panel)
+    faint = dim.rsplit(",", 1)[0] + ", 0.35)"
+    mark = _CHECK_MARK.replace(os.sep, "/")
+    return (
+        f"QCheckBox:disabled {{ color: {dim}; }}"
+        f"QCheckBox::indicator {{ width: 13px; height: 13px; border: 1px solid {dim}; border-radius: 3px; background: palette(base); }}"
+        f"QCheckBox::indicator:disabled {{ border-color: {faint}; }}"
+        f"QCheckBox::indicator:checked {{ border-color: #46b96a; background: #2f8f4e; image: url({mark}); }}"
+        "QCheckBox::indicator:checked:disabled { border-color: rgba(70, 185, 106, 0.45); background: rgba(47, 143, 78, 0.45); }"
+    )
 
 
 def _set_checked(check, checked: bool) -> None:
@@ -168,6 +187,7 @@ def _add_target_header(layout, player_data):
     layout.addWidget(target_label)
     max_hit_label = QLabel()
     max_hit_label.setObjectName("combatMaxHitLabel")
+    max_hit_label.setWordWrap(True)
     max_hit_label.setStyleSheet("color: palette(text);")
     max_hit_label.setToolTip("Counts your gear, attack style, loaded potions and the prayers below.")
     layout.addWidget(max_hit_label)
@@ -219,27 +239,22 @@ def _add_style_row(layout, player_data, on_set_combat_style):
     fixed_style.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
     _row(layout, _text_label("Attack style"), style_combo, fixed_style, grow=1)
 
-    def sync(_view) -> None:
-        # D2: the options are the equipped weapon's AttackStyleData slots, each
-        # labeled with its attack type and the skills it trains; selecting one
-        # stores both the weapon_style and the style_type.
-        options = combat_weapon_style_options_pure(player_data, EQUIPMENT_ITEM_DATA)
-        fixed = len(options) <= 1
+    style_combo.setToolTip("Every style also trains Constitution.")
+
+    def sync(view) -> None:
+        # D2: the options are the equipped weapon's AttackStyleData slots;
+        # selecting one stores both the weapon_style and the style_type.
+        styles = view["styles"]
+        fixed = len(styles) <= 1
         style_combo.setVisible(not fixed)
         fixed_style.setVisible(fixed)
         fixed_style.setText(combat_mode_text(player_data))
         style_combo.blockSignals(True)
-        if [style_combo.itemData(i) for i in range(style_combo.count())] != [
-            (option["weapon_style"], option["style_type"]) for option in options
-        ]:
+        if [style_combo.itemData(i) for i in range(style_combo.count())] != [style["data"] for style in styles]:
             style_combo.clear()
-            for option in options:
-                style_combo.addItem(
-                    f"{option['display_name']} — {' + '.join(option['trained_skills'])}",
-                    (option["weapon_style"], option["style_type"]),
-                )
-        current = next((index for index, option in enumerate(options) if option["is_current"]), 0)
-        style_combo.setCurrentIndex(current)
+            for style in styles:
+                style_combo.addItem(style["label"], style["data"])
+        style_combo.setCurrentIndex(next((index for index, style in enumerate(styles) if style["current"]), 0))
         style_combo.blockSignals(False)
 
     if on_set_combat_style is not None:
@@ -316,42 +331,45 @@ def _add_prayer_section(layout, player_data, send_config):
     _add_section_header(layout, "Prayer")
     master = QCheckBox("Use prayers in fights")
     master.setObjectName("combatPrayerMasterCheck")
-    layout.addWidget(master)
-    status = QLabel()
-    status.setObjectName("combatPrayerStatusLabel")
-    status.setWordWrap(True)
-    status.setStyleSheet("color: palette(text);")
-    layout.addWidget(status)
     book_combo = QComboBox()
     book_combo.setObjectName("combatPrayerBookCombo")
     book_combo.addItem("Standard prayers", "standard")
     book_combo.addItem("Ancient Curses", "curses")
-    uptime_combo = QComboBox()
-    uptime_combo.setObjectName("combatPrayerUptimeCombo")
-    for label, value in _UPTIME_CHOICES:
-        uptime_combo.addItem(label, value)
+    time_combo = QComboBox()
+    time_combo.setObjectName("combatPrayerUptimeCombo")
+    for label, value in _PRAYER_TIME_CHOICES:
+        time_combo.addItem(label, value)
+    hide_lower = QCheckBox("Hide lower-tier prayers")
+    hide_lower.setObjectName("combatPrayerHideLowerCheck")
     choices = QWidget()
     choices_layout = FlowLayout(choices)
     choices_layout.setContentsMargins(0, 0, 0, 0)
-    choices_layout.addWidget(side_pair("Book", book_combo, _LABEL_STYLE))
-    choices_layout.addWidget(side_pair("Keep on", uptime_combo, _LABEL_STYLE))
+    for widget in (
+        master,
+        side_pair("Book", book_combo, _LABEL_STYLE),
+        side_pair("Prayer time", time_combo, _LABEL_STYLE),
+        hide_lower,
+    ):
+        choices_layout.addWidget(widget)
     layout.addWidget(choices)
-    hide_lower = QCheckBox("Hide lower-tier prayers")
-    hide_lower.setObjectName("combatPrayerHideLowerCheck")
-    layout.addWidget(hide_lower)
+    status = QLabel()
+    status.setObjectName("combatPrayerStatusLabel")
+    status.setWordWrap(True)
+    status.setStyleSheet(_LABEL_STYLE)
+    layout.addWidget(status)
     sync_grid = _add_prayer_grid(layout, player_data, send_config, hide_lower)
     if send_config is not None:
         master.toggled.connect(lambda enabled: send_config("combat_prayers_enabled", bool(enabled)))
         book_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_book", book_combo.currentData()))
-        uptime_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_uptime", uptime_combo.currentData()))
+        time_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_uptime", time_combo.currentData()))
 
     def sync(view) -> None:
         _set_checked(master, view["prayers_enabled"])
         status.setText(view["prayer_status"])
         book_combo.model().item(book_combo.findData("curses")).setEnabled(view["curses_unlocked"])
         _set_combo_data(book_combo, view["prayer_book"])
-        _set_combo_data(uptime_combo, view["prayer_uptime"])
-        for widget in (book_combo, uptime_combo, hide_lower):
+        _set_combo_data(time_combo, view["prayer_uptime"])
+        for widget in (book_combo, time_combo, hide_lower):
             widget.setEnabled(view["prayers_enabled"])
         sync_grid(view)
 
@@ -368,50 +386,86 @@ def _prayer_check(row) -> "QCheckBox":
     return check
 
 
+_PRAYER_COLUMNS = 3
+# Most labels fit this width on one line; the few longer ones wrap.
+_PRAYER_COLUMN_WIDTH = 180
+
+
 def _add_prayer_grid(layout, player_data, send_config, hide_lower):
-    prayer_grid = QWidget()
-    prayer_grid.setObjectName("combatPrayerCheckboxGrid")
-    grid_layout = FlowLayout(prayer_grid, fill=True)
-    grid_layout.setContentsMargins(0, 0, 0, 0)
-    layout.addWidget(prayer_grid)
-    checks = {}
-    lower_tier = {"below": 1}
+    grid = _PrayerGrid(player_data, send_config, hide_lower)
+    layout.addWidget(grid.widget)
+    return grid.sync
 
-    def _on_toggled(prayer_id: str, checked: bool) -> None:
-        if send_config is not None:
-            send_config("combat_selected_prayers", toggled_combat_prayer_selection_pure(player_data, prayer_id, checked))
 
-    def _hide_lower(hidden: bool) -> None:
-        for check in checks.values():
-            check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= lower_tier["below"])
+class _PrayerGrid:
+    """The prayer boxes in equal columns, as many as the width allows up to
+    three, so they line up at every width; hidden boxes give up their cells."""
 
-    hide_lower.toggled.connect(_hide_lower)
+    def __init__(self, player_data, send_config, hide_lower):
+        self._player_data = player_data
+        self._send_config = send_config
+        self._hide_lower = hide_lower
+        self.widget = QWidget()
+        self.widget.setObjectName("combatPrayerCheckboxGrid")
+        self._layout = QGridLayout(self.widget)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setHorizontalSpacing(12)
+        self._layout.setVerticalSpacing(4)
+        self._checks = {}
+        self._lower_tier_below = 1
+        self._placed = None
+        hide_lower.toggled.connect(lambda _hidden: self._show_tiers())
+        on_resize(self.widget, self._place)
 
-    def sync(view) -> None:
+    def sync(self, view) -> None:
         # The book decides which prayers exist, so a book change rebuilds the
         # boxes; otherwise they re-read what the save kept after conflicts.
-        if list(checks) != [row["id"] for row in view["prayers"]]:
-            _rebuild_prayer_boxes(grid_layout, checks, view["prayers"], _on_toggled)
-        lower_tier["below"] = view["lower_tier_below"]
+        if list(self._checks) != [row["id"] for row in view["prayers"]]:
+            self._rebuild(view["prayers"])
+        self._lower_tier_below = view["lower_tier_below"]
         for row in view["prayers"]:
-            check = checks[row["id"]]
+            check = self._checks[row["id"]]
             _set_checked(check, row["id"] in view["selected_prayers"])
             check.setEnabled(row["unlocked"] and view["prayers_enabled"])
-        _hide_lower(hide_lower.isChecked())
+        self._show_tiers()
 
-    return sync
+    def _rebuild(self, rows) -> None:
+        for check in self._checks.values():
+            check.setParent(None)
+            check.deleteLater()
+        self._checks.clear()
+        for row in rows:
+            check = _prayer_check(row)
+            check.setParent(self.widget)
+            check.toggled.connect(lambda checked, pid=row["id"]: self._toggled(pid, checked))
+            self._checks[row["id"]] = check
 
+    def _toggled(self, prayer_id: str, checked: bool) -> None:
+        if self._send_config is not None:
+            self._send_config(
+                "combat_selected_prayers",
+                toggled_combat_prayer_selection_pure(self._player_data, prayer_id, checked),
+            )
 
-def _rebuild_prayer_boxes(grid_layout, checks, rows, on_toggled) -> None:
-    for check in checks.values():
-        check.setParent(None)
-        check.deleteLater()
-    checks.clear()
-    for row in rows:
-        check = _prayer_check(row)
-        check.toggled.connect(lambda checked, pid=row["id"]: on_toggled(pid, checked))
-        grid_layout.addWidget(check)
-        checks[row["id"]] = check
+    def _show_tiers(self) -> None:
+        hidden = self._hide_lower.isChecked()
+        for check in self._checks.values():
+            check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= self._lower_tier_below)
+        self._place()
+
+    def _place(self) -> None:
+        shown = [check for check in self._checks.values() if not check.isHidden()]
+        columns = max(1, min(_PRAYER_COLUMNS, self.widget.width() // _PRAYER_COLUMN_WIDTH))
+        key = (columns, tuple(id(check) for check in shown))
+        if key == self._placed:
+            return
+        self._placed = key
+        while self._layout.count():
+            self._layout.takeAt(0)
+        for index, check in enumerate(shown):
+            self._layout.addWidget(check, index // columns, index % columns)
+        for column in range(_PRAYER_COLUMNS):
+            self._layout.setColumnStretch(column, 1 if column < columns else 0)
 
 
 def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_threshold):
@@ -454,13 +508,26 @@ def _add_presets(layout, player_data, send_config):
     save_preset = QPushButton("Save as new preset…")
     save_preset.setObjectName("combatSavePresetButton")
     _row(layout, _text_label("Preset"), preset_combo, save_preset, grow=1)
-    pin_preset = WrappingCheckBox()
+    # COMBAT_PRESET_FIELDS, in the words of this column and the carried pack.
+    saves = QLabel(
+        "A preset saves your prayers, prayer time, auto-eat, auto-bury, autocast, "
+        "Lunar spells and supply mode. Attack style and loot stay as they are."
+    )
+    saves.setWordWrap(True)
+    saves.setStyleSheet(f"color: {dim_text_css(saves)};")
+    layout.addWidget(saves)
+    target_heading = QLabel()
+    target_heading.setObjectName("combatTargetChoicesHeading")
+    target_heading.setWordWrap(True)
+    target_heading.setStyleSheet(_LABEL_STYLE)
+    layout.addWidget(target_heading)
+    pin_preset = WrappingCheckBox("The preset chosen above")
     pin_preset.setObjectName("combatPinPresetCheck")
-    remember_prayers = WrappingCheckBox()
+    remember_prayers = WrappingCheckBox("The prayers ticked above")
     remember_prayers.setObjectName("combatOverridePrayersCheck")
-    remember_uptime = WrappingCheckBox()
-    remember_uptime.setObjectName("combatOverridePrayerUptimeCheck")
-    for check in (pin_preset, remember_prayers, remember_uptime):
+    remember_time = WrappingCheckBox("The prayer time chosen above")
+    remember_time.setObjectName("combatOverridePrayerUptimeCheck")
+    for check in (pin_preset, remember_prayers, remember_time):
         layout.addWidget(check)
     if send_config is not None:
         preset_combo.currentTextChanged.connect(lambda name: send_config("apply_preset", name))
@@ -473,22 +540,18 @@ def _add_presets(layout, player_data, send_config):
         save_preset.clicked.connect(_save_current_preset)
         pin_preset.toggled.connect(lambda enabled: send_config("pin_target_preset", enabled))
         remember_prayers.toggled.connect(lambda enabled: send_config("target_override", ("combat_selected_prayers", enabled)))
-        remember_uptime.toggled.connect(lambda enabled: send_config("target_override", ("combat_prayer_uptime", enabled)))
+        remember_time.toggled.connect(lambda enabled: send_config("target_override", ("combat_prayer_uptime", enabled)))
 
     def sync(view) -> None:
-        target = _target_name(player_data)
         preset_combo.blockSignals(True)
         preset_combo.clear()
         preset_combo.addItems(view["preset_names"])
         preset_combo.setCurrentText(view["active_preset"])
         preset_combo.blockSignals(False)
-        for check, text, checked in (
-            (pin_preset, f"Always use this preset against {target}", view["preset_pinned"]),
-            (remember_prayers, f"Remember these prayers for {target}", view["prayers_overridden"]),
-            (remember_uptime, f"Remember this prayer uptime for {target}", view["uptime_overridden"]),
-        ):
-            check.setText(text)
-            _set_checked(check, checked)
+        target_heading.setText(f"When fighting {_target_name(player_data)}, always use:")
+        _set_checked(pin_preset, view["preset_pinned"])
+        _set_checked(remember_prayers, view["prayers_overridden"])
+        _set_checked(remember_time, view["uptime_overridden"])
 
     return sync
 

@@ -368,34 +368,40 @@ class ElidedTipDelegate(QStyledItemDelegate):
         return super().helpEvent(event, view, option, index)
 
 
-class ElidedLabel(QLabel):
-    """A one-line label that gives up width before its neighbours do: it ends
-    its text with an ellipsis at the width it gets, and then shows the whole
-    text as its tooltip."""
+class FittingLabel(QLabel):
+    """A one-line label given its texts longest first. It shows the longest
+    that fits its width, ending the last in an ellipsis when even that does
+    not, and whenever it shows less than the first it offers that as its
+    tooltip. It gives up width before its neighbours do."""
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._whole = super().text()
+        self._texts = [super().text()]
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
-    def setText(self, text):
-        self._whole = text
-        self._elide()
+    def set_texts(self, texts):
+        self._texts = list(texts) or [""]
+        self._fit()
 
     def sizeHint(self):
-        return QSize(self.fontMetrics().horizontalAdvance(self._whole) + 2, super().sizeHint().height())
+        return QSize(self.fontMetrics().horizontalAdvance(self._texts[0]) + 2, super().sizeHint().height())
 
     def minimumSizeHint(self):
         return QSize(self.fontMetrics().horizontalAdvance("…"), super().minimumSizeHint().height())
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self._elide()
+        self._fit()
 
-    def _elide(self):
-        shown = self.fontMetrics().elidedText(self._whole, Qt.TextElideMode.ElideRight, self.contentsRect().width())
+    def _fit(self):
+        width = self.contentsRect().width()
+        metrics = self.fontMetrics()
+        shown = next(
+            (text for text in self._texts if metrics.horizontalAdvance(text) <= width),
+            metrics.elidedText(self._texts[-1], Qt.TextElideMode.ElideRight, width),
+        )
         super().setText(shown)
-        self.setToolTip("" if shown == self._whole else self._whole)
+        self.setToolTip("" if shown == self._texts[0] else self._texts[0])
 
 
 class _WrappedLastColumn(QStyledItemDelegate):

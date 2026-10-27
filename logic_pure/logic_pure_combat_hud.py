@@ -13,7 +13,7 @@ from .logic_pure_combat_finishers import (
 )
 from .logic_pure_combat_loadout import _combat_target_loadout
 from .logic_pure_combat_model import combat_attack_style_for_equipment_pure, combat_max_lifepoints_pure
-from .logic_pure_prayer import active_prayer_selection_pure, prayer_uptime_fraction_pure
+from .logic_pure_prayer import active_prayer_selection_pure, prayer_uptime_fraction_pure, sanitize_prayer_selection_pure
 from .logic_pure_state import _non_negative_int, _positive_int
 
 
@@ -44,32 +44,44 @@ def _combat_hud_player_bars(player_data):
             summoning_max,
         ),
     )
-    prayer_text = f"{prayer_current}/{prayer_max}"
-    names, uptime = combat_fight_prayers_pure(player_data)
-    if names:
-        prayer_text += " · " + ", ".join(names) + (f" ({uptime:.0%})" if uptime < 1 else "")
     return {
         "player_lifepoints": current_lp,
         "player_max_lifepoints": max_lp,
         "player_pct": _combat_hud_pct(current_lp, max_lp),
         "prayer_points": prayer_current,
         "prayer_max_points": prayer_max,
-        "prayer_text": prayer_text,
+        "prayer_texts": _combat_hud_prayer_texts(player_data, f"{prayer_current}/{prayer_max}"),
         "summoning_points": summoning_current,
         "summoning_max_points": summoning_max,
     }
 
 
+def _combat_hud_prayer_texts(player_data, points):
+    """The prayer points with the running prayers, longest first: every name,
+    then fewer names and "+N" for the rest, then only the count, for the strip
+    to show the longest that fits."""
+    names, uptime, _picked = combat_fight_prayers_pure(player_data)
+    share = f" ({uptime:.0%})" if names and uptime < 1 else ""
+    texts = [
+        f"{points} · {', '.join(names[:shown])}{f' +{len(names) - shown}' if shown < len(names) else ''}{share}"
+        for shown in range(len(names), 0, -1)
+    ]
+    if len(names) > 1:
+        texts.append(f"{points} · {len(names)} prayers{share}")
+    return texts or [points]
+
+
 def combat_fight_prayers_pure(player_data):
-    """The prayers the next fight with the current target runs, by name, and
-    the share of it they stay on. None run while Prayers/Curses is unticked or
-    the prayer points are spent."""
+    """The prayers the next fight with the current target runs, by name; the
+    share of it they stay on; and whether the game picked them because none is
+    ticked. None run while Prayers/Curses is unticked or the points are spent."""
     target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
     loadout = _combat_target_loadout(player_data, target_id)
     uptime = prayer_uptime_fraction_pure(loadout)
     if uptime <= 0:
-        return [], 0.0
-    return [COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in active_prayer_selection_pure(loadout)], uptime
+        return [], 0.0, False
+    names = [COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in active_prayer_selection_pure(loadout)]
+    return names, uptime, not sanitize_prayer_selection_pure(loadout, loadout.get("combat_selected_prayers", ()))
 
 
 def _combat_hud_enemy_bar(player_data, target_id, enemy_data):
@@ -134,9 +146,11 @@ def combat_setup_panel_view_pure(player_data, equipment_data):
     target_overrides = (player_data.get("combat_target_overrides", {}) or {}).get(target_id, {}) or {}
     presets = player_data.get("combat_presets", {}) or {}
     active_preset = str(player_data.get("combat_active_preset", "Default"))
+    magic_mode = combat_attack_style_for_equipment_pure(player_data, equipment_data) == "magic_standard"
     return {
         "finisher_chosen": player_data.get("combat_action") == "finisher",
-        "magic_mode": combat_attack_style_for_equipment_pure(player_data, equipment_data) == "magic_standard",
+        "magic_mode": magic_mode,
+        "styles": _combat_setup_style_rows(player_data, equipment_data),
         "autocast_spell": player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL),
         "spells": _combat_setup_spell_rows(player_data),
         "borrowed_power_spell": player_data.get("combat_borrowed_power_spell"),
@@ -150,7 +164,7 @@ def combat_setup_panel_view_pure(player_data, equipment_data):
         "prayer_book": player_data.get("combat_prayer_book", "standard"),
         "prayer_uptime": uptime if uptime in PRAYER_UPTIME_POLICIES else DEFAULT_PRAYER_UPTIME,
         "prayer_status": _combat_setup_prayer_status(player_data),
-        "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data),
+        "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mode),
         "vengeance": bool(player_data.get("combat_vengeance", False)),
         "spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
         "preset_pinned": (player_data.get("combat_target_presets", {}) or {}).get(target_id) == active_preset,
@@ -173,27 +187,59 @@ def toggled_combat_prayer_selection_pure(player_data, prayer_id, checked):
     return selected
 
 
+def _and_list(names):
+    return " and ".join((", ".join(names[:-1]), names[-1])) if len(names) > 1 else "".join(names)
+
+
+def _prayer_share(uptime):
+    return "the whole fight" if uptime >= 1 else f"{uptime:.0%} of the fight"
+
+
 def _combat_setup_prayer_status(player_data):
     """One line saying which prayers the next fight runs, and why."""
     if not bool(player_data.get("combat_prayers_enabled", True)):
         return "Off: no prayers run in fights."
-    names, uptime = combat_fight_prayers_pure(player_data)
+    names, uptime, picked = combat_fight_prayers_pure(player_data)
     if not names:
         return "No prayer points left. The next bank run's altar stop restores them."
-    share = "all fight" if uptime >= 1 else f"for {uptime:.0%} of the fight"
-    if player_data.get("combat_selected_prayers"):
-        return f"Next fight runs {', '.join(names)}, {share}."
-    return f"None chosen, so the next fight runs the best for your weapon: {', '.join(names)}, {share}."
+    if picked:
+        return f"Nothing ticked, so the next fight runs the best for your weapon: {_and_list(names)}, for {_prayer_share(uptime)}."
+    return f"Next fight runs {_and_list(names)} for {_prayer_share(uptime)}."
 
 
-def _combat_setup_max_hit_text(player_data, target_id, equipment_data):
+def _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mode):
+    """The max hit and accuracy against the target, naming the prayers they
+    count, so a ticked prayer never moves the number without its reason."""
     # The engine builds its HUD state from this module.
     from .logic_pure_combat_engine import combat_target_preview_pure
 
     preview = combat_target_preview_pure(player_data, target_id, equipment_data=equipment_data)
     if preview.get("state") == "blocked":
         return f"Can't fight this target yet: {', '.join(preview.get('reasons') or ('locked',))}."
-    return f"Your max hit: {preview.get('player_max_hit', 0)} LP · accuracy {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
+    accuracy = f"accuracy {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
+    if magic_mode:
+        return f"Your max hit: {preview.get('player_max_hit', 0)} LP · {accuracy} (prayers do not change Magic hits)"
+    names, uptime, picked = combat_fight_prayers_pure(player_data)
+    prayers = "with no prayers"
+    if names:
+        prayers = f"with {_and_list(names)}{'' if uptime >= 1 else f' for {_prayer_share(uptime)}'}{' (picked for you)' if picked else ''}"
+    return f"Your max hit: {preview.get('player_max_hit', 0)} LP {prayers} · {accuracy}"
+
+
+def _combat_setup_style_rows(player_data, equipment_data):
+    """Each attack style the weapon offers, named with the skills it trains
+    besides Constitution, which every style trains."""
+    # The engine builds its HUD state from this module.
+    from .logic_pure_combat_engine import combat_weapon_style_options_pure
+
+    return [
+        {
+            "label": f"{option['display_name']}: trains {_and_list([skill for skill in option['trained_skills'] if skill != 'Constitution'])}",
+            "data": (option["weapon_style"], option["style_type"]),
+            "current": option["is_current"],
+        }
+        for option in combat_weapon_style_options_pure(player_data, equipment_data)
+    ]
 
 
 def _int_or(value, default):

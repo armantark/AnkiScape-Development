@@ -10,6 +10,7 @@ from ankiscape.core.combat_prayer_config import apply_combat_prayer_config_pure
 from ankiscape.core.constants import EQUIPMENT_ITEM_DATA
 from ankiscape.core.target_metadata import combat_target_rows
 from ankiscape.logic_pure.logic_pure_combat_engine import combat_hud_state_pure
+from ankiscape.logic_pure.logic_pure_combat_hud import combat_setup_panel_view_pure
 from tests.pace.test_combat_danger_stops import ENEMY, answer_combat
 from tests.test_combat_logic import _player
 
@@ -53,8 +54,12 @@ class TickedPrayersTests(unittest.TestCase):
     def test_with_none_chosen_the_fight_runs_the_best_prayers_for_the_weapon(self):
         player = _melee_player()
         self.assertEqual(
-            combat_hud_state_pure(player)["prayer_text"],
+            combat_hud_state_pure(player)["prayer_texts"][0],
             "43/43 · Incredible Reflexes, Ultimate Strength, Steel Skin",
+        )
+        self.assertEqual(
+            combat_setup_panel_view_pure(player, EQUIPMENT_ITEM_DATA)["max_hit_text"],
+            "Your max hit: 160 LP with Incredible Reflexes, Ultimate Strength and Steel Skin (picked for you) · accuracy 99%",
         )
         prayed, _hits = _fight(player)
         self.assertLess(prayed["combat_prayer_points"], 430)
@@ -75,13 +80,21 @@ class TickedPrayersTests(unittest.TestCase):
                 self.assertEqual(_tooltip_max_hit(player), max_hit)
                 self.assertEqual(rolled[0] * 10, max_hit)
 
-    def test_the_hud_names_the_prayers_and_a_lowered_uptime(self):
+    def test_the_hud_names_the_prayers_and_a_shorter_prayer_time(self):
         player = _melee_player(combat_selected_prayers=["burst_of_strength"], combat_prayer_points=380)
-        self.assertEqual(combat_hud_state_pure(player)["prayer_text"], "38/43 · Burst of Strength")
+        self.assertEqual(combat_hud_state_pure(player)["prayer_texts"], ["38/43 · Burst of Strength"])
         player["combat_prayer_uptime"] = "40"
-        self.assertEqual(combat_hud_state_pure(player)["prayer_text"], "38/43 · Burst of Strength (40%)")
+        self.assertEqual(combat_hud_state_pure(player)["prayer_texts"], ["38/43 · Burst of Strength (40%)"])
         player["combat_prayers_enabled"] = False
-        self.assertEqual(combat_hud_state_pure(player)["prayer_text"], "38/43")
+        self.assertEqual(combat_hud_state_pure(player)["prayer_texts"], ["38/43"])
+
+    def test_a_long_hud_prayer_list_gives_way_to_plus_n_then_a_count(self):
+        self.assertEqual(combat_hud_state_pure(_melee_player(combat_prayer_points=380))["prayer_texts"], [
+            "38/43 · Incredible Reflexes, Ultimate Strength, Steel Skin",
+            "38/43 · Incredible Reflexes, Ultimate Strength +1",
+            "38/43 · Incredible Reflexes +2",
+            "38/43 · 3 prayers",
+        ])
 
 
 if __name__ == "__main__":
