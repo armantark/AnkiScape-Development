@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] A save with a Grain Grand Exchange offer (buy and sell) and a Grain shop row loads with Wheat in each, and collecting the offer gives Wheat or the coins it should.
-- [ ] Fish Flingers names its length in cards at the current game speed, and a search finds no player-visible tick count left outside setting labels.
-- [ ] Focused tests and the full plain lane pass apart from the known base failures.
+- [x] A save with a Grain Grand Exchange offer (buy and sell) and a Grain shop row loads with Wheat in each, and collecting the offer gives Wheat or the coins it should.
+- [x] Fish Flingers names its length in cards at the current game speed, and a search finds no player-visible tick count left outside setting labels.
+- [x] Focused tests and the full plain lane pass apart from the known base failures.

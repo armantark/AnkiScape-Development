@@ -22,8 +22,6 @@ from .inventory_pure import CARRIED_CAPACITY
 
 from ..data.herblore_data import HERBLORE_TARGETS
 
-from ..data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
-
 from ..core.constants import EXTRA_ITEM_DATA
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure, retract_shop_event_quest_action_proofs_pure
@@ -710,9 +708,12 @@ def _sell_row_id(
     """Stock row a sale lands in, or None when it needs a slot the shop lacks."""
     if stocked_row is not None:
         return stocked_row["id"]
+    # Matched by item rather than by id: a row saved under a renamed item
+    # keeps its old id, and the sale must stack onto it.
+    for row_id, state in group_state.get("rows", {}).items():
+        if bool(state.get("temporary")) and state.get("item_name") == item_name:
+            return row_id
     row_id = f"{shop['id']}:temporary:{_item_slug(item_name)}"
-    if row_id in group_state.get("rows", {}):
-        return row_id
     # Shop.java: general stock is MAX_SHOP_ITEMS(40) minus the main stock;
     # a sale needing a new slot fails when the pool is full.
     temporary_rows = sum(

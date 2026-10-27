@@ -12650,7 +12650,7 @@ def show_main_menu(
             return result
 
         def _refresh_fish_flingers_panel() -> None:
-            view = fish_flingers_view_pure(player_data)
+            view = fish_flingers_view_pure(player_data, speed=_game_speed())
             active = bool(view["active"])
             fish_flingers_currency.setText(
                 f"{'ACTIVE' if active else 'READY'} · "
@@ -12675,7 +12675,7 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    f"{FISH_FLINGERS_EVENT_CATCHES} catches over 1,000 ticks · tackle discovery improves every catch · "
+                    f"{FISH_FLINGERS_EVENT_CATCHES} catches over {view['event_length_text']} · tackle discovery improves every catch · "
                     "stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])

@@ -64,6 +64,7 @@ you are in the game, with the date the change reached main.
 - [ ] In Advanced Fight Caves, kill the selected healer: the roster and target selector name the same next living healer. Select Jad with one ordinary move; the next review attacks Jad. Edit > Undo (Cmd+Z) restores the killed healer and prior target. (native accepted2026-10-15; landedd1043c69)
 - [ ] Castle Wars, Pest Control, Soul Wars and Barbarian Assault fights give their XP once per fight, not twice. (2026-09-28)
 - [ ] Barbarian Advanced course: a failed log costs that lap's bonus XP, and the next clean lap earns it again. (2026-09-28)
+- [ ] Skills > Activities > Fish Flingers, before you start an event: the card reads "8 catches over 167 cards" at game speed 1 and "8 catches over 17 cards" at speed 10 (Settings tab, Game speed), never ticks. (2026-10-27)
 
 ## Gathering and processing skills
 

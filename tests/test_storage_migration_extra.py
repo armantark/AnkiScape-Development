@@ -3,6 +3,8 @@ import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import migrate_loaded_data, default_player_data, CURRENT_CONFIG_VERSION
 from ankiscape.core.constants import MINING_OUTPUT_ITEMS, ORE_DATA, QUEST_DATA
+from ankiscape.logic.grand_exchange_logic import cancel_ge_offer_pure, collect_ge_offer_pure
+from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_sell_pure
 from ankiscape.logic_pure.logic_pure_quest import quest_current_stage_blocker_reasons_pure
 
 
@@ -104,6 +106,46 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertNotIn(
             "Needs Wheat x10",
             quest_current_stage_blocker_reasons_pure(out, "eadgars_ruse", QUEST_DATA),
+        )
+
+    def test_saved_grain_offers_and_shop_row_pay_out_wheat(self):
+        store = "lumbridge_general_store"
+        grain_row = f"{store}:temporary:grain"
+        data = {
+            "inventory": {"Coins": 1000, "Grain": 2},
+            "ge_player_orders": [
+                {"id": 1, "side": "buy", "item_name": "Grain", "status": "partial", "original_quantity": 10,
+                 "remaining_quantity": 6, "completed_quantity": 4, "submitted_unit_price": 18,
+                 "escrow_coins": 108, "collectible_items": 4},
+                {"id": 2, "side": "sell", "item_name": "Grain", "status": "partial", "original_quantity": 5,
+                 "remaining_quantity": 3, "completed_quantity": 2, "submitted_unit_price": 20,
+                 "escrow_items": 3, "collectible_coins": 40},
+            ],
+            "shop_stock_state": {store: {"shop_id": store, "last_market_tick": 0, "rows": {grain_row: {
+                "item_name": "Grain", "current_quantity": 7, "buy_price": 3, "sell_price": 1, "temporary": True,
+            }}}},
+        }
+        out = migrate_loaded_data(data, ORE_DATA)
+        self.assertEqual([order["item_name"] for order in out["ge_player_orders"]], ["Wheat", "Wheat"])
+        self.assertEqual(out["shop_stock_state"][store]["rows"][grain_row]["item_name"], "Wheat")
+
+        for order_id in (1, 2):
+            out, _ = collect_ge_offer_pure(out, order_id)
+            out, _ = cancel_ge_offer_pure(out, order_id)
+            out, _ = collect_ge_offer_pure(out, order_id)
+        # Bank Grain, bought Grain and unsold Grain all arrive as Wheat; sale
+        # proceeds and the unspent buy escrow arrive as coins.
+        self.assertEqual(out["inventory"]["Wheat"], 2 + 4 + 3)
+        self.assertEqual(out["inventory"]["Coins"], 1000 + 40 + 108)
+        self.assertNotIn("Grain", out["inventory"])
+        self.assertEqual(out["ge_player_orders"], [])
+
+        out, _ = apply_shop_buy_pure(out, store, grain_row, 1)
+        self.assertEqual(out["inventory"]["Wheat"], 10)
+        out, _ = apply_shop_sell_pure(out, store, "Wheat", 2)
+        self.assertEqual(
+            {row_id: row["current_quantity"] for row_id, row in out["shop_stock_state"][store]["rows"].items()},
+            {grain_row: 8},
         )
 
 
