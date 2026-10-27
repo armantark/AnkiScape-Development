@@ -43,7 +43,8 @@ the Codex native check and the promotion gate.
   `python3 run_tests.py <selectors>` (plain) and
   `QT_QPA_PLATFORM=offscreen /Users/armantarkhanian/Code/AnkiScape/.venv-qt/bin/python -m unittest <modules>` (Qt).
 - Before your final ticket commit, run the full plain lane once:
-  `python3 run_tests.py`, in the background with a two-hour timeout, because
+  `python3 run_tests.py --processes 4` (775 s against 2,109 s serial on
+  2026-10-27), in the background with a two-hour timeout, because
   parallel implementers share the machine and one lane took over 30 minutes
   on 2026-10-27. Hill-climb round commits need only your focused tests.
   The promotion gate runs the full offscreen Qt lane later; you run the Qt
