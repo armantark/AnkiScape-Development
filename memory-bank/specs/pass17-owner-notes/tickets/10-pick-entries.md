@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] Each entry gathers its item through the real review handler and gives no XP.
-- [ ] Each entry's hover text names its place; each cites a period revision; Darkan-only values carry a placeholder row.
-- [ ] "Pick pineapples" follows the game's members rules.
-- [ ] One play-checklist line added.
+- [x] Each entry gathers its item through the real review handler and gives no XP.
+- [x] Each entry's hover text names its place; each cites a period revision; Darkan-only values carry a placeholder row.
+- [x] "Pick pineapples" follows the game's members rules.
+- [x] One play-checklist line added.

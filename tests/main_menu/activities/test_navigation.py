@@ -695,6 +695,24 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             ],
         )
 
+    def test_pick_rows_name_their_place_on_hover(self) -> None:
+        utility_tree = self._open_utility(self.dialog)
+        for action_id, place in (
+            ("pick_cabbages", "north of Lumbridge"),
+            ("pick_potatoes", "north of the Lumbridge chicken farm"),
+            ("pick_onions", "Fred the Farmer's yard"),
+            ("pick_redberries", "south-east of Varrock"),
+            ("pick_cadava_berries", "west of the East Varrock Mine"),
+            ("pick_bananas", "Musa Point"),
+            ("pick_pineapples", "Brimhaven Dungeon entrance"),
+        ):
+            with self.subTest(action_id=action_id):
+                row = _utility_row(utility_tree, action_id)
+                self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+                self.assertFalse(row.icon(0).isNull())
+                self.assertIn(place, row.toolTip(0))
+                self.assertIn("No skill XP", row.toolTip(0))
+
     def test_goblin_diplomacy_processing_rows_use_the_existing_utility_contract(self) -> None:
         utility_tree = self._open_utility(self._open(_make_player_data() | {"inventory": {"Redberries": 3, "Coins": 5}}))
         expected = {
