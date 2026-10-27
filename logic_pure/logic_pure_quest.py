@@ -10,6 +10,9 @@ from .quest.toktz_opening import (
     toktz_opening_phase_pure, toktz_opening_review_ready_pure,
     toktz_opening_next_event_pure, apply_toktz_opening_review_pure,
 )
+from .quest.another_cook import (
+    another_cook_requirement_pure, another_cook_review_ready_pure, apply_another_cook_review_pure,
+)
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure,
@@ -17,6 +20,7 @@ from .quest.elemental_workshop import (
 )
 from .quest.stage_items import (  # noqa: F401 (re-export)
     _quest_stage_item_pairs, _quest_stage_item_option_groups, _quest_stage_strings, _has_quest_tool,
+    _quest_item_requirement_text, _quest_item_option_reason,
 )
 from .quest.hazeel import hazeel_opening_choice_ready_pure, hazeel_opening_state_blockers_pure
 from .quest.review_steps import (apply_quest_review_step_pure, quest_review_requirement_pure,
@@ -106,6 +110,8 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
 
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
 from .quest.progress_state import (
+    _QUEST_ROUTE_INHERITANCE,  # noqa: F401 (re-export)
+    _quest_route_completed,
     _quest_combat_completed_count,
     _quest_combat_remaining_count,
     _quest_combat_total_quantity,
@@ -121,33 +127,14 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
+
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
 
 
-def _quest_item_requirement_text(item_name, amount):
-    quantity = f" x{amount}" if amount > 1 else " x1"
-    return f"{item_name}{quantity}"
-
-def _quest_item_option_reason(options):
-    return "Needs " + " or ".join(_quest_item_requirement_text(item_name, amount) for item_name, amount in options)
-
-
-_QUEST_ROUTE_INHERITANCE = {
-    ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
-    ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
-}
-
-def _quest_route_completed(player_data, quest_id, route_id):
-    if _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
-        return True
-    for source_quest_id in _QUEST_ROUTE_INHERITANCE.get((quest_id, route_id), ()):
-        if _quest_flag_completed(player_data, "quest_route_states", source_quest_id, route_id):
-            return True
-    return False
-
 def _quest_choice_stage(choice):
     return _positive_int(choice.get("stage", 0), 0) if isinstance(choice, Mapping) else 0
+
 
 def _quest_choice_options(choice):
     if not isinstance(choice, Mapping):
@@ -169,6 +156,7 @@ def _quest_choice_options(choice):
         )
     return tuple(rows)
 
+
 def _quest_choice_current_stage(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if state["completed"]:
@@ -177,11 +165,13 @@ def _quest_choice_current_stage(player_data, quest_id, quest_data):
         return quest_current_stage_pure(player_data, quest_id, quest_data)
     return 0
 
+
 def _quest_choice_selected(player_data, quest_id, options):
     return tuple(
         option for option in options
         if _quest_route_completed(player_data, quest_id, option["route_id"])
     )
+
 
 def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
     if quest_id == "hazeel_cult" and not hazeel_opening_choice_ready_pure(player_data):
@@ -206,6 +196,7 @@ def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
             }
         )
     return tuple(rows)
+
 
 def quest_current_stage_choices_pure(player_data, quest_id, quest_data):
     """Return unresolved player choices for the visible quest stage."""
@@ -629,6 +620,7 @@ def _quest_requirement_combat_blockers(player_data, quest_id, requirement, stage
 
 def _quest_requirement_blockers(player_data, quest_id, requirement):
     requirement = quest_review_requirement_pure(player_data, quest_id, requirement)
+    requirement = another_cook_requirement_pure(player_data, quest_id, requirement)
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
     return tuple((
@@ -872,6 +864,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
     return (
         toktz_opening_review_ready_pure(player_data, quest_id, blockers)
+        or another_cook_review_ready_pure(player_data, quest_id, blockers)
         or quest_review_ready_pure(player_data, quest_id, blockers, quest_data=quest_data,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
@@ -1185,6 +1178,9 @@ def apply_quest_progress_pure(
         event = toktz_opening_next_event_pure(data, quest_id)
         candidate, success = apply_toktz_opening_review_pure(data, quest_id, blockers, event)
         return (candidate if success else player_data, success, False, *empty_refusal)
+    data, opening_result = apply_another_cook_review_pure(data, quest_id, blockers)
+    if opening_result == "commissioned":
+        return (data, True, False, *empty_refusal)
     data, step_result = apply_quest_review_step_pure(
         data, quest_id, blockers, quest_data=quest_data, eligibility_reasons=quest_eligibility_reasons_pure,
     )

@@ -24,6 +24,9 @@ from ..logic_pure.quest.hazeel_journal import hazeel_opening_announcement_pure
 from ..data.quest.hazeel_opening import OpeningAction
 from ..logic_pure.quest.review_steps import quest_review_phase_pure, quest_review_ready_pure, quest_review_feedback_pure
 from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, toktz_opening_message_pure
+from ..logic_pure.quest.another_cook import (
+    another_cook_phase_pure, another_cook_review_ready_pure, another_cook_progress_message_pure,
+)
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import (
     _combat_review_ticks,
@@ -124,7 +127,7 @@ def _announce_watchtower_progress(ctx, phase):
     ctx.show_activity_gain(fill(messages[phase], width=48))
 
 
-def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "") -> None:
+def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "", cook_phase: Any = None) -> None:
     if quest_id == "watchtower" and repair_phase:
         _announce_watchtower_progress(ctx, repair_phase)
         return
@@ -133,8 +136,14 @@ def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: di
     if opening_message:
         ctx.show_activity_gain(opening_message)
         return
+    cook_message = another_cook_progress_message_pure(cook_phase)
     state = ctx.player_data.get("quests", {}).get(quest_id, {})
     progress_notice = f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}"
+    if cook_message:
+        # The collector keeps the last mixed activity message, so send the
+        # performed deed and counter together, wrapped for the existing popup.
+        ctx.show_activity_gain('\n'.join((fill(cook_message, width=40), progress_notice)))
+        return
     for message in quest_review_feedback_pure(repair_phase, progress_notice):
         ctx.show_activity_gain(message)
 
@@ -154,6 +163,11 @@ def _report_quest_progress_refusal(ctx, quest_id, quest):
         )
 
 
+def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, float], completed_now: bool, cook_phase: Any) -> None:
+    if completed_now or cook_phase == 'prepare':
+        ctx.show_quest_exp_delta(exp_before)
+
+
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
@@ -168,6 +182,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     review_ready = (
         toktz_opening_review_ready_pure(player_data, quest_id, stage_blockers)
+        or another_cook_review_ready_pure(player_data, quest_id, stage_blockers)
         or quest_review_ready_pure(player_data, quest_id, stage_blockers, quest_data=QUEST_DATA,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(
@@ -186,6 +201,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     opening_message = toktz_opening_message_pure(player_data, quest_id)
+    cook_phase = another_cook_phase_pure(player_data, quest_id)
     repair_phase = quest_review_phase_pure(player_data, quest_id)
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
@@ -207,8 +223,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
     player_data.update(new_data)
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
+    _show_quest_review_exp(ctx, exp_before, completed_now, cook_phase)
     if completed_now:
-        ctx.show_quest_exp_delta(exp_before)
         ctx.deactivate_current_skill()
     ctx.check_achievements(player_data)
     ctx.save_player_data()
@@ -216,5 +232,5 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         _announce_quest_completion(ctx, quest_id, quest, clue_reward_refusal_reason)
     else:
-        _announce_quest_progress(ctx, quest_id, quest, repair_phase, opening_message)
+        _announce_quest_progress(ctx, quest_id, quest, repair_phase, opening_message, cook_phase)
     return True

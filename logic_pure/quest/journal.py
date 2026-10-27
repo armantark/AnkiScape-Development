@@ -1,6 +1,7 @@
 """Read-only quest journal projections, independent of progression controllers."""
 
 from ..logic_pure_state import quest_state_pure, _positive_int
+from .another_cook import another_cook_journal_row_pure
 from .review_services import quest_review_journal_row_pure
 from .elemental_workshop import opening_journal_rows_pure
 from .hazeel_journal import hazeel_journal_row_pure
@@ -42,6 +43,7 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
             "completed": state["completed"] or stage < progress,
             "current": (not state["completed"] and stage == progress),
         }
+        row = another_cook_journal_row_pure(player_data, quest_id, row)
         row = quest_review_journal_row_pure(player_data, quest_id, row)
         row = hazeel_journal_row_pure(player_data, quest_id, row)
         row = toktz_opening_journal_row_pure(player_data, quest_id, row)
