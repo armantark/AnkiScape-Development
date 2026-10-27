@@ -1,0 +1,15 @@
+{
+  "configured_revision": 667,
+  "git_revision": "unavailable (reference snapshot)",
+  "source_root": "/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main",
+  "query": "witch.s.house|WITCHS_HOUSE|witchshouse|witchs_house|witches_house",
+  "returncode": 0,
+  "matches": [
+    "/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Varps.kt:231:    const val WITCHS_HOUSE_PROGRESS = 226",
+    "/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/quest_tab.plugin.kts:232:    player.setVarp(Varps.WITCHS_HOUSE_PROGRESS, 7)"
+  ],
+  "positive_control_cooks_assistant_files": [
+    "/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl/CooksAssistant.kt"
+  ],
+  "scope": "game/plugins/src recursive; all matches inspected; no Witch house quest implementation found; stub does not prove period absence"
+}

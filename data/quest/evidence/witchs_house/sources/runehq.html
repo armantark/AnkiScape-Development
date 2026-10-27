@@ -1,0 +1,585 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+    
+        <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+        <meta name="description" content="Use this guide to help you complete the RuneScape quest Witch's house, which is P2P." />
+        <title>Witch's House - RuneScape Guide - RuneHQ</title>
+        <link href="/css/beta.css?c=1325765618" rel="stylesheet" type="text/css" />
+        <link href="/css/betanav.css?c=1325765618" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" type="image/x-icon" href="/image/favicon.ico" />
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-27787693-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+function getElementValue(id) {
+	return document.getElementById(id).value;
+}
+function setElementValue(id, value) {
+	document.getElementById(id).value = value;
+}
+function getCombatStats(username) {
+username = username.replace(/ /g, "_");
+	$('#atkLevel').load('/runekit/include/userstat.php?s=Attack&u='+username+'&ajax', function(response) {
+		setElementValue('atkLevel', response);
+});
+$('#magicLevel').load('/runekit/include/userstat.php?s=Magic&u='+username+'&ajax', function(response) {
+		setElementValue('magicLevel', response);
+});
+$('#strLevel').load('/runekit/include/userstat.php?s=Strength&u='+username+'&ajax', function(response) {
+		setElementValue('strLevel', response);
+});
+$('#sumLevel').load('/runekit/include/userstat.php?s=Summoning&u='+username+'&ajax', function(response) {
+		setElementValue('sumLevel', response);
+});
+$('#rangedLevel').load('/runekit/include/userstat.php?s=Ranged&u='+username+'&ajax', function(response) {
+		setElementValue('rangedLevel', response);
+});
+$('#prayerLevel').load('/runekit/include/userstat.php?s=Prayer&u='+username+'&ajax', function(response) {
+		setElementValue('prayerLevel', response);
+});
+$('#hpLevel').load('/runekit/include/userstat.php?s=Constitution&u='+username+'&ajax', function(response) {
+		setElementValue('hpLevel', response);
+});
+$('#defLevel').load('/runekit/include/userstat.php?s=Defence&u='+username+'&ajax', function(response) {
+		setElementValue('defLevel', response);
+});
+document.getElementById('calculateButton').click();
+}
+</script>
+<!-- Google search CSS. Compliancy is here -->
+<style type="text/css">
+  input.gsc-input {
+    border-color: #b29c7c;
+	width: 154px; !important
+	padding: 2px; 
+  }
+  input.gsc-search-button {
+    border-color: #666666;
+    background-color: #480000;
+	color: #ffeecc;
+	margin-top: 50px;
+	margin-left: -162px;
+	padding: 2px;
+	margin-bottom: -4px;
+  }
+
+/* Slight reset to make the preview have ample padding. */
+.cse .gsc-control-cse,
+.gsc-control-cse {
+  padding: 2%;
+  width: 96%;
+}
+.cse .gsc-branding,
+.gsc-branding {
+  display: none;
+}
+.cse .gsc-control-cse div,
+.gsc-control-cse div {
+  position: normal;
+}
+/* Selector for entire element. */
+.cse .gsc-control-cse,
+.gsc-control-cse {
+  background-color: #ffffff;
+  border: 1px solid;
+  border-color: #ffffff;
+}
+.cse .gsc-control-cse:after,
+.gsc-control-cse:after {
+  content:".";
+  display:block;
+  height:0;
+  clear:both;
+  visibility:hidden;
+}
+.cse .gsc-resultsHeader,
+.gsc-resultsHeader {
+  border: block;
+}
+/* Search button */
+.cse input.gsc-search-button,
+input.gsc-search-button {
+  font-family: inherit;
+  color: #ffeecc;
+  text-shadow: 0 1px 2px #000000;
+  background-color: #480000;
+  border: 1px outset;
+  border-color: #480000;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+}
+/* Inactive tab */
+.cse .gsc-tabHeader.gsc-tabhInactive,
+.gsc-tabHeader.gsc-tabhInactive {
+  border-bottom: none;
+  color: #666666;
+  background-color: #e9e9e9;
+  border: 1px solid;
+  border-color: #e9e9e9;
+  border-bottom: none;
+}
+/* Active tab */
+.cse .gsc-tabHeader.gsc-tabhActive,
+.gsc-tabHeader.gsc-tabhActive {
+  background-color: #FFFFFF;
+  border: 1px solid;
+  border-top: 2px solid;
+  border-color: #e9e9e9;
+  border-top-color: #FF9900;
+  border-bottom: none;
+}
+/* This is the tab bar bottom border. */
+.cse .gsc-tabsArea,
+.gsc-tabsArea {
+  margin-top: 1em;
+  border-bottom: 1px solid #e9e9e9;
+}
+/* Inner wrapper for a result */
+.cse .gsc-webResult.gsc-result,
+.gsc-webResult.gsc-result,
+.gsc-imageResult-column,
+.gsc-imageResult-classic {
+  padding: .25em;
+  border: 1px solid;
+  border-color: #decbaf;
+  margin-bottom: 1em;
+}
+/* Result hover event styling */
+.cse .gsc-webResult.gsc-result:hover,
+.gsc-webResult.gsc-result:hover,
+.gsc-results .gsc-imageResult-classic:hover,
+.gsc-results .gsc-imageResult-column:hover {
+  border: 1px solid;
+  border-color: #decbaf;
+}
+/*Promotion Settings*/
+/* The entire promo */
+.cse .gs-promotion,
+.gs-promotion {
+  background-color: #decbaf;
+  border: 1px solid;
+  border-color: #336699;
+}
+/* Promotion image */
+.cse .gs-promotion .gs-promotion-image,
+.gs-promotion .gs-promotion-image {}
+/* Promotion links */
+.cse .gs-promotion a.gs-title:link,
+.gs-promotion a.gs-title:link,
+.cse .gs-promotion a.gs-title:link *,
+.gs-promotion a.gs-title:link *,
+.cse .gs-promotion .gs-snippet a:link,
+.gs-promotion .gs-snippet a:link {
+  color: #0000CC;
+}
+.cse .gs-promotion a.gs-title:visited,
+.gs-promotion a.gs-title:visited,
+.cse .gs-promotion a.gs-title:visited *,
+.gs-promotion a.gs-title:visited *,
+.cse .gs-promotion .gs-snippet a:visited,
+.gs-promotion .gs-snippet a:visited {
+  color: #0000CC;
+}
+.cse .gs-promotion a.gs-title:hover,
+.gs-promotion a.gs-title:hover,
+.cse .gs-promotion a.gs-title:hover *,
+.gs-promotion a.gs-title:hover *,
+.cse .gs-promotion .gs-snippet a:hover,
+.gs-promotion .gs-snippet a:hover {
+  color: #0000CC;
+}
+.cse .gs-promotion a.gs-title:active,
+.gs-promotion a.gs-title:active,
+.cse .gs-promotion a.gs-title:active *,
+.gs-promotion a.gs-title:active *,
+.cse .gs-promotion .gs-snippet a:active,
+.gs-promotion .gs-snippet a:active {
+  color: #0000CC;
+}
+/* Promotion snippet */
+.cse .gs-promotion .gs-snippet,
+.gs-promotion .gs-snippet,
+.cse .gs-promotion .gs-title .gs-promotion-title-right,
+.gs-promotion .gs-title .gs-promotion-title-right,
+.cse .gs-promotion .gs-title .gs-promotion-title-right *,
+.gs-promotion .gs-title .gs-promotion-title-right * {
+  color: #000000;
+}
+/* Promotion url */
+.cse .gs-promotion .gs-visibleUrl,
+.gs-promotion .gs-visibleUrl {
+  color: #008000;
+}
+/* Style for auto-completion table
+ * .gsc-completion-selected : styling for a suggested query which the user has moused-over
+ * .gsc-completion-container : styling for the table which contains the completions
+ */
+.gsc-completion-selected {
+  background: #D5E2FF;
+}
+.gsc-completion-container {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  position: absolute;
+  background: white;
+  border: 1px solid #666666;
+  margin-left: 0;
+  margin-right: 0;
+  /* The top, left, and width are set in JavaScript. */
+}
+
+/* Full URL */
+.gs-webResult div.gs-visibleUrl-short {
+  display: none;
+}
+.gs-webResult div.gs-visibleUrl-long {
+  display: block;
+}
+.gsc-clear-button {
+  margin-left: -20px !important;
+}
+.gsc-search-box {
+	margin-top: -24px;
+	margin-bottom: 2px;
+}
+#cse-search-form {
+	color: #330000;
+	font-style: italic;
+}
+</style>      
+    </head>
+    
+    <body>
+		<script type="text/javascript">
+		<!--//--><![CDATA[//><!--
+        window.Meebo||function(c){function p(){return["<",i,' onload="var d=',g,";d.getElementsByTagName('head')[0].",
+        j,"(d.",h,"('script')).",k,"='//cim.meebo.com/cim?iv=",a.v,"&",q,"=",c[q],c[l]?
+        "&"+l+"="+c[l]:"",c[e]?"&"+e+"="+c[e]:"","'\"></",i,">"].join("")}var f=window,
+        a=f.Meebo=f.Meebo||function(){(a._=a._||[]).push(arguments)},d=document,i="body",
+        m=d[i],r;if(!m){r=arguments.callee;return setTimeout(function(){r(c)},100)}a.$=
+        {0:+new Date};a.T=function(u){a.$[u]=new Date-a.$[0]};a.v=5;var j="appendChild",
+        h="createElement",k="src",l="lang",q="network",e="domain",n=d[h]("div"),v=n[j](d[h]("m")),
+        b=d[h]("iframe"),g="document",o,s=function(){a.T("load");a("load")};f.addEventListener?
+        f.addEventListener("load",s,false):f.attachEvent("onload",s);n.style.display="none";
+        m.insertBefore(n,m.firstChild).id="meebo";b.frameBorder="0";b.name=b.id="meebo-iframe";
+        b.allowTransparency="true";v[j](b);try{b.contentWindow[g].open()}catch(w){c[e]=
+        d[e];o="javascript:var d="+g+".open();d.domain='"+d.domain+"';";b[k]=o+"void(0);"}try{var t=
+        b.contentWindow[g];t.write(p());t.close()}catch(x){b[k]=o+'d.write("'+p().replace(/"/g,
+        '\\"')+'");d.close();'}a.T(1)}({network:"runehq"});
+		//--><!]]>
+        </script>
+        
+        <div id="map-container">
+            <div id="scroll-container">
+                
+                <div id="scroll-top">
+                    
+                    <div id="header">
+<!-- If logged out -->
+                    <div class="userlinks"><p style="float: left"><!--<a href="http://www.runehq.com/forums/index.php?app=core&amp;module=global&amp;section=login">Log In</a> | <a href="http://www.runehq.com/forums/index.php?app=core&amp;module=global&amp;section=register">Register</a>-->&nbsp;</p><p style="float: right;"><span style="font-weight: bold">GGHQ Network: </span><a class="userlinkspad" href="http://www.runehq.com">RuneHQ</a> | <a class="userlinkspad" href="http://www.gghq.net">Global Gaming HQ</a> | <a class="userlinkspad" href="http://waroflegendshq.com/">War of Legends HQ</a> | <a class="userlinkspad" href="http://www.torcommunity.com/">The Old Republic Community</a></p></div>
+<!-- If logged in -->
+<!--                
+					<p class="userlinks">Logged in as _ | <a href="/ucp.php">My Control Panel</a></p>
+-->                  
+                        
+                        <div id="logo">
+                            <a href="/"><img src="/image/layout/runehq-logo.png" alt="RuneHQ logo" /></a>
+                        </div> <!-- End logo -->
+						
+						<div id="ad-top-banner">
+						<iframe src="/ads/all_iframe.php?a=3" width="728" height="90" frameborder="0" scrolling="no"></iframe>						</div>
+                        
+                    </div> <!-- End header -->
+                    
+                    <div id="navigation">
+					<div style="margin:0 auto;width:660px;">
+                    <ul>
+                        <li class="nav-community"><a href="/forums/">Forums</a></li>
+						
+						<li class="nav-quests"><a href="/quest">Quests</a></li>
+                        
+                        <li class="nav-guides"><a href="/sitemap.php#guides">Guides &#8595;<!--[if gte IE 7]><!--></a><!--<![endif]-->
+                        <!--[if lte IE 6]><table><tr><td><![endif]-->
+                            <ul>
+                            	<li><a href="/minigame">Minigames</a></li>
+                            	<li><a href="/area">Cities/Areas</a></li>
+                            	<li><a href="/distraction">Distractions &amp; Diversions</a></li>
+                            	<li><a href="/guild">Guilds</a></li>
+								<li><a href="/map">Maps</a></li>
+                            	<li><a href="/miniquest">Mini-Quests</a></li>
+								
+                            	<li><a class="drop" href="skill">Skills &#187;<!--[if gte IE 7]><!--></a><!--<![endif]-->
+                        		<!--[if lte IE 6]><table><tr><td><![endif]-->
+                                	<ul>
+                                    	<li><a class="drop" href="/skill">Free-To-Play &#187;<!--[if gte IE 7]><!--></a><!--<![endif]-->
+                                    	<!--[if lte IE 6]><table><tr><td><![endif]-->
+                                            <ul>
+                                                <li><a href="/skill/combat">Combat</a></li>
+                                                <li><a href="/skill/cooking">Cooking</a></li>
+                                                <li><a href="/skill/crafting">Crafting</a></li>
+                                                <li><a href="/skill/dungeoneering">Dungeoneering</a></li>
+                                                <li><a href="/skill/firemaking">Firemaking</a></li>
+                                                <li><a href="/skill/fishing">Fishing</a></li>
+                                                <li><a href="/skill/magic">Magic</a></li>
+                                                <li><a href="/skill/mining">Mining</a></li>
+                                                <li><a href="/skill/prayer">Prayer</a></li>
+                                                <li><a href="/skill/ranged">Ranged</a></li>
+                                                <li><a href="/skill/runecrafting">Runecrafting</a></li>
+                                                <li><a href="/skill/smithing">Smithing</a></li>
+                                                <li><a href="/skill/woodcutting">Woodcutting</a></li>
+                                            </ul>
+                                    	<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+                                    	</li>
+                                    	<li><a class="drop" href="/skill">Members Only &#187;<!--[if gte IE 7]><!--></a><!--<![endif]-->
+                                        <!--[if lte IE 6]><table><tr><td><![endif]-->
+                                			<ul>
+                                    			<li><a href="/skill/agility">Agility</a></li>
+                                    			<li><a href="/skill/construction">Construction</a></li>
+                                                <li><a href="/skill/farming">Farming</a></li>
+                                                <li><a href="/skill/fletching">Fletching</a></li>
+                                                <li><a href="/skill/herblore">Herblore</a></li>
+                                                <li><a href="/skill/hunter">Hunter</a></li>
+                                                <li><a href="/skill/slayer">Slayer</a></li>
+                                                <li><a href="/skill/summoning">Summoning</a></li>
+                                                <li><a href="/skill/thieving">Thieving</a></li>
+                                			</ul>
+                        				<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+                                    	</li>
+                                	</ul>
+                        		<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+                        		</li>
+                            	<li><a href="/special">Special Reports</a></li>
+                            	<li><a href="/task">Tasks</a></li>
+                            </ul>
+                        <!--[if lte IE 6]></td></tr></table></a><![endif]-->
+                        </li>
+                        
+                        <li><a href="/sitemap.php#databases">Databases &#8595;<!--[if gte IE 7]><!--></a><!--<![endif]-->
+                        <!--[if lte IE 6]><table><tr><td><![endif]-->
+                            <ul>
+								<li><a href="/item">Items</a></li>
+								<li><a href="/monster">Monsters</a></li>
+								<li><a href="/person">Persons</a></li>
+                            </ul>
+                        <!--[if lte IE 6]></td></tr></table></a><![endif]-->
+                        </li>
+                        
+                        <li><a href="/calculator">Calculators</a></li>
+						
+                        <li><a href="/minigame/treasure-trails">Treasure Trails</a></li>
+                    </ul>
+					</div>                    </div> <!-- End navigation -->
+                    
+                    <div id="column-container">
+
+                        <div style="height: 15px;"><!-- --></div> <!-- Bumps content down -->
+                        <div id="main-column">
+<div id="ad-large-square"><iframe src="/ads/all_iframe.php?a=7" width="300" height="250" frameborder="0" scrolling="no"></iframe></div>
+<div class="content-intro-container">
+    <div class="content-intro-header"><a id="top"></a>Witch's House</div>
+    <div class="content-intro-body">
+<p class="content-header-small">Written By:</p><p>Gnat88 and Alfawarlord</p><p class="content-header-small">Added On:</p><p>Sat, Feb 28, 2004, at 04:32:32 PM by Monkeychris and CJH</p><p class="content-header-small">Last Updated:</p><p>Mon, Feb 06, 2012, at 02:22:50 PM by QueenSteffie</p><p>Incorrect/missing info? <a href="/update/quest/witchs-house">Submit Change - Witch's House</a></p>
+    </div>
+</div>
+<div style="clear: both;"><!-- --></div>
+
+<div class="content-container">
+    <div class="content-body">
+    
+<div class="undersubheader">Description:</div><div class="guide">A young boy has kicked his ball into the garden of a scary old lady. He asks you to get it back for him. This proves more difficult than it first sounds.</div><div class="undersubheader">Difficulty:</div><div class="guide">Intermediate</div><div class="undersubheader">Length:</div><div class="guide">Medium</div><div class="undersubheader">Quest Requirements:<br /></div><div class="guide">None</div><div class="undersubheader">Skill/Other Requirements:<br /></div><div class="guide">Must be able to defeat a mystery level 53 monster.</div><div class="undersubheader">Quests Unlocked/Partially Unlocked by completing this Quest:<br /></div><div class="guide"><a href="/guide.php?type=quest&amp;id=0691">Recipe for Disaster</a><br /><a href="/guide.php?type=quest&amp;id=0880">Grim Tales</a></div><div class="undersubheader">Items Needed to Complete Quest:</div><div class="guide"><a href="/database.php?type=item&amp;id=274">Cheese</a>, <a href="/database.php?type=item&amp;id=455">Leather gloves</a>, Armor, and a Weapon.</div><div class="undersubheader">Items Recommended for Quest:</div><div class="guide">Food and extra pieces of <a href="/database.php?type=item&amp;id=274">Cheese</a>.</div><div class="undersubheader">Items Acquired During Quest:</div><div class="guide"><a href="/database.php?type=item&amp;id=345">Door key</a>, <a href="/database.php?type=item&amp;id=336">Diary (Witch's)</a>, <a href="/database.php?type=item&amp;id=14452">Magnet (Witch's</a>, <a href="/database.php?type=item&amp;id=1605">Key (Witch's House)</a>, and a <a href="/database.php?type=item&amp;id=69">Ball</a>.</div><div class="undersubheader">Quest Points:</div><div class="guide">4</div><div class="undersubheader">Reward:</div><div class="guide">6325 <a href="/guide.php?type=skill&amp;id=561#hitpoints">Constitution</a> XP.</div><div class="undersubheader">Start Point:</div><div class="guide">West of <a href="/guide.php?type=city&amp;id=257">Falador</a>.</div><div class="undersubheader">To Start:</div><div class="guide">Speak to the <a href="/database.php?type=person&amp;id=114">Boy</a>.</div><div class="undersubheaderunderlined">Instructions:</div><div class="guidecontent"><ol>
+
+<li>
+Talk to the <a href="/database.php?type=person&amp;id=114">Boy</a>, west of <a href="/guide.php?type=city&amp;id=257">Falador</a>. He will tell you that he has lost his <a href="/database.php?type=item&amp;id=69">Ball</a> to the witch, <a href="/database.php?type=person&amp;id=115">Nora T. Hagg</a>, and that she locked it in her shed.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/boy.png" alt="Boy" />
+<br /><br />
+</li>
+
+<li>
+Head northwest to the front door of the witch's house, only to find out that the door is locked. Look under one of the nearby potted plants to find a <a href="/database.php?type=item&amp;id=345">Door key</a>. Use the key to open the door, and pick up the <a href="/database.php?type=item&amp;id=336">Diary</a> from the table. Read it to learn more about the witch, <a href="/database.php?type=person&amp;id=115">Nora T. Hagg</a>.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/pottedplant.png" alt="Potted Plant" />
+<br /><br />
+</li>
+
+<li>
+Open the door to the north and go down the ladder into the basement. Put on the <a href="/database.php?type=item&amp;id=455">Leather gloves</a> and go through the gate. Open and search the wall cupboard for a <a href="/database.php?type=item&amp;id=14452">Magnet</a>.
+<br /><br />
+<span class="smallbold">Note:</span> Make sure you are wearing the <a href="/database.php?type=item&amp;id=455">Leather gloves</a> when you try to open the gate, or you will be dealt some damage. If you forgot to bring the gloves, then search the nearby crates, boxes, and sacks until you find a set of gloves.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/basement.png" alt="Basement" />
+<br /><br />
+</li>
+
+<li>
+Head back upstairs to the main room, and enter the small room to the south. Use the piece of <a href="/database.php?type=item&amp;id=274">Cheese</a> with the mouse hole to lure the mouse out. Then, quickly use the <a href="/database.php?type=item&amp;id=14452">Magnet</a> with the mouse. It will flee back into its hole and with it unlocking the door to the garden.
+<br /><br />
+<span class="smallbold">Note:</span> If you leave the house, then you will have to gather another piece of <a href="/database.php?type=item&amp;id=274">Cheese</a> to unlock the door to the garden again.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/mousehole.png" alt="Mouse Hole" />
+<br /><br />
+</li>
+
+<li>
+Enter the garden and make your way to the shed at the very end of it. Hide behind the hedges as the witch walks by to prevent her from seeing you. Make sure you are standing next to the center of each hedge or she will still be able to catch you. When you have made it to the shed, try to open the door only to find out that it is locked.
+<br /><br />
+<span class="smallbold">Note:</span> If <a href="/database.php?type=person&amp;id=115">Nora T. Hagg</a> does catch you, she will teleport you out of her house. You will then have to gather another piece of <a href="/database.php?type=item&amp;id=274">Cheese</a> to unlock the door to the garden again and start all over.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/garden.png" alt="Garden" />
+<br /><br />
+</li>
+
+<li>
+Walk along the hedges towards the fountain on the other end of the garden and check it to find a <a href="/database.php?type=item&amp;id=1605">Key</a>. Remember to stay hidden when the witch approaches.
+<br /><br />
+<span class="smallbold">Note:</span> In order to obtain the <a href="/database.php?type=item&amp;id=1605">Key</a> from the fountain, you must have read the <a href="/database.php?type=item&amp;id=336">Diary</a> and need to have it your inventory.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/fountain.png" alt="Fountain" />
+<br /><br />
+</li>
+
+<li>
+Return to the shed and use the <a href="/database.php?type=item&amp;id=1605">Key</a> to access it. When you enter it and try to grab the <a href="/database.php?type=item&amp;id=69">Ball</a>, the Witch's experiment you will attack you. You must have defeated all its four forms before you will be able to grab the <a href="/database.php?type=item&amp;id=69">Ball</a>.
+<br /><br />
+
+<ul>
+<li>1st form: <a href="/database.php?type=monster&amp;id=317">Experiment</a> (level 19)</li>
+<li>2nd form: <a href="/database.php?type=monster&amp;id=366">Spider</a> (level 30)</li>
+<li>3rd form: <a href="/database.php?type=monster&amp;id=367">Bear</a> (level 42)</li>
+<li>4th form: <a href="/database.php?type=monster&amp;id=368">Wolf</a> (level 53)</li>
+</ul>
+
+<br />
+<span class="smallbold">Note:</span> If you leave the shed during the battle, you will have to kill the Experiment's previous forms again. So make sure you have enough food to eat when you enter the shed.
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/shed.png" alt="Shed" />
+<br /><br />
+</li>
+
+<li>
+Once you have defeated the Experiment, grab the <a href="/database.php?type=item&amp;id=69">Ball</a>. As you cannot teleport out of the shed or the house, you will have to sneak in the direction of the house for one last time. Leave the house and return the ball to the <a href="/database.php?type=person&amp;id=114">Boy</a>.
+<br /><br />
+Congratulations! Quest Complete!
+<br /><br />
+<img src="/image/quests/p2p/witchshouse/witchshouseqc.png" alt="Quest Completed" />
+</li>
+
+</ol></div>
+    </div>
+</div>
+<div class="content-container">
+    <div class="content-body">
+
+<p></p><p>This Quest Guide was written by <strong>Gnat88 and Alfawarlord</strong>. Thanks to <strong>Fireball0236, DRAVAN, quaruki, Weezy, Deano, jc jc2, Keystone, and Hotwheels_10 </strong> for corrections.<br />This Quest Guide was entered into the database on Sat, Feb 28, 2004, at 04:32:32 PM by <strong>Monkeychris and CJH</strong>, and it was last updated on Mon, Feb 06, 2012, at 02:22:50 PM by <strong>QueenSteffie</strong>.</p><p>If you see this guide on any other site, please report it to us so we can take legal action against anyone found stealing our content. This guide is copyrighted by RuneHQ, and its use on other sites is expressly forbidden. Do not ask if you can use our guides or images, the answer is and always will be NO!</p>
+<p class='center'>
+  <a href="/guide.php?type=quest&amp;id=0172&amp;printme=yes">Print this page with images</a><br />
+  <a href="">Back to Previous Page</a><br />
+<a href="/guidelist.php?type=quest">Back to the Quest Guide Index Page</a><br /><a href="#top">Back to Top</a></p>
+    </div>
+</div>
+
+                    </div> <!-- End center (main) content column -->
+                    
+                    <div id="right-column">
+
+    <div class="leftbox" style="margin-bottom: 6px;">
+<p class="rightboxheader">Search</p> 
+<div style="padding-bottom: 2px; clear:both;"> 
+<div id="cse-search-form" style="width: 100%; color: #330000; font-style: italic;">Loading</div>
+<!-- Script files moved to footer -->
+</div>    </div>
+    <div class="rightbox" id="awards">    
+        <a href="http://services.runescape.com/m=forum/forums.ws?254,255,8,61790038"><img src="/image/index/jagex-platinum-fansite.png" alt="Platinum level Jagex recognized fansite" /></a>
+    </div>   
+    <div class="rightbox">     
+<iframe src="/ads/all_iframe.php?a=1" width="160" height="600" frameborder="0" scrolling="no"></iframe>
+
+<div style="clear:both;"><!-- --></div>
+
+<iframe src="/ads/all_iframe.php?a=2" width="160" height="600" frameborder="0" scrolling="no"></iframe>	</div>
+
+                    </div> <!-- End right content column -->
+                    
+                    </div> <!-- End main content area -->
+                    
+                    <div style="clear:both;"></div>
+                    
+                </div> <!-- End page content (scroll-top) -->
+                
+                <div id="scroll-bottom">
+                    <div id="ad-bottom-banner">
+<iframe src="/ads/all_iframe.php?a=5" width="728" height="90" frameborder="0" scrolling="no"></iframe>
+                    </div> <!-- End ad-bottom-banner -->
+                    
+                    <div id="footer">
+                    
+                        <div id="footer-links">
+                            <a href="/forums/">Forums</a> | <a href="/guidelist.php?type=quest">Quests</a> | <a href="/sitemap.php#guides">Guides</a> | <a href="/sitemap.php#databases">Databases</a> | <a href="/guidelist.php?type=calculator">Calculators</a> | <a href="/guide.php?type=minigame&amp;id=350">Treasure Trails</a><br />
+                            <a href="http://mail.runehq.net:2095">RuneHQ.net Email</a> | <a href="http://mail.runehq.com:2095">RuneHQ.com Email</a> | <a href="/sitemap.php">Sitemap</a> | <a href="/privacy.php">Privacy Policy</a> | <a href="/forums/index.php?/contact/">Contact RuneHQ</a>
+                        </div> <!-- End footer-links -->
+                        
+                        <div id="footer-follow">
+                            Follow us:<br />
+                            <a href="http://www.facebook.com/profile.php?id=85296731885"><img src="/image/icons/facebook_logo.png" alt="facebook icon" /></a>
+                            <a href="http://www.twitter.com/officialrunehq"><img src="/image/icons/twitter_logo.png" alt="twitter icon" /></a>
+                        </div> <!-- End footer-follow -->
+                        
+                        <div id="footer-logo"></div>
+                        
+                    </div> <!-- End footer-background -->
+                    
+                </div> <!-- End footers -->
+                
+            </div> <!-- End scroll container div -->
+            
+        </div> <!-- End map container div -->
+        
+        <div id="footer-copyright">
+            <p>
+                Copyright Notice:<br />
+                All content is copyright &copy; 2003 - 2012 by RuneHQ, a Global Gaming HQ LLC company. All Rights Reserved.<br />
+                All submitted content becomes the property of RuneHQ. Usage of RuneHQ content on any other site is strictly prohibited.
+            </p>
+            <p>
+                Note: We are not Jagex! We cannot change anything in the game, and we cannot help retrieve stolen accounts!<br />
+                Please don't email us with these types of issues. Please visit Runescape.com for this! We are only a help site and in no way affiliated with Jagex or Runescape.<br />
+                RuneScape &reg; is a trademark of Jagex Software &copy; 1999 - 2012 Andrew Gower and Jagex, Ltd.
+            </p>
+            <p>Server: www2.gghq.net</p>
+            <p>
+                <a href="http://validator.w3.org/check?uri=referer&amp;charset=%28detect+automatically%29&amp;doctype=Inline&amp;ss=1&amp;outline=1&amp;sp=1&amp;noatt=1&amp;No200=1&amp;verbose=1" onclick="window.open(this.href);return false;" onkeypress="window.open(this.href);return false;">
+                    <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict" height="31" width="88" />
+                </a>
+                <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                    <img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!" />
+                </a>
+            </p>
+        </div> <!-- End copyright info -->
+		<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+		<script type="text/javascript">
+			google.load('search', '1', {language : 'en', "nocss" : true});
+			google.setOnLoadCallback(function() {
+				var customSearchControl = new google.search.CustomSearchControl('009976150332587014267:bl6ar2d9qem');
+				customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+				var options = new google.search.DrawOptions();
+				options.enableSearchboxOnly("http://www.google.com/cse?cx=009976150332587014267:bl6ar2d9qem");    
+				customSearchControl.draw('cse-search-form', options);
+			}, true);
+		</script>
+<script type="text/javascript">
+    Meebo('domReady');
+</script>
+    </body>
+    </html>

@@ -1,0 +1,75 @@
+{{FromGame}}
+{{Infobox Item
+|name = Diary
+|image = [[File:Diary (Witch's House).png]]
+|AKA = Witch's Diary
+|release = [[27 February]] [[2002]]
+|update = Latest RuneScape News (27 February 2002)
+|members = Yes
+|quest = Yes
+|tradeable = No
+|equipable = No
+|stackable = No
+|high = 0
+|low = 0
+|value = 1
+|destroy = Drop
+|store = No
+|examine = A daily journal
+|weight = 0.5
+}}
+
+The '''Witch's Diary''', item name '''Diary''', is part of the [[Witch's House]] quest. It details about some of the witch's experiments, giving you clues on how to get into the back yard and what you'll end up fighting.
+
+You can find it upstairs in the witch's house and is stored in the shelves in your [[Player-owned house|house]].
+
+==Transcript==
+2nd of Pentember
+
+Experiment is growing larger daily. Making excellent progress now. I am currently feeding it on a mixture of fungus, tar and clay. It seems to like this combination a lot!
+
+3rd of Pentember
+
+Experiment still going extremely well. Moved it to the wooden garden shed; it does too much damage to the house! It is getting very strong now, but unfortunately is not too intelligent yet. It has a really mean stare too!
+
+4th of Pentember
+
+Sausages for dinner tonight! Lovely!
+
+5th of Pentember
+
+A guy called Professor Oddenstein installed a new security system for me in the basement. He seems to have a lot of good security ideas.
+
+6th of Pentember
+
+Don't want people getting into back garden to see the experiment. Professor Oddenstein is fitting me a new security system after his successful installation in the cellar.
+
+7th of Pentember
+
+That pesky kid keeps kicking his ball into my garden. I swear, if he does it AGAIN, I'm going to lock his ball away in the shed.
+
+8th of Pentember
+
+The security system is done. By Zamorak! Wow, is it contrived! Now, to open my own back door, I lure a mouse out of a hole in the back porch, I fit a magic curved piece of metal to the harness on its back, the mouse goes back in the hole, and the door unlocks! The prof tells me that this is cutting edge technology!
+As an added precaution I have hidden the key to the shed in a secret compartment of the fountain in the garden. No one will ever look there!
+
+9th of Pentember
+
+Still cant think of a good name for 'The Experiment'. Leaning towards 'Fritz'... Although am considering Lucy as it reminds me of my mother!
+
+15th of Pentember
+
+Oh, calamity! Oh, woe! My precious Fritz! He has been murdered by a wretched adventurer. I came out to feed him this morning and heard a noise. When I got to the shed, Fritz was dead. Oh, my poor heart aches. I will have my revenge on the cowardly person who did this. I notice that the ball has gone too. That pesky kid must have gotten someone to get the ball back for him. Well, I'm not beaten yet! I must plan very carefully.
+
+16th of Pentember
+
+I am feeling a lot better today than yesterday. Fritz is dead, but it may be for the better. There were some ... anomalies with him that concerned me. The potion is not ready yet so I have decided to continue my work on it for now. I went to market today and saw the most astonishing sight! A gnome turned a ogleroot into a gigantic hulk of a vegetable! I must learn the secrets of that spell. I have captured him and put him in my cellar until he tells me the secret of the spell.
+
+23rd of Pentember
+
+I have had marginal success with my potion. It is struggling to allow the subject to grasp one solid form, so for now I have had to confine my little darlings to the sewers below to prevent them from being discovered by the local residents of Taverley. They have developed a taste for shrunken ogleroots, it would appear. These have become invaluable for a new potion I have concocted since those pesky mice have been pinching my jewelery again. It is a shrinking potion that will allow me to go into that wretched mousehole and retrieve my belongings.
+
+25th of Pentember
+
+I can't afford to lose the recipe for my shrinking potion so I have hidden it in my new safe in the basement. My new experiments are growing well. Unfortunately the new experiment has not worked as I had planned and they appear to have Mutated into combinations of various creatures. I will need to keep working on the recipe. Fluffy, my favourite, enjoys throwing shrunken ogleroots back and forth with me in a playful manner. He's quite a character, that one...
+[[Category:Witch's House]]

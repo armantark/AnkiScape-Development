@@ -1,0 +1,117 @@
+Tip.It RuneScape Help :: RuneScape Quest Database :: The Original RuneScape Help Site!
+HOME |
+FORUM |
+CLANS |
+TET EVENTS |
+CHAT |
+CONTACT US |
+BETA SITE |
+SITE MAP
+Themes:
+RUNESCAPE
+DATABASES
+Bestiary
+NPCs
+Items
+Quests
+Shops
+GUIDES
+Skill Guides
+General Guides
+Minigame Guides
+Task Guides
+Guild Guides
+Monster Hunting
+Treasure Trails
+TOOLS
+Skill Calculators
+Skill Planners
+Special Calcs
+XP Table
+Signatures
+GE Centre
+DGSweeper
+Partner:
+RuneScript
+ATLAS
+World and Wild
+Dungeon Maps
+Special Maps
+Mining Sites
+Fairy Ring Map
+INFO
+Beginner's Basics
+Construction Table
+Smithing Table
+Summoning Table
+New P2P Members
+COMMUNITY
+Clans Homepage
+Clans Forum
+TET (Events) Home
+Chat
+Tip.It Online Shop
+Forum User Guide
+SITE INFO
+About
+Staff List
+Jagex Page
+FAQ
+Privacy Policy
+Security Centre
+ATTENTION: Tip.it requires JavaScript for some features to work properly. Please enable it in your browser settings.
+Knight's Sword, The
+Overall Difficulty: IntermediateRequirements: EasyLength: Medium
+Start location: Talk with the Squire in the white knights castle, located in central Falador.
+Sir Vyvin's squire is in trouble. He has accidentally lost Sir Vyvin's ceremonial sword. Help him find a replacement without Sir Vyvin finding out.
+Required:
+Skills: Level 10 Mining
+Items: Redberry pie, pickaxe, 2 Iron Bars
+Monsters:
+(run past) Ice Warrior (57), Ice Giant (53)
+NPCs: Reldo, Sir Vyvin, Squire, Thurgo
+Walkthrough Hide/Show:
+1: Reldo: After talking to the Squire, head to Varrock and talk with Reldo in the palace. Ask him about the Imcando Dwarves. Once you have done this, go make a redberry pie if you haven't done that already.
+2: Thurgo: When you have the pie, go as far south of Port Sarim as you can (until you see the sea, further south than Rimmington and south of a chapel) and find the dwarf called Thurgo. (His hut is on the beach west of a dungeon entrance.) Ask if he'd like some pie, and then speak with him again about making a special sword.
+3: Getting the picture: Go back and talk with the Squire. He'll tell you that Sir Vyvin has a portrait of his father with the sword. Go to the third floor of the Falador castle and locate Sir Vyvin. Either get a friend to talk with him (choosing distraction) then search the cupboard on the wall. You can also leave the door open and wait for him to go out of the room. When he does, close the door and then search the cupboard. Either method works.
+Falador Castle Map
+4: Dwarf: Once you have the portrait, go back to the dwarf. He'll tell you that you need to get him 2 iron bars and a blurite ore. The iron bars shouldn't be a problem, however the blurite ore is a bit tricky. You might want to bring a friend to protect you in this part of the quest, unless you think you can take on a level 57 monster. Go down the ladder just east of Thurgo's house, and then north and east past the muggers and hobgoblins, all the way into the icy area.
+Once you're at the ice warriors, look around for some blue rocks near the back of the cave. Mine one of them, and get out again. When you have the 2 iron bars and the blurite ore, you can go back to Thurgo again. See "Getting a second sword" below for instructions on how to get a second blurite sword you can keep for yourself.
+5: Finishing: When you have the sword, simply head back to the Squire and get your reward :)
+Getting a second sword: When you go back to the Squire with the blurite sword, he will take it from you. If you want to have your own blurite sword that you can keep, you have to ask Thurgo to make one for you before you return to the Squire.
+When you go into the ice cave to get the blurite ore, get an extra ore. You will also need another 2 iron bars (4 total). When you speak to Thurgo, he will take 1 blurite ore and 2 iron bars to make your first blurite sword. After he gives you the first sword, drop or wield it before you speak to him again. Then speak to him quickly before it disappears. Thurgo will make you another sword. Then all you have to do is pick up the one you dropped if you did drop it.
+Once you have received the second sword you can go to the Squire and finish the quest. If you take both swords with you he will only take one of the two swords.
+Reward:
+12,725 smithing exp.
+Quest points gained upon completion: 1
+Advancement: This quest is needed for:
+Defender of Varrock
+Tips, tricks & notes:
+On completion of this quest members may smith Blurite crossbow limbs (untradeable) and Blurite crossbow bolts.
+Written By/Credits: Ks Jeppe
+Thanks to: awesome_thor, Baffler, cheedar9, Cowman_133, DevilKiller, Etu222, Grimhald, guan_ping95, Howlin1, Jaffy1, Jimmyw3000, Kiara Kat, Latios Two, mattonline, MessiahWWID, singer_graia
+Last updated: October 31st 2012
+Google Tip.It:
+Poll
+The Tip.It poll requires JavaScript enabled
+View Poll Archive
+Circus Location
+Falador
+Penguin locations
+Advert
+Report Bad Ad
+Donate
+Help keep Tip.It alive: Donate a bit to our site
+Link to Us
+Add a Tip.It button to your website:
+Follow Us
+Follow @RuneTips
+Follow @TipItCrew
+Follow @TipItEvents
+Return to Top
+© 1999 - 2012 RuneScape Tips - All rights reserved
+Reproducing or copying any material found on this page is not allowed
+Rune Tips is best viewed in 1024x768 resolution or higher
+Designed for IE 6+, Mozilla 1.0+, Netscape Navigator 5+, Opera 4+
+RuneScape ® is a trademark of Jagex © 2000-2012 Andrew Gower
+Report Bad Ad

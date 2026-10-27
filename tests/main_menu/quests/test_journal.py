@@ -384,7 +384,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd = _make_player_data()
         pd["inventory"] = {"Magnet": 1}
         pd["current_quest"] = "witchs_house"
-        pd["quests"]["witchs_house"] = {"started": True, "progress": 4, "completed": False}
+        pd["quests"]["witchs_house"] = {"started": True, "progress": 8, "completed": False}
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 

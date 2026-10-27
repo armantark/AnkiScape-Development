@@ -201,7 +201,7 @@ class TestSpiritShieldRequirements(unittest.TestCase):
                 self.assertEqual(player, before)
 
     def test_migration_is_idempotent_for_each_schema_version(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 125)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 126)
         for version, (failure, updates, _reason), quantity in product((1, 125, 126), FAILURES, (0, 2)):
             with self.subTest(version=version, requirement=failure, bank_quantity=quantity):
                 player = _player(config_version=version, **updates)
@@ -210,7 +210,7 @@ class TestSpiritShieldRequirements(unittest.TestCase):
                 player["inventory"]["Unknown saved item"] = 7
                 player["unrelated"] = {"nested": [1, 2]}
                 result = _migrate(player)
-                self.assertEqual(result["config_version"], max(version, 125))
+                self.assertEqual(result["config_version"], max(version, CURRENT_CONFIG_VERSION))
                 self.assertNotIn("shield", result["equipment"])
                 self.assertEqual(result["equipment"]["head"], "Bronze full helm")
                 self.assertEqual(result["inventory"]["Spirit shield"], quantity + 1)
@@ -247,7 +247,7 @@ class TestSpiritShieldRequirements(unittest.TestCase):
                 again = _migrate(result)
                 self.assertEqual(again["equipment"], result["equipment"])
                 self.assertEqual(again["inventory"]["Spirit shield"], 1)
-                self.assertEqual(again["config_version"], max(version, 125))
+                self.assertEqual(again["config_version"], max(version, CURRENT_CONFIG_VERSION))
 
     def test_migration_initializes_missing_inventory(self):
         for version, inventory, (failure, updates, _reason) in product((1, 125, 126), ("absent", None), FAILURES):
@@ -268,7 +268,7 @@ class TestSpiritShieldRequirements(unittest.TestCase):
                     {item: count for item, count in result["inventory"].items() if count},
                 )
                 self.assertEqual(again["equipment"], result["equipment"])
-                self.assertEqual(again["config_version"], max(version, 125))
+                self.assertEqual(again["config_version"], max(version, CURRENT_CONFIG_VERSION))
 
     def test_returned_shield_no_longer_supplies_bonuses(self):
         for name, equipment_data in RUNTIME_MAPS:
