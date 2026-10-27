@@ -75,3 +75,11 @@ Disposition: fixed.
 Evidence: already fixed: tests/pace/test_game_speed_setting.py explicitly requires absent speed=1 and unreadable stored speed=10; tests/pace/test_pace_onboarding.py preserves existing players at 1 and recommends 10 for new players. Both suites passed in the 81-test focused run. No product change; techContext.md now records the deliberate distinction.
 
 - 2026-10-26T23:22:22.018799-07:00 — Owner supplement (2026-10-26): The game speed read sites fall back to 1x when no speed is stored (ui/ui.py:1218, __init__.py:711, ui/ui_pace_settings.py:127), but sanitize_review_action_multiplier defaults to 10 (logic_pure/logic_pure_progression.py:330). Determine whether such a profile can exist before any fix.
+
+## Shared speed reader for visible counters
+
+Disposition: fixed.
+
+Evidence: already fixed: ui/ui.py defines _game_speed; tests/pace/test_game_speed_setting.py checks runtime and UI against missing, valid, clamped and unreadable stored values. The complete focused selection passed: Ran 81 tests in 31.744s, OK. No UI code changed in this batch.
+
+- 2026-10-18T17:00:00-07:00 — Pace counters: ui.py (27,916 lines, at its ratchet) had no shared game-speed reader, only an inline read in the Settings tab, which is why part E printed counters at x1; the new `_game_speed()` replaced that inline read so the file did not grow. Any new speed-dependent UI text should call it.
