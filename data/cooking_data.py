@@ -105,9 +105,9 @@ PICKABLES_DARKAN_SOURCE = (
     "Darkan darkan-world-server src/main/java/com/rs/game/content/world/Pickables.kt "
     "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
 )
-MILL_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/objs/mill/flour_bin.plugin.kts"
+MILL_DARKAN_SOURCE = (
+    "Darkan darkan-world-server src/main/java/com/rs/game/content/world/Windmills.kt "
+    "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
 )
 WATER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -332,7 +332,7 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
         "Raw spider on stick",
         source=SPIDER_RECIPE_SOURCE_PATH,
     ),
-    CookingPrepActivity("grind_grain_to_flour", "Grind wheat to flour", {"Wheat": 1, "Empty pot": 1}, "Pot of flour", source=MILL_SOURCE_PATH),
+    CookingPrepActivity("grind_grain_to_flour", "Grind wheat to flour", {"Wheat": 1, "Empty pot": 1}, "Pot of flour", source=f"{MILL_DARKAN_SOURCE} lines 85-104"),
     CookingPrepActivity(
         "wet_flour_to_bread_dough",
         "Make bread dough",
