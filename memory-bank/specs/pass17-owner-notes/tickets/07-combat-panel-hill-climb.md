@@ -4,10 +4,10 @@
 
 **Blocked by:** 06 (Move the combat setup panel into its own module), 02 (Last action record and Resume)
 
-**Status:** open
+**Status:** done
 
-- [ ] A fight through the real review handler with Prayers/Curses ticked and Burst of Strength chosen drains prayer points and raises the max hit.
-- [ ] The max-hit tooltip changes at once after a prayer setting change and matches a real fight's drain.
-- [ ] The review HUD shows the active prayers during a fight.
-- [ ] Hill-climb rounds recorded; the probe passes every task and the taste vote approves, or five rounds end with the best candidate reported.
-- [ ] Offscreen captures at 560 points tall, dark and light, `text_fit_defects` clean; the play-checklist max-hit line corrected.
+- [x] A fight through the real review handler with Prayers/Curses ticked and Burst of Strength chosen drains prayer points and raises the max hit.
+- [x] The max-hit tooltip changes at once after a prayer setting change and matches a real fight's drain.
+- [x] The review HUD shows the active prayers during a fight.
+- [x] Hill-climb rounds recorded; the probe passes every task and the taste vote approves, or five rounds end with the best candidate reported.
+- [x] Offscreen captures at 560 points tall, dark and light, `text_fit_defects` clean; the play-checklist max-hit line corrected.
