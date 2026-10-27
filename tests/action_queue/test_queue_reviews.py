@@ -139,6 +139,66 @@ class ActionQueueReviewTest(QueueProfile):
             self._answer(addon)
         self.assertEqual(self._rows(addon), [("Smithing: Rune bar", "stopped", 0), ("Mining: Iron", "current", 10)])
 
+    def test_an_entry_that_takes_over_a_stop_is_not_credited_with_the_review_that_stopped(self):
+        addon = self._queue_addon(
+            "ankiscape_queue_takeover_credit",
+            ({"kind": "skill", "skill": "Smithing", "target": "smelt_rune_bar"}, 5),
+            ({"kind": "skill", "skill": "Agility", "target": "gnome_normal"}, 1),
+            agility_level=40,
+        )
+
+        self._answer(addon)
+
+        self.assertEqual(addon._state.current_skill, "Agility")
+        self.assertEqual(
+            self._rows(addon), [("Smithing: Rune bar", "stopped", 0), ("Agility: Gnome Stronghold Course", "current", 0)]
+        )
+        # A constant mid roll keeps a random distraction from moving Agility to another course.
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+        self.assertGreater(addon._state.player_data["agility_exp"], 0)
+        self.assertEqual(self._rows(addon)[1], ("Agility: Gnome Stronghold Course", "done", 1))
+        self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
+
+    def test_a_stopped_entry_keeps_the_reason_its_review_gave_after_the_stop(self):
+        from ankiscape.core.action_queue import action_queue_view_pure
+
+        addon = self._queue_addon(
+            "ankiscape_queue_late_reason",
+            (_MINE_IRON, 30),
+            ({"kind": "skill", "skill": "Agility", "target": "gnome_normal"}, 1),
+            toolbelt={"mining": []},
+            agility_level=40,
+        )
+
+        self._answer(addon)
+
+        reason = "You need a usable pickaxe to train Mining. Mining has been switched off."
+        self.assertEqual(self.errors, [("Missing pickaxe", reason)])
+        self.assertEqual(addon._state.current_skill, "Agility")
+        self.assertEqual(self._log(addon)[-1], f"Queue: Mining: Iron stopped · {reason}")
+        self.assertEqual(action_queue_view_pure(addon._state.player_data)["entries"][0]["stopped"], reason)
+
+    def test_resume_of_a_paused_entry_that_cannot_start_shows_why_and_keeps_the_queue_paused(self):
+        from ankiscape.core.action_queue import action_queue_view_pure
+
+        addon = self._queue_addon(
+            "ankiscape_queue_resume_refusal", ({"kind": "quest", "quest_id": _BKF}, None), (_MINE_IRON, 30), quest_points=13
+        )
+        addon._state.player_data["inventory"]["Bronze med helm"] = 1
+        captured = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        self.assertTrue(captured["on_stop_training"]())
+
+        self.assertFalse(addon.on_resume_last_action())
+        self.assertFalse(captured["on_action_queue_command"]("resume", {})["ok"])
+
+        self.assertEqual([title for title, _message in self.errors], ["Quest blocked", "Quest blocked"])
+        self.assertEqual((addon._state.current_skill, addon._state.player_data["current_utility"]), ("Utilities", "bankstanding"))
+        self.assertTrue(action_queue_view_pure(addon._state.player_data)["paused"])
+        self.assertEqual(self._rows(addon), [("Black Knights' Fortress", "current", 0), ("Mining: Iron", "waiting", 0)])
+
     def test_a_manual_stop_pauses_the_queue_and_resume_continues_its_entry(self):
         from ankiscape.core.action_queue import action_queue_view_pure, clear_action_queue
 

@@ -124,3 +124,87 @@ class TestIntegrationSmoke(fixtures.ReviewedProfile):
                 self.assertTrue(addon.on_resume_last_action())
                 self.assertEqual(addon._state.current_skill, skill)
                 self.assertFalse(self._resume_view(addon)["visible"])
+
+    def _menu(self, addon):
+        captured = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        return captured
+
+    def test_resume_restarts_the_target_that_stopped_not_one_picked_since(self):
+        cases = (
+            ("Mining", {"current_ore": "iron"}, "on_set_ore", "copper", {"current_ore": "iron"}),
+            (
+                "Combat",
+                {"current_combat_target": "chicken", "combat_action": "attack"},
+                "on_set_combat",
+                "cow",
+                {"current_combat_target": "chicken", "combat_action": "attack"},
+            ),
+        )
+        for skill, fields, setter, other, restored in cases:
+            with self.subTest(skill):
+                addon = self._addon(f"ankiscape_resume_target_{skill.lower()}")
+                self._new_save(addon, mining_level=40, **fields)
+                addon._state.current_skill = skill
+                menu = self._menu(addon)
+                self.assertTrue(menu["on_stop_training"]())
+                menu[setter](other)
+
+                self.assertTrue(addon.on_resume_last_action())
+
+                self.assertEqual(addon._state.current_skill, skill)
+                self.assertEqual({key: addon._state.player_data[key] for key in restored}, restored)
+
+    def test_a_refusal_after_the_stop_is_the_reason_resume_shows(self):
+        addon = self._addon("ankiscape_resume_late_reason")
+        self._new_save(addon, current_ore="copper", toolbelt={"mining": []})
+        addon._state.current_skill = "Mining"
+
+        self._answer(addon)
+
+        reason = "You need a usable pickaxe to train Mining. Mining has been switched off."
+        self.assertEqual(self.errors, [("Missing pickaxe", reason)])
+        addon.load_player_data()
+        self.assertEqual(addon._state.player_data["last_action"]["reason"], reason)
+        self.assertEqual(self._resume_view(addon)["bank_status"], f"stopped: {reason}")
+        self.assertEqual(addon._state.player_data["review_event_log"][-1]["text"], f"Switched to Bankstanding · {reason}")
+
+    def test_picking_bankstanding_by_hand_saves_what_it_stopped(self):
+        addon = self._addon("ankiscape_resume_bankstanding_by_hand")
+        self._new_save(
+            addon,
+            current_ore="iron",
+            last_action={"kind": "utility", "utility_id": "gather_flax", "reason": "An older stop."},
+        )
+        addon._state.current_skill = "Mining"
+
+        self.assertTrue(self._menu(addon)["on_start_activity"]("bankstanding"))
+
+        self.assertEqual((addon._state.current_skill, addon._state.player_data["current_utility"]), ("Utilities", "bankstanding"))
+        self.assertEqual(
+            addon._state.player_data["last_action"],
+            {"kind": "skill", "skill": "Mining", "target": "iron", "reason": "Training was stopped manually."},
+        )
+        self.assertEqual(self._resume_view(addon)["text"], "Resume Mining")
+
+    def test_selecting_bankstanding_while_a_utility_runs_saves_that_utility(self):
+        addon = self._addon("ankiscape_resume_bankstanding_row")
+        self._new_save(addon, current_utility="gather_flax", current_ore="iron")
+        addon._state.current_skill = "Utilities"
+        menu = self._menu(addon)
+
+        menu["on_set_utility"]("bankstanding")
+
+        self.assertEqual(
+            addon._state.player_data["last_action"],
+            {"kind": "utility", "utility_id": "gather_flax", "reason": "Training was stopped manually."},
+        )
+        self.assertEqual(self._resume_view(addon)["text"], "Resume Gather flax")
+
+        # Picking a utility while Mining runs only selects it for later; nothing stops.
+        addon._state.current_skill = "Mining"
+        menu["on_set_utility"]("gather_flax")
+        menu["on_set_utility"]("bankstanding")
+        self.assertEqual(addon._state.current_skill, "Mining")
+        self.assertEqual(addon._state.player_data["last_action"]["utility_id"], "gather_flax")

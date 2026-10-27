@@ -248,7 +248,10 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
-from .core.action_queue import advance_action_queue, apply_action_queue_command, record_bankstanding_stop, resume_action
+from .core.action_queue import (
+    advance_action_queue, apply_action_queue_command, bankstanding_event_text, generic_stop_reason_pure,
+    record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, stop_action,
+)
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
@@ -349,6 +352,8 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
+    if target == "bankstanding":
+        return bool(stop_action(sys.modules[__name__]))
     updated = dict(_state.player_data)
     if target == SHOOTING_STAR_ACTIVITY_ID:
         updated, joined, info = apply_shooting_star_join_pure(_state.player_data)
@@ -1047,22 +1052,24 @@ def _show_runtime_exp(value) -> None:
 
 
 def _runtime_action_context() -> RuntimeActionContext:
-    last_reason = {"text": ""}
+    last_reason = {"text": "", "generic": ""}
 
     def _show_runtime_error(title, message) -> None:
         last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
-        _update_pending_bankstanding_reason(last_reason["text"])
+        refine_stop_reason(sys.modules[__name__], last_reason["generic"], last_reason["text"])
         if _state.pending_bankstanding_notice is not None:
             _state.pending_bankstanding_notice["show_dialog"] = False
         show_error_message(title, message)
 
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
         notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
-        _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
+        reason = reason or last_reason["text"]
+        last_reason["generic"] = "" if reason else generic_stop_reason_pure(_state.player_data, _state.current_skill)
+        _switch_to_bankstanding(reason, caller_owns_notice=notice_owned)
 
     def _show_runtime_gain(text) -> None:
         last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
-        _update_pending_bankstanding_reason(last_reason["text"])
+        refine_stop_reason(sys.modules[__name__], last_reason["generic"], last_reason["text"])
         _show_activity_gain(text)
 
     return RuntimeActionContext(
@@ -1246,10 +1253,6 @@ def show_skill_selection():
         return
     save_skill(selected, None)
 
-def _bankstanding_event_text(reason: str) -> str:
-    return f"Switched to Bankstanding · {reason}"
-
-
 def _show_pending_bankstanding_dialog() -> None:
     notice = _state.pending_bankstanding_notice
     _state.pending_bankstanding_notice = None
@@ -1270,17 +1273,6 @@ def _show_pending_review_dialogs() -> None:
     callbacks = tuple(_state.pending_review_dialogs)
     _state.pending_review_dialogs.clear()
     show_pending_review_dialogs(callbacks)
-
-
-def _update_pending_bankstanding_reason(reason) -> None:
-    notice = _state.pending_bankstanding_notice
-    reason_text = str(reason or "").strip()
-    if notice is None or not reason_text:
-        return
-    notice["reason"] = reason_text
-    event_log = _state.player_data.get("review_event_log")
-    if isinstance(event_log, list) and event_log and isinstance(event_log[-1], dict):
-        event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
 
 def _switch_to_bankstanding(
@@ -1312,7 +1304,7 @@ def _switch_to_bankstanding(
         return False
     _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     _state.player_data["current_utility"] = "bankstanding"
-    _append_review_event(_state.player_data, "activity", _bankstanding_event_text(reason_text))
+    _append_review_event(_state.player_data, "activity", bankstanding_event_text(reason_text))
     if automatic:
         _state.pending_bankstanding_notice = {
             "reason": reason_text,
@@ -1340,12 +1332,20 @@ def _activity_session_cleared(before, after=None) -> bool:
     return runtime_actions.activity_session_cleared(before, after)
 
 
-def save_skill(skill, dialog) -> bool:
+def skill_start_refusal(skill):
+    """Why a skill's Start refuses now, as an error title and message; None when it starts."""
     if skill == "Smithing" and not can_smith_any():
-        show_error_message(
+        return (
             "No Smithing Actions Available",
             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
         )
+    return None
+
+
+def save_skill(skill, dialog) -> bool:
+    refusal = skill_start_refusal(skill)
+    if refusal:
+        show_error_message(*refusal)
         return False
     if _select_review_action(skill):
         _save_player_data_if_anki_ready()
@@ -1597,6 +1597,7 @@ def _on_main_menu(
     )
 
     _set_cooking_target = partial(set_cooking_target, sys.modules[__name__])
+    _stop_training = partial(stop_action, sys.modules[__name__])
     _set_cooking_equipment_choice = partial(set_cooking_equipment_choice, sys.modules[__name__])
 
     def _set_brawling_wilderness_target(
@@ -4131,33 +4132,6 @@ def _on_main_menu(
     def _start_grave_walk():
         return commit_direct_action(start_combat_grave_walk_pure)
 
-    def _stop_training():
-        def _change(current):
-            updated = current
-            if (
-                _state.current_skill == "Agility"
-                and current.get("current_agility") == "brimhaven_arena"
-                and (current.get("agility_activity_state") or {}).get("brimhaven")
-            ):
-                updated, result = apply_agility_command_pure(
-                    current,
-                    "abandon",
-                    {},
-                    roll=0.5,
-                )
-                if not result.get("allowed"):
-                    return current, False
-            updated = dict(updated)
-            updated["current_utility"] = "bankstanding"
-            updated["combat_encounter"] = {}
-            return updated, True
-
-        return commit_direct_action(
-            _change,
-            bankstanding_reason="Training was stopped manually.",
-            bankstanding_automatic=False,
-        ) and _state.current_skill
-
     ui.show_main_menu(
         _state.player_data,
         _state.current_skill,
@@ -4250,7 +4224,7 @@ def _on_main_menu(
         on_set_house_style=_set_house_style,
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
-        on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_set_utility=partial(select_utility_target, sys.modules[__name__]),
         on_start_activity=start_activity_for_reviews,
         on_stop_training=_stop_training,
         on_set_carried_keep_drop=_set_carried_keep_drop,

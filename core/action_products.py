@@ -15,7 +15,8 @@ from .skill_registry import get_skill
 from ..logic.cadence_coverage import FOREGROUND_ROUTE_TABLES
 
 
-def _field(spec: Any, name: str) -> Any:
+def spec_field_pure(spec: Any, name: str) -> Any:
+    """One field of a target's data row, which is a mapping for some skills and a record for others."""
     return spec.get(name) if isinstance(spec, Mapping) else getattr(spec, name, None)
 
 
@@ -38,14 +39,14 @@ def action_product_items_pure(action: Mapping[str, Any]) -> tuple[str, ...]:
     spec = action_target_spec_pure(action) if action.get("kind") == "skill" else None
     if spec is None:
         return ()
-    names = [_field(spec, "output_item")]
-    if _field(spec, "alternate_output_level"):
+    names = [spec_field_pure(spec, "output_item")]
+    if spec_field_pure(spec, "alternate_output_level"):
         # Mining's level-gated second product: Rune essence becomes Pure essence.
-        names.append(_field(spec, "alternate_output_item"))
-    names += [_field(row, "item") for row in _field(spec, "weighted_outputs") or ()]
-    names += [_field(fish, "output_item") for fish in _field(spec, "fish") or ()]
+        names.append(spec_field_pure(spec, "alternate_output_item"))
+    names += [spec_field_pure(row, "item") for row in spec_field_pure(spec, "weighted_outputs") or ()]
+    names += [spec_field_pure(fish, "output_item") for fish in spec_field_pure(spec, "fish") or ()]
     if not any(names):
-        names += list(_field(spec, "outputs") or ())
+        names += list(spec_field_pure(spec, "outputs") or ())
     return _item_names(names)
 
 
@@ -61,7 +62,7 @@ def action_used_input_pure(action: Mapping[str, Any]) -> str:
         spec = action_target_spec_pure(action)
     else:
         return ""
-    needs = tuple(_field(spec, "requirements") or ()) if spec else ()
+    needs = tuple(spec_field_pure(spec, "requirements") or ()) if spec else ()
     return needs[0] if len(needs) == 1 and not action_product_items_pure(action) else ""
 
 

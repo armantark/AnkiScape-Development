@@ -4895,7 +4895,7 @@ def show_main_menu(
             ctx.refresh("quests")
             _render_panel()
 
-    queue_command = menu_queue(player_data, on_action_queue_command, _after_queue_command, lambda a: _leave_running_activity(a))
+    queue_command = menu_queue(player_data, lambda: state["active"], on_action_queue_command, _after_queue_command, lambda a: _leave_running_activity(a))
     # Targets picked while the queue runs that panel's action, by panel: (apply, target).
     held_targets: dict = {}
     ctx = MainMenuCtx(

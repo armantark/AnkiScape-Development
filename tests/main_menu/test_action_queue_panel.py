@@ -182,7 +182,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
             ("add", {"action": {"kind": "skill", "skill": "Smithing", "target": "smelt_bronze_bar"}, "count": 4}),
         )
 
-    def test_an_add_that_starts_an_activity_asks_to_leave_a_running_session(self):
+    def _castle_wars_add_in_flash_powder_factory(self, current_skill, current_utility):
         from ankiscape.logic.agility_logic import default_agility_state_pure
         from ankiscape.logic.flash_powder_factory_logic import enter_flash_powder_factory_pure
 
@@ -192,10 +192,23 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
                    "activity_session": {"active_id": ""}, "summoning_state": {"active_follower": {}}})
         pd, ok, _info = enter_flash_powder_factory_pure(pd)
         self.assertTrue(ok)
-        dialog = self._open(pd, on_action_queue_command=self._queue_command(pd))
+        pd["current_utility"] = current_utility
+        dialog = self._open(pd, current_skill, on_action_queue_command=self._queue_command(pd))
         dialog.show()
         self._open_activity_detail(dialog, "castle_wars")
-        add = self._visible(dialog, QPushButton, "queueAddButton")
+        return self._visible(dialog, QPushButton, "queueAddButton")
+
+    def test_an_add_that_waits_for_the_running_session_leaves_it_alone(self):
+        add = self._castle_wars_add_in_flash_powder_factory("Activities", "flash_powder_factory")
+
+        with patch.object(QMessageBox, "question") as asked:
+            add.click()
+
+        asked.assert_not_called()
+        self.assertEqual(self.commands[-1][1]["action"], {"kind": "utility", "utility_id": "castle_wars"})
+
+    def test_an_add_that_starts_an_activity_asks_to_leave_a_running_session(self):
+        add = self._castle_wars_add_in_flash_powder_factory("Utilities", "bankstanding")
 
         with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.No) as asked:
             add.click()

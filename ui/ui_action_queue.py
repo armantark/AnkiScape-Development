@@ -70,8 +70,9 @@ if HAS_QT:
         the panel rebuilds, and each result goes to the menu's follow-up.
         """
 
-        def __init__(self, player_data: dict, on_command, on_result, leave_running_activity):
+        def __init__(self, player_data: dict, current_skill, on_command, on_result, leave_running_activity):
             self._player_data = player_data
+            self._current_skill = current_skill
             self._on_command = on_command
             self._on_result = on_result
             self._leave_running_activity = leave_running_activity
@@ -79,18 +80,18 @@ if HAS_QT:
 
         def __call__(self, command: str, payload: dict) -> None:
             if command == "add":
-                activity = activity_started_by_add_pure(self._player_data, payload["action"])
+                activity = activity_started_by_add_pure(self._player_data, self._current_skill(), payload["action"])
                 if activity and not self._leave_running_activity(activity):
                     return
                 if payload["count"] is not None:
                     self.typed[_record_key(payload["action"])] = payload["count"]
             self._on_result(self._on_command(command, payload))
 
-    def menu_queue(player_data: dict, on_command, on_result, leave_running_activity):
-        """The menu's MenuQueue; None when the menu has no queue command."""
+    def menu_queue(player_data: dict, current_skill, on_command, on_result, leave_running_activity):
+        """The menu's MenuQueue, which reads the running action from ``current_skill()``; None without a queue command."""
         if on_command is None:
             return None
-        return MenuQueue(player_data, on_command, on_result, leave_running_activity)
+        return MenuQueue(player_data, current_skill, on_command, on_result, leave_running_activity)
 
     class QueueAddControl(QWidget):
         """Where the entry's inputs come from, a count box and "Add to queue", for ``record_for()``."""

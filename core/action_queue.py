@@ -28,13 +28,13 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .action_products import action_product_items_pure, action_target_spec_pure, action_used_input_pure
-from .action_registry import (
-    COMBAT_REVIEW_ACTION_DISPLAY_NAME,
-    QUEST_REVIEW_ACTION_DISPLAY_NAME,
-    utility_review_surface_for_target,
+from .action_products import (
+    action_product_items_pure,
+    action_target_spec_pure,
+    action_used_input_pure,
+    spec_field_pure,
 )
-from .constants import QUEST_DATA
+from .action_registry import is_utility_review_action
 from .last_action import (
     LAST_ACTION_KEY,
     last_action_name_pure,
@@ -42,15 +42,14 @@ from .last_action import (
     resume_button_view_pure,
     resume_last_action,
     saved_last_action_pure,
+    start_action,
+    start_values,
     valid_action_record_pure,
 )
-from .menu_cooking import with_cooking_target
 from .review_event_log import record_review_event_pure
-from .skill_registry import get_skill
-from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from ..logic.agility_logic import apply_agility_command_pure
 from ..logic.inventory_pure import review_item_changes_pure
-from ..logic.shooting_star_logic import apply_shooting_star_join_pure
-from ..logic_pure.logic_pure import quest_state_pure, start_quest_pure
+from ..logic_pure.logic_pure import quest_state_pure
 
 ACTION_QUEUE_KEY = "action_queue"
 MAX_QUEUE_ENTRIES = 5
@@ -178,8 +177,7 @@ def queue_entry_progress_pure(
 def queue_entry_name_pure(action: Mapping[str, Any]) -> str:
     """The action's name plus its target, so two Smithing entries read apart."""
     name = last_action_name_pure(action)
-    spec = action_target_spec_pure(action)
-    target = spec.get("display_name") if isinstance(spec, Mapping) else getattr(spec, "display_name", None)
+    target = spec_field_pure(action_target_spec_pure(action), "display_name")
     return f"{name}: {target}" if target else name
 
 
@@ -219,31 +217,6 @@ def action_queue_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _start_values(addon, current: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[dict[str, Any], str] | None:
-    """The save and review action that start ``action`` as its tab's Start would; None when it cannot."""
-    kind = action["kind"]
-    if kind == "quest":
-        updated, ok = start_quest_pure(current, action["quest_id"], QUEST_DATA)
-        return (updated, QUEST_REVIEW_ACTION_DISPLAY_NAME) if ok else None
-    if kind == "utility":
-        utility_id = action["utility_id"]
-        updated, joined = dict(current), True
-        if utility_id == SHOOTING_STAR_ACTIVITY_ID:
-            updated, joined, _info = apply_shooting_star_join_pure(current)
-        updated["current_utility"] = utility_id
-        return (updated, utility_review_surface_for_target(utility_id)) if joined else None
-    if kind == "combat":
-        values = {**addon._combat_target_values(current, action["target"]), "combat_action": action["combat_action"]}
-        return {**current, **values}, COMBAT_REVIEW_ACTION_DISPLAY_NAME
-    skill = get_skill(action["skill"])
-    updated = dict(current)
-    if skill.current_target_key and action.get("target") is not None:
-        updated[skill.current_target_key] = action["target"]
-        if skill.id == "cooking":
-            updated = with_cooking_target(addon, updated, action["target"])
-    return updated, skill.display_name
-
-
 def _run_current_entry(addon, current: Mapping[str, Any], queue: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
     """The save that runs the queue's current entry, passing each entry that cannot start.
 
@@ -251,7 +224,7 @@ def _run_current_entry(addon, current: Mapping[str, Any], queue: dict[str, Any])
     """
     updated = dict(current)
     while (entry := current_queue_entry_pure(queue)) is not None:
-        started = _start_values(addon, updated, entry["action"])
+        started = start_values(addon, updated, entry["action"])
         if started is not None:
             return {**started[0], ACTION_QUEUE_KEY: queue}, started[1]
         reason = "it could not start"
@@ -292,19 +265,26 @@ def _commit_run(addon, queue: dict[str, Any]) -> bool:
     return committed
 
 
-def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> bool:
-    """Add an entry; False when the queue refuses it.
+def add_starts_now_pure(player_data: Mapping[str, Any], current_skill: Any) -> bool:
+    """Whether an add starts its entry at once: no plan runs and the player is at Bankstanding.
 
-    The first entry of a new plan starts at once at Bankstanding. While an
-    action the player started by hand runs, the plan waits for it to stop.
+    While an action the player started by hand runs, a new plan waits for it to stop.
     """
+    return current_queue_entry_pure(action_queue_pure(player_data)) is None and not last_action_record_pure(
+        player_data, current_skill
+    )
+
+
+def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> bool:
+    """Add an entry; False when the queue refuses it. A new plan starts or waits as ``add_starts_now_pure`` says."""
     player_data = addon._state.player_data
+    starts_now = add_starts_now_pure(player_data, addon._state.current_skill)
     queue = action_queue_pure(player_data)
     idle = current_queue_entry_pure(queue) is None
     queue, ok = add_queue_entry_pure(queue, action, count)
     if not ok:
         return False
-    if idle and not last_action_record_pure(player_data, addon._state.current_skill):
+    if starts_now:
         return _commit_run(addon, queue)
     queue = {**queue, "waiting": queue["waiting"] or idle}
     return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
@@ -339,11 +319,24 @@ def remove_action_queue_entry(addon, position: int) -> bool:
 
 
 def resume_action_queue(addon) -> bool:
-    """Continue a paused queue, or start a waiting one now; False when neither has an entry."""
-    queue = action_queue_pure(addon._state.player_data)
-    if not (queue["paused"] or queue["waiting"]) or current_queue_entry_pure(queue) is None:
+    """Continue a paused queue, or start a waiting one now; False when neither starts an entry.
+
+    A paused entry restarts as Resume restarts any action: a refusal shows its
+    tab's reason, starts nothing and leaves the queue paused.
+    """
+    player_data = addon._state.player_data
+    queue = action_queue_pure(player_data)
+    entry = current_queue_entry_pure(queue)
+    if not (queue["paused"] or queue["waiting"]) or entry is None:
         return False
-    return _commit_run(addon, {**queue, "paused": False, "waiting": False})
+    if queue["waiting"]:
+        return _commit_run(addon, {**queue, "paused": False, "waiting": False})
+    if not start_action(addon, entry["action"]):
+        return False
+    # The start's undo step restores the paused queue with the action it replaced.
+    player_data[ACTION_QUEUE_KEY] = {**queue, "paused": False}
+    addon.save_player_data()
+    return True
 
 
 def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -366,6 +359,43 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
     return {"ok": ok, "active": addon._state.current_skill, "message": message}
 
 
+def stop_action(addon) -> Any:
+    """Stop the running action by hand and land on Bankstanding; the review action running after, or False.
+
+    Stop training and a Bankstanding picked by hand both come here, so either
+    saves what it stopped as the last action, which Resume offers back, and
+    pauses a queue that ran it.
+    """
+
+    def _change(current):
+        updated = current
+        if (
+            addon._state.current_skill == "Agility"
+            and current.get("current_agility") == "brimhaven_arena"
+            and (current.get("agility_activity_state") or {}).get("brimhaven")
+        ):
+            updated, result = apply_agility_command_pure(current, "abandon", {}, roll=0.5)
+            if not result.get("allowed"):
+                return current, False
+        updated = dict(updated)
+        updated["current_utility"] = "bankstanding"
+        updated["combat_encounter"] = {}
+        return updated, True
+
+    return addon.commit_direct_action(
+        _change,
+        bankstanding_reason="Training was stopped manually.",
+        bankstanding_automatic=False,
+    ) and addon._state.current_skill
+
+
+def select_utility_target(addon, activity_id: str) -> Any:
+    """A utility list's pick: Bankstanding picked while a utility runs stops it, else the pick waits for Start."""
+    if activity_id == "bankstanding" and is_utility_review_action(addon._state.current_skill):
+        return stop_action(addon)
+    return addon._set_value("current_utility", activity_id)
+
+
 def resume_action(addon) -> bool:
     """The Resume click: a paused queue continues the entry it stopped, else the last action restarts."""
     player_data = addon._state.player_data
@@ -381,14 +411,34 @@ def resume_action(addon) -> bool:
     return resume_last_action(addon)
 
 
-def advance_action_queue(addon, before_player_data: Mapping[str, Any]) -> None:
-    """After a review: add its progress to the current entry; a full entry starts the next.
+def _with_stopped_entry_progress(
+    started: Mapping[str, Any], queue: dict[str, Any], before: Mapping[str, Any], after: Mapping[str, Any]
+) -> dict[str, Any]:
+    """The queue with a review's progress on the entry that ran it, which a stop in that review passed."""
+    entry = current_queue_entry_pure(started)
+    if entry is None or started["paused"] or started["waiting"]:
+        return queue
+    entries = list(queue["entries"])
+    stopped = entries[started["index"]]
+    progress = queue_entry_progress_pure(entry["action"], before, after)
+    entries[started["index"]] = {**stopped, "done": stopped.get("done", 0) + progress}
+    return {**queue, "entries": entries}
 
-    A review of any other action pauses the queue, because the player started
-    that action himself; a plan that waits for such an action is left waiting.
+
+def advance_action_queue(addon, before_player_data: Mapping[str, Any]) -> None:
+    """After a review: add its progress to the entry that ran it; a full entry starts the next.
+
+    A stop inside the review already passed that entry and started the next,
+    which ran none of it, so the progress goes to the passed entry. A review of
+    any other action pauses the queue, because the player started that action
+    himself; a plan that waits for such an action is left waiting.
     """
     player_data = addon._state.player_data
     queue = action_queue_pure(player_data)
+    started = action_queue_pure(before_player_data)
+    if (started["index"], started["waiting"]) != (queue["index"], queue["waiting"]):
+        player_data[ACTION_QUEUE_KEY] = _with_stopped_entry_progress(started, queue, before_player_data, player_data)
+        return
     entry = current_queue_entry_pure(queue)
     if entry is None or queue["paused"] or queue["waiting"]:
         return
@@ -452,6 +502,16 @@ def _start_waiting_plan(addon, stopped: Mapping[str, Any], queue: Mapping[str, A
     return review_action is not None
 
 
+def bankstanding_event_text(reason: str) -> str:
+    return f"Switched to Bankstanding · {reason}"
+
+
+def generic_stop_reason_pure(player_data: Mapping[str, Any], current_skill: Any) -> str:
+    """The reason a stop of the running action records when it was given none."""
+    stopped = last_action_record_pure(player_data, current_skill)
+    return f"{last_action_name_pure(stopped) or 'Current action'} could not continue."
+
+
 def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | None:
     """Settle what a switch to Bankstanding stops; the reason it gives, or None when the queue runs on.
 
@@ -459,8 +519,59 @@ def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | No
     """
     player_data = addon._state.player_data
     stopped = last_action_record_pure(player_data, addon._state.current_skill)
-    reason_text = str(reason or "").strip() or f"{last_action_name_pure(stopped) or 'Current action'} could not continue."
+    reason_text = str(reason or "").strip() or generic_stop_reason_pure(player_data, addon._state.current_skill)
     if _queue_takes_over_stop(addon, stopped, reason_text, automatic=automatic):
         return None
     player_data[LAST_ACTION_KEY] = {**stopped, "reason": reason_text} if stopped else {}
     return reason_text
+
+
+def refine_stop_reason(addon, generic: str, reason: str) -> None:
+    """Put the words a review shows after its stop where that stop wrote its ``generic`` reason.
+
+    Most review handlers stop their action first and say why after, so the
+    stop records a generic reason. The refusal's own words replace it in the
+    Bankstanding notice and its log line, the last action that Resume shows,
+    and the queue entry the stop passed with its log line. ``generic`` is empty
+    when the handler stopped nothing or gave its stop a reason; only a pending
+    notice takes the new words then.
+    """
+    reason = str(reason or "").strip()
+    if not reason:
+        return
+    player_data = addon._state.player_data
+    _refine_bankstanding_notice(addon._state.pending_bankstanding_notice, player_data, reason)
+    if not generic:
+        return
+    record = player_data.get(LAST_ACTION_KEY)
+    if isinstance(record, dict) and record.get("reason") == generic:
+        player_data[LAST_ACTION_KEY] = {**record, "reason": reason}
+    _refine_passed_entry(player_data, generic, reason)
+
+
+def _refine_bankstanding_notice(notice: dict[str, Any] | None, player_data: dict[str, Any], reason: str) -> None:
+    if notice is None:
+        return
+    notice["reason"] = reason
+    event_log = player_data.get("review_event_log")
+    if isinstance(event_log, list) and event_log and isinstance(event_log[-1], dict):
+        event_log[-1]["text"] = bankstanding_event_text(reason)[:500]
+
+
+def _refine_passed_entry(player_data: dict[str, Any], generic: str, reason: str) -> None:
+    """The latest queue entry passed with ``generic``, and its log line, take ``reason``."""
+    queue = action_queue_pure(player_data)
+    passed = next(
+        (position for position in reversed(range(queue["index"])) if queue["entries"][position].get("stopped") == generic),
+        None,
+    )
+    if passed is None:
+        return
+    entries = list(queue["entries"])
+    entries[passed] = {**entries[passed], "stopped": reason}
+    player_data[ACTION_QUEUE_KEY] = {**queue, "entries": entries}
+    line = f"Queue: {queue_entry_name_pure(entries[passed]['action'])} stopped · "
+    for row in reversed(player_data.get("review_event_log") or ()):
+        if isinstance(row, dict) and row.get("text") == line + generic:
+            row["text"] = (line + reason)[:500]
+            break

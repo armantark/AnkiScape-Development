@@ -4,8 +4,8 @@ The switch to Bankstanding saves a record of the running action under
 ``LAST_ACTION_KEY``. The review HUD's Resume button restarts it, and the action
 queue keeps its entries in the same record shape. A record holds every key its
 tab's start path needs, plus the reason it stopped for the HUD's status line;
-``start_action`` calls that tab's own start function, so a restart runs the
-same requirement checks and shows the same refusal as the tab.
+``start_action`` runs the requirement checks that tab's Start runs and shows
+the same refusal, then starts the record's own selection.
 """
 
 from __future__ import annotations
@@ -19,13 +19,18 @@ from .action_registry import (
     is_quest_review_action,
     is_utility_review_action,
     landmark_activity_name,
+    utility_review_surface_for_target,
 )
 from .constants import DEFAULT_COMBAT_TARGET, QUEST_DATA, UTILITY_ACTIVITY_DATA
+from .menu_cooking import with_cooking_target
 from .skill_registry import get_skill
+from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from ..logic.shooting_star_logic import apply_shooting_star_join_pure
 from ..logic_pure.logic_pure import (
     can_attempt_quest_review_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_state_pure,
+    start_quest_pure,
 )
 
 LAST_ACTION_KEY = "last_action"
@@ -143,15 +148,56 @@ def quest_blocked_message(quest_name: str, reasons: tuple[str, ...]) -> str:
     )
 
 
+def start_values(addon, current: Mapping[str, Any], record: Mapping[str, Any]) -> tuple[dict[str, Any], str] | None:
+    """The save and review action that start ``record`` with its own target; None when it cannot start.
+
+    Each selection goes through the rule that owns it, such as the gauntlets a
+    Cooking target swaps or the Warriors' Guild room a fight target leaves.
+    """
+    kind = record["kind"]
+    if kind == "quest":
+        updated, ok = start_quest_pure(current, record["quest_id"], QUEST_DATA)
+        return (updated, QUEST_REVIEW_ACTION_DISPLAY_NAME) if ok else None
+    if kind == "utility":
+        utility_id = record["utility_id"]
+        updated, joined = dict(current), True
+        if utility_id == SHOOTING_STAR_ACTIVITY_ID:
+            updated, joined, _info = apply_shooting_star_join_pure(current)
+        updated["current_utility"] = utility_id
+        return (updated, utility_review_surface_for_target(utility_id)) if joined else None
+    if kind == "combat":
+        values = {**addon._combat_target_values(current, record["target"]), "combat_action": record["combat_action"]}
+        return {**current, **values}, COMBAT_REVIEW_ACTION_DISPLAY_NAME
+    skill = get_skill(record["skill"])
+    updated = dict(current)
+    if skill.current_target_key and record.get("target") is not None:
+        updated[skill.current_target_key] = record["target"]
+        if skill.id == "cooking":
+            updated = with_cooking_target(addon, updated, record["target"])
+    return updated, skill.display_name
+
+
 def start_action(addon, record: Mapping[str, Any]) -> bool:
-    """Start a record through the start function its tab uses; True when it runs."""
+    """Start a record with the checks its tab's Start runs; True when it runs.
+
+    A skill or fight restarts on the record's own target, so a target picked in
+    the tab since the stop never runs under the record's name, and the
+    selection and the start are one undo step.
+    """
     kind = record.get("kind")
     if kind == "utility":
         return bool(addon.start_activity_for_reviews(record["utility_id"]))
     if kind == "quest":
         return _start_quest(addon, str(record["quest_id"]))
-    skill = COMBAT_REVIEW_ACTION_DISPLAY_NAME if kind == "combat" else str(record["skill"])
-    return bool(addon.save_skill(skill, None))
+    refusal = addon.skill_start_refusal(record.get("skill"))
+    if refusal:
+        addon.show_error_message(*refusal)
+        return False
+    updated, review_action = start_values(addon, addon._state.player_data, record)
+    committed = addon.commit_direct_action(lambda _current: (updated, True), selected_skill=review_action)
+    if committed:
+        addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+    return committed
 
 
 def _start_quest(addon, quest_id: str) -> bool:

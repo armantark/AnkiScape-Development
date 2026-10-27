@@ -12,11 +12,17 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .action_products import action_product_items_pure, action_target_spec_pure, action_used_input_pure
+from .action_products import (
+    action_product_items_pure,
+    action_target_spec_pure,
+    action_used_input_pure,
+    spec_field_pure,
+)
 from .action_queue import (
     MAX_QUEUE_ENTRIES,
     QUEUE_FULL_TEXT,
     action_queue_pure,
+    add_starts_now_pure,
     action_queue_view_pure,
     current_queue_entry_pure,
     queue_entry_name_pure,
@@ -31,10 +37,6 @@ from ..logic.summoning_logic import summoning_action_requirements_pure
 from ..logic_pure.logic_pure import _runecrafting_multiplier_info, quest_locked_reasons_pure, quest_state_pure
 
 _STATE_LABELS = {"done": "Done", "stopped": "Stopped", "waiting": "Next"}
-
-
-def _field(spec: Any, name: str) -> Any:
-    return spec.get(name) if isinstance(spec, Mapping) else getattr(spec, name, None)
 
 
 def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked: Any = None) -> dict[str, Any]:
@@ -71,12 +73,13 @@ def queue_runs_surface_pure(player_data: Mapping[str, Any], surface: str) -> boo
     return action.get("skill") == surface
 
 
-def activity_started_by_add_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
+def activity_started_by_add_pure(player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any]) -> str:
     """The activity an add starts at once, as Start would, so it first asks to leave a running session.
 
-    Empty when the add only waits in the queue or starts something else.
+    Empty when the add only waits in the queue, behind a plan or an action the
+    player started, or starts something else.
     """
-    if action.get("kind") != "utility" or current_queue_entry_pure(action_queue_pure(player_data)) is not None:
+    if action.get("kind") != "utility" or not add_starts_now_pure(player_data, current_skill):
         return ""
     return str(action["utility_id"])
 
@@ -92,15 +95,15 @@ def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any])
         spec = UTILITY_ACTIVITY_DATA.get(action["utility_id"], {})
     else:
         spec = action_target_spec_pure(action)
-    made = int(_field(spec, "output_qty") or _field(spec, "output_quantity") or 1)
+    made = int(spec_field_pure(spec, "output_qty") or spec_field_pure(spec, "output_quantity") or 1)
     if action.get("skill") == "Summoning":
         needs = summoning_action_requirements_pure(player_data, str(action["target"]))
         return {item: (item,) for item in needs}, needs, made
-    if action.get("skill") == "Runecrafting" and _field(spec, "kind") == "standard":
+    if action.get("skill") == "Runecrafting" and spec_field_pure(spec, "kind") == "standard":
         level = int(player_data.get("runecrafting_level") or 1)
-        return {"essence": tuple(_field(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
-    needs = dict(_field(spec, "requirements") or {})
-    options = dict(_field(spec, "material_options") or {})
+        return {"essence": tuple(spec_field_pure(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
+    needs = dict(spec_field_pure(spec, "requirements") or {})
+    options = dict(spec_field_pure(spec, "material_options") or {})
     return {item: tuple(options.get(item) or (item,)) for item in needs}, needs, made
 
 
