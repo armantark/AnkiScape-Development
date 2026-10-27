@@ -262,6 +262,11 @@ for _item_name in _COOKING_ITEM_NAMES:
     if _path and os.path.exists(_path):
         COOKING_ITEM_IMAGES[_item_name] = _path
 
+COOKING_ITEM_IMAGES["Dirty blast"] = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "quest", "assets", "dirty_blast.png",
+))
+COOKING_ITEM_IMAGES["Fruit blast (9514)"] = COOKING_ITEM_IMAGES["Fruit blast"]
+
 RUNECRAFTING_EXTRA_ITEM_DATA = runecrafting_extra_items_as_dict()
 RUNECRAFTING_ITEM_IMAGES = {}
 for _item_name in set(RUNECRAFTING_OUTPUT_ITEMS) | set(RUNECRAFTING_ACCESS_ITEMS) | set(RUNECRAFTING_EXTRA_ITEM_DATA):

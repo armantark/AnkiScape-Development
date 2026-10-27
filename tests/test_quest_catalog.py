@@ -821,7 +821,7 @@ class TestQuestCatalog(unittest.TestCase):
 
         self.assertEqual(len(quests_with_stage_requirements), 198)
         self.assertGreaterEqual(len(quests_with_combat), 110)
-        self.assertGreaterEqual(len(quests_with_item_requirements), 160)
+        self.assertGreaterEqual(len(quests_with_item_requirements), 159)  # Opening services gate inputs dynamically.
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)
 
         hazeel = data["hazeel_cult"]

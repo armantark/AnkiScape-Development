@@ -277,6 +277,22 @@ def _grand_tree_journal_stages() -> Tuple[QuestStage, ...]:
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    # Authored commission paraphrase: Nature Spirit oldid 6555508 and quick
+    # guide oldid 6283910; supplies are included, without asserting receipt.
+    "nature_spirit": tuple(
+        QuestStage(
+            journal_row["stage"],
+            (
+                "Speak to Drezel in the passage beneath Paterdomus.",
+                "Drezel asks me to find his friend Filliman Tarlock, a druid living in Mort Myre to the south.",
+                "He warns that ghasts can rot my food and hurt me if I run out.",
+                "His commission includes three whole Meat pies and three whole Apple pies for the journey. I can use the food myself; I do not have to deliver it to Filliman.",
+                "I should have my Ghostspeak amulet ready to speak with Filliman. If I have lost it, Father Urhney in Lumbridge Swamp can replace it.",
+            ) if journal_row["stage"] == 1 else tuple(journal_row["journal"]),
+        )
+        for quest in PRE_EOC_QUEST_CATALOG if quest["id"] == "nature_spirit"
+        for journal_row in quest["journal_stages"]
+    ),
     "the_grand_tree": _grand_tree_journal_stages(),
     "watchtower": _watchtower_opening.WATCHTOWER_JOURNAL_STAGES,
     "toktz_ket_dill": tuple(
@@ -449,6 +465,7 @@ QUEST_ITEM_REWARD_ADDITIONS_BY_ID = varrock_museum_quest_reward_additions_as_dic
 
 
 QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {"zogre_flesh_eaters": zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_ITEM_REWARDS,
+    "nature_spirit": (),
     TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
     BIOHAZARD_ID: (),

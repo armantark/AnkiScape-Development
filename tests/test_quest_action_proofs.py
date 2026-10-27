@@ -22,10 +22,7 @@ from ankiscape.data.quest_action_proof_data import (
     THAKKRAD_CURED_YAK_HIDE_PROOF,
 )
 from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_service_pure, rollback_shop_event_pure
-from ankiscape.logic_pure.logic_pure_quest import (
-    apply_quest_progress_pure,
-    quest_current_stage_blockers_pure,
-)
+from ankiscape.logic_pure.logic_pure_quest import apply_quest_progress_pure, quest_current_stage_blockers_pure
 from ankiscape.logic_pure.quest_action_proofs import (
     quest_action_proof_completed_pure,
     quest_action_proofs_for_reachable_events_pure,
@@ -658,6 +655,8 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/logic_pure_quest.py", "_consume_quest_current_stage_items", "record_quest_stage_action_proofs_pure"),
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/one_small_favour.py", "_apply_opening_deed_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/another_cook.py", "_commit_commission_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/another_cook.py", "_prepare_dirty_blast_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/oronwen.py", "apply_oronwen_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/watchtower.py", "apply_watchtower_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/toktz_opening.py", "apply_toktz_opening_review_pure", "record_runtime_quest_action_proofs_pure"),
@@ -678,6 +677,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/logic_pure_quest.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
                 "logic_pure/quest/one_small_favour.py": 3,
+                "logic_pure/quest/another_cook.py": 4,
                 "logic_pure/quest/oronwen.py": 3,
                 "logic_pure/quest/watchtower.py": 3,
                 "logic_pure/quest/toktz_opening.py": 3,
