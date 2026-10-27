@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] A real withdrawal moves 100 essence into the Bank and leaves 0; a second withdrawal the same world day moves nothing.
-- [ ] The refill text shows 100 for a profile whose world day is 100 cards.
-- [ ] The existing hood pack tests still show 28 essence for a worn hood and 27 for a packed hood.
-- [ ] The play checklist names "Edit > Undo (Cmd+Z)" wherever it uses the undo.
+- [x] A real withdrawal moves 100 essence into the Bank and leaves 0; a second withdrawal the same world day moves nothing.
+- [x] The refill text shows 100 for a profile whose world day is 100 cards.
+- [x] The existing hood pack tests still show 28 essence for a worn hood and 27 for a packed hood.
+- [x] The play checklist names "Edit > Undo (Cmd+Z)" wherever it uses the undo.

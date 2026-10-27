@@ -6947,6 +6947,7 @@ def show_main_menu(
                 "teleports_remaining",
             )
         )
+        refill_text = f"refills every {hood['world_day_cards']} answered cards"
         if hood["claimed"] and not hood["owned"]:
             guidance_text = "Reclaim the hood to restore its saved upgrades and allowances."
         elif not hood["operable"]:
@@ -6957,12 +6958,9 @@ def show_main_menu(
                 "your next trip there skips the walk"
             )
         elif allowances_exhausted:
-            guidance_text = "Allowances exhausted · refills every 240 answered cards"
+            guidance_text = f"Allowances exhausted · {refill_text}"
         else:
-            guidance_text = (
-                f"Ready · dispenses {hood['essence_item']} · "
-                "refills every 240 answered cards"
-            )
+            guidance_text = f"Ready · dispenses {hood['essence_item']} · {refill_text}"
         guidance = QLabel(guidance_text)
         guidance.setObjectName("wickedHoodGuidanceLabel")
         guidance.setWordWrap(True)
@@ -6984,7 +6982,7 @@ def show_main_menu(
         essence_button.setObjectName("wickedHoodEssenceButton")
         essence_button.setAccessibleName("Withdraw Wicked hood essence")
         essence_button.setToolTip(
-            "Fill free carried-pack slots from the remaining essence allowance."
+            "Send all the essence left in today's allowance to the Bank."
         )
         essence_button.setEnabled(
             on_wicked_hood_command is not None
