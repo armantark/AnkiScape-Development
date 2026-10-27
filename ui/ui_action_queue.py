@@ -22,6 +22,7 @@ from .ui_palette import dim_text_css
 try:
     from aqt.qt import (  # type: ignore
         QFrame,
+        QGridLayout,
         QHBoxLayout,
         QLabel,
         QObject,
@@ -224,11 +225,13 @@ if HAS_QT:
             header.addWidget(self._clear)
             layout.addLayout(header)
             rows = QWidget()
-            rows_layout = QVBoxLayout(rows)
+            # One grid, so each column is as wide as its widest entry and the counts line up.
+            rows_layout = QGridLayout(rows)
             rows_layout.setContentsMargins(0, 0, 0, 0)
             rows_layout.setSpacing(0)
+            rows_layout.setColumnStretch(1, 1)
             self._rows = [self._row(rows_layout, position) for position in range(MAX_QUEUE_ENTRIES)]
-            rows_layout.addStretch(1)
+            rows_layout.setRowStretch(MAX_QUEUE_ENTRIES, 1)
             self._scroll = QScrollArea()
             self._scroll.setObjectName("actionQueueRows")
             self._scroll.setWidgetResizable(True)
@@ -245,13 +248,8 @@ if HAS_QT:
             self.refresh()
 
         def _row(self, layout, position: int) -> tuple:
-            line = QWidget()
-            line.setObjectName("actionQueueRow")
-            line_layout = QHBoxLayout(line)
-            line_layout.setContentsMargins(0, 1, 0, 1)
             state = QLabel()
             state.setObjectName("actionQueueRowState")
-            state.setFixedWidth(state.fontMetrics().horizontalAdvance("5. Stopped") + 16)
             text = QLabel()
             text.setObjectName("actionQueueRowText")
             text.setWordWrap(True)
@@ -268,11 +266,11 @@ if HAS_QT:
             policy.setRetainSizeWhenHidden(True)
             remove.setSizePolicy(policy)
             remove.clicked.connect(lambda _=False: self._queue("remove", {"position": position}))
-            line_layout.addWidget(state)
-            line_layout.addWidget(text, 1)
-            line_layout.addWidget(remove)
-            layout.addWidget(line)
-            return line, state, text, remove
+            state.setContentsMargins(0, 1, 16, 1)
+            text.setContentsMargins(0, 1, 0, 1)
+            for column, widget in enumerate((state, text, remove)):
+                layout.addWidget(widget, position, column)
+            return state, text, remove
 
         def refresh(self) -> None:
             view = queue_panel_view_pure(self._player_data, self._current_skill())
@@ -283,21 +281,23 @@ if HAS_QT:
             self._hint.setText(view["hint"])
             self._resume.setText(view["resume_text"])
             self._resume.setVisible(bool(view["resume_text"]))
-            for position, (line, state, text, remove) in enumerate(self._rows):
-                line.setVisible(position < len(view["rows"]))
-                if position < len(view["rows"]):
-                    self._show_row(view["rows"][position], state, text, remove)
+            for position, (state, text, remove) in enumerate(self._rows):
+                row = view["rows"][position] if position < len(view["rows"]) else None
+                state.setVisible(row is not None)
+                text.setVisible(row is not None)
+                remove.setVisible(row is not None and row["removable"])
+                if row is not None:
+                    self._show_row(row, state, text)
             # One text line plus the row's 1 px margins; a longer list scrolls inside the box.
-            line_height = self._rows[0][2].fontMetrics().lineSpacing() + 2
+            line_height = self._rows[0][1].fontMetrics().lineSpacing() + 2
             self._scroll.setFixedHeight(min(len(view["rows"]), _VISIBLE_ROWS) * line_height)
             current = next((position for position, row in enumerate(view["rows"]) if row["current"]), None)
             if current is not None:
                 self._scroll.ensureWidgetVisible(self._rows[current][0])
 
-        def _show_row(self, row: dict, state, text, remove) -> None:
+        def _show_row(self, row: dict, state, text) -> None:
             # The running entry reads in full text colour; the others are dimmed, never palette(mid).
             colour = "palette(text)" if row["current"] else dim_text_css(state)
-            remove.setVisible(row["removable"])
             state.setText(f"{row['position']} {row['state']}")
             state.setStyleSheet(f"color: {colour}; font-size: 12px; font-weight: 600;")
             text.setText(row["text"])

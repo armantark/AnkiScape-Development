@@ -55,7 +55,7 @@ from ..logic_pure.logic_pure_combat_hud import (
     toggled_combat_prayer_selection_pure,
 )
 from .ui import _COMBAT_HUB_NAME, current_target_display_name, dim_text_css
-from .ui_text_fit import FlowLayout, WrappingCheckBox, on_resize, side_pair
+from .ui_text_fit import WrappingCheckBox, on_resize
 
 _LABEL_STYLE = "color: palette(text);"
 # Grey notes under a control: dimmer than a label, still easy to read.
@@ -124,6 +124,8 @@ def build_combat_setup_panel(
     syncs.append(_add_presets(layout, player_data, send_config))
     syncs.append(_add_lunar_spells(layout, player_data, send_config))
     layout.addStretch(1)
+    for check in panel.findChildren(QCheckBox):
+        _lay_out_whole(check)
     refresh()
     return panel, refresh
 
@@ -142,6 +144,14 @@ def _row(layout, *widgets, grow=-1):
         row_layout.addStretch(1)
     layout.addWidget(row)
     return row
+
+
+def _lay_out_whole(check) -> None:
+    """Lay ``check`` out by its whole rect. The panel's 13 px indicator is
+    smaller than the native box, but macOS still trims the native box's margins
+    off the layout rect, which let a box's text run under the widget beside or
+    below it."""
+    check.setAttribute(Qt.WidgetAttribute.WA_LayoutUsesWidgetRect)
 
 
 def _text_label(text: str) -> "QLabel":
@@ -356,15 +366,15 @@ def _add_prayer_section(layout, player_data, send_config):
     auto_pick = QPushButton("Pick the best for me")
     auto_pick.setObjectName("combatPrayerAutoPickButton")
     choices = QWidget()
-    choices_layout = FlowLayout(choices)
+    choices_layout = QGridLayout(choices)
     choices_layout.setContentsMargins(0, 0, 0, 0)
-    for widget in (
-        master,
-        side_pair("Book", book_combo, _LABEL_STYLE),
-        side_pair("Prayer time", time_combo, _LABEL_STYLE),
-        auto_pick,
-    ):
-        choices_layout.addWidget(widget)
+    choices_layout.setHorizontalSpacing(8)
+    choices_layout.addWidget(master, 0, 0, 1, 2)
+    for row, (caption, combo) in enumerate((("Book", book_combo), ("Prayer time", time_combo)), start=1):
+        choices_layout.addWidget(_text_label(caption), row, 0)
+        choices_layout.addWidget(combo, row, 1)
+    choices_layout.addWidget(auto_pick, 3, 0, 1, 2, Qt.AlignmentFlag.AlignLeft)
+    choices_layout.setColumnStretch(2, 1)
     layout.addWidget(choices)
     status = QLabel()
     status.setObjectName("combatPrayerStatusLabel")
@@ -426,6 +436,7 @@ def _add_prayer_section(layout, player_data, send_config):
 def _prayer_check(row) -> "QCheckBox":
     # One line each, so every row of the grid is the same height.
     check = QCheckBox(row["label"])
+    _lay_out_whole(check)
     check.setObjectName(f"combatPrayerCheck::{row['id']}")
     check.setToolTip(row["tooltip"])
     check.setProperty("prayerLevel", row["level"])
@@ -533,26 +544,25 @@ class _PrayerGrid:
             self._layout.setColumnStretch(column, 1 if column < columns else 0)
 
 
-def _number_box(object_name, low, high, step, width) -> "QSpinBox":
-    # A narrow box holding only the number, with its unit beside it, reads as
-    # a field to type in; a full-width box with a unit inside read as a menu.
+def _number_box(object_name, low, high, step) -> "QSpinBox":
+    # A box as wide as its largest number, with its unit beside it, reads as a
+    # field to type in; a full-width box with a unit inside read as a menu.
     box = QSpinBox()
     box.setObjectName(object_name)
     box.setRange(low, high)
     box.setSingleStep(step)
-    box.setMaximumWidth(width)
     box.setToolTip(f"Type a number, or use the arrows to change it by {step}.")
     return box
 
 
 def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_threshold):
     _add_section_header(layout, "Food and loot")
-    auto_eat = _number_box("combatAutoEatThresholdSpin", 1, 99, 1, 72)
+    auto_eat = _number_box("combatAutoEatThresholdSpin", 1, 99, 1)
     _row(layout, _text_label("Auto-eat at"), auto_eat, _text_label("% of life points"), grow=None)
     auto_bury = WrappingCheckBox("Auto-bury bones and scatter ashes (costs simulated ticks)")
     auto_bury.setObjectName("combatAutoPrayerTrainingCheck")
     layout.addWidget(auto_bury)
-    loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5, 100)
+    loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5)
     _row(layout, _text_label("Leave loot worth under"), loot_spin, _text_label("coins"), grow=None)
     if on_set_auto_eat is not None:
         auto_eat.valueChanged.connect(lambda value: on_set_auto_eat(value))
