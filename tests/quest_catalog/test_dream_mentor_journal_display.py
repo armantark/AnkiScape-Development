@@ -45,7 +45,7 @@ class TestDreamMentorJournalDisplay(unittest.TestCase):
         before_catalog = copy.deepcopy(QUEST_DATA)
         ctx = SimpleNamespace(
             player_data=player, selection=selection, warn_label=QLabel(), refreshers={},
-            on_save_skill=Mock(), on_set_quest=Mock(), on_set_quest_route_choice=Mock(), refresh=Mock(),
+            on_save_skill=Mock(), on_set_quest=Mock(), on_set_quest_route_choice=Mock(), on_action_queue_command=None, refresh=Mock(),
         )
         widget = build_quests_tab(ctx)
         self.addCleanup(widget.close)

@@ -28,6 +28,7 @@ def _quest_context(player):
         on_save_skill=Mock(),
         on_set_quest=Mock(),
         on_set_quest_route_choice=Mock(),
+        on_action_queue_command=None,
         refresh=Mock(),
     )
 
