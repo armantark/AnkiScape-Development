@@ -4,9 +4,9 @@
 
 **Blocked by:** 10 (Seven Pick entries)
 
-**Status:** open
+**Status:** done
 
-- [ ] Every changed source cites a revision dated before 2012-11-20, read as wikitext.
-- [ ] The Wheat and flax findings are recorded with their passages, whichever way they fall.
-- [ ] A save that holds the old item name loads with the new name, if a rename happens.
+- [x] Every changed source cites a revision dated before 2012-11-20, read as wikitext.
+- [x] The Wheat and flax findings are recorded with their passages, whichever way they fall.
+- [x] A save that holds the old item name loads with the new name, if a rename happens.
 - [ ] No source path names a home folder.

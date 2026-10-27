@@ -45,7 +45,7 @@ IMP_DROPS = {
                 {"item": "Ashes", "quantity": 1, "slots": 48},
                 {"item": "Clay", "quantity": 1, "slots": 32},
                 {"item": "Cadava berries", "quantity": 1, "slots": 32},
-                {"item": "Grain", "quantity": 1, "slots": 24},
+                {"item": "Wheat", "quantity": 1, "slots": 24},
                 {"item": "Chef's hat", "quantity": 1, "slots": 16},
             ),
         },

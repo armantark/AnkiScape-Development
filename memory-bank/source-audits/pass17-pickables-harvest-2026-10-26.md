@@ -68,3 +68,27 @@ No shop in data/shop_data.py sells any of these items.
 - data/quest/stage_cleanups.py:242 uses "Raw potato"; item is "Potato" elsewhere; data/quest/item_names.py:67 maps only "Potatoes".
 - Spinning flax needs level 10 (data/crafting_data.py:220); period Flax page says "level 1 [[Crafting]]".
 - Banana Tree, Pineapple Plant and Potato/Wheat (scenery) pages have no revision before 2013-11-20; only item pages serve.
+
+## Source fixes findings (Pass 17 ticket 11, 2026-10-27)
+Wikitext read through the MediaWiki API at the 2012-11-20 cutoff; caches read with `tools/query_openrs2_cache.sh`.
+
+### Grain or Wheat: the item was "Wheat"; renamed, with a save migration
+- Item page, P Wheat 5908312 (2012-07-08T12:34:17Z; title "Grain" redirects here): infobox `|name = Wheat`, `|AKA=Grain`, `|examine=Some wheat heads.`; body "'''Wheat''' (previously ''Grain'') is obtained by selecting 'Pick Wheat' in wheat fields".
+- Cache item 1947 is named "Wheat" in rev-727 (2012-07-24) and rev-742 (2012-11-07). Item 5607 is "Grain" in rev-742, a wearable, non-exchangeable item (the Recruitment Drive grain), not the cooking item.
+- Field: Darkan Pickables.kt at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f, line 21: `"Wheat" -> pick(player, obj, 1947)`. "Wheat (scenery)" has no revision before 2013-11-20.
+- Market row, P Exchange:Wheat 6571952 (2012-11-18T06:22:44Z): `|Item=Wheat`, `|ItemId=1947`, `|Price=18`, `|Limit=1000`; the buy-limit table P Calculator:Grand_Exchange_buying_limits 6457777 lists `[[Exchange:Wheat|Wheat]]` at 1000. Added to `data/grand_exchange_period_source.json` because the cache marks 1947 exchangeable, so Wheat now enters the Grand Exchange.
+- Result: item 1947 is stored as "Wheat". Old saves migrate "Grain" to "Wheat" through `LEGACY_COOKING_ITEM_MIGRATIONS` (data/cooking_data.py). The rename also gives the "Wheat" that Eadgar's Ruse, Missing My Mummy and Let Them Eat Pie require, and removes the cape-slot equipment entry the name "Grain" had matched to item 5607.
+
+### Flax spinning level: all three pages agree on Crafting 1; changed from 10
+- P Flax 6564477 (2012-11-17T00:56:14Z): "'''Flax''' is a plant that [[Pay-to-play|members]] with level 1 [[Crafting]] can use on a [[spinning wheel]] to create a [[bow string]], granting 15 Crafting [[experience]]."
+- P Bow_string 6547251 (2012-11-10T22:57:54Z): "It is created by using [[flax]] with a [[spinning wheel]], which requires level 1 [[Crafting]] and grants a player 15 Crafting [[experience]]."
+- P Spinning_wheel 6566263 (2012-11-17T15:37:46Z), table row: `|[[Flax]]` / `|[[Bow string]]` / `|1` (Level Required).
+- Darkan SpinningWheel.java at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f, line 32: `FLAX(new int[] { 1779 }, 1777, 1, 15.0)`.
+
+### Gather wool and Gather flax citations
+- P Wool 5942277 (2012-07-15T21:25:02Z): "Wool is gathered from [[sheep]] by using [[shears]] on them when they have a full coat."
+- P Flax 6564477: "It is possible to pick multiple flax from one plant."; Darkan Pickables.kt line 18: `"Flax" -> pick(player, obj, 1779)`.
+
+### Quest "Raw potato"
+- The Fremennik Trials stage 3 cleanup matches the catalog's own spelling, because cleanups run before `QUEST_STAGE_ITEM_NAME_OVERRIDES` (data/quest/catalog.py `_quest_with_stage_requirements`). Changing the cleanup to "Potato" would leave the stage requiring a potato. The override map now resolves "Raw potato" to "Potato", which fixes Let Them Eat Pie stage 2.
+- The rev-742 cache names item 1942 "Raw potato"; AnkiScape stores it as "Potato".

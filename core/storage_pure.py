@@ -19,7 +19,7 @@ from ..logic.bank_layout_logic import (
     default_bank_layout_state_pure,
     reconcile_bank_layout_for_player_pure,
 )
-from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
+from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID, LEGACY_COOKING_ITEM_MIGRATIONS
 from ..data.crafting_data import (
     DEFAULT_CRAFTING_TARGET,
     CRAFTING_RECIPES_BY_ID,
@@ -441,12 +441,11 @@ _EQUIPMENT_SLOT_IDS = {
     "feet",
     "ring",
 }
-# Older builds granted quest rewards under their source spellings before the
-# catalog resolved them onto storage keys, so saves can still hold names such as
-# "Amulet of ghostspeak" that no quest stage or action reads.
+# Saves keep item names from older builds that no stage or action reads any
+# more: quest rewards granted under their source spellings ("Amulet of
+# ghostspeak") and items renamed to their 2012 cache names ("Grain").
 _LEGACY_ITEM_NAME_MIGRATIONS = {
-    **LEGACY_CRAFTING_ITEM_MIGRATIONS,
-    **QUEST_REWARD_ITEM_NAME_OVERRIDES,
+    **LEGACY_CRAFTING_ITEM_MIGRATIONS, **LEGACY_COOKING_ITEM_MIGRATIONS, **QUEST_REWARD_ITEM_NAME_OVERRIDES,
 }
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:

@@ -91,6 +91,21 @@ class TestStorageMigrationExtra(unittest.TestCase):
             quest_current_stage_blocker_reasons_pure(out, "nature_spirit", QUEST_DATA),
         )
 
+    def test_saved_grain_loads_as_wheat_for_eadgars_ruse(self):
+        data = {
+            "inventory": {"Grain": 10},
+            "carried_inventory": {"gather_grain": {"Grain": 3}},
+            "quests": {"eadgars_ruse": {"started": True, "progress": 1, "completed": False}},
+        }
+        out = migrate_loaded_data(data, ORE_DATA)
+        self.assertEqual(out["inventory"]["Wheat"], 10)
+        self.assertNotIn("Grain", out["inventory"])
+        self.assertEqual(out["carried_inventory"]["gather_grain"], {"Wheat": 3})
+        self.assertNotIn(
+            "Needs Wheat x10",
+            quest_current_stage_blocker_reasons_pure(out, "eadgars_ruse", QUEST_DATA),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

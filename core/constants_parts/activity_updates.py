@@ -1,5 +1,6 @@
 import os
 
+from ...data.cooking_data import PICKABLES_DARKAN_SOURCE
 from ...data.quest_data import (
     BLUE_DYE_WIKI_SOURCE,
     BLUE_GOBLIN_MAIL_WIKI_SOURCE,
@@ -21,10 +22,6 @@ from .equipment_sources import *
 from .registry_sources import *
 from .paths import *
 
-PICKABLES_DARKAN_SOURCE = (
-    "Darkan darkan-world-server src/main/java/com/rs/game/content/world/Pickables.kt "
-    "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
-)
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 UTILITY_ACTIVITY_DATA = {
     "bankstanding": {
@@ -98,7 +95,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_wool.png"),
         "group": "gathering",
-        "source": "Material source for OSRS Ball of wool > Creation",
+        "source": "https://runescape.wiki/w/Wool?oldid=5942277",
     },
     "gather_flax": {
         "display_name": "Gather flax",
@@ -108,7 +105,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_flax.png"),
         "group": "gathering",
-        "source": "OSRS Bow string > Strategy > Manual Spinning",
+        "source": f"https://runescape.wiki/w/Flax?oldid=6564477; {PICKABLES_DARKAN_SOURCE}",
     },
     "gather_swamp_toads": {
         "display_name": "Gather swamp toads",
@@ -127,11 +124,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 1,
         "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "nettles.png"),
         "group": "gathering",
-        "source": (
-            "https://runescape.wiki/w/Nettles?oldid=6579371; "
-            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
-            "darkan-world-server/src/main/java/com/rs/game/content/world/Pickables.kt:24,60-66"
-        ),
+        "source": f"https://runescape.wiki/w/Nettles?oldid=6579371; {PICKABLES_DARKAN_SOURCE} lines 24, 60-66",
     },
     "gather_snape_grass": {
         "display_name": "Gather snape grass",
@@ -144,8 +137,7 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": (
             "https://runescape.wiki/w/Snape_grass?oldid=6269500; "
-            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
-            "darkan-world-server/data/items/spawns/spawns.json at commit "
+            "Darkan darkan-world-server data/items/spawns/spawns.json at commit "
             "7387f34cff5c638d1c29d024329a9f80667add5f (itemId 231, Hobgoblin Peninsula)"
         ),
     },

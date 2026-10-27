@@ -1845,7 +1845,8 @@
     "Zamorak mjolnir": 2,
     "Zamorak robe top": 2,
     "Zogre bones": 10000,
-    "Zombie impling jar": 500
+    "Zombie impling jar": 500,
+    "Wheat": 1000
   },
   "prices": {
     "Accursed ashes": 402,
@@ -3293,7 +3294,8 @@
     "Zamorak mjolnir": 4959,
     "Zamorak robe top": 173383,
     "Zogre bones": 597,
-    "Zombie impling jar": 19975
+    "Zombie impling jar": 19975,
+    "Wheat": 18
   },
   "provenance": {
     "Accursed ashes": {
@@ -19201,6 +19203,17 @@
       "item_id": 15515,
       "cache_value": 50,
       "page_limit": 500
+    },
+    "Wheat": {
+      "price": 18,
+      "page_title": "Exchange:Wheat",
+      "oldid": 6571952,
+      "timestamp": "2012-11-18T06:22:44Z",
+      "price_date": "06:22, November 18, 2012 (UTC)",
+      "page_item": "Wheat",
+      "item_id": 1947,
+      "cache_value": 2,
+      "page_limit": 1000
     }
   }
 }

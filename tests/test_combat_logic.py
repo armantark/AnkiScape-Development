@@ -1680,7 +1680,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(main["slots"][10], {"item": "Steel arrows", "quantity": 5, "slots": 1})
         self.assertEqual(main["slots"][20], {"item": "Body talisman", "quantity": 1, "slots": 2})
         self.assertEqual(main["slots"][21], {"item": "Law talisman", "quantity": 1, "slots": 1})
-        self.assertEqual(main["slots"][22], {"item": "Grain", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][22], {"item": "Wheat", "quantity": 1, "slots": 1})
         self.assertIs(main["slots"][24]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
         self.assertEqual(main["slots"][24]["slots"], 18)
         self.assertEqual(tertiary["total"], 128)
