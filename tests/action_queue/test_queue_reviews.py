@@ -17,7 +17,7 @@ _SMITH_PLATEBODY = {"kind": "skill", "skill": "Smithing", "target": "forge_iron_
 _BKF = "black_knights_fortress"
 
 
-class ActionQueueReviewTest(fixtures.ReviewedProfile):
+class QueueProfile(fixtures.ReviewedProfile):
     def _queue_addon(self, name, *entries, **save):
         from ankiscape.core.action_queue import add_to_action_queue
 
@@ -42,6 +42,8 @@ class ActionQueueReviewTest(fixtures.ReviewedProfile):
     def _log(self, addon):
         return [row["text"] for row in addon._state.player_data["review_event_log"] if row["kind"] != "achievement"]
 
+
+class ActionQueueReviewTest(QueueProfile):
     def test_mine_smelt_smith_runs_its_counts_passes_a_short_entry_and_ends_at_bankstanding(self):
         from ankiscape.core.last_action import resume_button_view_pure
 

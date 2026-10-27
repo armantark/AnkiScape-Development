@@ -47,6 +47,8 @@ def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
 
 def build_quests_tab(ctx) -> "QWidget":
     """Return the Quests page."""
+    from .ui_action_queue import QueueAddControl
+
     player_data = ctx.player_data
     state = ctx.selection
     warn = ctx.warn_label
@@ -350,6 +352,9 @@ def build_quests_tab(ctx) -> "QWidget":
         header_layout.addWidget(title)
         header_layout.addWidget(status, 1)
         header_layout.addWidget(quest_btn)
+        header_layout.addWidget(
+            QueueAddControl(player_data, ctx.on_action_queue_command, lambda: {"kind": "quest", "quest_id": quest_id})
+        )
         card_layout.addWidget(header)
 
         body = QWidget()

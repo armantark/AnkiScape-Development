@@ -48,6 +48,7 @@ from ..logic_pure.logic_pure import quest_state_pure, start_quest_pure
 
 ACTION_QUEUE_KEY = "action_queue"
 MAX_QUEUE_ENTRIES = 5
+QUEUE_FULL_TEXT = f"The queue holds {MAX_QUEUE_ENTRIES} entries. Clear it to plan again."
 
 
 def _empty_queue() -> dict[str, Any]:
@@ -286,6 +287,24 @@ def resume_action_queue(addon) -> bool:
     if not queue["paused"] or current_queue_entry_pure(queue) is None:
         return False
     return _commit_run(addon, {**queue, "paused": False})
+
+
+def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Run a queue command from the main menu; the result names the review action running after it."""
+    message = ""
+    if command == "add":
+        ok = add_to_action_queue(addon, payload["action"], payload.get("count"))
+        if not ok:
+            full = not action_queue_view_pure(addon._state.player_data)["can_add"]
+            message = QUEUE_FULL_TEXT if full else "Type a count of 1 or more."
+    elif command == "clear":
+        ok = clear_action_queue(addon)
+    elif command == "resume":
+        ok = resume_action_queue(addon)
+    else:
+        raise ValueError(f"Unknown action queue command: {command!r}")
+    addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+    return {"ok": ok, "active": addon._state.current_skill, "message": message}
 
 
 def resume_action(addon) -> bool:

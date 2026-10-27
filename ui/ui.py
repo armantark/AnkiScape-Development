@@ -75,6 +75,7 @@ from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
 from .ui_first_cell_tree import FirstCellSelectionTree
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
+from .ui_palette import dim_text_color, dim_text_css
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
 from ..core.action_registry import landmark_activity_name, review_action_handler_key
 from ..core.constants import (
@@ -466,7 +467,7 @@ from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import WICKED_HOOD_REQUIRED_MESSAGE, wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
-from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure
+from ..logic_pure.logic_pure import EQUIPMENT_BONUS_FIELDS, combat_grave_banner_view_pure, combat_status_summary_pure
 from ..logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 
 from ..logic_pure.logic_pure import (
@@ -475,8 +476,6 @@ from ..logic_pure.logic_pure import (
 )
 
 from ..logic_pure.logic_pure import STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, landmark_hud_progress_pure
-
-from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
 
 from ..core.skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
 
@@ -586,8 +585,6 @@ from ..core.review_context import (
     review_context_projection_pure,
 )
 
-from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
-
 from ..core.constants import ALCH_VALUES, ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
 from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
 
@@ -598,10 +595,6 @@ from ..logic.farming_logic import (
     CURE_PLANT_SPELL_FIRST,
     PLANT_CURE_ITEM_FIRST,
     farming_frontend_projection_pure,
-)
-from ..logic.dnd_favourites_logic import (
-    dnd_favourite_context_menu_view_pure,
-    dnd_favourite_detail_button_view_pure,
 )
 from ..logic.summoning_logic import familiar_reviews_remaining_pure, familiarisation_view_pure
 from ..logic.skilling_boost_logic import (
@@ -806,39 +799,6 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
 def playable_review_skill_names() -> tuple:
     """Display names of skills that earn XP during review, straight from the registry."""
     return tuple(implemented_review_skill_names())
-
-
-# ---- dark-mode-safe text colors ------------------------------------------
-# RECURRING BUG, READ BEFORE STYLING TEXT: ``palette(mid)`` / ``QPalette.Mid`` is
-# a *frame/border* role, NOT a text role. In dark mode it resolves to a near-black
-# grey, so using it as a text/foreground color makes the text invisible on the
-# dark base (greyed/disabled rows "vanish"). It has bitten the Skills-hub buttons,
-# the Smithing locked rows, and the Equipment empty slots. Never use palette(mid)
-# (or QPalette.Mid) for text. For dimmed-but-legible text use the helpers below,
-# which derive the color from the theme's actual Text role and just drop the
-# alpha — guaranteed contrast in BOTH light and dark themes. (palette(mid) is fine
-# for borders/frames, which is its intended role.)
-
-def dim_text_color(widget=None, alpha=150) -> "QColor":
-    """A dimmed-but-readable text QColor that works in light AND dark themes.
-
-    Use for greyed/placeholder/disabled-row text (e.g. ``setForeground(...)``).
-    """
-    palette = widget.palette() if widget is not None else QApplication.palette()
-    color = QColor(palette.color(QPalette.ColorRole.Text))
-    color.setAlpha(alpha)
-    return color
-
-
-def dim_text_css(widget=None, alpha=150) -> str:
-    """``rgba(...)`` form of :func:`dim_text_color` for Qt stylesheets.
-
-    Stylesheets can't reference a dimmed text role (the stylesheet ``palette()``
-    function only exposes solid roles, and ``mid`` is the trap we're avoiding), so
-    bake an explicit rgba string from the live palette instead.
-    """
-    c = dim_text_color(widget, alpha)
-    return f"rgba({c.red()}, {c.green()}, {c.blue()}, {c.alphaF():.2f})"
 
 
 def _clear_layout(target_layout) -> None:
@@ -1356,6 +1316,34 @@ def focus_main_menu_if_open() -> bool:
         pass
     return False
 
+
+# Why a skill's Train button is off; the Skills panel and the live availability
+# hook below show the same text.
+_TRAIN_UNAVAILABLE_TOOLTIPS = {
+    "Smithing": "Mine ores until you can smelt a bar.",
+    "Crafting": "Gather materials or level up to craft an item.",
+    "Fletching": "Cut logs or level up to fletch an item.",
+    "Firemaking": "Cut or acquire logs before training Firemaking.",
+    "Hunter": "Gather jars/materials, complete unlocks, or level up before training Hunter.",
+    "Cooking": "Gather raw food or prep ingredients before training Cooking.",
+    "Runecrafting": "Complete Rune Mysteries and gather essence plus altar access.",
+    "Thieving": "Choose an unlocked target before training Thieving.",
+    "Agility": "Choose an unlocked course or activity before training Agility.",
+    _COMBAT_HUB_NAME: "Select an available enemy.",
+}
+# The processing skills whose Train button the live hook re-enables mid-review,
+# in refresh_skill_availability's argument order.
+_TRAIN_BUTTON_KEYS = {
+    "Smithing": "smith_btn",
+    "Crafting": "craft_btn",
+    "Fletching": "fletch_btn",
+    "Firemaking": "firemaking_btn",
+    "Hunter": "hunter_btn",
+    "Cooking": "cooking_btn",
+    "Runecrafting": "runecrafting_btn",
+}
+
+
 def refresh_skill_availability(
     can_smelt_any_bar: bool,
     can_craft_any_item: bool,
@@ -1370,52 +1358,17 @@ def refresh_skill_availability(
     Never auto-selects the skill; users must choose it explicitly.
     """
     try:
-        button_specs = (
-            (
-                "smith_btn",
-                can_smelt_any_bar,
-                "Smithing",
-                "Mine ores until you can smelt a bar.",
-            ),
-            (
-                "craft_btn",
-                can_craft_any_item,
-                "Crafting",
-                "Gather materials or level up to craft an item.",
-            ),
-            (
-                "fletch_btn",
-                can_fletch_any_item,
-                "Fletching",
-                "Cut logs or level up to fletch an item.",
-            ),
-            (
-                "firemaking_btn",
-                can_firemake_any_item,
-                "Firemaking",
-                "Cut or acquire logs before training Firemaking.",
-            ),
-            (
-                "hunter_btn",
-                can_hunt_any_item,
-                "Hunter",
-                "Gather jars/materials, complete unlocks, or level up before training Hunter.",
-            ),
-            (
-                "cooking_btn",
-                can_cook_any_item,
-                "Cooking",
-                "Gather raw food or prep ingredients before training Cooking.",
-            ),
-            (
-                "runecrafting_btn",
-                can_runecraft_any_item,
-                "Runecrafting",
-                "Complete Rune Mysteries and gather essence plus altar access.",
-            ),
+        availability = (
+            can_smelt_any_bar,
+            can_craft_any_item,
+            can_fletch_any_item,
+            can_firemake_any_item,
+            can_hunt_any_item,
+            can_cook_any_item,
+            can_runecraft_any_item,
         )
         buttons = []
-        for key, available, skill_name, unavailable_tooltip in button_specs:
+        for (skill_name, key), available in zip(_TRAIN_BUTTON_KEYS.items(), availability):
             button = _MAIN_MENU_CTX.get(key)
             if button is None:
                 continue
@@ -1423,7 +1376,7 @@ def refresh_skill_availability(
             is_current = bool(button.property("ankiscapeCurrentlyTraining"))
             button.setEnabled(bool(available) and not is_current)
             if not is_current:
-                button.setToolTip(skill_name if available else unavailable_tooltip)
+                button.setToolTip(skill_name if available else _TRAIN_UNAVAILABLE_TOOLTIPS[skill_name])
 
         if any(button.isEnabled() for button in buttons):
             warn = _MAIN_MENU_CTX.get("warn_label")
@@ -4039,10 +3992,13 @@ def ensure_review_hud() -> None:
         pass
 
 def update_review_hud(player_data: dict, current_skill: str) -> None:
-    """Update and show the Review HUD based on current data."""
+    """Update and show the Review HUD based on current data, and the menu's queue controls."""
     try:
         if not HAS_QT:
             return
+        from .ui_action_queue import notify_action_queue_changed
+
+        notify_action_queue_changed()
         # Respect setting to fully disable the review HUD visuals
         if not get_config_bool("ankiscape_review_hud_enabled", True):
             try:
@@ -4765,6 +4721,7 @@ def show_main_menu(
     initial_global_tab=None,
     on_check_achievements=None,
     on_save_player_data=None,
+    on_action_queue_command=None,
 ):
     """Show global sections and the registry-driven Skills hub.
 
@@ -4925,7 +4882,19 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
+    from .ui_action_queue import ActionQueuePanel, activity_queue_control, menu_queue_command, surface_queue_control
+    from .ui_dnd_favourite import DndFavouriteControls
 
+    def _after_queue_command(result: dict) -> None:
+        warn.setText(result["message"])
+        # Adding to an idle queue starts its entry at once, as Start would.
+        if result["active"] in _active_choices and result["active"] != state["active"]:
+            state["active"] = result["active"]
+            _refresh_active_label()
+            ctx.refresh("quests")
+            _render_panel()
+
+    queue_command = menu_queue_command(on_action_queue_command, _after_queue_command)
     ctx = MainMenuCtx(
         player_data=player_data,
         dialog=dialog,
@@ -4938,6 +4907,7 @@ def show_main_menu(
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_agility_command=on_agility_command,
         on_achievement_diary_command=on_achievement_diary_command,
+        on_action_queue_command=queue_command,
     )
     # Test seam: lets offscreen tests fire a cross-tab refresh at a tab that has
     # not been built yet. Harmless in production.
@@ -19993,81 +19963,16 @@ def show_main_menu(
             },
         }
 
+        activity_queue_add = activity_queue_control(player_data, queue_command, lambda: visible_detail_id["id"])
         activity_change_button = QPushButton("‹ Choose another activity")
         activity_change_button.setObjectName("activityChooseAnotherButton")
         activity_change_button.setAccessibleName("Choose another activity")
 
-        # Keep the pass-3 detail-card star as a secondary route. The pass-4
-        # primary route is the tree-row context menu below.
-        activity_favourite_button = QToolButton()
-        activity_favourite_button.setObjectName("activityFavouriteButton")
-        activity_favourite_button.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        def _refresh_activity_favourite(activity_id: object, show_detail: bool) -> None:
-            view = dnd_favourite_detail_button_view_pure(
-                player_data,
-                activity_id,
-                show_detail=show_detail,
-                can_toggle=on_favourite_dnd is not None,
-            )
-            activity_favourite_button.setVisible(bool(view["visible"]))
-            activity_favourite_button.setEnabled(bool(view["enabled"]))
-            if not view["visible"]:
-                return
-            activity_favourite_button.setText(str(view["text"]))
-            activity_favourite_button.setToolTip(str(view["tooltip"]))
-            activity_favourite_button.setAccessibleName(str(view["tooltip"]))
-
-        def _toggle_activity_favourite(activity_id: object = "") -> None:
-            target = str(activity_id or visible_detail_id["id"] or "")
-            if on_favourite_dnd is None or not target:
-                return
-            result = on_favourite_dnd(target) or {}
-            if not result.get("ok", False):
-                show_error_message(
-                    "Reviewer badge",
-                    str(result.get("message", "That Distraction cannot be watched.")),
-                )
-            _refresh_activity_favourite(
-                target, target == str(visible_detail_id["id"] or "")
-            )
-
-        activity_favourite_button.clicked.connect(
-            lambda _checked=False: _toggle_activity_favourite()
+        dnd_favourite = DndFavouriteControls(
+            player_data, tree, on_favourite_dnd, lambda: visible_detail_id["id"], show_error_message
         )
-
-        def _build_activity_context_menu(activity_id: object) -> QMenu:
-            view = dnd_favourite_context_menu_view_pure(
-                player_data,
-                activity_id,
-                can_toggle=on_favourite_dnd is not None,
-            )
-            menu = QMenu(tree)
-            if not view["visible"]:
-                return menu
-            target = str(activity_id or "")
-            action = menu.addAction(str(view["label"]))
-            action.setObjectName("activityNotificationToggleAction")
-            action.setEnabled(bool(view["enabled"]))
-            action.triggered.connect(
-                lambda _checked=False: _toggle_activity_favourite(target)
-            )
-            return menu
-
-        def _activity_context_menu(pos: QPoint) -> None:
-            item = tree.itemAt(pos)
-            if item is None:
-                return
-            menu = _build_activity_context_menu(
-                item.data(0, Qt.ItemDataRole.UserRole)
-            )
-            if menu.isEmpty():
-                return
-            menu.exec(tree.viewport().mapToGlobal(pos))
-
         if is_activities:
-            tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            tree.customContextMenuRequested.connect(_activity_context_menu)
+            dnd_favourite.attach_row_menu()
 
         def _show_activity_detail(activity_id: object) -> None:
             selected = detail_cards.get(str(activity_id or ""))
@@ -20075,7 +19980,7 @@ def show_main_menu(
             show_detail = is_activities and selected_widget is not None
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
-            _refresh_activity_favourite(activity_id, show_detail)
+            dnd_favourite.refresh(activity_id, show_detail)
             activity_list.filter_bar.setVisible(not show_detail)
             tree.setVisible(not show_detail)
             if not show_detail and tree.currentItem() is not None:
@@ -20092,6 +19997,8 @@ def show_main_menu(
             visible_detail_id["id"] = (
                 str(activity_id or "") if show_detail else ""
             )
+            activity_queue_add.setVisible(show_detail)
+            activity_queue_add.refresh()
             world_events_refresher["call"]()
 
         def _show_activity_group(group: object) -> None:
@@ -20237,7 +20144,8 @@ def show_main_menu(
         activity_controls_layout.setContentsMargins(0, 0, 0, 0)
         activity_controls_layout.setSpacing(6)
         activity_controls_layout.addWidget(activity_change_button, 1)
-        activity_controls_layout.addWidget(activity_favourite_button)
+        activity_controls_layout.addWidget(activity_queue_add)
+        activity_controls_layout.addWidget(dnd_favourite.button)
         container_layout.addWidget(activity_controls)
         activity_change_button.clicked.connect(
             lambda _checked=False: _show_activity_detail("")
@@ -21312,13 +21220,7 @@ def show_main_menu(
         target_details_context["display_row"] = None
         # Drop stale references before rebuild; repopulated if Smithing/Crafting
         # is the visible panel so the live availability hook can re-enable them.
-        _MAIN_MENU_CTX["smith_btn"] = None
-        _MAIN_MENU_CTX["craft_btn"] = None
-        _MAIN_MENU_CTX["fletch_btn"] = None
-        _MAIN_MENU_CTX["firemaking_btn"] = None
-        _MAIN_MENU_CTX["hunter_btn"] = None
-        _MAIN_MENU_CTX["cooking_btn"] = None
-        _MAIN_MENU_CTX["runecrafting_btn"] = None
+        _MAIN_MENU_CTX.update(dict.fromkeys(_TRAIN_BUTTON_KEYS.values()))
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -21411,44 +21313,16 @@ def show_main_menu(
                     f" QPushButton:disabled {{ color: {dim_text_css(train_btn)}; }}"
                 )
                 if not available:
-                    if name == "Smithing":
-                        train_btn.setToolTip("Mine ores until you can smelt a bar.")
-                    elif name == "Crafting":
-                        train_btn.setToolTip("Gather materials or level up to craft an item.")
-                    elif name == "Fletching":
-                        train_btn.setToolTip("Cut logs or level up to fletch an item.")
-                    elif name == "Firemaking":
-                        train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
-                    elif name == "Hunter":
-                        train_btn.setToolTip("Gather jars/materials, complete unlocks, or level up before training Hunter.")
-                    elif name == "Cooking":
-                        train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
-                    elif name == "Runecrafting":
-                        train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
-                    elif name == "Prayer":
-                        train_btn.setToolTip(prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"])
-                    elif name == "Thieving":
-                        train_btn.setToolTip("Choose an unlocked target before training Thieving.")
-                    elif name == "Agility":
-                        train_btn.setToolTip("Choose an unlocked course or activity before training Agility.")
-                    elif name == _COMBAT_HUB_NAME:
-                        train_btn.setToolTip("Select an available enemy.")
+                    train_btn.setToolTip(
+                        prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"]
+                        if name == "Prayer"
+                        else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
+                    )
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
-            if name == "Smithing":
-                _MAIN_MENU_CTX["smith_btn"] = train_btn
-            elif name == "Crafting":
-                _MAIN_MENU_CTX["craft_btn"] = train_btn
-            elif name == "Fletching":
-                _MAIN_MENU_CTX["fletch_btn"] = train_btn
-            elif name == "Firemaking":
-                _MAIN_MENU_CTX["firemaking_btn"] = train_btn
-            elif name == "Hunter":
-                _MAIN_MENU_CTX["hunter_btn"] = train_btn
-            elif name == "Cooking":
-                _MAIN_MENU_CTX["cooking_btn"] = train_btn
-            elif name == "Runecrafting":
-                _MAIN_MENU_CTX["runecrafting_btn"] = train_btn
+            hl.addWidget(surface_queue_control(player_data, queue_command, name))
+            if name in _TRAIN_BUTTON_KEYS:
+                _MAIN_MENU_CTX[_TRAIN_BUTTON_KEYS[name]] = train_btn
         panel_layout.addWidget(header)
 
         details_panel = QWidget()
@@ -26582,6 +26456,7 @@ def show_main_menu(
     content_layout.addWidget(tabs, 1)
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
+    layout.addWidget(ActionQueuePanel(player_data, queue_command))
 
     # Footer controls stay outside the tab strip so Help remains at the
     # bottom-right beside the dialog action.

@@ -1,0 +1,82 @@
+"""The main menu's queue commands and count box, driven through the real add-on.
+
+The owner's case (Pass 17): the count box starts at the most the Bank allows,
+so a smelt entry with that count ends as done when the ore runs out, not as
+stopped short; the queue holds five entries and Clear drops the plan.
+"""
+
+from __future__ import annotations
+
+import unittest
+from unittest.mock import patch
+
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.menu_action_queue import action_bank_limit_pure, queue_add_view_pure
+from tests.action_queue.test_queue_reviews import _MINE_IRON, _SMELT_IRON, QueueProfile
+
+
+class BankLimitTest(unittest.TestCase):
+    def test_the_limit_counts_products_from_every_input_the_bank_holds(self):
+        bank = {"Iron ore": 37, "Logs": 3, "Rune essence": 10, "Arrow shafts": 30, "Feather": 20, "Red feather": 12}
+        save = {"inventory": bank, "runecrafting_level": 44}
+        for action, limit in (
+            (_SMELT_IRON, 37),
+            # One log whittles 15 shafts.
+            ({"kind": "skill", "skill": "Fletching", "target": "arrow_shafts"}, 45),
+            # Any feather colour flights an arrow: 32 feathers and 30 shafts make two batches of 15.
+            ({"kind": "skill", "skill": "Fletching", "target": "headless_arrows"}, 30),
+            # Air runes at Runecrafting 44 make five per essence.
+            ({"kind": "skill", "skill": "Runecrafting", "target": "craft_air_runes"}, 50),
+            (_MINE_IRON, None),
+            ({"kind": "combat", "target": "chicken", "combat_action": "attack"}, None),
+        ):
+            with self.subTest(action=action):
+                self.assertEqual(action_bank_limit_pure(save, action), limit)
+
+    def test_an_unlimited_action_starts_at_one_inventory(self):
+        view = queue_add_view_pure({"inventory": {}}, _MINE_IRON)
+        self.assertEqual((view["count"], view["unit"]), (28, "Iron ore"))
+
+
+class QueueMenuCommandTest(QueueProfile):
+    def _menu(self, addon):
+        captured = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        return captured["on_action_queue_command"]
+
+    def test_the_bank_default_runs_a_smelt_entry_to_done(self):
+        addon = self._queue_addon("ankiscape_queue_menu_default", **{"inventory": {"Iron ore": 10}})
+        command = self._menu(addon)
+        count = queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["count"]
+        self.assertEqual(count, 10)
+
+        result = command("add", {"action": _SMELT_IRON, "count": count})
+        self.assertEqual(result, {"ok": True, "active": "Smithing", "message": ""})
+        self.assertEqual(addon._state.current_skill, "Smithing")
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+
+        self.assertEqual(self._rows(addon), [("Smithing: Iron bar", "done", 10)])
+        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron bar done."])
+
+    def test_a_sixth_entry_is_refused_and_clear_keeps_the_running_action(self):
+        addon = self._queue_addon("ankiscape_queue_menu_cap")
+        command = self._menu(addon)
+        for _ in range(5):
+            self.assertTrue(command("add", {"action": _MINE_IRON, "count": 100})["ok"])
+
+        refused = command("add", {"action": _SMELT_IRON, "count": 100})
+        self.assertEqual(
+            refused,
+            {"ok": False, "active": "Mining", "message": "The queue holds 5 entries. Clear it to plan again."},
+        )
+        self.assertFalse(queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["enabled"])
+
+        self.assertTrue(command("clear", {})["ok"])
+        self.assertEqual(self._rows(addon), [])
+        self.assertEqual(addon._state.current_skill, "Mining")
+
+
+if __name__ == "__main__":
+    unittest.main()

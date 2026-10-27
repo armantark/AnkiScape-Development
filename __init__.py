@@ -248,7 +248,7 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
-from .core.action_queue import advance_action_queue, record_bankstanding_stop, resume_action
+from .core.action_queue import advance_action_queue, apply_action_queue_command, record_bankstanding_stop, resume_action
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
@@ -1586,7 +1586,6 @@ def _on_main_menu(
         return committed
 
     from functools import partial
-    import sys
 
     from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
     from .core.menu_wicked_hood import apply_wicked_hood_command
@@ -1598,9 +1597,7 @@ def _on_main_menu(
     )
 
     _set_cooking_target = partial(set_cooking_target, sys.modules[__name__])
-    _set_cooking_equipment_choice = partial(
-        set_cooking_equipment_choice, sys.modules[__name__]
-    )
+    _set_cooking_equipment_choice = partial(set_cooking_equipment_choice, sys.modules[__name__])
 
     def _set_brawling_wilderness_target(
         skill_id: str, target_id: str, enabled: bool
@@ -4323,6 +4320,7 @@ def _on_main_menu(
         initial_global_tab=initial_global_tab,
         on_check_achievements=check_achievements,
         on_save_player_data=save_player_data,
+        on_action_queue_command=partial(apply_action_queue_command, sys.modules[__name__]),
     )
 
 
