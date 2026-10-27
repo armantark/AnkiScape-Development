@@ -1,4 +1,5 @@
 import itertools
+import sys
 from unittest.mock import patch
 
 from tests.test_integration_smoke import _DummyCol, _DummyMW, _load_addon_as_package, types
@@ -98,6 +99,39 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             addon._state.player_data["review_event_log"][-1]["text"],
             "+25 XP · Smithing · +2 Iron bar · +1 Vial · −4 Iron ore",
         )
+
+    def test_a_potion_drunk_in_a_fight_reads_as_one_dose_used(self):
+        from tests.pace.test_combat_danger_stops import ENEMY
+        from tests.test_combat_logic import _player
+
+        for potion in ("Antipoison (3)", "Antipoison (1)"):
+            with self.subTest(potion=potion):
+                addon = _load_addon_as_package(f"ankiscape_drunk_{potion[-2]}_dose")
+                addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+                addon.storage_save_player_data = lambda _data, _skill: None
+                addon.update_review_event_log_drawer = lambda _data: None
+                addon._refresh_skill_availability = lambda: None
+                addon._advance_world_events_after_review = lambda: None
+                addon._save_player_data_if_anki_ready = lambda: None
+                addon._remember_review_award_snapshot = lambda _before: None
+                addon._review_action_multiplier = lambda: 10
+                player = _player(combat_auto_flee=False, combat_supply_loadout={"potions": {potion: 1}})
+                player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 1000, "enemy_attack_ticks_remaining": 0}
+                player["shop_market_clock"] = {"answered_cards": 7, "market_tick": 7}
+                addon._state.player_data = player
+                addon._state.current_skill = "Combat"
+                combat = sys.modules[f"{addon.__name__}.runtime.runtime_actions_combat"]
+                engine = sys.modules[f"{addon.__name__}.logic_pure.logic_pure_combat_engine"]
+
+                # Every roll lands, so the enemy's first hit poisons and the loaded dose cures it.
+                with patch.object(combat, "COMBAT_ENEMY_DATA", {"chicken": {**ENEMY, "poison_damage": 10}}), patch.object(
+                    engine, "_combat_roll_hit", lambda *_args, **_kwargs: (True, 10)
+                ), patch.object(addon.random, "random", lambda: 0.0):
+                    addon._state.exp_awarded = False
+                    addon.on_good_answer()
+
+                xp_row = next(row for row in player["review_event_log"] if row["kind"] == "xp")
+                self.assertTrue(xp_row["text"].endswith(f"XP · −1 {potion}"), xp_row["text"])
 
     def test_fractional_constitution_xp_is_not_displayed_as_zero(self):
         addon = _load_addon_as_package("ankiscape_fractional_constitution_xp")

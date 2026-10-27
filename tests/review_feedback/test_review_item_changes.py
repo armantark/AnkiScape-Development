@@ -20,23 +20,29 @@ class ReviewItemChangesTest(unittest.TestCase):
             "carried_inventory": {"smelt_iron_bar": {"Iron ore": 8}},
         }
         after = {
-            "inventory": {"Iron ore": 6, "Iron bar": 2, "Coins": 50, "Antipoison (3)": 0},
-            "carried_inventory": {"smelt_iron_bar": {"Iron ore": 4, "Iron bar": 2}},
+            "inventory": {"Iron ore": 6, "Iron bar": 2, "Coins": 50, "Antipoison (3)": 0, "Antipoison (2)": 1},
+            "carried_inventory": {"smelt_iron_bar": {"Iron ore": 4, "Iron bar": 2, "Antipoison (2)": 1}},
         }
 
         self.assertEqual(
             review_item_changes_pure(before, after),
-            {"Iron ore": -4, "Iron bar": 2, "Antipoison (3)": -1},
+            {"Iron ore": -4, "Iron bar": 2, "Antipoison (3)": -1, "Antipoison (2)": 1},
         )
+
+    def test_loading_fight_supplies_is_no_change_but_a_dose_drunk_from_them_is(self):
+        before = {"inventory": {"Antipoison (3)": 2}, "combat_supply_loadout": {"potions": {}}}
+        after = {"inventory": {"Antipoison (3)": 1}, "combat_supply_loadout": {"potions": {"Antipoison (2)": 1}}}
+
+        self.assertEqual(review_item_changes_pure(before, after), {"Antipoison (3)": -1, "Antipoison (2)": 1})
 
     def test_a_review_that_moved_no_items_has_no_changes(self):
         save = {"inventory": {"Iron ore": 10, "Bronze bar": 0}}
 
         self.assertEqual(review_item_changes_pure(save, {"inventory": {"Iron ore": 10}}), {})
 
-    def test_the_line_lists_gains_before_losses(self):
+    def test_the_line_lists_gains_before_losses_and_a_drink_as_its_dose_alone(self):
         self.assertEqual(
-            item_changes_text({"Iron ore": -4, "Antipoison (3)": -1, "Iron bar": 2}),
+            item_changes_text({"Iron ore": -4, "Antipoison (3)": -1, "Antipoison (2)": 1, "Iron bar": 2}),
             "+2 Iron bar · −4 Iron ore · −1 Antipoison (3)",
         )
 

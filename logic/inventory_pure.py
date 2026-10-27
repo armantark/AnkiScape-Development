@@ -659,20 +659,33 @@ def clamp_carried_view_to_bank(view: Any, bank: Any) -> dict[str, int]:
     return clamped
 
 
+def _owned_item_counts(player_data: Mapping[str, Any]) -> dict[str, int]:
+    """The Bank plus the combat supply loadout, the one store that takes items out of the Bank.
+
+    The carried pack is a view over the Bank, so the Bank already holds it.
+    """
+    loadout = player_data.get("combat_supply_loadout")
+    stores = [player_data.get("inventory"), *(loadout.values() if isinstance(loadout, Mapping) else ())]
+    counts: dict[str, int] = {}
+    for store in stores:
+        if isinstance(store, Mapping):
+            for item_name, count in store.items():
+                counts[item_name] = counts.get(item_name, 0) + _clean_int(count, 0)
+    return counts
+
+
 def review_item_changes_pure(
     before_player_data: Mapping[str, Any], after_player_data: Mapping[str, Any]
 ) -> dict[str, int]:
-    """Signed count of every item one review added to or took from the Bank and carried pack.
+    """Signed count of every item one review added to or took from the Bank, pack and combat supplies.
 
-    The pack is a view over the flat bank, so the bank's change already holds
-    the pack's; adding the view's own change would count a carried item twice.
+    A fight's food and potions leave the Bank when they are loaded, so a drink
+    or a bite from the loadout is a change, and loading one is not.
     """
-    before = before_player_data.get("inventory")
-    after = after_player_data.get("inventory")
-    before = before if isinstance(before, Mapping) else {}
-    after = after if isinstance(after, Mapping) else {}
+    before = _owned_item_counts(before_player_data)
+    after = _owned_item_counts(after_player_data)
     changes = {
-        item_name: _clean_int(after.get(item_name), 0) - _clean_int(before.get(item_name), 0)
+        item_name: after.get(item_name, 0) - before.get(item_name, 0)
         for item_name in dict.fromkeys([*before, *after])
     }
     return {item_name: change for item_name, change in changes.items() if change}
