@@ -91,8 +91,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         self.assertFalse(panel.isVisible())
         self.assertEqual(
             dialog.findChild(QLabel, "actionQueueEmptyLine").text(),
-            "Queue: empty. Set a count and choose Add to queue on a skill, or Add to queue on a quest."
-            " Up to 5 entries run from top to bottom once.",
+            "Queue: empty. Add up to 5 actions or quests. Entries run once, top to bottom.",
         )
 
         count.setValue(100)
@@ -110,7 +109,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         update_review_hud(pd, "Smithing")
         count = self._visible(dialog, QSpinBox, "queueCountBox")
         self.assertEqual((count.value(), count.suffix()), (0, " Iron platebody"))
-        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron bar: 0 in Bank, 100 made by entry 1")
+        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron bar: 0 in Bank, 100 to be made by entry 1")
 
     def test_the_fifth_entry_fills_the_queue_and_clear_empties_it(self):
         _pd, dialog = self._smithing_menu(**{"Iron ore": 3})

@@ -133,7 +133,7 @@ _MAKES_VERB = {"Mining": "mined", "Woodcutting": "cut", "Fishing": "caught", "Hu
 
 
 def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[str]:
-    """What the queue's unfinished entries will still make of ``items``: "100 mined by entry 1"."""
+    """What the queue's unfinished entries will still make of ``items``: "100 to be mined by entry 1"."""
     queue = action_queue_pure(player_data)
     parts = []
     for position in range(queue["index"], len(queue["entries"])):
@@ -141,12 +141,12 @@ def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> lis
         done = queue["done"] if position == queue["index"] else 0
         if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
             verb = _MAKES_VERB.get(entry["action"].get("skill"), "made")
-            parts.append(f"{max(0, entry['count'] - done):,} {verb} by entry {position + 1}")
+            parts.append(f"{max(0, entry['count'] - done):,} to be {verb} by entry {position + 1}")
     return parts
 
 
 def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
-    """Where an entry's inputs come from: "Iron ore: 0 in Bank, 100 mined by entry 1"; empty when it needs none."""
+    """Where an entry's inputs come from: "Iron ore: 0 in Bank, 100 to be mined by entry 1"; empty when none."""
     alternatives, _needs, _made = _inputs_and_yield(player_data, action)
     return " · ".join(
         f"{need[:1].upper()}{need[1:]}: "
@@ -228,10 +228,7 @@ def _panel_hint(view: Mapping[str, Any], running: str) -> str:
     return "Clear queue cancels the plan and stops its running entry. Stop training pauses it."
 
 
-_EMPTY_HINT = (
-    "Set a count and choose Add to queue on a skill, or Add to queue on a quest."
-    " Up to 5 entries run from top to bottom once."
-)
+_EMPTY_HINT = "Add up to 5 actions or quests. Entries run once, top to bottom."
 
 
 def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:

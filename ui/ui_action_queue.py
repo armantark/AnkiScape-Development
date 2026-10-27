@@ -103,14 +103,16 @@ if HAS_QT:
             self._record_for = record_for
             self._record = None
             self._has_count = False
-            layout = QHBoxLayout(self)
+            layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
-            layout.setSpacing(6)
+            layout.setSpacing(2)
+            # Its own full-width line, so a long "to be mined by entry 1" never squeezes the count box.
             self.materials = QLabel()
             self.materials.setObjectName("queueMaterials")
             self.materials.setWordWrap(True)
-            self.materials.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            self.materials.setStyleSheet("color: palette(text);")
+            self.materials.setStyleSheet(f"color: {dim_text_css(self.materials)};")
+            controls = QHBoxLayout()
+            controls.setSpacing(6)
             self.count_box = QSpinBox()
             self.count_box.setObjectName("queueCountBox")
             self.count_box.setAccessibleName("How many to queue")
@@ -123,9 +125,11 @@ if HAS_QT:
                 _BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}"
             )
             self.add_button.clicked.connect(self._add)
-            layout.addWidget(self.materials, 1)
-            layout.addWidget(self.count_box)
-            layout.addWidget(self.add_button)
+            layout.addWidget(self.materials)
+            controls.addStretch(1)
+            controls.addWidget(self.count_box)
+            controls.addWidget(self.add_button)
+            layout.addLayout(controls)
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
 
@@ -137,8 +141,8 @@ if HAS_QT:
                 typed = self._queue.typed if self._queue is not None else {}
                 self.count_box.setValue(typed.get(_record_key(record), view["count"]))
             self._has_count = view["has_count"]
-            # An empty line still holds the row's free width, so the box and button stay right-aligned.
             self.materials.setText(view["materials"])
+            self.materials.setVisible(bool(view["materials"]))
             self.count_box.setVisible(view["has_count"])
             self.count_box.setSuffix(f" {view['unit']}")
             self.count_box.setToolTip(view["count_tooltip"])
