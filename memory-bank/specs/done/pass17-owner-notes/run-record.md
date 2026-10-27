@@ -62,8 +62,8 @@ It is Qt bug QTBUG-149612 in the macOS accessibility bridge, fixed upstream in Q
 
 Ranked by cost in this run. Each takes the first rung that fits: a structure change, then a check, then a rule.
 
-1. **Native checks crash under computer use (structure).** Three of five Terra runs ended in the Qt 6.11 crash above,
-   and Codex paid for each. Recommended: a ticket that removes the reproducible Utilities-search path (filter
+1. **Native checks crash under computer use (structure).** Four of five Terra runs (terra-2 to terra-5) ended in the
+   Qt 6.11 crash above, and Codex paid for each. Recommended: a ticket that removes the reproducible Utilities-search path (filter
    without `sortItems` resets), and a native runner that attaches the newest Anki crash report and reports this
    stack as "blocked: known Qt accessibility crash" instead of "fail".
 2. **Offscreen captures missed a macOS-only overlap (check).** The combat panel passed every offscreen capture and
@@ -73,8 +73,8 @@ Ranked by cost in this run. Each takes the first rung that fits: a structure cha
 3. **Eight known local failures on the MacBook (structure).** Missing Pillow and `aqt` in Homebrew `python3` and a
    home-folder game-source path made every implementer re-prove the same eight failures; under `.venv-qt` the
    Pillow tests pass. Recommended: `run_tests.py` uses `.venv-qt/bin/python` when it exists.
-4. **A serial full plain lane took 30 to 40 minutes under load (structure).** `--processes 4` took about 8.
-   Recommended: make four processes the default.
+4. **A serial full plain lane took 30 to 40 minutes under load (structure).** `--processes 4` took 8 to 13 minutes
+   (498.6 s for ticket 02, 775.7 s for ticket 09). Recommended: make four processes the default.
 5. **Rebases duplicated play-checklist lines twice (check).** Recommended: the docs audit refuses identical
    checklist lines.
 6. **A Kimi delegate started without its model ID and ran the inherited model (check).** Recommended: the fleet's
