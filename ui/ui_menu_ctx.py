@@ -43,7 +43,7 @@ class MainMenuCtx:
     # Lazily materializes the already-wired activity reward controls so the Shop
     # tab can re-home them without duplicating reducers or command callbacks.
     ensure_reward_shop_sources: Optional[Callable[[], Any]] = None
-    # The action queue's add, clear and resume, for the Quests tab's "Add to queue".
+    # The menu's action queue command (add, remove, clear, resume), for the Quests tab's "Add to queue".
     on_action_queue_command: Optional[Callable[[str, dict], Any]] = None
     refreshers: dict = field(default_factory=dict)
 

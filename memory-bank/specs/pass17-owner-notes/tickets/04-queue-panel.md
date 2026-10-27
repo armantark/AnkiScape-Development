@@ -4,9 +4,9 @@
 
 **Blocked by:** 03 (Action queue engine), 05 (Mouse wheel guard)
 
-**Status:** open
+**Status:** done
 
-- [ ] Adding, counting, the five-entry cap, and Clear work through the real widgets offscreen.
-- [ ] The default count equals the most the Bank allows for that action now.
-- [ ] Hill-climb rounds recorded; the probe passes and the taste vote approves, or five rounds end with the best candidate reported.
-- [ ] Offscreen captures at 560 points tall, dark and light, `text_fit_defects` clean; one play-checklist line added.
+- [x] Adding, counting, the five-entry cap, and Clear work through the real widgets offscreen.
+- [x] The default count equals the most the Bank allows for that action now.
+- [x] Hill-climb rounds recorded; the probe passes and the taste vote approves, or five rounds end with the best candidate reported.
+- [x] Offscreen captures at 560 points tall, dark and light, `text_fit_defects` clean; one play-checklist line added.
