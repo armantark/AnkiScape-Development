@@ -24,3 +24,7 @@ Owner authorization: "Remove the causes of AnkiScape's open papercuts, one class
 
 - The tenth and final class is the shared counter-speed reader, already fixed before this batch. Its original incident (baseline line 694) moved separately with existing runtime/UI parity proof. Batch total: ten classes; no further class will be repaired in this run.
 - Main advanced to 851e1fc62426eb795df4179dc4f3d9d703daf186. The branch incorporated it through merge 85fe29550fe71fb62322e3888da39fbaf5d19480. The interrupted serial lane remains unaccepted; the full parallel plain lane runs against the combined source.
+
+- The full combined-source plain lane passed: Ran 6380 tests in 566.373s, OK (skipped=720).
+- The first promotion command refused before any lane because another gate owns the landing lock. Its exact refusal is retained in /tmp/papercuts-gate-lock-refusal.log and the open log. The other gate remains untouched.
+- Promotion ownership transfers to one Opus operator in the same checkout: wait for the existing lock to disappear, integrate main if needed, run the exact remote-lane gate, and land only a complete passing receipt. Root freezes source edits until that operator returns, then owns the results artifact. The operator cannot repair additional cause classes, alter limits, or change any source file independently.
