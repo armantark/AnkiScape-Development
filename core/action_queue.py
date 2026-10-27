@@ -39,6 +39,7 @@ from .last_action import (
     LAST_ACTION_KEY,
     last_action_name_pure,
     last_action_record_pure,
+    refresh_review_hud,
     resume_button_view_pure,
     resume_last_action,
     saved_last_action_pure,
@@ -261,7 +262,7 @@ def _commit_run(addon, queue: dict[str, Any]) -> bool:
 
     committed = addon.commit_direct_action(_change, after_apply=_select)
     if committed:
-        addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+        refresh_review_hud(addon)
     return committed
 
 
@@ -349,7 +350,7 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
         ok = remove_action_queue_entry(addon, int(payload["position"]))
     else:
         raise ValueError(f"Unknown action queue command: {command!r}")
-    addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+    refresh_review_hud(addon)
     return {"ok": ok, "active": addon._state.current_skill, "message": message}
 
 
@@ -525,10 +526,14 @@ def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | No
 
 
 def unexplained_stop_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
-    """A stop given no reason: the generic reason it records, and the queue position whose entry it may pass."""
+    """A stop given no reason, as it starts: the generic reason it records and what it may replace.
+
+    That is the queue position whose entry it may pass and the last action it may write over.
+    """
     return {
         "reason": generic_stop_reason_pure(player_data, current_skill),
         "position": action_queue_pure(player_data)["index"],
+        "last_action": player_data.get(LAST_ACTION_KEY),
     }
 
 
@@ -538,7 +543,8 @@ def refine_stop_reason(addon, stop: Mapping[str, Any] | None, reason: str) -> No
     Most review handlers stop their action first and say why after, so the
     stop records a generic reason. The refusal's own words replace it in the
     Bankstanding notice and its log line, the last action that Resume shows,
-    and the queue entry this stop passed with its log line. ``stop`` is None
+    and the queue entry this stop passed with its log line; a last action or
+    entry an earlier stop wrote with the same words keeps them. ``stop`` is None
     when the handler stopped nothing or gave its stop a reason; only a pending
     notice takes the new words then.
     """
@@ -550,7 +556,9 @@ def refine_stop_reason(addon, stop: Mapping[str, Any] | None, reason: str) -> No
     if stop is None:
         return
     record = player_data.get(LAST_ACTION_KEY)
-    if isinstance(record, dict) and record.get("reason") == stop["reason"]:
+    # The stop saves a new record whenever it records one, so the record held
+    # before it, even one with equal words, belongs to an earlier stop.
+    if record is not stop["last_action"] and isinstance(record, dict) and record.get("reason") == stop["reason"]:
         player_data[LAST_ACTION_KEY] = {**record, "reason": reason}
     _refine_passed_entry(player_data, stop, reason)
 

@@ -200,11 +200,16 @@ def start_action(addon, record: Mapping[str, Any], extra_values: Mapping[str, An
         lambda _current: ({**updated, **(extra_values or {})}, True), selected_skill=review_action
     )
     if committed:
-        try:
-            addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
-        except Exception:
-            pass
+        refresh_review_hud(addon)
     return committed
+
+
+def refresh_review_hud(addon) -> None:
+    """Redraw the review HUD after a committed change; a HUD that cannot draw leaves the save as committed."""
+    try:
+        addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+    except Exception:
+        pass
 
 
 def _start_refusal(addon, record: Mapping[str, Any]) -> tuple[str, str] | None:

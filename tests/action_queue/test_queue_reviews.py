@@ -309,3 +309,20 @@ class ActionQueueReviewTest(QueueProfile):
         self.assertEqual(addon._state.player_data["last_action"]["reason"], reason)
         self.assertEqual(action_queue_pure(addon._state.player_data)["entries"][0]["stopped"], generic)
         self.assertIn(older_line, self._log(addon))
+
+    def test_a_stop_the_queue_takes_over_leaves_an_older_last_action_alone(self):
+        addon = self._queue_addon(
+            "ankiscape_queue_late_reason_last_action",
+            (_MINE_IRON, 30),
+            ({"kind": "skill", "skill": "Agility", "target": "gnome_normal"}, 1),
+            toolbelt={"mining": []},
+            agility_level=40,
+        )
+        # An older Mining stop that gave no reason is still the action Resume would offer.
+        older = {**_MINE_IRON, "reason": "Mining could not continue."}
+        addon._state.player_data["last_action"] = dict(older)
+
+        self._answer(addon)
+
+        self.assertEqual(addon._state.current_skill, "Agility")
+        self.assertEqual(addon._state.player_data["last_action"], older)

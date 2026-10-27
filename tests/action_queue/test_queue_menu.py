@@ -133,6 +133,17 @@ class QueueMenuCommandTest(QueueProfile):
         self.assertEqual(command("resume", {}), {"ok": True, "active": "Mining", "message": ""})
         self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
 
+    def test_a_hud_that_cannot_draw_leaves_each_committed_command_in_place(self):
+        addon = self._queue_addon("ankiscape_queue_menu_hud")
+        command = self._menu(addon)
+
+        with patch.object(addon, "update_review_hud", side_effect=RuntimeError("no reviewer")):
+            self.assertEqual(command("add", {"action": _MINE_IRON, "count": 30}), {"ok": True, "active": "Mining", "message": ""})
+            self.assertTrue(command("clear", {})["ok"])
+
+        self.assertEqual(self._rows(addon), [])
+        self.assertEqual(addon._state.player_data["last_action"]["skill"], "Mining")
+
 
 if __name__ == "__main__":
     unittest.main()
