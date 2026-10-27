@@ -1,7 +1,7 @@
 import copy
 import unittest
 from typing import Dict, FrozenSet, Tuple
-
+from tests.habitat.fixtures import ready_shadow_habitat
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import (
     KINGS_RANSOM_SCROLL_SOURCE,
@@ -2795,7 +2795,7 @@ class TestLogic(unittest.TestCase):
                     HUNTER_DATA,
                     spec["level"],
                     0.0,
-                    r_secondary_rolls=((0.0, 0.999999),) * len(tables),
+                    r_secondary_rolls=((0.0, 0.999999),) * len(tables), player_data=ready_shadow_habitat(target),
                 )
                 self.assertTrue(ok)
                 self.assertEqual(output_item, primary)
@@ -3018,8 +3018,8 @@ class TestLogic(unittest.TestCase):
         }
         for target, (level, expected_xp, tool, output) in cases.items():
             with self.subTest(target=target):
-                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
-                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0)
+                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}, **ready_shadow_habitat(target)}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
+                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0, player_data=ready_shadow_habitat(target))
                 self.assertTrue(ok)
                 self.assertEqual(xp, expected_xp)
                 self.assertEqual(output_item, output)
@@ -5886,90 +5886,6 @@ class TestLogic(unittest.TestCase):
                 self.assertFalse(completed_again)
                 self.assertEqual(after_complete["quest_points"], 57)
 
-    def test_hazeel_cult_routes_grant_only_their_own_artifact(self):
-        quest_id = "hazeel_cult"
-        route_cases = (
-            (
-                "Side with Ceril Carnillean",
-                {"Carnillean armour": 1, "Coins": 2005},
-            ),
-            (
-                "Side with Hazeel's cult",
-                {"Coins": 2005, "Mark of Hazeel": 1},
-            ),
-        )
-        for route_id, expected_grants in route_cases:
-            with self.subTest(route=route_id):
-                player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-                inventory_before = dict(player_data["inventory"])
-                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
-                self.assertTrue(ok)
-                player_data, ok = apply_quest_route_choice_pure(
-                    player_data,
-                    quest_id,
-                    QUEST_DATA,
-                    route_id,
-                )
-                self.assertTrue(ok)
-
-                actions = player_data["quest_action_proofs"]
-                actions.append("Complete Hazeel Cult stage 1 objective")
-                player_data, ok, completed_now = apply_quest_progress_pure(
-                    player_data,
-                    quest_id,
-                    QUEST_DATA,
-                )
-                self.assertTrue(ok)
-                self.assertFalse(completed_now)
-
-                actions = player_data["quest_action_proofs"]
-                actions.append("Complete Hazeel Cult stage 2 objective")
-                if route_id == "Side with Ceril Carnillean":
-                    player_data.update(
-                        {
-                            "attack_level": 99,
-                            "constitution_level": 99,
-                            "defense_level": 99,
-                            "strength_level": 99,
-                        }
-                    )
-                    for expected_remaining in (1, 0):
-                        player_data, ok, result = apply_quest_combat_encounter_pure(
-                            player_data,
-                            quest_id,
-                            QUEST_DATA,
-                            "hazeel_cult_alomone_13",
-                        )
-                        self.assertTrue(ok, result)
-                        self.assertTrue(result["killed"], result)
-                        self.assertEqual(result["remaining_quantity"], expected_remaining)
-                player_data, ok, completed_now = apply_quest_progress_pure(
-                    player_data,
-                    quest_id,
-                    QUEST_DATA,
-                )
-                self.assertTrue(ok)
-                self.assertFalse(completed_now)
-                self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
-                if route_id == "Side with Ceril Carnillean":
-                    self.assertEqual(player_data["inventory"]["Carnillean armour"], 2)
-
-                actions = player_data["quest_action_proofs"]
-                actions.append("Complete Hazeel Cult stage 3 objective")
-                player_data, ok, completed_now = apply_quest_progress_pure(
-                    player_data,
-                    quest_id,
-                    QUEST_DATA,
-                )
-                self.assertTrue(ok)
-                self.assertTrue(completed_now)
-                grants = {
-                    item_name: amount - inventory_before.get(item_name, 0)
-                    for item_name, amount in player_data["inventory"].items()
-                    if amount > inventory_before.get(item_name, 0)
-                }
-                self.assertEqual(grants, expected_grants)
-
     def test_quest_route_choice_rejects_unstarted_implicit_stage_zero_choice(self):
         quest_id = "implicit_stage_zero_choice"
         route_id = "Take the hidden route"
@@ -6010,6 +5926,10 @@ class TestLogic(unittest.TestCase):
 
         player_data, ok = start_quest_pure(player_data, "hazeel_cult", QUEST_DATA)
         self.assertTrue(ok)
+        for _ in range(2):
+            player_data, ok, completed = apply_quest_progress_pure(player_data, "hazeel_cult", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed)
         hazeel_choices = quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA)
         self.assertEqual(hazeel_choices[0]["stage"], 1)
         self.assertEqual(

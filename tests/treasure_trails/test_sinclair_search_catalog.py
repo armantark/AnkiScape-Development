@@ -15,6 +15,7 @@ from ankiscape.data.treasure_trails_data import TREASURE_TRAILS_EASY_STEPS
 from ankiscape.logic import treasure_trails_logic as trails
 from tests import test_storage_runtime as storage_fixture
 from tests.test_treasure_trails import _draws
+from tests.treasure_trails import SEARCH_ROWS
 
 EXPECTED_SOURCE = (
     "RuneScape Wiki Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z); "
@@ -161,7 +162,7 @@ NEW_EXPECTED = {
     "simple_catherby_archery_shop_drawers": "Search the drawers in Catherby's Archery Shop.",
 }
 
-FINAL_CENSUS = 23
+FINAL_CENSUS = 30
 
 
 def fresh_player():
@@ -262,13 +263,13 @@ class SinclairSearchCatalogTest(unittest.TestCase):
 
     def test_pool_adds_exactly_eight_and_preserves_prior_rows(self):
         self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS),
-                         [*BASELINE_EXPECTED, *NEW_EXPECTED])
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 23)
-        self.assertEqual(FINAL_CENSUS, 23)
+                         [*BASELINE_EXPECTED, *NEW_EXPECTED, *(step_id for step_id, _ in SEARCH_ROWS)])
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 30)
+        self.assertEqual(FINAL_CENSUS, 30)
         for step_id, definition in BASELINE_EXPECTED.items():
             with self.subTest(prior_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], definition)
-        for step_id, text in NEW_EXPECTED.items():
+        for step_id, text in (*NEW_EXPECTED.items(), *SEARCH_ROWS):
             with self.subTest(new_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], {
                     'step_id': step_id, 'kind': 'simple', 'text': text,
@@ -278,7 +279,7 @@ class SinclairSearchCatalogTest(unittest.TestCase):
                             for key, row in TREASURE_TRAILS_EASY_STEPS.items()))
         kinds = [row['kind'] for row in TREASURE_TRAILS_EASY_STEPS.values()]
         self.assertEqual({kind: kinds.count(kind) for kind in ('simple', 'map', 'emote')},
-                         {'simple': 18, 'map': 2, 'emote': 3})
+                         {'simple': 25, 'map': 2, 'emote': 3})
 
     def test_each_new_clue_is_selected_displayed_and_resolved_from_bank(self):
         for step_id, text in NEW_EXPECTED.items():

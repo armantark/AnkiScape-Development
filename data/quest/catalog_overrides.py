@@ -10,6 +10,7 @@ from .choices import *
 from .definitions import *
 from .stage_overrides import *
 from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
+from .hazeel_opening import NEUTRAL_JOURNAL
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
 from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_JOURNAL_STAGES
 from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
@@ -107,10 +108,9 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
     ),
     "nature_spirit": (),
     "the_lost_tribe": (),
-    # Legends' Quest oldid 6529921 line 33; Sal's capture 20121018050049.
+    # Legends' Quest oldid 6529921 lines 28–40; Sal's capture 20121018050049.
     "legends_quest": (
         QuestSkillRequirement("agility", "Agility", 50),
-        QuestSkillRequirement("combat", "Combat", 75),
         QuestSkillRequirement("crafting", "Crafting", 50),
         QuestSkillRequirement("herblore", "Herblore", 45),
         QuestSkillRequirement("magic", "Magic", 56),
@@ -150,10 +150,10 @@ QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Druidic Ritual", "Troll Stronghold", "Death Plateau", "Agility 15", "Herblore 31",
     ),
     "nature_spirit": ("Priest in Peril", "The Restless Ghost"),
-    # Same period sources: Prayer 42 required; 43 recommended.
+    # Same period sources: Prayer 42 required; Combat 75 is advisory.
     "legends_quest": (
         "108 quest points", "Family Crest", "Heroes' Quest", "Shilo Village",
-        "Underground Pass", "Waterfall Quest", "Agility 50", "Combat 75",
+        "Underground Pass", "Waterfall Quest", "Agility 50",
         "Crafting 50", "Herblore 45", "Magic 56", "Mining 52", "Prayer 42",
         "Smithing 50", "Strength 50", "Thieving 50", "Woodcutting 50",
     ),
@@ -177,6 +177,14 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     BIOHAZARD_ID: len(BIOHAZARD_STAGES),
     WATERFALL_QUEST_ID: len(WATERFALL_QUEST_STAGES),
 }
+
+
+def _hazeel_journal_stages() -> Tuple[QuestStage, ...]:
+    raw = next(row for row in PRE_EOC_QUEST_CATALOG if row["id"] == HAZEEL_CULT_ID)
+    return tuple(
+        QuestStage(row["stage"], NEUTRAL_JOURNAL if row["stage"] == 1 else tuple(row["journal"]))
+        for row in raw["journal_stages"]
+    )
 
 
 def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
@@ -244,7 +252,32 @@ def _tower_of_life_journal_stages() -> Tuple[QuestStage, ...]:
     return tuple(stages)
 
 
+# The Grand Tree oldid 6450823, UTC 2012-10-21T20:56:52Z.
+# Retained packet tools/generation/quest_sources.json.gz key wiki.wikitext_the_grand_tree_old;
+# literal body SHA-256 4a18eb0d6e3b7a05ddb43ae616fc4f557d90cd497e74c3f53addf99ba3f13836.
+# Independent corroborating captures: Tip.It 20121119221116 and RuneHQ 20121107193758.
+def _grand_tree_journal_stages() -> Tuple[QuestStage, ...]:
+    row = next(
+        row for row in PRE_EOC_QUEST_CATALOG
+        if row["id"] == "the_grand_tree"
+    )
+    message = (
+        "A man came to me with the King's seal",  # Original source line 60.
+        "I gave the man Daconia rocks",  # Original source line 61 (visible wikilink label).
+        "and Daconia rocks will kill the tree!",  # Original source line 62.
+    )
+    return tuple(
+        QuestStage(
+            stage["stage"],
+            tuple(stage["journal"][:1]) + message + tuple(stage["journal"][1:])
+            if stage["stage"] == 2 else tuple(stage["journal"]),
+        )
+        for stage in row["journal_stages"]
+    )
+
+
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "the_grand_tree": _grand_tree_journal_stages(),
     "watchtower": _watchtower_opening.WATCHTOWER_JOURNAL_STAGES,
     "toktz_ket_dill": tuple(
         QuestStage(row["stage"], (_TOKTZ_PENDING_LINES[0],) if row["stage"] == 1 else tuple(row["journal"]))
@@ -341,6 +374,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
         if quest_row["id"] == "desert_treasure"
         for journal_row in quest_row["journal_stages"]
     ),
+    HAZEEL_CULT_ID: _hazeel_journal_stages(),
     # Walkthrough oldid 6387219 lines 58–65; Cyreg oldid 6222605 line 15;
     # memory-bank/design-thread-queue.md:2948. Post-completion fare timing is
     # owner-selected and lacks period consensus.

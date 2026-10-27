@@ -835,8 +835,8 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertIn("oldid=6579784", hazeel["choices"][0]["source"])
         hazeel_stage_1 = next(row for row in hazeel["stage_requirements"] if row["stage"] == 1)
-        self.assertEqual(hazeel_stage_1["required_actions"], ("Complete Hazeel Cult stage 1 objective",))
-        self.assertLess(len(hazeel_stage_1["required_actions"][0]), 80)
+        self.assertEqual(hazeel_stage_1["variant"], "carnillean")
+        self.assertNotIn("Complete Hazeel Cult stage 1 objective", hazeel_stage_1["required_actions"])
         self.assertIn("oldid=6579784", hazeel_stage_1["source"])
 
         cooks_by_stage = {row["stage"]: row for row in data["cooks_assistant"]["stage_requirements"]}

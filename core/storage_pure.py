@@ -323,7 +323,7 @@ from ..logic.vinesweeper_logic import (
     default_vinesweeper_state_pure,
     sanitize_vinesweeper_state_pure,
 )
-from ..logic.farming_logic import default_farming_state_pure, sanitize_farming_state_pure
+from ..logic.farming_logic import default_farming_state_pure, sanitize_farming_state_pure, default_herblore_habitat_state_pure, sanitize_herblore_habitat_state_pure
 from ..data.mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
 from ..data.smithing_data import (
     DEFAULT_SMITHING_TARGET,
@@ -766,7 +766,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
     data["vinesweeper"] = default_vinesweeper_state_pure()
-    data.update(default_farming_state_pure())
+    data.update(default_farming_state_pure() | default_herblore_habitat_state_pure())
     data.update(default_agility_state_pure())
     data["livid_farm"] = default_livid_farm_state_pure()
     data.update(default_review_context_state_pure())
@@ -2355,7 +2355,7 @@ def migrate_loaded_data(
     # Always repair invalid/dangling urn pointers and progress. This is a load
     # invariant, not a schema migration; recoverable partial urns remain valid.
     data.update(sanitize_urn_state_pure(data))
-    data.update(sanitize_farming_state_pure(data))
+    data.update(sanitize_farming_state_pure(data) | sanitize_herblore_habitat_state_pure(data))
     data.update(sanitize_agility_state_pure(data))
     data.update(sanitize_pyramid_plunder_state_pure(data))
     data.update(sanitize_werewolf_skullball_state_pure(data))

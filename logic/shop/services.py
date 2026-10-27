@@ -61,6 +61,8 @@ def preview_shop_service_pure(player_data: Mapping[str, Any], service_id: str, q
     service = SHOP_SERVICES.get(service_id)
     if service is None:
         return _denied("unknown_service", requested_quantity=quantity)
+    if service.get("action_type") == "build_habitat_feature":
+        return _preview_habitat_construction(player_data, service, quantity)
     if service.get("action_type") == "decant_potions_to_dose":
         return _preview_decant_potions(player_data, service, quantity)
     if service.get("action_type") == "fill_potion_flasks":
@@ -75,6 +77,8 @@ def apply_shop_service_pure(player_data: Mapping[str, Any], service_id: str, qua
     data = ensure_shop_state_pure(player_data)
     if service is None:
         return data, _denied("unknown_service", requested_quantity=quantity)
+    if service.get("action_type") == "build_habitat_feature":
+        return _apply_habitat_construction(data, service, quantity)
     if service.get("action_type") == "decant_potions_to_dose":
         return _apply_decant_potions(data, service, quantity)
     if service.get("action_type") == "fill_potion_flasks":
@@ -669,3 +673,34 @@ def _service_requirement_rows(
             }
         )
     return rows
+
+
+def _preview_habitat_construction(player_data, service, quantity):
+    if type(quantity) is not int or quantity != 1:
+        return _denied("Choose quantity 1 for construction.", requested_quantity=quantity, service_id=service["id"])
+    if player_data.get("habitat_feature") == "abandoned_house":
+        return _denied("The Abandoned house is already built.", requested_quantity=quantity, service_id=service["id"])
+    return _preview_service_like(player_data, service, quantity)
+
+
+def _apply_habitat_construction(data, service, quantity):
+    from ..farming.habitat_state import apply_abandoned_house_pure
+
+    preview = _preview_habitat_construction(data, service, quantity)
+    if not preview["allowed"]:
+        return data, preview
+    previous = data.get("habitat_feature")
+    updated, ok, reason = apply_abandoned_house_pure(data, paid=True)
+    if not ok:
+        return data, _denied(reason, service_id=service["id"])
+    event = _build_event(
+        updated, "service", service, quantity=1,
+        service_id=service["id"], item_name=service["display_name"],
+        total_price=preview["total_price"],
+        inventory_delta={"Coins": -preview["total_price"]}, stock_set={}, stock_delta={},
+    )
+    event["action_type"] = "build_habitat_feature"
+    event["habitat_feature_after"] = "abandoned_house"
+    event["inverse"]["habitat_feature_before"] = previous
+    _append_event(updated, event)
+    return updated, {**preview, "event_id": event["event_id"]}

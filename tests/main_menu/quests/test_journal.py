@@ -130,40 +130,6 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
         self.assertEqual(self._quest_choice_calls[-1], ("shield_of_arrav", "Join the Black Arm Gang"))
 
-    def test_quests_tab_hides_hazeel_side_choice_until_quest_starts(self) -> None:
-        pd = _make_player_data()
-        pd["current_quest"] = "hazeel_cult"
-        dialog = self._open(pd)
-        _open_quests_tab(dialog)
-
-        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        self.assertNotIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
-        action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
-        self.assertIsNotNone(action)
-        self.assertTrue(action.isEnabled())
-        self.assertIsNone(
-            dialog.findChild(QPushButton, "questChoice_hazeel_cult_side_with_hazeel_s_cult")
-        )
-
-        started_pd = _make_player_data()
-        started_pd["current_quest"] = "hazeel_cult"
-        started_pd["quests"]["hazeel_cult"] = {"started": True, "progress": 0, "completed": False}
-        dialog = self._open(started_pd)
-        _open_quests_tab(dialog)
-
-        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        self.assertIn("Blocked: Choose path: Ceril Carnillean or Hazeel's cult", labels)
-        action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
-        self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Hazeel's cult", action.toolTip())
-        cult = dialog.findChild(QPushButton, "questChoice_hazeel_cult_side_with_hazeel_s_cult")
-        self.assertIsNotNone(cult)
-        self.assertEqual(cult.text(), "Hazeel's cult")
-        cult.click()
-        QApplication.processEvents()
-        self.assertEqual(self._quest_choice_calls[-1], ("hazeel_cult", "Side with Hazeel's cult"))
-
     def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "demon_slayer"

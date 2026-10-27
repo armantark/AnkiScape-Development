@@ -100,6 +100,8 @@ from .shop.services import (
     apply_shop_service_pure,
     preview_shop_vendor_action_pure as preview_shop_vendor_action_pure,
     apply_shop_vendor_action_pure,
+    _preview_habitat_construction,
+    _apply_habitat_construction,
     _preview_service_like,
     _decant_potion_family,
     _decant_potions_delta,
@@ -526,6 +528,12 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
     inverse = event.get("inverse", {})
     _rollback_inventory_delta(data, inverse.get("inventory_delta", {}))
     _rollback_stock_set(data, inverse.get("stock_set", {}))
+    if (event.get("type") == "service"
+            and event.get("service_id") == "papa_mambo_build_abandoned_house"
+            and event.get("action_type") == "build_habitat_feature"
+            and event.get("habitat_feature_after") == "abandoned_house"
+            and "habitat_feature_before" in inverse):
+        data["habitat_feature"] = inverse["habitat_feature_before"]
     _undo_wilderness_ambush(data, event.get("wilderness_ambush"))
     retract_shop_event_quest_action_proofs_pure(data, event)
     _adjust_diary_transaction_count(data, event, -1)

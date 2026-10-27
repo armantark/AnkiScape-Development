@@ -413,9 +413,9 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             (4 / 256, _HABITAT_BLOSSOM_SEEDS),
         ),
         notes=(
-            "Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand "
-            "tracking, Shadow vine, and the red-blossom and abandoned-house Habitat "
-            "setup. One review represents the complete trail and persistent setup. "
+            "Shadow needs a healthy planted Red blossom and an Abandoned house. Setup and upkeep use owned supplies through normal Farming actions. "
+            "Buy missing Red seeds from Papa Mambo in Shop. The house is built automatically at current Construction 57; otherwise use Papa Mambo’s Build Abandoned house service for 57,000 coins. "
+            "An existing house is reused. Bushes and fruit trees are left alone; no Juju hunter potion is needed. "
             "Darkan independently rolls bush seeds at 8/256, one of the four "
             "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),

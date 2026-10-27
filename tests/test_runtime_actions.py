@@ -2,7 +2,7 @@ import copy
 import dataclasses
 import unittest
 from unittest.mock import patch
-
+from tests.habitat.fixtures import ready_shadow_habitat
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
@@ -4452,7 +4452,7 @@ class TestRuntimeActions(unittest.TestCase):
                     "inventory": {tool: 1},
                     "hunter_level": level,
                     "hunter_exp": 0,
-                    "current_hunter": target,
+                    "current_hunter": target, **ready_shadow_habitat(target),
                     "hunter_success_count": 0,
                     "completed_achievements": [],
                 }
@@ -4639,7 +4639,7 @@ class TestRuntimeActions(unittest.TestCase):
                     "inventory": {tool: 1},
                     "hunter_level": level,
                     "hunter_exp": 0,
-                    "current_hunter": target,
+                    "current_hunter": target, **ready_shadow_habitat(target),
                     "hunter_success_count": 0,
                     "completed_achievements": [],
                     "shattered_heart": default_shattered_heart_state_pure(),
