@@ -238,8 +238,10 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN`. Read each script for its default launcher and Darkan core pin. The scripts require the pinned jars in the local Gradle cache.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
-Seven tools read the Darkan thread's checkout at
-`/Users/ArmanTarkhanian1/Documents/2012scape with bots/` by absolute path:
+The Darkan thread's checkout on this MacBook is
+`/Users/armantarkhanian/Documents/2012scape with bots/`. These tools read it;
+some still carry historical `/Users/ArmanTarkhanian1/` defaults, so inspect
+the configured source path before a run:
 `audit_citation_drift.py`, `build_pre_eoc_quest_catalog.py`,
 `generate_construction_data.py`, `generate_npc_shop_data.py`,
 `generate_achievement_diary_data.py` through its harvest input,
@@ -271,7 +273,7 @@ Crafting backend parity data lives in `data/crafting_data.py`, with a detailed a
 
 Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits the ordinary smelt recipes, the anvil recipes, and the separate source-backed cannonball furnace process. Storage migrations convert `current_bar` to `current_smith` recipe IDs and normalize legacy bar names.
 
-Equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage migrations retain flat `equipment` state, remove `owned_equipment`, and supply real Combat levels for equipment gates.
+Equipment backend data lives in generated `data/equipment_data.py`; import the assembled `EQUIPMENT_ITEM_DATA` from `core.constants`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `data/cfg/items.yml` equipment blocks (`ANKISCAPE_GAME_MAIN` selects the checkout), and `data/mining_data.py` Mining bonus items. Storage migrations retain flat `equipment` state, remove `owned_equipment`, and supply real Combat levels for equipment gates.
 
 Feathers enter only through NPC shop stock and Combat drops. Do not add a
 Utility feather bridge; the dated
@@ -427,3 +429,5 @@ Manual verification should happen inside Anki when runtime behavior changes. Bro
 - The MacBook mirror serves one lane at a time; queue, admission and mirror waits are untimed, while `--timeout` starts after launch (`tools/run_remote_tests.py::_hold_mirror_lock`). Normal runners retain ticket registration order across gate waits; gate admission priority remains independent of those tickets. Kernel record locks release cancelled or killed waiters without deleting queue state. Ordinary busy notices are expected.
 - `tools/audit_asset_cutoff.py` writes its default tracked report even when the audit passes; use `--report <evidence-path>` for a non-mutating source probe (`tools/audit_asset_cutoff.py:39-44,618`).
 - Historical icon availability is specific to the source wiki: the first-Boneguard Crumble Undead sprite is retained from `rs3-fandom-period` at `2011-11-19T16:05:24Z`, with SHA-1 `263b75038c03b742bdfa93843623f38a656896b7` (`assets_provenance.json:31288-31300`); an absent runescape.wiki revision does not establish absent period art.
+
+A profile with no stored `ankiscape_review_action_multiplier` plays at 1×; a stored unreadable value sanitizes to 10×. `logic/pace/onboarding.py` preserves an existing player's pace and writes the recommendation for a new player; `tests/pace/test_game_speed_setting.py` and `tests/pace/test_pace_onboarding.py` prove the distinction.

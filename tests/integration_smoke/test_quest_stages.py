@@ -372,7 +372,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         addon._state.player_data = {
             "inventory": {"Magnet": 1},
             "current_quest": "witchs_house",
-            "quests": {"witchs_house": {"started": True, "progress": 4, "completed": False}},
+            "quests": {"witchs_house": {"started": True, "progress": 8, "completed": False}},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -386,7 +386,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
 
         self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertFalse(addon._state.player_data["quests"]["witchs_house"]["completed"])
-        self.assertEqual(addon._state.player_data["quests"]["witchs_house"]["progress"], 4)
+        self.assertEqual(addon._state.player_data["quests"]["witchs_house"]["progress"], 8)
         self.assertEqual(addon._state.player_data["quest_points"], 0)
         self.assertEqual(addon._state.player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["save"], 0)

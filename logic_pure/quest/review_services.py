@@ -6,6 +6,10 @@ from .enakhra import (
     enakhra_opening_blockers_pure, apply_enakhra_opening_action_pure,
 )
 from ...data.quest.enakhra_opening import QUEST_ID, PROOFS
+from .witchs_house import (
+    witchs_house_service_phase_pure, witchs_house_service_ready_pure,
+    apply_witchs_house_service_pure,
+)
 from .watchtower import (
     apply_watchtower_review_pure, watchtower_requirement_pure,
     watchtower_review_ready_pure, watchtower_phase_pure, watchtower_journal_row_pure,
@@ -15,9 +19,18 @@ from .murder_mystery import murder_mystery_journal_row_pure
 from ...logic.cold_war_greeting_logic import cold_war_journal_lines_pure
 
 
+def quest_review_service_phase_pure(player_data, quest_id, blockers):
+    return oronwen_phase_pure(player_data, quest_id) or witchs_house_service_phase_pure(player_data, quest_id, blockers)
+
+
+def quest_review_service_ready_pure(player_data, quest_id, blockers):
+    return (oronwen_review_ready_pure(player_data, quest_id, blockers)
+            or witchs_house_service_ready_pure(player_data, quest_id, blockers))
+
+
 def quest_service_review_ready_pure(player_data, quest_id, blockers):
     if quest_id != QUEST_ID:
-        return oronwen_review_ready_pure(player_data, quest_id, blockers)
+        return quest_review_service_ready_pure(player_data, quest_id, blockers)
     if enakhra_opening_phase_pure(player_data) in (None, "placed", "inconsistent"):
         return False
     if any(blocker.get("kind") != "required_action" or blocker.get("action_id") != PROOFS["place_base"] for blocker in blockers):
@@ -27,7 +40,10 @@ def quest_service_review_ready_pure(player_data, quest_id, blockers):
 
 def apply_quest_service_review_pure(player_data, quest_id, blockers):
     if quest_id != QUEST_ID:
-        return apply_oronwen_review_pure(player_data, quest_id, blockers)
+        data, result = apply_oronwen_review_pure(player_data, quest_id, blockers)
+        if result != "unchanged":
+            return data, result
+        return apply_witchs_house_service_pure(player_data, quest_id, blockers)
     if not quest_service_review_ready_pure(player_data, quest_id, blockers):
         return player_data, "unchanged"
     descriptor = enakhra_opening_next_action_pure(player_data)

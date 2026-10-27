@@ -1,0 +1,36 @@
+HTTP/2 200 
+server: nginx
+date: Sat, 24 Oct 2026 11:07:05 GMT
+content-type: text/html;charset=UTF8
+x-archive-orig-server: Apache-Coyote/1.1
+x-archive-orig-x-powered-by: JSP/2.2
+x-archive-orig-cache-control: private, s-maxage=0, max-age=0, must-revalidate
+x-archive-orig-expires: Thu, 01 Jan 1970 00:00:00 GMT
+x-archive-orig-pragma: no-cache
+x-archive-orig-content-language: en
+x-archive-orig-date: Thu, 29 Mar 2012 10:59:23 GMT
+x-archive-orig-connection: close
+cache-control: max-age=1800
+accept-ranges: bytes
+memento-datetime: Thu, 29 Mar 2012 10:59:24 GMT
+link: <http://services.runescape.com:80/m=rswiki/en/Witch%2527s_House>; rel="original", <https://web.archive.org/web/timemap/link/http://services.runescape.com:80/m=rswiki/en/Witch%2527s_House>; rel="timemap"; type="application/link-format", <https://web.archive.org/web/http://services.runescape.com:80/m=rswiki/en/Witch%2527s_House>; rel="timegate"
+content-security-policy: default-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: archive.org web.archive.org web-static.archive.org wayback-api.archive.org athena.archive.org analytics.archive.org pragma.archivelab.org wwwb-events.archive.org
+x-archive-src: alexa20120330-17/52_27_20120329105846_crawl102.arc.gz
+server-timing: captures_list;dur=0.475033, exclusion.robots;dur=0.055007, exclusion.robots.policy;dur=0.045187, esindex;dur=0.008436, cdx.remote;dur=8.640271, LoadShardBlock;dur=214.568292, PetaboxLoader3.datanode;dur=83.920959, PetaboxLoader3.resolve;dur=60.858193, load_resource;dur=101.070854
+x-app-server: wwwb-app264-dc8
+x-ts: 200
+x-tr: 342
+server-timing: TR;dur=0,Tw;dur=0,Tc;dur=0
+set-cookie: wb-p-SERVER=wwwb-app264; path=/
+cache-control: private
+x-location: All
+x-as: 20001
+x-rl: 0
+x-na: 0
+x-page-cache: MISS
+server-timing: MISS
+x-nid: TWC-20001-PACWEST
+referrer-policy: no-referrer-when-downgrade
+permissions-policy: interest-cohort=()
+x-sd: 0
+

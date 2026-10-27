@@ -1,0 +1,35 @@
+HTTP/2 301 
+date: Sat, 24 Oct 2026 11:09:28 GMT
+content-length: 0
+location: https://runescape.wiki/w/Index.php?action=raw&oldid=6541708&title=Magnet_%28Witch%27s_House%29
+cache-control: max-age=3600
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+vary: accept-encoding
+content-security-policy: frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+server: cloudflare
+cf-ray: a4f8878d8e1d4e81-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP/2 200 
+date: Sat, 24 Oct 2026 11:09:28 GMT
+content-type: text/x-wiki; charset=UTF-8
+content-length: 777
+cf-ray: a4f8878dbe954e81-LAX
+cf-cache-status: MISS
+accept-ranges: bytes
+access-control-allow-origin: *
+cache-control: private, must-revalidate, max-age=0, stale-while-revalidate=90
+last-modified: Wed, 07 Nov 2012 23:03:25 GMT
+server: cloudflare
+set-cookie: wg_visitor=79d62942-87db-48e1-8743-76b596f7161b; expires=Mon, 23 Nov 2026 11:09:28 GMT; Max-Age=2592000; path=/; domain=.runescape.wiki;
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Accept-Encoding, Cookie, Authorization
+via: 1.1 google
+content-security-policy: frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+alt-svc: h3=":443"; ma=86400
+server-timing: upstream;dur=14.0
+x-content-type-options: nosniff
+x-request-id: 8bdac0e860cae309f71d9ad68c432b36
+x-server: nginx-5c974575b6-5q6lv
+

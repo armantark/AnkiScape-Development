@@ -7,6 +7,7 @@ from .elemental_workshop import opening_journal_rows_pure
 from .hazeel_journal import hazeel_journal_row_pure
 from .enakhra import enakhra_opening_journal_row_pure
 from .toktz_opening import toktz_opening_journal_row_pure
+from .witchs_house import witchs_house_journal_rows_pure
 
 
 def quest_current_stage_pure(player_data, quest_id, quest_data):
@@ -48,4 +49,5 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         row = hazeel_journal_row_pure(player_data, quest_id, row)
         row = toktz_opening_journal_row_pure(player_data, quest_id, row)
         rows.append(enakhra_opening_journal_row_pure(player_data, quest_id, row))
-    return opening_journal_rows_pure(player_data, quest_id, tuple(rows))
+    rows = opening_journal_rows_pure(player_data, quest_id, tuple(rows))
+    return witchs_house_journal_rows_pure(player_data, quest_id, rows)

@@ -1,0 +1,85 @@
+{{beta}}
+{{RSC page|Leather gloves}}
+{{Infobox Item
+|name = Leather gloves
+|image = [[File:Leather gloves.png|Leather gloves]]
+|release = [[23 June]] [[2001]]
+|update = New tailoring ability
+|members = No
+|quest = No
+|tradeable = Yes
+|stackable = No
+|high = 3
+|low = 2
+|destroy = Drop
+|store = 6
+|exchange = GEMW
+|examine = These will keep my hands warm!
+|weight = 0.2
+|equipable = Yes
+}}
+
+[[File:Leather gloves detail.png|left|100px|The leather gloves]]
+'''Leather gloves''' are basic gloves worn on the hands that offer slight bonuses to [[Defence]]. Players can make these gloves through the [[Crafting]] skill at level 1 from [[leather|soft leather]], granting 13.75 Crafting [[experience]]. A [[account|player]] must have a [[needle]] and a [[thread]] to make them. They can also be found in the Varrock museum, on the wall of materials needed to clean the rocks.
+
+Leather gloves can be fished with the [[big fishing net]] (giving no fishing experience). They also respawn south of the [[Edgeville]] bank and in [[Father Urhney]]'s hut in the [[Lumbridge Swamp]].
+
+There used to be an infinite stock of them at [[Thessalia's Fine Clothes]]. Now there are only 10 in stock. Players who have completed the [[Digsite]] quest may obtain them from the tool rack in the [[Varrock Museum]] (but they will need to drop the gloves to obtain more than one).
+
+The [[Gloves (Canifis)|Canifis gloves]] are coloured versions of these gloves.
+
+Leather gloves are the only kind of [[food]] that [[Creeping hand]]s will eat.
+
+{{Infobox Bonuses
+|slot = hands
+| astab = 0
+| aslash = 0
+| acrush = 0
+| amagic = 0
+| arange = 0
+| dstab = 0
+| dslash = +1
+| dcrush = +2
+| dmagic = 0
+| drange = 0
+| dsummon = +1
+| absorbmelee = 0%
+| absorbmagic = 0%
+| absorbranged = 0%
+| str = 0
+| rangestr = 0
+| magicdamage = 0%
+| prayer = 0
+| image = Full leather.png{{!}}120px
+| caption = A [[account|player]] wearing leather gloves on the hands.
+}}
+
+== Dropping monsters ==
+
+{{ItemDropsTableHead}}
+{{ItemDropsLine|Monster=Corpse archer|Combat=13|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Corpse mage|Combat=15|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Crawling Hand|Combat=7, 8, 11, 12|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Crawling corpse torso|Combat=7|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Skeleton (Lumbridge Catacombs)|Combat=11|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Skoblin|Combat=14, 15|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Spiritual warrior|Combat=115,123,125,134|Quantity=1|Rarity=Common}}
+{{ItemDropsLine|Monster=Corpse spider|Combat=3|Quantity=1|Rarity=Uncommon}}
+{{ItemDropsLine|Monster=Warped cockroach|Combat=1|Quantity=1|Rarity=Uncommon}} {{ItemDropsLine|Monster=Warped fly|Combat=5|Quantity=1|Rarity=Uncommon}}
+{{ItemDropsLine|Monster=Warped bat|Combat=12|Quantity=1|Rarity=Unknown}} 
+|}
+
+==Locations==
+This item can also be bought or sold at:
+* [[Thessalia's Fine Clothes]]
+===Spawns===
+This item spawns at these locations:
+* Edgeville, south of the bank.
+* [[Father Urhney]]'s House
+* The Phoenix Gang's weapon storage area.
+
+[[nl:Leather gloves]]
+[[fi:Leather gloves]]
+[[Category:Gloves]]
+[[Category:Armour]]
+[[Category:Items needed for an emote clue]]

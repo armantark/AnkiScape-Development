@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.grand_exchange_logic import (
-    GE_BUY_LIMIT_WINDOW_CARDS,
+    GE_BUY_LIMIT_WINDOW_TICKS,
     GE_SLOT_COUNT,
     advance_ge_market_tick_pure,
     apply_ge_frontend_action_pure,
@@ -823,7 +823,7 @@ class GrandExchangeLogicTest(unittest.TestCase):
         self.assertEqual(result["fills"], [])
         self.assertEqual(blocked["ge_player_orders"][0]["completed_quantity"], 2)
 
-        reset_tick = 8 + GE_BUY_LIMIT_WINDOW_CARDS
+        reset_tick = 8 + GE_BUY_LIMIT_WINDOW_TICKS
         reset, result = self._advance(
             blocked,
             market_tick=reset_tick,
