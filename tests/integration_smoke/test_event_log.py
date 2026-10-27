@@ -86,7 +86,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(rewards, ["reward"])
 
     def test_bankstanding_reason_backpatch_updates_the_live_sanitized_log(self):
-        from ankiscape.logic.review_strip_logic import sanitize_review_event_log_pure
+        from ankiscape.core.review_event_log import sanitize_review_event_log_pure
 
         addon = _load_addon_as_package("ankiscape_bankstanding_reason_backpatch")
         addon.mw = _DummyMW(_DummyCol())

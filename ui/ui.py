@@ -3452,11 +3452,11 @@ if HAS_QT:
             self.rows.clear()
             rendered_rows = []
             for entry in view.get("rows", ()):
+                repeat = str(entry["repeat_label"])
                 rendered_rows.append(
-                    '<div style="margin:0; padding:1px 3px; color:'
-                    + str(entry["foreground"])
-                    + ';">'
-                    + html.escape(str(entry["label"]))
+                    f'<div style="margin:0; padding:1px 3px; color:{entry["foreground"]};">'
+                    + html.escape(str(entry["label"]).removesuffix(repeat))
+                    + (f'<span style="color:{entry["repeat_foreground"]};">{repeat}</span>' if repeat else "")
                     + "</div>"
                 )
             self.rows.setHtml("".join(rendered_rows))

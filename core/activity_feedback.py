@@ -90,6 +90,12 @@ def combine_activity_feedback(messages, stop_reason: str = "") -> str:
     return _with_stop_reason(line, stop_reason)
 
 
+def item_changes_text(changes) -> str:
+    """"+2 Iron bar · −4 Iron ore": gains before losses, larger counts first."""
+    ordered = sorted(changes.items(), key=lambda change: (change[1] < 0, -abs(change[1]), change[0]))
+    return " · ".join(f"{'+' if count > 0 else '−'}{abs(count)} {item}" for item, count in ordered)
+
+
 def fish_flingers_card_feedback(before, after) -> str:
     """Describe a card that advanced the game without landing a catch."""
     if (

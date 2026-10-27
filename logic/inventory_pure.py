@@ -659,6 +659,25 @@ def clamp_carried_view_to_bank(view: Any, bank: Any) -> dict[str, int]:
     return clamped
 
 
+def review_item_changes_pure(
+    before_player_data: Mapping[str, Any], after_player_data: Mapping[str, Any]
+) -> dict[str, int]:
+    """Signed count of every item one review added to or took from the Bank and carried pack.
+
+    The pack is a view over the flat bank, so the bank's change already holds
+    the pack's; adding the view's own change would count a carried item twice.
+    """
+    before = before_player_data.get("inventory")
+    after = after_player_data.get("inventory")
+    before = before if isinstance(before, Mapping) else {}
+    after = after if isinstance(after, Mapping) else {}
+    changes = {
+        item_name: _clean_int(after.get(item_name), 0) - _clean_int(before.get(item_name), 0)
+        for item_name in dict.fromkeys([*before, *after])
+    }
+    return {item_name: change for item_name, change in changes.items() if change}
+
+
 def carried_keep_for(player_data: Mapping[str, Any], target_id: str) -> bool:
     """Whether a gathering target keeps its product (default) or drops it."""
     if not isinstance(player_data, Mapping):

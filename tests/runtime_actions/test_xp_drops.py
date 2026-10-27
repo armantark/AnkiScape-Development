@@ -61,9 +61,11 @@ class ReviewXpDropsTest(unittest.TestCase):
         }
         for _ in range(4):
             self._answer()
+        # The log names the bone each card used; the popup shows only what a card made.
         expected = [f"+{amount} XP · Prayer" for amount in (4, 5, 4, 5)]
+        logged = [f"{drop} · −1 Bones" for drop in expected]
         self.assertEqual(self.popup, expected)
-        self.assertEqual(self._xp_events(), expected)
+        self.assertEqual(self._xp_events(), logged)
         self.assertEqual(addon._state.player_data["prayer_exp"], 18.0)
         self.assertEqual(addon.mw.col.get_config("ankiscape_player_data")["prayer_exp"], 18.0)
         self.assertEqual(addon._state.player_data["inventory"]["Bones"], 0)
@@ -74,7 +76,7 @@ class ReviewXpDropsTest(unittest.TestCase):
         self.assertEqual(addon._state.player_data["prayer_exp"], 13.5)
         self._answer()
         self.assertEqual(self.popup[-1], expected[-1])
-        self.assertEqual(self._xp_events(), expected)
+        self.assertEqual(self._xp_events(), logged)
         self.assertEqual(addon._state.player_data["prayer_exp"], 18.0)
 
     def _finish_giant_rat(self, attack_exp, constitution_exp):
@@ -104,13 +106,13 @@ class ReviewXpDropsTest(unittest.TestCase):
 
     def test_combat_crossings_keep_the_same_multi_skill_popup_and_log(self):
         self._finish_giant_rat(0.7, 0.9)
-        expected = "Attack +1 XP · Constitution +1 XP"
+        expected = "Attack +1 XP · Constitution +1 XP · +1 Bones · +1 Raw rat meat"
         self.assertEqual(self._xp_events(), [expected])
         self.assertIn(expected, self.popup)
 
     def test_combat_omits_attack_when_only_constitution_crosses(self):
         self._finish_giant_rat(0.0, 0.9)
-        expected = "+1 XP · Constitution"
+        expected = "+1 XP · Constitution · +1 Bones · +1 Raw rat meat"
         self.assertEqual(self._xp_events(), [expected])
         self.assertIn(expected, self.popup)
 

@@ -22,6 +22,7 @@ import math
 
 from typing import Any, Callable, Collection, Mapping
 
+from ..core.review_event_log import sanitize_review_event_log_pure
 from ..core.action_registry import (
     review_action_display_names,
     review_action_handler_key,
@@ -116,14 +117,20 @@ WORLD_EVENT_OUTCOME_REVIEWS = 10
 # trains more names the rest in its caption instead.
 MAX_STRIP_XP_BARS = 2
 
-# The owner's retention answer (design-thread 4.15): weeks of history, flat
-# save size. Oldest rows trim on write once the window is full.
-REVIEW_EVENT_LOG_RETAINED = 2000
-
 # The event drawer opens on the ten newest floating notifications and expands in
 # ten-row pages without discarding older emissions.
 REVIEW_EVENT_LOG_DEFAULT_LIMIT = 10
 REVIEW_EVENT_LOG_PAGE_SIZE = 10
+
+# Green and yellow belong to the Grand Exchange drawer alone, so the event log
+# stays on neutral tones. The drawer always sits on the dark HUD backing, so
+# the muted orange "repeat" keeps contrast with that backing in both themes.
+_EVENT_LOG_TONES = {
+    "xp": "#d7dde8",
+    "achievement": "#8fb8ff",
+    "neutral": "#ffffff",
+    "repeat": "#e8a86a",
+}
 
 # The reviewer strip is a fixed native row below Anki's answer bar. Card
 # content may change what it says, but never its seat or height.
@@ -161,46 +168,35 @@ REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
 )
 
 
-def sanitize_review_event_log_pure(value: Any) -> list[dict[str, Any]]:
-    """Normalize the retained floating-notification history, oldest first."""
+def _collapsed_newest_first(rows: list[dict[str, Any]]) -> list[tuple[dict[str, Any], int]]:
+    """Each run of identical rows from one review, with its length.
 
-    if not isinstance(value, (list, tuple)):
-        return []
-    rows: list[dict[str, Any]] = []
-    for raw in value:
-        if not isinstance(raw, Mapping):
-            continue
-        text = str(raw.get("text", "") or "").strip()
-        if not text:
-            continue
-        try:
-            review = max(0, int(raw.get("review", 0) or 0))
-        except (TypeError, ValueError, OverflowError):
-            review = 0
-        kind = str(raw.get("kind", "activity") or "activity")[:32]
-        rows.append({"review": review, "kind": kind, "text": text[:500]})
-    return rows
+    A failing step logs its failure once per step, so one fast review wrote
+    "The ore was too impure" five times. Rows keep their review, so a run never
+    crosses a review age and each label's age stays true.
+    """
+    runs: list[tuple[dict[str, Any], int]] = []
+    for entry in reversed(rows):
+        if runs and runs[-1][0] == entry:
+            runs[-1] = (entry, runs[-1][1] + 1)
+        else:
+            runs.append((entry, 1))
+    return runs
 
 
-def record_review_event_pure(
-    player_data: Mapping[str, Any], kind: str, text: str
-) -> dict[str, Any]:
-    """Append one emitted floating notification through the shared save seam."""
-
-    message = str(text or "").strip()
-    if not message:
-        return dict(player_data)
-    updated = dict(player_data)
-    rows = sanitize_review_event_log_pure(player_data.get("review_event_log"))
-    rows.append({
-        "review": _answered_reviews_pure(player_data),
-        "kind": str(kind or "activity")[:32],
-        "text": message[:500],
-    })
-    # 4.15 answer 2: the drawer expands through everything retained, but the
-    # save keeps a large bounded window rather than growing forever.
-    updated["review_event_log"] = rows[-REVIEW_EVENT_LOG_RETAINED:]
-    return updated
+def _drawer_row(entry: dict[str, Any], count: int, now: int) -> dict[str, Any]:
+    reviews_ago = max(0, now - int(entry["review"]))
+    unit = "review" if reviews_ago == 1 else "reviews"
+    tone = entry["kind"] if entry["kind"] in ("xp", "achievement") else "neutral"
+    repeat = f"x{count}" if count > 1 else ""
+    return {
+        **entry,
+        "label": f"{reviews_ago} {unit} ago · {entry['text']}" + (f" - {repeat}" if repeat else ""),
+        "tone": tone,
+        "foreground": _EVENT_LOG_TONES[tone],
+        "repeat_label": repeat,
+        "repeat_foreground": _EVENT_LOG_TONES["repeat"],
+    }
 
 
 def review_event_log_drawer_view_pure(
@@ -220,28 +216,13 @@ def review_event_log_drawer_view_pure(
     except (TypeError, ValueError, OverflowError):
         limit = REVIEW_EVENT_LOG_DEFAULT_LIMIT
     now = _answered_reviews_pure(player_data)
-    visible_rows = []
-    for entry in reversed(rows[-limit:]):
-        reviews_ago = max(0, now - int(entry["review"]))
-        unit = "review" if reviews_ago == 1 else "reviews"
-        # Green and yellow belong to the Grand Exchange drawer alone, so the
-        # event log stays on neutral tones.
-        tone = entry["kind"] if entry["kind"] in ("xp", "achievement") else "neutral"
-        visible_rows.append({
-            **entry,
-            "label": f"{reviews_ago} {unit} ago · {entry['text']}",
-            "tone": tone,
-            "foreground": {
-                "xp": "#d7dde8",
-                "achievement": "#8fb8ff",
-                "neutral": "#ffffff",
-            }[tone],
-        })
-    remaining = max(0, len(rows) - len(visible_rows))
+    runs = _collapsed_newest_first(rows)
+    visible_rows = [_drawer_row(entry, count, now) for entry, count in runs[:limit]]
+    remaining = max(0, len(runs) - len(visible_rows))
     next_count = min(REVIEW_EVENT_LOG_PAGE_SIZE, remaining)
     return {
         "visible": bool(rows),
-        "title": f"Event log ({len(rows)})",
+        "title": f"Event log ({len(runs)})",
         "rows": tuple(visible_rows),
         "rows_visible": bool(expanded),
         "show_more_visible": bool(expanded and remaining),

@@ -268,7 +268,7 @@ from ..logic.troll_invasion_logic import (
     sanitize_troll_invasion_state_pure,
 )
 from ..logic.dnd_favourites_logic import sanitize_dnd_favourites_pure
-from ..logic.review_strip_logic import sanitize_review_event_log_pure
+from .review_event_log import sanitize_review_event_log_pure
 from ..logic.shattered_heart_logic import (
     default_shattered_heart_state_pure,
     sanitize_shattered_heart_state_pure,

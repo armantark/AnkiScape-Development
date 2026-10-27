@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] The pure item-change function returns signed counts for Bank and carried pack together, and an empty mapping for a review that changed no items.
-- [ ] A real smelting review through the review handler shows its XP line with the bar gained and the ore used.
-- [ ] Five identical "The ore was too impure" rows of one review show as one row with " - x5"; two such rows of the next older review show as a separate row with " - x2".
-- [ ] The popup shows the product gain only.
-- [ ] Offscreen event log captures at 560 points tall, dark and light, with `text_fit_defects` clean; one play-checklist line added.
+- [x] The pure item-change function returns signed counts for Bank and carried pack together, and an empty mapping for a review that changed no items.
+- [x] A real smelting review through the review handler shows its XP line with the bar gained and the ore used.
+- [x] Five identical "The ore was too impure" rows of one review show as one row with " - x5"; two such rows of the next older review show as a separate row with " - x2".
+- [x] The popup shows the product gain only.
+- [x] Offscreen event log captures at 560 points tall, dark and light, with `text_fit_defects` clean; one play-checklist line added.

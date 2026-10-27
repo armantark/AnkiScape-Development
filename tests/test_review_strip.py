@@ -1016,7 +1016,7 @@ class ReviewStripTest(unittest.TestCase):
     # ---- event log drawer ------------------------------------------------
 
     def _event_log_state(self, count: int = 25) -> dict:
-        from ankiscape.logic.review_strip_logic import record_review_event_pure
+        from ankiscape.core.review_event_log import record_review_event_pure
 
         state = self._state()
         for review in range(count):
@@ -1071,21 +1071,21 @@ class ReviewStripTest(unittest.TestCase):
         self.assertEqual(len(drawer._view()["rows"]), 10)
         self.assertEqual(drawer.height(), 186)
 
-    def test_xp_rows_are_not_coloured_like_ge_status(self) -> None:
-        state = self._state()
-        from ankiscape.logic.review_strip_logic import record_review_event_pure
+    def test_xp_rows_avoid_ge_colours_and_only_the_repeat_count_is_orange(self) -> None:
+        from ankiscape.core.review_event_log import record_review_event_pure
 
-        state = record_review_event_pure(
-            state,
-            "xp",
-            "+25 XP · Mining and Woodcutting from a deliberately long aggregate",
-        )
+        state = record_review_event_pure(self._state(), "xp", "+25 XP · Mining and Woodcutting, a long aggregate")
+        for _ in range(5):
+            state = record_review_event_pure(state, "activity", "The ore was too impure")
         self.ui.update_review_event_log_drawer(state)
         self.ui._EVENT_LOG_DRAWER.toggle.click()
         for _ in range(4):
             QApplication.processEvents()
 
-        html = self.ui._EVENT_LOG_DRAWER.rows.toHtml().lower()
+        rows = self.ui._EVENT_LOG_DRAWER.rows
+        self.assertTrue(rows.toPlainText().startswith("0 reviews ago · The ore was too impure - x5\n"))
+        html = rows.toHtml().lower()
+        self.assertIn('#e8a86a;">x5</span>', html)
         self.assertNotIn("#85c54b", html)
         self.assertNotIn("#e0b341", html)
 
