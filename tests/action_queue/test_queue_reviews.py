@@ -117,6 +117,26 @@ class ActionQueueReviewTest(fixtures.ReviewedProfile):
             self._answer(addon)
         self.assertEqual(self._rows(addon)[1], ("Mining: Iron", "current", 10))
 
+    def test_an_entry_above_the_players_level_gives_its_notice_and_the_next_entry_starts(self):
+        addon = self._queue_addon(
+            "ankiscape_queue_level",
+            ({"kind": "skill", "skill": "Smithing", "target": "smelt_rune_bar"}, 5),
+            (_MINE_IRON, 30),
+        )
+        self.assertEqual(addon._state.current_skill, "Smithing")
+
+        self._answer(addon)
+
+        self.assertEqual(addon._state.current_skill, "Mining")
+        self.assertEqual(addon._state.player_data["current_ore"], "iron")
+        self.assertEqual((self.errors, self.bankstanding_dialogs), ([], []))
+        self.assertEqual(
+            self._log(addon)[-1], "Queue: Smithing: Rune bar stopped · You need level 85 Smithing to make Rune bar."
+        )
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+        self.assertEqual(self._rows(addon), [("Smithing: Rune bar", "stopped", 0), ("Mining: Iron", "current", 10)])
+
     def test_a_manual_stop_pauses_the_queue_and_resume_continues_its_entry(self):
         from ankiscape.core.action_queue import action_queue_view_pure, clear_action_queue
 

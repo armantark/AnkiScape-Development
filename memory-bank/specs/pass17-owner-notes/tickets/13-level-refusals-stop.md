@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] Each of the listed handlers, given a target above the player's level through the real review handler, switches to Bankstanding once with the level reason and shows no repeated pop-up.
-- [ ] A two-entry queue whose first entry is above the player's level gives that entry's notice and starts the second entry.
-- [ ] The last action record keeps the level reason, so the review HUD shows it beside Resume.
+- [x] Each of the listed handlers, given a target above the player's level through the real review handler, switches to Bankstanding once with the level reason and shows no repeated pop-up.
+- [x] A two-entry queue whose first entry is above the player's level gives that entry's notice and starts the second entry.
+- [x] The last action record keeps the level reason, so the review HUD shows it beside Resume.
