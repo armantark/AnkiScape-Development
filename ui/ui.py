@@ -4895,9 +4895,7 @@ def show_main_menu(
             ctx.refresh("quests")
             _render_panel()
 
-    queue_command = menu_queue(
-        player_data, on_action_queue_command, _after_queue_command, lambda activity: _leave_running_activity(activity)
-    )
+    queue_command = menu_queue(player_data, on_action_queue_command, _after_queue_command, lambda a: _leave_running_activity(a))
     # Targets picked while the queue runs that panel's action, by panel: (apply, target).
     held_targets: dict = {}
     ctx = MainMenuCtx(
@@ -5150,11 +5148,12 @@ def show_main_menu(
         _render_panel()
 
     def _stop_training() -> None:
-        if on_stop_training is None or not on_stop_training():
+        if on_stop_training is None or not (stopped := on_stop_training()):
             warn.setText("Could not switch to Bankstanding.")
             return
         warn.setText("")
-        state["active"] = _UTILITIES_HUB_NAME
+        # The add-on names what runs now: Bankstanding, or a queue plan that waited for the stop.
+        state["active"] = stopped
         _refresh_active_label()
         _render_panel()
 
@@ -19339,9 +19338,7 @@ def show_main_menu(
             selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
-            if not activate and held_by_queue(
-                player_data, held_targets, surface_name, lambda _target: None, activity_id
-            ):
+            if not activate and held_by_queue(player_data, held_targets, surface_name, lambda _target: None, activity_id):
                 return True
             if not _leave_running_activity(activity_id):
                 return False
@@ -20924,11 +20921,12 @@ def show_main_menu(
                         if name == "Prayer"
                         else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
                     )
+                    # A greyed Train button says why on screen, not only on hover.
+                    hl.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason",
+                                        styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
-            header_rows.addWidget(
-                surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1])
-            )
+            header_rows.addWidget(surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1]))
             if name in _TRAIN_BUTTON_KEYS:
                 _MAIN_MENU_CTX[_TRAIN_BUTTON_KEYS[name]] = train_btn
         panel_layout.addWidget(header)

@@ -29,6 +29,7 @@ try:
         QScrollArea,
         QSpinBox,
         Qt,
+        QToolButton,
         QVBoxLayout,
         QWidget,
         pyqtSignal,
@@ -186,6 +187,7 @@ if HAS_QT:
             )
             self._player_data = player_data
             self._current_skill = current_skill
+            self._queue = queue
             layout = QVBoxLayout(self)
             layout.setContentsMargins(10, 3, 10, 3)
             layout.setSpacing(0)
@@ -198,7 +200,10 @@ if HAS_QT:
             self._resume.setObjectName("actionQueueResume")
             self._clear = QPushButton("Clear queue")
             self._clear.setObjectName("actionQueueClear")
-            self._clear.setToolTip("Empty the queue. The action running now keeps running; Stop training ends it.")
+            self._clear.setToolTip(
+                "Cancel the plan: remove every entry and stop the entry the queue is running."
+                " Resume on the study screen offers it back. An action you started yourself keeps running."
+            )
             for button, command in ((self._resume, "resume"), (self._clear, "clear")):
                 # Slimmer than the Start-row buttons: the box's height comes out of the lists above it.
                 button.setStyleSheet(_BUTTON_STYLE.replace("padding: 4px 10px", "padding: 2px 10px"))
@@ -217,7 +222,7 @@ if HAS_QT:
             rows_layout = QVBoxLayout(rows)
             rows_layout.setContentsMargins(0, 0, 0, 0)
             rows_layout.setSpacing(0)
-            self._rows = [self._row(rows_layout) for _ in range(MAX_QUEUE_ENTRIES)]
+            self._rows = [self._row(rows_layout, position) for position in range(MAX_QUEUE_ENTRIES)]
             rows_layout.addStretch(1)
             self._scroll = QScrollArea()
             self._scroll.setObjectName("actionQueueRows")
@@ -234,21 +239,35 @@ if HAS_QT:
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
 
-        def _row(self, layout) -> tuple:
+        def _row(self, layout, position: int) -> tuple:
             line = QWidget()
             line.setObjectName("actionQueueRow")
             line_layout = QHBoxLayout(line)
             line_layout.setContentsMargins(0, 1, 0, 1)
             state = QLabel()
             state.setObjectName("actionQueueRowState")
-            state.setFixedWidth(state.fontMetrics().horizontalAdvance("Stopped") + 16)
+            state.setFixedWidth(state.fontMetrics().horizontalAdvance("5. Stopped") + 16)
             text = QLabel()
             text.setObjectName("actionQueueRowText")
             text.setWordWrap(True)
+            remove = QToolButton()
+            remove.setObjectName("actionQueueRemove")
+            remove.setText("✕")
+            remove.setAutoRaise(True)
+            remove.setToolTip(f"Remove entry {position + 1} from the queue.")
+            remove.setAccessibleName(f"Remove entry {position + 1}")
+            remove.setFixedSize(text.fontMetrics().lineSpacing(), text.fontMetrics().lineSpacing())
+            remove.setEnabled(self._queue is not None)
+            # The running line hides its button but keeps the space, so the counts stay in one column.
+            policy = remove.sizePolicy()
+            policy.setRetainSizeWhenHidden(True)
+            remove.setSizePolicy(policy)
+            remove.clicked.connect(lambda _=False: self._queue("remove", {"position": position}))
             line_layout.addWidget(state)
             line_layout.addWidget(text, 1)
+            line_layout.addWidget(remove)
             layout.addWidget(line)
-            return line, state, text
+            return line, state, text, remove
 
         def refresh(self) -> None:
             view = queue_panel_view_pure(self._player_data, self._current_skill())
@@ -257,11 +276,12 @@ if HAS_QT:
             self.empty_line.setText("" if view["rows"] else f"{view['title']}. {view['hint']}")
             self._title.setText(view["title"])
             self._hint.setText(view["hint"])
-            self._resume.setVisible(view["can_resume"])
-            for position, (line, state, text) in enumerate(self._rows):
+            self._resume.setText(view["resume_text"])
+            self._resume.setVisible(bool(view["resume_text"]))
+            for position, (line, state, text, remove) in enumerate(self._rows):
                 line.setVisible(position < len(view["rows"]))
                 if position < len(view["rows"]):
-                    self._show_row(view["rows"][position], state, text)
+                    self._show_row(view["rows"][position], state, text, remove)
             # One text line plus the row's 1 px margins; a longer list scrolls inside the box.
             line_height = self._rows[0][2].fontMetrics().lineSpacing() + 2
             self._scroll.setFixedHeight(min(len(view["rows"]), _VISIBLE_ROWS) * line_height)
@@ -269,10 +289,11 @@ if HAS_QT:
             if current is not None:
                 self._scroll.ensureWidgetVisible(self._rows[current][0])
 
-        def _show_row(self, row: dict, state, text) -> None:
+        def _show_row(self, row: dict, state, text, remove) -> None:
             # The running entry reads in full text colour; the others are dimmed, never palette(mid).
             colour = "palette(text)" if row["current"] else dim_text_css(state)
-            state.setText(row["state"])
+            remove.setVisible(row["removable"])
+            state.setText(f"{row['position']} {row['state']}")
             state.setStyleSheet(f"color: {colour}; font-size: 12px; font-weight: 600;")
             text.setText(row["text"])
             text.setStyleSheet(f"color: {colour}; font-weight: {600 if row['current'] else 400};")

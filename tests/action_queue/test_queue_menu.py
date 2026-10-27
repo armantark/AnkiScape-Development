@@ -64,7 +64,7 @@ class QueueMenuCommandTest(QueueProfile):
         bury = {"kind": "skill", "skill": "Prayer", "target": "bury_bones"}
         addon = self._queue_addon("ankiscape_queue_menu_bury", **{"inventory": {"Bones": 40}})
         view = queue_add_view_pure(addon._state.player_data, bury)
-        self.assertEqual((view["count"], view["unit"], view["materials"]), (40, "Bones used", "Bones: Bank 40"))
+        self.assertEqual((view["count"], view["unit"], view["materials"]), (40, "Bones used", "Bones: 40 in Bank"))
 
         self.assertTrue(self._menu(addon)("add", {"action": bury, "count": 40})["ok"])
         with patch.object(addon.random, "random", lambda: 0.5):
@@ -74,7 +74,9 @@ class QueueMenuCommandTest(QueueProfile):
         self.assertEqual(addon._state.player_data["inventory"]["Bones"], 30)
         self.assertEqual(self._rows(addon), [("Prayer: Bones", "current", 10)])
 
-    def test_a_sixth_entry_is_refused_and_clear_keeps_the_running_action(self):
+    def test_a_sixth_entry_is_refused_and_clear_stops_the_entry_the_queue_runs(self):
+        from ankiscape.core.last_action import resume_button_view_pure
+
         addon = self._queue_addon("ankiscape_queue_menu_cap")
         command = self._menu(addon)
         for _ in range(5):
@@ -87,9 +89,49 @@ class QueueMenuCommandTest(QueueProfile):
         )
         self.assertFalse(queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["enabled"])
 
-        self.assertTrue(command("clear", {})["ok"])
+        self.assertTrue(command("remove", {"position": 4})["ok"])
+        self.assertFalse(command("remove", {"position": 0})["ok"])
+        self.assertEqual(len(self._rows(addon)), 4)
+
+        self.assertEqual(command("clear", {}), {"ok": True, "active": "Utilities", "message": ""})
         self.assertEqual(self._rows(addon), [])
-        self.assertEqual(addon._state.current_skill, "Mining")
+        self.assertEqual(self.bankstanding_dialogs, [])
+        view = resume_button_view_pure(addon._state.player_data, addon._state.current_skill)
+        self.assertEqual((view["text"], view["bank_status"]), ("Resume Mining", "stopped: The queue was cleared."))
+
+    def test_a_plan_waits_behind_a_hand_started_action_until_it_stops(self):
+        addon = self._queue_addon("ankiscape_queue_menu_wait", woodcutting_level=40)
+        addon.save_skill("Woodcutting", None)
+        command = self._menu(addon)
+
+        self.assertEqual(command("add", {"action": _MINE_IRON, "count": 30}), {"ok": True, "active": "Woodcutting", "message": ""})
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+        # Woodcutting's review neither pauses nor counts toward the waiting plan.
+        self.assertEqual(addon._state.current_skill, "Woodcutting")
+        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
+
+        # Clear drops a waiting plan and leaves the hand-started action running.
+        self.assertTrue(command("clear", {})["ok"])
+        self.assertEqual(addon._state.current_skill, "Woodcutting")
+
+        # Stopping the hand-started action starts the plan, and the menu learns what runs now.
+        command("add", {"action": _MINE_IRON, "count": 30})
+        captured = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        self.assertEqual(captured["on_stop_training"](), "Mining")
+        self.assertEqual(addon._state.player_data["current_ore"], "iron")
+        self.assertEqual(self._log(addon)[-1], "Queue: Woodcutting stopped, so the plan starts")
+
+    def test_start_now_starts_a_waiting_plan_at_once(self):
+        addon = self._queue_addon("ankiscape_queue_menu_start_now", woodcutting_level=40)
+        addon.save_skill("Woodcutting", None)
+        command = self._menu(addon)
+        command("add", {"action": _MINE_IRON, "count": 30})
+
+        self.assertEqual(command("resume", {}), {"ok": True, "active": "Mining", "message": ""})
+        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
 
 
 if __name__ == "__main__":

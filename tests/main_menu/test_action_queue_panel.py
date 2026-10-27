@@ -23,7 +23,7 @@ from tests.test_main_menu_widget import (
 )
 
 if HAS_AQT:
-    from tests.test_main_menu_widget import QApplication, QLabel, QMessageBox, QPushButton, QSpinBox, QWidget
+    from tests.test_main_menu_widget import QApplication, QLabel, QMessageBox, QPushButton, QSpinBox, QToolButton, QWidget
 
 _SMELT_IRON = {"kind": "skill", "skill": "Smithing", "target": "smelt_iron_bar"}
 
@@ -87,11 +87,12 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         panel = dialog.findChild(QWidget, "actionQueuePanel")
 
         self.assertEqual((count.value(), count.suffix()), (37, " Iron bar"))
-        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron ore: Bank 37")
+        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron ore: 37 in Bank")
         self.assertFalse(panel.isVisible())
         self.assertEqual(
             dialog.findChild(QLabel, "actionQueueEmptyLine").text(),
-            "Queue: empty. Mining keeps running until you stop it.",
+            "Queue: empty. Set a count and choose Add to queue on a skill, or Add to queue on a quest."
+            " Up to 5 entries run from top to bottom once.",
         )
 
         count.setValue(100)
@@ -109,7 +110,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         update_review_hud(pd, "Smithing")
         count = self._visible(dialog, QSpinBox, "queueCountBox")
         self.assertEqual((count.value(), count.suffix()), (0, " Iron platebody"))
-        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron bar: Bank 0 + queue 100")
+        self.assertEqual(self._visible(dialog, QLabel, "queueMaterials").text(), "Iron bar: 0 in Bank, 100 made by entry 1")
 
     def test_the_fifth_entry_fills_the_queue_and_clear_empties_it(self):
         _pd, dialog = self._smithing_menu(**{"Iron ore": 3})
@@ -129,11 +130,36 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
         self.assertFalse(dialog.findChild(QWidget, "actionQueuePanel").isVisible())
-        self.assertEqual(
-            dialog.findChild(QLabel, "actionQueueEmptyLine").text(),
-            "Queue: empty. Smithing keeps running until you stop it.",
-        )
         self.assertTrue(add.isEnabled())
+
+    def test_each_entry_that_is_not_running_has_a_remove_control(self):
+        from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
+
+        queue = action_queue_pure({})
+        for count in (50, 60):
+            queue, _ok = add_queue_entry_pure(queue, _SMELT_IRON, count)
+        _pd, dialog = self._smithing_menu(queue=queue)
+        panel = dialog.findChild(QWidget, "actionQueuePanel")
+        removes = panel.findChildren(QToolButton, "actionQueueRemove")
+
+        self.assertEqual([button.isVisibleTo(panel) for button in removes[:2]], [False, True])
+        self.assertEqual(
+            [label.text() for label in panel.findChildren(QLabel, "actionQueueRowState")][:2], ["1. Now", "2. Next"]
+        )
+        removes[1].click()
+        self.assertEqual(self.commands[-1], ("remove", {"position": 1}))
+
+    def test_a_waiting_plan_offers_start_now(self):
+        from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
+
+        queue, _ok = add_queue_entry_pure(action_queue_pure({}), _SMELT_IRON, 50)
+        _pd, dialog = self._smithing_menu(queue={**queue, "waiting": True})
+        start_now = dialog.findChild(QPushButton, "actionQueueResume")
+
+        self.assertEqual((start_now.text(), start_now.isVisible()), ("Start now", True))
+        self.assertEqual(dialog.findChild(QLabel, "actionQueueHint").text(), "Starts when Mining stops. Start now begins it at once.")
+        start_now.click()
+        self.assertEqual(self.commands[-1], ("resume", {}))
 
     def test_a_target_picked_while_the_queue_runs_that_skill_is_held_for_the_queue(self):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure

@@ -4156,7 +4156,7 @@ def _on_main_menu(
             _change,
             bankstanding_reason="Training was stopped manually.",
             bankstanding_automatic=False,
-        )
+        ) and _state.current_skill
 
     ui.show_main_menu(
         _state.player_data,

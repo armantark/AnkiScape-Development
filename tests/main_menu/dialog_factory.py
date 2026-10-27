@@ -495,7 +495,7 @@ class DialogFactory:
         stop_training_callback = extra.pop(
             "on_stop_training",
             lambda: player_data.__setitem__("current_utility", "bankstanding")
-            or True,
+            or "Utilities",
         )
         skilling_potion_callback = extra.pop(
             "on_set_skilling_potion_target", None

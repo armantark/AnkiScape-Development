@@ -339,7 +339,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         def stop_training():
             stop_calls.append(True)
             pd["current_utility"] = "bankstanding"
-            return True
+            return "Utilities"
 
         dialog = self._open(
             pd,

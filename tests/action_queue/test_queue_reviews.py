@@ -163,9 +163,13 @@ class ActionQueueReviewTest(QueueProfile):
             self._answer(addon)
         self.assertEqual(self._rows(addon)[0], ("Mining: Iron", "current", 20))
 
+        # Clear cancels the plan, stopping the entry it runs; Resume offers that entry back.
         self.assertTrue(clear_action_queue(addon))
         self.assertEqual(action_queue_view_pure(addon._state.player_data)["entries"], [])
-        self.assertEqual(addon._state.current_skill, "Mining")
+        self.assertEqual(addon._state.current_skill, "Utilities")
+        self.assertEqual(self.bankstanding_dialogs, [])
+        self.assertTrue(addon.on_resume_last_action())
+        self.assertEqual((addon._state.current_skill, addon._state.player_data["current_ore"]), ("Mining", "iron"))
 
     def test_an_action_the_player_starts_himself_pauses_the_queue(self):
         from ankiscape.core.action_queue import action_queue_view_pure

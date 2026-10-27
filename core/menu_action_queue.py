@@ -128,27 +128,31 @@ def action_bank_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, 
     ) * made
 
 
-def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
-    """How many of ``items`` the queue's unfinished entries will still make."""
+# How each skill's entry turns into its product, for the materials line ("100 mined by entry 1").
+_MAKES_VERB = {"Mining": "mined", "Woodcutting": "cut", "Fishing": "caught", "Hunter": "caught", "Thieving": "stolen"}
+
+
+def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[str]:
+    """What the queue's unfinished entries will still make of ``items``: "100 mined by entry 1"."""
     queue = action_queue_pure(player_data)
-    total = 0
+    parts = []
     for position in range(queue["index"], len(queue["entries"])):
         entry = queue["entries"][position]
         done = queue["done"] if position == queue["index"] else 0
         if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
-            total += max(0, entry["count"] - done)
-    return total
+            verb = _MAKES_VERB.get(entry["action"].get("skill"), "made")
+            parts.append(f"{max(0, entry['count'] - done):,} {verb} by entry {position + 1}")
+    return parts
 
 
 def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
-    """Where an entry's inputs come from: "Iron ore: Bank 0 + queue 100"; empty when it needs none."""
+    """Where an entry's inputs come from: "Iron ore: 0 in Bank, 100 mined by entry 1"; empty when it needs none."""
     alternatives, _needs, _made = _inputs_and_yield(player_data, action)
-    parts = []
-    for need, items in alternatives.items():
-        made = _queued_makes(player_data, items)
-        text = f"{need[:1].upper()}{need[1:]}: Bank {_bank_count(player_data, items):,}"
-        parts.append(f"{text} + queue {made:,}" if made else text)
-    return " · ".join(parts)
+    return " · ".join(
+        f"{need[:1].upper()}{need[1:]}: "
+        + ", ".join([f"{_bank_count(player_data, items):,} in Bank", *_queued_makes(player_data, items)])
+        for need, items in alternatives.items()
+    )
 
 
 def _unit_text(unit: str, products: tuple[str, ...], used: str) -> str:
@@ -214,30 +218,42 @@ def _row_text(row: Mapping[str, Any]) -> str:
 
 
 def _panel_hint(view: Mapping[str, Any], running: str) -> str:
-    """One line on what the queue does next, and what Stop training and Clear queue do to it."""
+    """One line on what the queue does next, and what Clear queue and Stop training do to it."""
     if view["finished"]:
-        return "Finished. Add to queue starts a new plan."
+        return "Finished. Clear queue removes the finished entries."
     if view["paused"]:
-        return "Paused by Stop training. Resume queue continues the paused entry."
-    if view["entries"]:
-        return "Stop training pauses it. Clear queue empties it, and the running action carries on."
-    if running:
-        return f"{running} keeps running until you stop it."
-    return "Add to queue, beside each Start button, plans up to 5 actions."
+        return "Paused by Stop training. Resume queue continues it; Clear queue cancels the plan."
+    if view["waiting"]:
+        return f"Starts when {running or 'the current action'} stops. Start now begins it at once."
+    return "Clear queue cancels the plan and stops its running entry. Stop training pauses it."
+
+
+_EMPTY_HINT = (
+    "Set a count and choose Add to queue on a skill, or Add to queue on a quest."
+    " Up to 5 entries run from top to bottom once."
+)
 
 
 def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
-    """The menu's queue box: a title, a hint line, one line per entry with its state, Resume and Clear."""
+    """The menu's queue box: a title, a hint line, one numbered line per entry, Resume or Start now, and Clear."""
     view = action_queue_view_pure(player_data)
-    can_resume = view["paused"] and not view["finished"]
-    labels = {**_STATE_LABELS, "current": "Paused" if can_resume else "Now"}
+    can_resume = (view["paused"] or view["waiting"]) and not view["finished"]
+    current = "Paused" if view["paused"] else "Waits" if view["waiting"] else "Now"
+    labels = {**_STATE_LABELS, "current": current}
     count = len(view["entries"])
+    running = last_action_name_pure(last_action_record_pure(player_data, current_skill))
     return {
         "title": f"Queue: {count} of {MAX_QUEUE_ENTRIES} entries" if count else "Queue: empty",
-        "hint": _panel_hint(view, last_action_name_pure(last_action_record_pure(player_data, current_skill))),
+        "hint": _panel_hint(view, running) if count else _EMPTY_HINT,
         "rows": [
-            {"state": labels[row["state"]], "text": _row_text(row), "current": row["state"] == "current"}
-            for row in view["entries"]
+            {
+                "position": f"{position + 1}.",
+                "state": labels[row["state"]],
+                "text": _row_text(row),
+                "current": row["state"] == "current",
+                "removable": row["removable"],
+            }
+            for position, row in enumerate(view["entries"])
         ],
-        "can_resume": can_resume,
+        "resume_text": ("Start now" if view["waiting"] else "Resume queue") if can_resume else "",
     }

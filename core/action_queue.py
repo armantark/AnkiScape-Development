@@ -5,11 +5,17 @@ plans a chain such as mine, smelt, smith instead of restarting each step. An
 entry is an action in the last-action record shape and a count in that
 action's own unit: the product items it makes, the one item it uses when it
 makes nothing (bones buried), kills for a fight, reviews for any other action,
-and no count for a quest, which runs until it stops. After each review the runtime adds the review's progress, and a full
-entry starts the next one. When an entry's action stops for a missing material
-or requirement, the queue notes why and starts the next entry in place of the
-switch to Bankstanding; only a finished queue lets that switch happen, with its
-usual notice. A manual Stop pauses the queue; Resume continues its entry.
+and no count for a quest, which runs until it stops. After each review the
+runtime adds the review's progress, and a full entry starts the next one. When
+an entry's action stops for a missing material or requirement, the queue notes
+why and starts the next entry in place of the switch to Bankstanding; only a
+finished queue lets that switch happen, with its usual notice. A manual Stop
+pauses the queue; Resume continues its entry. Clear cancels the plan: it drops
+every entry and stops the entry the queue is running, which Resume offers back.
+
+A new plan never replaces an action the player started by hand: at
+Bankstanding its first entry starts at once, otherwise the plan waits until
+that action stops, or until the player starts it now.
 
 The owner ruled out loops (2026-10-26): the queue never repeats and holds at
 most five entries, so the player still plans his training.
@@ -52,7 +58,7 @@ QUEUE_FULL_TEXT = f"The queue holds {MAX_QUEUE_ENTRIES} entries. Clear it to pla
 
 
 def _empty_queue() -> dict[str, Any]:
-    return {"entries": [], "index": 0, "done": 0, "paused": False}
+    return {"entries": [], "index": 0, "done": 0, "paused": False, "waiting": False}
 
 
 def action_queue_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
@@ -71,6 +77,7 @@ def action_queue_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "index": min(max(0, int(raw.get("index") or 0)), len(entries)),
         "done": max(0, int(raw.get("done") or 0)),
         "paused": bool(raw.get("paused")),
+        "waiting": bool(raw.get("waiting")),
     }
 
 
@@ -117,6 +124,19 @@ def advance_queue_pure(queue: Mapping[str, Any], progress: int) -> tuple[dict[st
     if done < entry["count"]:
         return {**queue, "done": done}, False
     return pass_queue_entry_pure({**queue, "done": done}), True
+
+
+def remove_queue_entry_pure(queue: Mapping[str, Any], position: int) -> tuple[dict[str, Any], bool]:
+    """Drop one entry that is not running; the entry the queue runs now refuses."""
+    entries = list(queue["entries"])
+    running = position == queue["index"] and not (queue["paused"] or queue["waiting"])
+    if not 0 <= position < len(entries) or running:
+        return dict(queue), False
+    del entries[position]
+    if position < queue["index"]:
+        return {**queue, "entries": entries, "index": queue["index"] - 1}, True
+    done = 0 if position == queue["index"] else queue["done"]
+    return {**queue, "entries": entries, "done": done}, True
 
 
 def same_action_pure(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
@@ -171,6 +191,7 @@ def _queue_entry_row(queue: Mapping[str, Any], position: int) -> dict[str, Any]:
     else:
         state = "current" if position == queue["index"] else "waiting"
         done = queue["done"] if state == "current" else 0
+    running = state == "current" and not (queue["paused"] or queue["waiting"])
     return {
         "name": queue_entry_name_pure(action),
         "unit": queue_entry_unit_pure(action),
@@ -180,6 +201,7 @@ def _queue_entry_row(queue: Mapping[str, Any], position: int) -> dict[str, Any]:
         "done": done,
         "state": state,
         "stopped": str(entry.get("stopped") or ""),
+        "removable": not running,
     }
 
 
@@ -191,6 +213,7 @@ def action_queue_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "entries": rows,
         "paused": queue["paused"],
+        "waiting": queue["waiting"] and not finished,
         "finished": finished,
         "can_add": finished or len(rows) < MAX_QUEUE_ENTRIES,
     }
@@ -270,28 +293,57 @@ def _commit_run(addon, queue: dict[str, Any]) -> bool:
 
 
 def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> bool:
-    """Add an entry; an idle queue starts it at once. False when the queue refuses it."""
-    queue = action_queue_pure(addon._state.player_data)
+    """Add an entry; False when the queue refuses it.
+
+    The first entry of a new plan starts at once at Bankstanding. While an
+    action the player started by hand runs, the plan waits for it to stop.
+    """
+    player_data = addon._state.player_data
+    queue = action_queue_pure(player_data)
     idle = current_queue_entry_pure(queue) is None
     queue, ok = add_queue_entry_pure(queue, action, count)
     if not ok:
         return False
-    if idle:
+    if idle and not last_action_record_pure(player_data, addon._state.current_skill):
         return _commit_run(addon, queue)
+    queue = {**queue, "waiting": queue["waiting"] or idle}
     return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
 
 
+def _runs_queue_entry(addon, queue: Mapping[str, Any]) -> bool:
+    entry = current_queue_entry_pure(queue)
+    running = last_action_record_pure(addon._state.player_data, addon._state.current_skill)
+    return (
+        entry is not None
+        and not (queue["paused"] or queue["waiting"])
+        and same_action_pure(running, entry["action"])
+    )
+
+
 def clear_action_queue(addon) -> bool:
-    """Empty the queue; the action running now carries on as an ordinary action."""
-    return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: _empty_queue()}, True))
+    """Cancel the plan: drop every entry and stop the entry the queue is running.
+
+    The stopped entry lands at Bankstanding as the last action, so Resume
+    offers it back. An action the player started by hand is not the plan's,
+    so it keeps running.
+    """
+    runs_entry = _runs_queue_entry(addon, action_queue_pure(addon._state.player_data))
+    stop = {"bankstanding_reason": "The queue was cleared.", "bankstanding_automatic": False} if runs_entry else {}
+    return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: _empty_queue()}, True), **stop)
+
+
+def remove_action_queue_entry(addon, position: int) -> bool:
+    """Drop one entry that is not running, as one undoable menu action."""
+    queue, ok = remove_queue_entry_pure(action_queue_pure(addon._state.player_data), position)
+    return ok and addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
 
 
 def resume_action_queue(addon) -> bool:
-    """Continue a paused queue's current entry; False when no paused entry waits."""
+    """Continue a paused queue, or start a waiting one now; False when neither has an entry."""
     queue = action_queue_pure(addon._state.player_data)
-    if not queue["paused"] or current_queue_entry_pure(queue) is None:
+    if not (queue["paused"] or queue["waiting"]) or current_queue_entry_pure(queue) is None:
         return False
-    return _commit_run(addon, {**queue, "paused": False})
+    return _commit_run(addon, {**queue, "paused": False, "waiting": False})
 
 
 def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -306,6 +358,8 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
         ok = clear_action_queue(addon)
     elif command == "resume":
         ok = resume_action_queue(addon)
+    elif command == "remove":
+        ok = remove_action_queue_entry(addon, int(payload["position"]))
     else:
         raise ValueError(f"Unknown action queue command: {command!r}")
     addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
@@ -331,12 +385,12 @@ def advance_action_queue(addon, before_player_data: Mapping[str, Any]) -> None:
     """After a review: add its progress to the current entry; a full entry starts the next.
 
     A review of any other action pauses the queue, because the player started
-    that action himself.
+    that action himself; a plan that waits for such an action is left waiting.
     """
     player_data = addon._state.player_data
     queue = action_queue_pure(player_data)
     entry = current_queue_entry_pure(queue)
-    if entry is None or queue["paused"]:
+    if entry is None or queue["paused"] or queue["waiting"]:
         return
     if not same_action_pure(last_action_record_pure(player_data, addon._state.current_skill), entry["action"]):
         player_data[ACTION_QUEUE_KEY] = {**queue, "paused": True}
@@ -363,11 +417,14 @@ def _queue_takes_over_stop(addon, stopped: Mapping[str, Any], reason: str, *, au
     A manual Stop of the queue's entry pauses the queue and lets the switch
     happen. An automatic stop passes the entry with its reason, or as done for a
     quest that just completed, and starts the next entry; when no entry is left
-    the switch happens, and its notice is the queue's last.
+    the switch happens, and its notice is the queue's last. A plan that waited
+    for a hand-started action starts as that action stops, for any reason.
     """
     player_data = addon._state.player_data
     queue = action_queue_pure(player_data)
     entry = current_queue_entry_pure(queue)
+    if entry is not None and queue["waiting"]:
+        return _start_waiting_plan(addon, stopped, queue)
     if entry is None or queue["paused"] or not same_action_pure(stopped, entry["action"]):
         return False
     if not automatic:
@@ -382,6 +439,15 @@ def _queue_takes_over_stop(addon, stopped: Mapping[str, Any], reason: str, *, au
     if current_queue_entry_pure(queue) is None:
         return False
     updated, review_action = _run_current_entry(addon, record_review_event_pure(player_data, "activity", text), queue)
+    _apply_in_transaction(addon, updated, review_action)
+    return review_action is not None
+
+
+def _start_waiting_plan(addon, stopped: Mapping[str, Any], queue: Mapping[str, Any]) -> bool:
+    text = f"Queue: {last_action_name_pure(stopped) or 'The action'} stopped, so the plan starts"
+    updated, review_action = _run_current_entry(
+        addon, record_review_event_pure(addon._state.player_data, "activity", text), {**queue, "waiting": False}
+    )
     _apply_in_transaction(addon, updated, review_action)
     return review_action is not None
 
