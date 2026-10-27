@@ -12,6 +12,7 @@ from ankiscape.core.target_metadata import combat_target_rows
 from ankiscape.logic_pure.logic_pure_combat_engine import combat_hud_state_pure
 from ankiscape.logic_pure.logic_pure_combat_hud import (
     combat_setup_panel_view_pure,
+    prayer_swap_note_pure,
     toggled_combat_prayer_selection_pure,
 )
 from tests.pace.test_combat_danger_stops import ENEMY, answer_combat
@@ -73,6 +74,11 @@ class TickedPrayersTests(unittest.TestCase):
             combat_setup_panel_view_pure(player, EQUIPMENT_ITEM_DATA)["selected_prayers"],
             {"incredible_reflexes", "ultimate_strength", "steel_skin"},
         )
+        self.assertEqual(
+            prayer_swap_note_pure(player, "burst_of_strength", True),
+            "Burst of Strength replaced Ultimate Strength: they cannot run together.",
+        )
+        self.assertEqual(prayer_swap_note_pure(player, "protect_item", True), "")
         player = apply_combat_prayer_config_pure(
             player, "combat_selected_prayers", toggled_combat_prayer_selection_pure(player, "burst_of_strength", True)
         )

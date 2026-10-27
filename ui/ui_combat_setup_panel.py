@@ -17,16 +17,19 @@ try:
     from aqt.qt import (  # type: ignore
         QCheckBox,
         QComboBox,
+        QDialog,
+        QDialogButtonBox,
         QGridLayout,
         QHBoxLayout,
-        QInputDialog,
         QLabel,
         QLayout,
+        QLineEdit,
         QPixmap,
         QPushButton,
         QSizePolicy,
         QSpinBox,
         Qt,
+        QToolButton,
         QVBoxLayout,
         QWidget,
     )
@@ -48,12 +51,15 @@ from ..logic_pure.logic_pure import (
 )
 from ..logic_pure.logic_pure_combat_hud import (
     combat_setup_panel_view_pure,
+    prayer_swap_note_pure,
     toggled_combat_prayer_selection_pure,
 )
 from .ui import _COMBAT_HUB_NAME, current_target_display_name, dim_text_css
 from .ui_text_fit import FlowLayout, WrappingCheckBox, on_resize, side_pair
 
 _LABEL_STYLE = "color: palette(text);"
+# Grey notes under a control: dimmer than a label, still easy to read.
+_NOTE_ALPHA = 210
 
 _PRAYER_TIME_CHOICES = (("Whole fight", "100"), ("70% of the fight", "70"), ("40% of the fight", "40"))
 _CHECK_MARK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icon", "check_mark.svg")
@@ -363,13 +369,32 @@ def _add_prayer_section(layout, player_data, send_config):
     status.setWordWrap(True)
     status.setStyleSheet(_LABEL_STYLE)
     layout.addWidget(status)
-    sync_grid = _add_prayer_grid(layout, player_data, send_config, hide_lower)
+    swap_note = QLabel()
+    swap_note.setObjectName("combatPrayerSwapNote")
+    swap_note.setWordWrap(True)
+    swap_note.setStyleSheet("color: palette(text); font-weight: 600;")
+    layout.addWidget(swap_note)
+    sync_grid = _add_prayer_grid(layout, player_data, send_config, hide_lower, swap_note)
     layout.addWidget(hide_lower)
+    locked_toggle = QToolButton()
+    locked_toggle.setObjectName("combatLockedPrayersToggle")
+    locked_toggle.setCheckable(True)
+    locked_toggle.setAutoRaise(True)
+    locked_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+    locked_toggle.setArrowType(Qt.ArrowType.RightArrow)
+    layout.addWidget(locked_toggle)
     locked = QLabel()
     locked.setObjectName("combatLockedPrayersLabel")
     locked.setWordWrap(True)
-    locked.setStyleSheet(f"color: {dim_text_css(locked, 200)};")
+    locked.setStyleSheet(f"color: {dim_text_css(locked, _NOTE_ALPHA)}; padding-left: 16px;")
+    locked.setVisible(False)
     layout.addWidget(locked)
+
+    def _show_locked(shown: bool) -> None:
+        locked.setVisible(shown)
+        locked_toggle.setArrowType(Qt.ArrowType.DownArrow if shown else Qt.ArrowType.RightArrow)
+
+    locked_toggle.toggled.connect(_show_locked)
     if send_config is not None:
         master.toggled.connect(lambda enabled: send_config("combat_prayers_enabled", bool(enabled)))
         book_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_book", book_combo.currentData()))
@@ -386,8 +411,10 @@ def _add_prayer_section(layout, player_data, send_config):
             widget.setEnabled(view["prayers_enabled"])
         auto_pick.setEnabled(view["prayers_enabled"] and not view["prayers_picked"] and send_config is not None)
         sync_grid(view)
-        locked.setText(view["locked_prayers_text"])
-        locked.setVisible(bool(view["locked_prayers_text"]))
+        locked_toggle.setText(f"Unlocks later ({len(view['locked_prayers'])})")
+        locked_toggle.setVisible(bool(view["locked_prayers"]))
+        locked.setText(", ".join(view["locked_prayers"]))
+        locked.setVisible(bool(view["locked_prayers"]) and locked_toggle.isChecked())
 
     return sync
 
@@ -405,8 +432,8 @@ def _prayer_check(row) -> "QCheckBox":
 _PRAYER_COLUMNS = 3
 
 
-def _add_prayer_grid(layout, player_data, send_config, hide_lower):
-    grid = _PrayerGrid(player_data, send_config, hide_lower)
+def _add_prayer_grid(layout, player_data, send_config, hide_lower, swap_note):
+    grid = _PrayerGrid(player_data, send_config, hide_lower, swap_note)
     layout.addWidget(grid.widget)
     return grid.sync
 
@@ -417,10 +444,14 @@ class _PrayerGrid:
     cells. The grid asks only for two columns' width, so the column can still
     narrow from three columns to two."""
 
-    def __init__(self, player_data, send_config, hide_lower):
+    def __init__(self, player_data, send_config, hide_lower, swap_note):
         self._player_data = player_data
         self._send_config = send_config
         self._hide_lower = hide_lower
+        # A tick that pushes out a prayer sharing its slot says so until the
+        # next refresh, so the box that unticks itself has its reason on screen.
+        self._swap_note = swap_note
+        self._pending_note = ""
         self.widget = QWidget()
         self.widget.setObjectName("combatPrayerCheckboxGrid")
         self._layout = QGridLayout(self.widget)
@@ -441,6 +472,9 @@ class _PrayerGrid:
         if list(self._checks) != [row["id"] for row in view["prayers"]]:
             self._rebuild(view["prayers"])
         self._lower_tier_below = view["lower_tier_below"]
+        self._swap_note.setText(self._pending_note)
+        self._swap_note.setVisible(bool(self._pending_note))
+        self._pending_note = ""
         for row in view["prayers"]:
             check = self._checks[row["id"]]
             _set_checked(check, row["id"] in view["selected_prayers"])
@@ -468,6 +502,7 @@ class _PrayerGrid:
 
     def _toggled(self, prayer_id: str, checked: bool) -> None:
         if self._send_config is not None:
+            self._pending_note = prayer_swap_note_pure(self._player_data, prayer_id, checked)
             self._send_config(
                 "combat_selected_prayers",
                 toggled_combat_prayer_selection_pure(self._player_data, prayer_id, checked),
@@ -494,22 +529,27 @@ class _PrayerGrid:
             self._layout.setColumnStretch(column, 1 if column < columns else 0)
 
 
+def _number_box(object_name, low, high, step, width) -> "QSpinBox":
+    # A narrow box holding only the number, with its unit beside it, reads as
+    # a field to type in; a full-width box with a unit inside read as a menu.
+    box = QSpinBox()
+    box.setObjectName(object_name)
+    box.setRange(low, high)
+    box.setSingleStep(step)
+    box.setMaximumWidth(width)
+    box.setToolTip(f"Type a number, or use the arrows to change it by {step}.")
+    return box
+
+
 def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_threshold):
     _add_section_header(layout, "Food and loot")
-    auto_eat = QSpinBox()
-    auto_eat.setObjectName("combatAutoEatThresholdSpin")
-    auto_eat.setRange(1, 99)
-    auto_eat.setSuffix("% life points")
-    _row(layout, _text_label("Auto-eat at"), auto_eat)
+    auto_eat = _number_box("combatAutoEatThresholdSpin", 1, 99, 1, 72)
+    _row(layout, _text_label("Auto-eat at"), auto_eat, _text_label("% of life points"), grow=None)
     auto_bury = WrappingCheckBox("Auto-bury bones and scatter ashes (costs simulated ticks)")
     auto_bury.setObjectName("combatAutoPrayerTrainingCheck")
     layout.addWidget(auto_bury)
-    loot_spin = QSpinBox()
-    loot_spin.setObjectName("combatLootThresholdSpin")
-    loot_spin.setRange(0, 100000)
-    loot_spin.setSingleStep(5)
-    loot_spin.setSuffix(" coins")
-    _row(layout, _text_label("Leave loot worth under"), loot_spin)
+    loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5, 100)
+    _row(layout, _text_label("Leave loot worth under"), loot_spin, _text_label("coins"), grow=None)
     if on_set_auto_eat is not None:
         auto_eat.valueChanged.connect(lambda value: on_set_auto_eat(value))
     if send_config is not None:
@@ -531,16 +571,17 @@ def _add_presets(layout, player_data, send_config):
     _add_section_header(layout, "Presets")
     preset_combo = QComboBox()
     preset_combo.setObjectName("combatPresetCombo")
-    save_preset = QPushButton("Save as new preset…")
+    _row(layout, _text_label("Preset"), preset_combo)
+    save_preset = QPushButton()
     save_preset.setObjectName("combatSavePresetButton")
-    _row(layout, _text_label("Preset"), preset_combo, save_preset, grow=1)
+    _row(layout, save_preset, grow=None)
     # COMBAT_PRESET_FIELDS, in the words of this column and the carried pack.
     saves = QLabel(
         "A preset saves your prayers, prayer time, auto-eat, auto-bury, autocast, "
         "Lunar spells and supply mode. Attack style and loot stay as they are."
     )
     saves.setWordWrap(True)
-    saves.setStyleSheet(f"color: {dim_text_css(saves)};")
+    saves.setStyleSheet(f"color: {dim_text_css(saves, _NOTE_ALPHA)};")
     layout.addWidget(saves)
     summary = QLabel()
     summary.setObjectName("combatTargetSummaryLabel")
@@ -557,13 +598,7 @@ def _add_presets(layout, player_data, send_config):
         layout.addWidget(check)
     if send_config is not None:
         preset_combo.currentTextChanged.connect(lambda name: send_config("apply_preset", name))
-
-        def _save_current_preset() -> None:
-            name, accepted = QInputDialog.getText(save_preset, "Save combat preset", "Preset name")
-            if accepted and name.strip():
-                send_config("save_preset", name.strip())
-
-        save_preset.clicked.connect(_save_current_preset)
+        save_preset.clicked.connect(lambda _checked=False: _save_preset(save_preset, _target_name(player_data), send_config))
         pin_preset.toggled.connect(lambda enabled: send_config("pin_target_preset", enabled))
         remember_prayers.toggled.connect(lambda enabled: send_config("target_override", ("combat_selected_prayers", enabled)))
         remember_time.toggled.connect(lambda enabled: send_config("target_override", ("combat_prayer_uptime", enabled)))
@@ -575,6 +610,7 @@ def _add_presets(layout, player_data, send_config):
         preset_combo.setCurrentText(view["active_preset"])
         preset_combo.blockSignals(False)
         target = _target_name(player_data)
+        save_preset.setText(f"Save as a preset for {target}…")
         summary.setText(view["target_summary"])
         for check, text, checked in (
             (pin_preset, f"Switch to preset “{view['pinned_preset'] or view['active_preset']}” whenever I fight {target}", bool(view["pinned_preset"])),
@@ -585,6 +621,38 @@ def _add_presets(layout, player_data, send_config):
             _set_checked(check, checked)
 
     return sync
+
+
+def preset_save_dialog(parent, target):
+    """The save step: a name, and whether the target switches to the new
+    preset, ticked because the button offered a preset for this target.
+    Returns the dialog, its name field and its switch box."""
+    dialog = QDialog(parent)
+    dialog.setObjectName("combatPresetSaveDialog")
+    dialog.setWindowTitle("Save combat preset")
+    dialog_layout = QVBoxLayout(dialog)
+    dialog_layout.addWidget(QLabel("Preset name"))
+    name = QLineEdit()
+    name.setObjectName("combatPresetNameEdit")
+    dialog_layout.addWidget(name)
+    switch = QCheckBox(f"Use it whenever I fight {target}")
+    switch.setObjectName("combatPresetUseForTargetCheck")
+    switch.setChecked(True)
+    dialog_layout.addWidget(switch)
+    buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
+    buttons.accepted.connect(dialog.accept)
+    buttons.rejected.connect(dialog.reject)
+    dialog_layout.addWidget(buttons)
+    return dialog, name, switch
+
+
+def _save_preset(parent, target, send_config) -> None:
+    dialog, name, switch = preset_save_dialog(parent, target)
+    if dialog.exec() != QDialog.DialogCode.Accepted or not name.text().strip():
+        return
+    send_config("save_preset", name.text().strip())
+    if switch.isChecked():
+        send_config("pin_target_preset", True)
 
 
 def _add_lunar_spells(layout, player_data, send_config):

@@ -187,7 +187,7 @@ def _combat_setup_prayer_view(player_data):
         "selected_prayers": set(ticked),
         "prayers_picked": bool(ticked) and not _chosen_prayer_ids(player_data),
         "prayers": [row for row in rows if row["unlocked"]],
-        "locked_prayers_text": f"Unlocks later: {', '.join(locked)}" if locked else "",
+        "locked_prayers": locked,
         # "Hide lower-tier prayers" keeps the 15 levels below the player's own.
         "lower_tier_below": max(1, int(player_data.get("prayer_level", 1) or 1) - 15),
     }
@@ -201,6 +201,18 @@ def _ticked_prayer_ids(player_data):
     """The boxes the grid ticks: the player's choice, or, while nothing is
     chosen, the prayers the game picks, so the grid shows what runs."""
     return _chosen_prayer_ids(player_data) or active_prayer_selection_pure(player_data)
+
+
+def prayer_swap_note_pure(player_data, prayer_id, checked):
+    """The note for ticking a prayer that pushes out a ticked one sharing its
+    slot, so the box that unticks itself says why; empty when none does."""
+    if not checked:
+        return ""
+    kept = set(sanitize_prayer_selection_pure(player_data, toggled_combat_prayer_selection_pure(player_data, prayer_id, True)))
+    dropped = [COMBAT_PRAYERS_BY_ID[other].display_name for other in _ticked_prayer_ids(player_data) if other not in kept]
+    if not dropped:
+        return ""
+    return f"{COMBAT_PRAYERS_BY_ID[prayer_id].display_name} replaced {_and_list(dropped)}: they cannot run together."
 
 
 def toggled_combat_prayer_selection_pure(player_data, prayer_id, checked):

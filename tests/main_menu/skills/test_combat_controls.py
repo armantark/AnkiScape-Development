@@ -1,5 +1,6 @@
 from __future__ import annotations
 import unittest
+from unittest.mock import patch
 from tests.test_main_menu_widget import (
     HAS_AQT,
     _ADDON_DIR,
@@ -583,6 +584,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         # Burst of Strength shares Ultimate Strength's slot, so only that box swaps.
         self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength", "incredible_reflexes", "steel_skin"])
         self.assertFalse(ultimate.isChecked())
+        swap_note = dialog.findChild(QLabel, "combatPrayerSwapNote")
+        self.assertEqual(swap_note.text(), "Burst of Strength replaced Ultimate Strength: they cannot run together.")
+        self.assertFalse(swap_note.isHidden())
         self.assertFalse(burst.property("picked"))
         self.assertEqual(status.text(), "Next fight runs Burst of Strength, Incredible Reflexes and Steel Skin for the whole fight.")
         self.assertTrue(max_hit.text().startswith("Your max hit: 150 LP with Burst of Strength"))
@@ -592,6 +596,34 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
         self.assertEqual(pd["combat_selected_prayers"], [])
         self.assertTrue(ultimate.isChecked())
+        self.assertTrue(swap_note.isHidden())
+
+    def test_saving_a_preset_for_the_target_switches_the_target_to_it(self) -> None:
+        from ankiscape.ui import ui_combat_setup_panel as panel
+
+        pd = _make_player_data()
+        pd.update({"prayer_level": 43, "combat_prayer_points": 430, "current_combat_target": "chicken"})
+        dialog = self._open(pd)
+        save = dialog.findChild(QPushButton, "combatSavePresetButton")
+        self.assertEqual(save.text(), "Save as a preset for Chicken…")
+        build = panel.preset_save_dialog
+
+        def named(parent, target):
+            built, name, switch = build(parent, target)
+            self.assertTrue(switch.isChecked())
+            self.assertEqual(switch.text(), "Use it whenever I fight Chicken")
+            name.setText("Chickens")
+            built.exec = lambda: panel.QDialog.DialogCode.Accepted
+            return built, name, switch
+
+        with patch.object(panel, "preset_save_dialog", named):
+            save.click()
+        QApplication.processEvents()
+        self.assertIn("Chickens", pd["combat_presets"])
+        self.assertEqual(pd["combat_target_presets"], {"chicken": "Chickens"})
+        self.assertTrue(
+            dialog.findChild(QLabel, "combatTargetSummaryLabel").text().startswith("Against Chicken: preset Chickens · ")
+        )
 
     def test_the_target_summary_names_the_source_that_wins(self) -> None:
         pd = _make_player_data()
