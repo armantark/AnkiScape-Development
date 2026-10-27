@@ -102,6 +102,18 @@ class TickedPrayersTests(unittest.TestCase):
                 self.assertEqual(_tooltip_max_hit(player), max_hit)
                 self.assertEqual(rolled[0] * 10, max_hit)
 
+    def test_the_view_says_when_the_game_can_pick_the_prayers_and_why_not(self):
+        cases = (
+            ({"combat_prayers_enabled": False}, ("Pick the best for me", False, "Tick “Use prayers in fights” first.")),
+            ({}, ("Using the best pick", False, "The blue ticks are already the best prayers for your weapon.")),
+            ({"combat_selected_prayers": ["burst_of_strength"]},
+             ("Pick the best for me", True, "Clear your ticks and let the game pick the best prayers for your weapon.")),
+        )
+        for settings, expected in cases:
+            with self.subTest(settings=settings):
+                view = combat_setup_panel_view_pure(_melee_player(**settings), EQUIPMENT_ITEM_DATA)
+                self.assertEqual((view["auto_pick_text"], view["auto_pick_enabled"], view["auto_pick_tooltip"]), expected)
+
     def test_the_hud_names_the_prayers_and_a_shorter_prayer_time(self):
         player = _melee_player(combat_selected_prayers=["burst_of_strength"], combat_prayer_points=380)
         self.assertEqual(combat_hud_state_pure(player)["prayer_texts"], ["38/43 · Burst of Strength"])

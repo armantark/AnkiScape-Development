@@ -503,7 +503,6 @@ from .logic_pure_combat_setup import (
     _combat_prayer_tick,
     _combat_resume_attack_clocks,
     _combat_start_prayer,
-    _combat_switch_off_spent_prayers,
 )
 from .logic_pure_combat_live import (
     _combat_live_enemy_accuracy,
@@ -1636,9 +1635,6 @@ def apply_combat_burst_pure(
         if live_cadence and vengeance_cast_paid:
             next_encounter["vengeance_cast_paid"] = True
         data["combat_encounter"] = next_encounter
-
-    if live_cadence:
-        _combat_switch_off_spent_prayers(data, prayer_points_after, selected_prayers)
 
     _combat_advance_dragonfire_effects(
         data, ticks_elapsed - dragonfire_effect_tick

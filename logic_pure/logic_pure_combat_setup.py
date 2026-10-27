@@ -62,9 +62,10 @@ def _combat_start_prayer(
     automatic_protection_prayer=None,
 ):
     """Prayer at the start of a burst. An ordinary burst drains its whole tick
-    budget up front and switches spent prayers off; a live burst drains in each
-    tick instead, so it starts at the uptime asked for. Returns the points
-    before, the points and drain counter now, the uptime and prayer effects."""
+    budget up front; a live burst drains in each tick instead, so it starts at
+    the uptime asked for. Spent points leave the player's chosen prayers saved
+    for the next refill. Returns the points before, the points and drain
+    counter now, the uptime and prayer effects."""
     points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
     counter = data.get("combat_prayer_drain_counter", 0.0)
     points, counter, uptime = (
@@ -83,8 +84,6 @@ def _combat_start_prayer(
     data["combat_prayer_points"] = points
     data["combat_prayer_drain_counter"] = counter
     prayer_effects = prayer_effect_state_pure(data, uptime, automatic_protection_prayer=automatic_protection_prayer)
-    if not live_cadence:
-        _combat_switch_off_spent_prayers(data, points, selected_prayers)
     return points_before, points, counter, uptime, prayer_effects
 
 
@@ -112,11 +111,6 @@ def _combat_prayer_tick(
     return points, counter, tick_uptime, (
         tick_uptime / burst_uptime if burst_uptime > 0 else 1.0
     )
-
-
-def _combat_switch_off_spent_prayers(data, points, selected_prayers):
-    if points <= 0 and selected_prayers:
-        data["combat_selected_prayers"] = []
 
 
 def _combat_resume_attack_clocks(encounter, resumed, enemy_attack_speed):

@@ -692,7 +692,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                 self.assertGreater(damage, 0)
                 if "combat_prayer_points" in limit:
                     self.assertEqual(updated["combat_prayer_points"], 0)
-                    self.assertEqual(updated["combat_selected_prayers"], [])
+                    self.assertEqual(updated["combat_selected_prayers"], ["protect_from_melee", "ultimate_strength"])
 
     def test_auto_protection_stops_after_points_deplete(self):
         limits = ({"combat_prayer_points": 0},
@@ -711,7 +711,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                     damage_by_points[limit["combat_prayer_points"]] = damage
                     self.assertGreater(damage, 0)
                     self.assertEqual(updated["combat_prayer_points"], 0)
-                    self.assertEqual(updated["combat_selected_prayers"], [])
+                    self.assertEqual(updated["combat_selected_prayers"], ["protect_from_melee", "ultimate_strength"])
             if not healer:
                 self.assertEqual(damage_by_points[3] * 2, damage_by_points[0])
 

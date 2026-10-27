@@ -19,7 +19,9 @@ ENEMY = {
 
 
 def answer_combat(player=None, *, enemy=None, hits=()):
-    player = _player(current_combat_target="chicken", combat_auto_flee=False) if player is None else player
+    # Prayers stay off unless a test turns them on: the game's level-1 pick
+    # spends its 10 points by tick 40, and zero Prayer ends the card.
+    player = _player(current_combat_target="chicken", combat_auto_flee=False, combat_prayers_enabled=False) if player is None else player
     if not player.get("combat_encounter"):
         player["combat_encounter"] = {
             "target_id": player["current_combat_target"],
@@ -111,7 +113,7 @@ class CombatDangerStopsTests(unittest.TestCase):
         self.assertFalse(ctx.player_data.get("combat_bank_run"))
 
     def test_same_tick_antipoison_cure_keeps_the_card_running(self):
-        player = _player(combat_auto_flee=False,
+        player = _player(combat_auto_flee=False, combat_prayers_enabled=False,
                          combat_supply_loadout={"potions": {"Antipoison (4)": 1}})
         ctx, _calls, ok = answer_combat(player, enemy={**ENEMY, "poison_damage": 10})
         self.assertTrue(ok)

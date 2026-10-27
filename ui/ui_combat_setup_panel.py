@@ -411,7 +411,9 @@ def _add_prayer_section(layout, player_data, send_config):
         _set_combo_data(time_combo, view["prayer_uptime"])
         for widget in (book_combo, time_combo, hide_lower):
             widget.setEnabled(view["prayers_enabled"])
-        _sync_auto_pick(auto_pick, view, send_config is not None)
+        auto_pick.setText(view["auto_pick_text"])
+        auto_pick.setEnabled(send_config is not None and view["auto_pick_enabled"])
+        auto_pick.setToolTip(view["auto_pick_tooltip"])
         sync_grid(view)
         locked_toggle.setText(f"Unlocks later ({len(view['locked_prayers'])})")
         locked_toggle.setVisible(bool(view["locked_prayers"]))
@@ -419,19 +421,6 @@ def _add_prayer_section(layout, player_data, send_config):
         locked.setVisible(bool(view["locked_prayers"]) and locked_toggle.isChecked())
 
     return sync
-
-
-def _sync_auto_pick(auto_pick, view, can_send) -> None:
-    """The way back to the game's pick, saying why when it cannot be used."""
-    in_use = view["prayers_enabled"] and view["prayers_picked"]
-    auto_pick.setText("Using the best pick" if in_use else "Pick the best for me")
-    auto_pick.setEnabled(can_send and view["prayers_enabled"] and not in_use)
-    if not view["prayers_enabled"]:
-        auto_pick.setToolTip("Tick “Use prayers in fights” first.")
-    elif in_use:
-        auto_pick.setToolTip("The blue ticks are already the best prayers for your weapon.")
-    else:
-        auto_pick.setToolTip("Clear your ticks and let the game pick the best prayers for your weapon.")
 
 
 def _prayer_check(row) -> "QCheckBox":

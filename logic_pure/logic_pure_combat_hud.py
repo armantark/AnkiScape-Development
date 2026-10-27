@@ -178,18 +178,37 @@ def _combat_setup_prayer_view(player_data):
     rows = _combat_setup_prayer_rows(player_data)
     locked = [row["label"] for row in rows if not row["unlocked"]]
     ticked = _ticked_prayer_ids(player_data)
+    enabled = bool(player_data.get("combat_prayers_enabled", True))
+    picked = bool(ticked) and not _chosen_prayer_ids(player_data)
     return {
-        "prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
+        "prayers_enabled": enabled,
         "curses_unlocked": _quest_completed(player_data, "the_temple_at_senntisten"),
         "prayer_book": player_data.get("combat_prayer_book", "standard"),
         "prayer_uptime": uptime if uptime in PRAYER_UPTIME_POLICIES else DEFAULT_PRAYER_UPTIME,
         "prayer_status": _combat_setup_prayer_status(player_data),
         "selected_prayers": set(ticked),
-        "prayers_picked": bool(ticked) and not _chosen_prayer_ids(player_data),
+        "prayers_picked": picked,
+        **_auto_pick_button(enabled, picked),
         "prayers": [row for row in rows if row["unlocked"]],
         "locked_prayers": locked,
         # "Hide lower-tier prayers" keeps the 15 levels below the player's own.
         "lower_tier_below": max(1, int(player_data.get("prayer_level", 1) or 1) - 15),
+    }
+
+
+def _auto_pick_button(enabled, picked):
+    """The way back to the game's pick, saying why when it cannot be used."""
+    in_use = enabled and picked
+    if not enabled:
+        tooltip = "Tick “Use prayers in fights” first."
+    elif in_use:
+        tooltip = "The blue ticks are already the best prayers for your weapon."
+    else:
+        tooltip = "Clear your ticks and let the game pick the best prayers for your weapon."
+    return {
+        "auto_pick_text": "Using the best pick" if in_use else "Pick the best for me",
+        "auto_pick_enabled": enabled and not in_use,
+        "auto_pick_tooltip": tooltip,
     }
 
 

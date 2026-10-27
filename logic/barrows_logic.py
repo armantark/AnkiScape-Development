@@ -526,8 +526,6 @@ def _drain_barrows_prayer(
     available = _int(data.get("combat_prayer_points"))
     applied = min(available, drain)
     data["combat_prayer_points"] = available - applied
-    if data["combat_prayer_points"] <= 0:
-        data["combat_selected_prayers"] = []
     return applied
 
 

@@ -1,4 +1,5 @@
-"""Saved prayer choices stop a card only when a draining prayer is on."""
+"""Running out of Prayer ends the card whenever a draining prayer runs,
+whether the player chose it or the game picked it (decision 5)."""
 
 from dataclasses import replace
 import unittest
@@ -19,15 +20,27 @@ class PrayerStopConfigurationTests(unittest.TestCase):
         self.assertEqual(ctx.card.stop_reason, "prayer_empty")
         self.assertEqual(ctx.player_data["combat_last_result"]["ticks_elapsed"], 1)
 
-    def test_with_no_prayer_chosen_running_out_of_points_spends_the_card(self):
-        # The best-prayer pick lapses when the points run out; only a chosen
-        # prayer stops the card.
+    def test_the_game_picked_prayers_running_out_of_points_end_the_card(self):
         player = _player(combat_auto_flee=False, prayer_level=10, combat_prayer_points=1)
         ctx, _calls, ok = answer_combat(player)
         self.assertTrue(ok)
-        self.assertEqual(ctx.card.stop_reason, "")
-        self.assertEqual(ctx.player_data["combat_last_result"]["ticks_elapsed"], 60)
+        result = ctx.player_data["combat_last_result"]
+        self.assertTrue(result["prayers"])
+        self.assertEqual(ctx.card.stop_reason, "prayer_empty")
+        self.assertLess(result["ticks_elapsed"], 60)
         self.assertEqual(ctx.player_data["combat_prayer_points"], 0)
+
+    def test_running_out_keeps_the_chosen_prayers_for_the_fight_after_a_refill(self):
+        player = _player(combat_auto_flee=False, prayer_level=10, combat_prayer_points=1,
+                         combat_selected_prayers=["thick_skin"])
+        ctx, _calls, ok = answer_combat(player)
+        self.assertTrue(ok)
+        self.assertEqual(ctx.card.stop_reason, "prayer_empty")
+        self.assertEqual(ctx.player_data["combat_selected_prayers"], ["thick_skin"])
+        refilled = dict(ctx.player_data, combat_prayer_points=100)
+        ctx, _calls, ok = answer_combat(refilled)
+        self.assertTrue(ok)
+        self.assertEqual(ctx.player_data["combat_last_result"]["prayers"], ("thick_skin",))
 
     def test_disabled_prayers_with_saved_uptime_and_no_points_spend_the_card(self):
         player = _player(combat_auto_flee=False, combat_prayer_points=0,

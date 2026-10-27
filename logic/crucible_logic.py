@@ -13,6 +13,7 @@ from ..data.crucible_data import (
     CRUCIBLE_COMBAT_TARGET_ID,
     CRUCIBLE_COMBAT_TICKS,
     CRUCIBLE_CURRENCY,
+    CRUCIBLE_DISABLED_PRAYERS,
     CRUCIBLE_INTERVAL_TICKS,
     CRUCIBLE_ACTIVE_TICKS,
     CRUCIBLE_LESSON_BONE_AWARD,
@@ -42,6 +43,7 @@ from ..logic_pure.logic_pure import (
     combat_max_lifepoints_pure,
     player_combat_level_pure,
 )
+from ..logic_pure.logic_pure_prayer import fight_prayer_settings_pure
 
 from .pace.world_clock import answered_cards_pure, calendar_ticks_pure
 from .pace.world_events import event_in_play_pure, event_slot_tick_pure
@@ -726,16 +728,13 @@ def apply_crucible_review_pure(
     encounter["target_id"] = CRUCIBLE_COMBAT_TARGET_ID
     encounter["enemy_lifepoints"] = int(target["lifepoints"])
     data["combat_encounter"] = encounter
-    original_auto_flee = bool(data.get("combat_auto_flee", True))
-    data["combat_auto_flee"] = False
-    # Both pinned revisions state that Protect Item prayers and curses are
-    # disabled inside the Crucible, so the arena must not honour a selection the
-    # player made outside it. The selection itself is left untouched.
-    original_prayers = data.get("combat_selected_prayers")
-    if isinstance(original_prayers, (list, tuple)):
-        data["combat_selected_prayers"] = [
-            prayer for prayer in original_prayers if prayer != "protect_item"
-        ]
+    # The player's own settings return after the arena's fight.
+    saved_settings = {
+        "combat_auto_flee": bool(data.get("combat_auto_flee", True)),
+        "combat_prayers_enabled": bool(data.get("combat_prayers_enabled", True)),
+        "combat_selected_prayers": list(data.get("combat_selected_prayers") or ()),
+    }
+    data.update(combat_auto_flee=False, **fight_prayer_settings_pure(data, CRUCIBLE_DISABLED_PRAYERS))
     data, ok, combat = apply_combat_burst_pure(
         data,
         _enemy_for(target),
@@ -748,9 +747,7 @@ def apply_crucible_review_pure(
         no_grave=not in_event,
         allow_bank_run=False,
     )
-    data["combat_auto_flee"] = original_auto_flee
-    if isinstance(original_prayers, (list, tuple)):
-        data["combat_selected_prayers"] = list(original_prayers)
+    data.update(saved_settings)
     if not ok:
         return copy.deepcopy(dict(player_data)), False, {
             "reason": "Crucible combat setup is not runnable.",

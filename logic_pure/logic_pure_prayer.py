@@ -351,6 +351,18 @@ def _ticked_prayers(data):
     return best_combat_prayers_pure(data)
 
 
+def fight_prayer_settings_pure(data, disabled):
+    """The prayer settings for a fight where some prayers are disabled: the
+    other chosen prayers run, or none rather than the game's pick when every
+    chosen one is disabled."""
+    chosen = list(data.get("combat_selected_prayers") or ())
+    kept = [prayer for prayer in chosen if prayer not in disabled]
+    return {
+        "combat_selected_prayers": kept,
+        "combat_prayers_enabled": bool(data.get("combat_prayers_enabled", True)) and (bool(kept) or not chosen),
+    }
+
+
 def active_prayer_selection_pure(data, *, automatic_protection_prayer=None):
     selected = _ticked_prayers(data)
     automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
