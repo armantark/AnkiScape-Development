@@ -264,16 +264,17 @@ def _combat_settle_wilderness_ambush(
     return ambush, _non_negative_int(ambush.get("lifepoints_after", player_lp), player_lp), False
 
 
-def _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before, requested_prayer_uptime):
+def _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before, requested_prayer_uptime, prayer_points_before):
     if not live_cadence:
         return ""
     if low_lifepoints_without_food_pure(data, lifepoints, maximum):
         return "fled" if data.get("combat_auto_flee", True) else "low_lp_no_food"
     if not poison_before and (data.get("combat_status_effects") or {}).get("poison"):
         return "poison_started"
-    # Zero Prayer ends the card whoever chose the running prayers: the player,
-    # the game's pick for an empty choice, or an arena's automatic protection.
-    if prayer_points <= 0 and requested_prayer_uptime > 0 and any(COMBAT_PRAYERS_BY_ID[prayer].drain > 0 for prayer in prayers):
+    # Prayer reaching zero ends the card it happens in, whoever chose the
+    # running prayers: the player, the game's pick for an empty choice, or an
+    # arena's automatic protection. A card that starts at zero fights on.
+    if prayer_points_before > 0 and prayer_points <= 0 and requested_prayer_uptime > 0 and any(COMBAT_PRAYERS_BY_ID[prayer].drain > 0 for prayer in prayers):
         return "prayer_empty"
     return ""
 
@@ -289,13 +290,13 @@ def _combat_result_stop_reason(reason, died, fled, familiar_escape, out_of_ammo,
     return next((name for stopped, name in stops if stopped), "")
 
 
-def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before, died, pending_drops, observed_before, requested_prayer_uptime):
+def _combat_kill_boundary_stop(data, live_cadence, kills, limit, allow_bank_run, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data, lifepoints, maximum, prayer_points, prayers, poison_before, died, pending_drops, observed_before, requested_prayer_uptime, prayer_points_before):
     """Settle a kill's danger, task and bank boundaries; return reason and flee."""
     if not live_cadence:
         return "", False
     if died:
         return "died", False
-    danger = _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before, requested_prayer_uptime)
+    danger = _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_points, prayers, poison_before, requested_prayer_uptime, prayer_points_before)
     if danger:
         return danger, danger == "fled"
     if limit is not None and kills >= limit:
