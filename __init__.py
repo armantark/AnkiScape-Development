@@ -248,7 +248,7 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
-from .core.last_action import LAST_ACTION_KEY, last_action_name_pure, last_action_record_pure, resume_last_action
+from .core.action_queue import advance_action_queue, record_bankstanding_stop, resume_action
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
@@ -332,7 +332,7 @@ from .logic.pet_logic import (
 from .runtime import runtime_actions
 from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .runtime.dispatcher_state import state as _state
-from .core.xp_drops import NamedExperience as _NamedExperience, whole_number_xp_breakdown
+from .core.xp_drops import NamedExperience as _NamedExperience, review_product_text as _review_product_text, whole_number_xp_breakdown
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
@@ -522,6 +522,7 @@ def _begin_review_feedback_context(before_player_data=None) -> None:
         "xp": float(initial_xp or 0.0),
         "before": copy.deepcopy(_state.player_data) if before_player_data is None else before_player_data,
         "combat_level_before": player_combat_level_pure(_state.player_data),
+        "skill": _state.current_skill,
         "activity": [],
     }
     _state.review_feedback_initial_xp = 0.0
@@ -567,9 +568,8 @@ def _finish_review_feedback_context(stop_reason: str = "") -> None:
         skill_names = [name for name, _amount in breakdown]
         activity_messages = context.get("activity", [])
         if xp_total > 0 and breakdown:
-            # The popup stays one short line: what the review made, never what it used.
-            changes = inventory_pure.review_item_changes_pure(context["before"], _state.player_data)
-            gains = _item_changes_text({item: count for item, count in changes.items() if count > 0})
+            # The popup stays one short line: the action's product, never loot or what it used.
+            gains = _review_product_text(context["before"], _state.player_data, context.get("skill"))
             _show_exp(_NamedExperience(xp_total, skill_names, breakdown, gains), record_event=False)
             for message in _lines_with_stop_reason(activity_messages, stop_reason):
                 _record_review_event("activity", str(message), persist=False)
@@ -1307,9 +1307,9 @@ def _switch_to_bankstanding(
     ):
         return False
 
-    stopped = last_action_record_pure(_state.player_data, _state.current_skill)
-    reason_text = str(reason or "").strip() or f"{last_action_name_pure(stopped) or 'Current action'} could not continue."
-    _state.player_data[LAST_ACTION_KEY] = {**stopped, "reason": reason_text} if stopped else {}
+    reason_text = record_bankstanding_stop(sys.modules[__name__], reason, automatic=automatic)
+    if reason_text is None:
+        return False
     _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     _state.player_data["current_utility"] = "bankstanding"
     _append_review_event(_state.player_data, "activity", _bankstanding_event_text(reason_text))
@@ -1338,26 +1338,6 @@ def _activity_session_end_reason(session) -> str:
 def _activity_session_cleared(before, after=None) -> bool:
     after = after if after is not None else _state.player_data.get("activity_session")
     return runtime_actions.activity_session_cleared(before, after)
-
-
-def _missing_materials_text(requirements, inventory) -> str:
-    """Human-readable list of just the unmet requirements, e.g. "1 Unfired pot"."""
-    missing = [
-        f"{amount} {material}"
-        for material, amount in requirements.items()
-        if inventory.get(material, 0) < amount
-    ]
-    return ", ".join(missing) if missing else "materials"
-
-
-def _fishing_materials_text(method_spec, inventory) -> str:
-    bait_options = tuple(method_spec.get("bait_options") or ())
-    if not bait_options:
-        return "materials"
-    if len(bait_options) == 1:
-        bait = bait_options[0]
-        return f"1 {bait}"
-    return "any of " + ", ".join(f"1 {bait}" for bait in bait_options)
 
 
 def save_skill(skill, dialog) -> bool:
@@ -1543,7 +1523,7 @@ def on_request_review_bank_run() -> bool:
 
 
 def on_resume_last_action() -> bool:
-    return resume_last_action(sys.modules[__name__])
+    return resume_action(sys.modules[__name__])
 
 
 def _update_review_bank_run_surface() -> None:
@@ -4393,23 +4373,25 @@ def _set_combat_attack_style(selection):
     })
 
 
-def _set_combat_target(target):
+def _combat_target_values(current, target) -> dict:
     values = {
         "combat_action": "attack",
         "current_combat_target": target,
     }
-    if _state.player_data.get("current_combat_target") != target:
+    if current.get("current_combat_target") != target:
         values["combat_encounter"] = {}
     if target not in {"cyclops", "cyclossus"}:
-        guild_state = sanitize_warriors_guild_state_pure(
-            _state.player_data.get("warriors_guild")
-        )
+        guild_state = sanitize_warriors_guild_state_pure(current.get("warriors_guild"))
         if guild_state["in_cyclops_room"]:
             guild_state["in_cyclops_room"] = False
             guild_state["cyclossus_pending"] = False
             guild_state["token_drain_residual"] = 0
             values["warriors_guild"] = guild_state
-    return _set_values(values)
+    return values
+
+
+def _set_combat_target(target):
+    return _set_values(_combat_target_values(_state.player_data, target))
 
 
 def _set_values(values):
@@ -5195,6 +5177,7 @@ def _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, be
     if awards_review and (answers_farm_step or is_review_action(_state.current_skill)):
         _state.review_feedback_initial_xp = context_xp
         on_good_answer(before_state, defer_commit=True)
+        advance_action_queue(sys.modules[__name__], before_state["player_data"])
         _state.exp_awarded = True
     else:
         handler_key = review_action_handler_key(_state.current_skill)

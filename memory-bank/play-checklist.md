@@ -55,6 +55,7 @@ you are in the game, with the date the change reached main.
 - [ ] In Aid of the Myreque stage 6: the four level-50 Juvinates still read "This fight is not modelled yet (combat stats missing)", because the source review found no period stats for that variant. The two Vampyre Juvinates in the same stage stay fightable: that is a separate, older generated encounter, and this slice left it alone. (after the next batch)
 - [ ] Skills, Support, Slayer, Masters: Turael, Mazchna and Vannaka each show a card with a chathead. Below combat level 20 Mazchna is greyed with "Requires: Combat level 20"; from 20 his "Get assignment" gives a Mazchna task. After that task, the Assignment tab says "Ask Mazchna for a new task." and its button asks Mazchna. (after the next batch) (2026-10-16)
 - [ ] Remaining times read in cards, never ticks: with a Combat target selected and Antipoison drunk in a fight, the review strip's Combat card says "Poison immune: N cards left" (a 150-tick dose is 3 cards at speed 10, 25 at speed 1); a poisoned fight says "Poisoned: N LP in 1 card". Tears of Guthix's card and the Mining Shooting Star bonus read the same way. (2026-10-26)
+- [ ] Fight Chickens (Combat tab, game speed 10) and answer a card that gives a kill: the floating XP popup shows only the XP, such as "Attack +40 XP · Constitution +13 XP", with no loot; open the Event log above the review strip and the same card's XP row ends with the loot it took, such as "+1 Bones · +1 Raw chicken". (Pass 17 ticket 03)
 
 ## Minigames
 

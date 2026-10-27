@@ -106,15 +106,16 @@ class ReviewXpDropsTest(unittest.TestCase):
 
     def test_combat_crossings_keep_the_same_multi_skill_popup_and_log(self):
         self._finish_giant_rat(0.7, 0.9)
-        expected = "Attack +1 XP · Constitution +1 XP · +1 Bones · +1 Raw rat meat"
-        self.assertEqual(self._xp_events(), [expected])
-        self.assertIn(expected, self.popup)
+        # The log lists the loot; a fight makes no product, so the popup shows only XP.
+        drop = "Attack +1 XP · Constitution +1 XP"
+        self.assertEqual(self._xp_events(), [f"{drop} · +1 Bones · +1 Raw rat meat"])
+        self.assertIn(drop, self.popup)
 
     def test_combat_omits_attack_when_only_constitution_crosses(self):
         self._finish_giant_rat(0.0, 0.9)
-        expected = "+1 XP · Constitution · +1 Bones · +1 Raw rat meat"
-        self.assertEqual(self._xp_events(), [expected])
-        self.assertIn(expected, self.popup)
+        drop = "+1 XP · Constitution"
+        self.assertEqual(self._xp_events(), [f"{drop} · +1 Bones · +1 Raw rat meat"])
+        self.assertIn(drop, self.popup)
 
     def test_multiple_awards_update_one_drop_before_the_level_up(self):
         addon = self.addon

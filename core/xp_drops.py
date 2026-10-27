@@ -2,7 +2,11 @@
 
 from math import floor
 
+from .action_products import product_gains_pure
+from .activity_feedback import item_changes_text
+from .last_action import last_action_record_pure
 from .skill_registry import trainable_skill_definitions
+from ..logic.inventory_pure import review_item_changes_pure
 
 
 def whole_number_xp_breakdown(before, after):
@@ -14,6 +18,12 @@ def whole_number_xp_breakdown(before, after):
         if gained > 0:
             breakdown.append((skill.display_name, gained))
     return breakdown
+
+
+def review_product_text(before, after, current_skill) -> str:
+    """The popup's item text: the review's gain of its action's product, never loot or what it used."""
+    action = last_action_record_pure(before, current_skill)
+    return item_changes_text(product_gains_pure(action, review_item_changes_pure(before, after)))
 
 
 class NamedExperience(float):

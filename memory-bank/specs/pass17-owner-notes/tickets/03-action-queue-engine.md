@@ -4,9 +4,9 @@
 
 **Blocked by:** 01 (Review item changes), 02 (Last action record and Resume)
 
-**Status:** open
+**Status:** done
 
-- [ ] Pure tests: advance on count, pass on shortfall with a notice, pause and resume, clear, the five-entry cap refuses a sixth, no repeat after the last entry.
-- [ ] Real review handler: a three-entry chain (mine iron ore, smelt, smith) runs through its counts, passes an entry that runs short, and ends at Bankstanding with the notice.
-- [ ] A quest entry ends when its quest stops and the next entry starts.
-- [ ] The queue survives a profile reload.
+- [x] Pure tests: advance on count, pass on shortfall with a notice, pause and resume, clear, the five-entry cap refuses a sixth, no repeat after the last entry.
+- [x] Real review handler: a three-entry chain (mine iron ore, smelt, smith) runs through its counts, passes an entry that runs short, and ends at Bankstanding with the notice.
+- [x] A quest entry ends when its quest stops and the next entry starts.
+- [x] The queue survives a profile reload.

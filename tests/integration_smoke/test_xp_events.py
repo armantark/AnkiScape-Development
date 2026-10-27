@@ -71,6 +71,34 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             ],
         )
 
+    def test_the_popup_shows_the_actions_product_and_the_event_log_every_change(self):
+        addon = _load_addon_as_package("ankiscape_popup_product_only")
+        popup_text = []
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": True}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_exp=lambda exp: popup_text.append(exp.display_text))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon._state.current_skill = "Smithing"
+        addon._state.player_data = {
+            "smithing_exp": 0.0,
+            "current_smith": "smelt_iron_bar",
+            "inventory": {"Iron ore": 4},
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        addon._begin_review_feedback_context()
+        # A potion drunk mid-review leaves its vial: an item change, not a product.
+        addon._state.player_data["inventory"] = {"Iron ore": 0, "Iron bar": 2, "Vial": 1}
+        addon._show_exp(addon._award_skill_exp("smithing_exp", 25))
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(popup_text, ["+25 XP · Smithing · +2 Iron bar"])
+        self.assertEqual(
+            addon._state.player_data["review_event_log"][-1]["text"],
+            "+25 XP · Smithing · +2 Iron bar · +1 Vial · −4 Iron ore",
+        )
+
     def test_fractional_constitution_xp_is_not_displayed_as_zero(self):
         addon = _load_addon_as_package("ankiscape_fractional_constitution_xp")
 

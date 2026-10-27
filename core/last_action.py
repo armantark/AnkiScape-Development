@@ -2,11 +2,10 @@
 
 The switch to Bankstanding saves a record of the running action under
 ``LAST_ACTION_KEY``. The review HUD's Resume button restarts it, and the action
-queue reuses both the record shape and ``start_action``. A record holds every
-key its tab's start path needs, plus the reason it stopped for the HUD's status
-line; ``start_action`` calls that tab's own start
-function, so a restart runs the same requirement checks and shows the same
-refusal as the tab.
+queue keeps its entries in the same record shape. A record holds every key its
+tab's start path needs, plus the reason it stopped for the HUD's status line;
+``start_action`` calls that tab's own start function, so a restart runs the
+same requirement checks and shows the same refusal as the tab.
 """
 
 from __future__ import annotations
@@ -31,7 +30,13 @@ from ..logic_pure.logic_pure import (
 
 LAST_ACTION_KEY = "last_action"
 _BANKSTANDING = "bankstanding"
-_KINDS = frozenset({"skill", "utility", "quest", "combat"})
+# The keys each kind's start path needs; a record holds these and its stop reason.
+_RECORD_KEYS = {
+    "skill": ("skill", "target"),
+    "utility": ("utility_id",),
+    "quest": ("quest_id",),
+    "combat": ("target", "combat_action"),
+}
 _IDLE_AT_BANK = "idle at the Bank"
 _HIDDEN = {"visible": False, "text": "", "tooltip": "", "bank_status": _IDLE_AT_BANK}
 
@@ -64,14 +69,21 @@ def last_action_record_pure(player_data: Mapping[str, Any], current_skill: Any) 
 
 def saved_last_action_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     """The saved record, or empty when the save holds none this game can start."""
-    record = player_data.get(LAST_ACTION_KEY)
-    if not isinstance(record, Mapping) or record.get("kind") not in _KINDS:
+    return valid_action_record_pure(player_data.get(LAST_ACTION_KEY))
+
+
+def valid_action_record_pure(record: Any) -> dict[str, Any]:
+    """An action record this game can start, cut to its shape, else empty."""
+    if not isinstance(record, Mapping) or record.get("kind") not in _RECORD_KEYS:
+        return {}
+    keys = ("kind", *_RECORD_KEYS[record["kind"]])
+    if any(key not in record for key in keys):
         return {}
     if record["kind"] == "quest" and record.get("quest_id") not in QUEST_DATA:
         return {}
     if record["kind"] == "skill" and get_skill(str(record.get("skill") or "")) is None:
         return {}
-    return dict(record)
+    return {key: record[key] for key in (*keys, "reason") if key in record}
 
 
 def last_action_name_pure(record: Mapping[str, Any]) -> str:
