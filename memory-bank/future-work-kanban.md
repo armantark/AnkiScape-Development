@@ -87,13 +87,22 @@ holds both lists.
   belt spade today; add them to `QUEST_STAGES_NEEDING_HELD_TOOLS` if a source
   says it does not.
 
+### Pass 17 follow-ups — 2026-10-26
+
+Sources: `memory-bank/source-audits/pass17-pickables-harvest-2026-10-26.md`.
+
+- `PARKED` The Bloom spell for Mort Myre fungus, pears and stems (Nature Spirit,
+  blessed sickle or Ivandis flail); owner, 2026-10-26: "we should ahve the
+  bloom spell at some point".
+
 ### Pass 16 follow-ups — 2026-10-15
 
 Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope.
 
 - `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
   one card "should drag it out". Bulk work such as burying stays on targets.
-- `PARKED` An action queue, so a run out of resources does not end in Bankstanding.
+- `IMPLEMENT` An action queue, so a run out of resources does not end in
+  Bankstanding: Pass 17, `memory-bank/specs/pass17-owner-notes/`.
 - `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
   the catalog parser drops choice XP not worded as a lamp.
 - `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.
