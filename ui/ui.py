@@ -1558,7 +1558,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, lay_out_whole, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -22268,12 +22268,10 @@ def show_main_menu(
         )
     )
     _refresh_ge()
-    tabs.addTab(ge_tab, "Grand Exchange")
-    _set_global_tab_icon(ge_tab, "grand_exchange_icon.png")
-    tabs.setTabToolTip(
-        tabs.indexOf(ge_tab),
-        "Place and manage review-paced Grand Exchange offers",
-    )
+    ge_page = vertical_scroll(ge_tab)
+    tabs.addTab(ge_page, "Grand Exchange")
+    _set_global_tab_icon(ge_page, "grand_exchange_icon.png")
+    tabs.setTabToolTip(tabs.indexOf(ge_page), "Place and manage review-paced Grand Exchange offers")
 
     def _choose_ironman_on_first_ge_open() -> bool:
         projection = ge_state["projection"]
@@ -22315,7 +22313,7 @@ def show_main_menu(
         close_review_status_popover()
         if not _choose_ironman_on_first_ge_open():
             return
-        tabs.setCurrentWidget(ge_tab)
+        tabs.setCurrentWidget(ge_page)
         dialog.raise_()
         dialog.activateWindow()
 
@@ -22626,7 +22624,6 @@ def show_main_menu(
             grid.addWidget(QLabel(exp_to_next_text), 2, 1)
         prog = QProgressBar()
         prog.setObjectName("statsSkillProgress")
-        prog.setMinimumWidth(240)
         prog.setMaximumWidth(320)
         prog.setValue(int(progress["percent"]))
         grid.addWidget(QLabel("Level Progress:"), 3, 0)
@@ -22782,7 +22779,8 @@ def show_main_menu(
         Qt.ScrollBarPolicy.ScrollBarAsNeeded
     )
     selector_scroll.setWidget(selector)
-    selector_scroll.setFixedWidth(344)
+    # As wide as its buttons ask, plus the scroll bar a short window shows.
+    selector_scroll.setFixedWidth(selector.sizeHint().width() + selector_scroll.verticalScrollBar().sizeHint().width())
     stats_body_layout.addWidget(selector_scroll)
     stats_body_layout.addWidget(details_container, 1)
 
@@ -25466,7 +25464,7 @@ def show_main_menu(
         blocks_row = QHBoxLayout()
         block_boxes = {}
         for entry in daily_challenges_view_pure(player_data)["skill_blocks"]:
-            box = QCheckBox(str(entry["label"]))
+            box = lay_out_whole(QCheckBox(str(entry["label"])))
             box.setObjectName(f"challengeBlock_{entry['skill_id']}")
             blocks_row.addWidget(box)
             block_boxes[str(entry["skill_id"])] = box

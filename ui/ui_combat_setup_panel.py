@@ -55,7 +55,7 @@ from ..logic_pure.logic_pure_combat_hud import (
     toggled_combat_prayer_selection_pure,
 )
 from .ui import _COMBAT_HUB_NAME, current_target_display_name, dim_text_css
-from .ui_text_fit import WrappingCheckBox, on_resize
+from .ui_text_fit import WrappingCheckBox, lay_out_whole, on_resize
 
 _LABEL_STYLE = "color: palette(text);"
 # Grey notes under a control: dimmer than a label, still easy to read.
@@ -125,7 +125,7 @@ def build_combat_setup_panel(
     syncs.append(_add_lunar_spells(layout, player_data, send_config))
     layout.addStretch(1)
     for check in panel.findChildren(QCheckBox):
-        _lay_out_whole(check)
+        lay_out_whole(check)
     refresh()
     return panel, refresh
 
@@ -144,14 +144,6 @@ def _row(layout, *widgets, grow=-1):
         row_layout.addStretch(1)
     layout.addWidget(row)
     return row
-
-
-def _lay_out_whole(check) -> None:
-    """Lay ``check`` out by its whole rect. The panel's 13 px indicator is
-    smaller than the native box, but macOS still trims the native box's margins
-    off the layout rect, which let a box's text run under the widget beside or
-    below it."""
-    check.setAttribute(Qt.WidgetAttribute.WA_LayoutUsesWidgetRect)
 
 
 def _text_label(text: str) -> "QLabel":
@@ -436,7 +428,7 @@ def _add_prayer_section(layout, player_data, send_config):
 def _prayer_check(row) -> "QCheckBox":
     # One line each, so every row of the grid is the same height.
     check = QCheckBox(row["label"])
-    _lay_out_whole(check)
+    lay_out_whole(check)
     check.setObjectName(f"combatPrayerCheck::{row['id']}")
     check.setToolTip(row["tooltip"])
     check.setProperty("prayerLevel", row["level"])

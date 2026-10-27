@@ -46,7 +46,7 @@ try:
         QWidget,
     )
 
-    from .ui_text_fit import guard_wheel
+    from .ui_text_fit import guard_wheel, lay_out_whole
 
     HAS_QT = True
 except Exception:
@@ -168,7 +168,7 @@ if HAS_QT:
             self.speed_spin.setMaximumWidth(120)
             layout.addWidget(_row(speed_label, self.speed_spin))
 
-            self.follow_toggle = QCheckBox(FOLLOW_STUDY_VOLUME_LABEL)
+            self.follow_toggle = lay_out_whole(QCheckBox(FOLLOW_STUDY_VOLUME_LABEL))
             self.follow_toggle.setObjectName("settingsWorldDayFollowToggle")
             self.follow_toggle.setChecked(settings.follow_study_volume)
             self.cards_spin = QSpinBox()

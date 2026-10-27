@@ -36,7 +36,6 @@ from aqt.qt import (  # type: ignore
     QStylePainter,
     Qt,
     QTimer,
-    QToolTip,
     QVBoxLayout,
     QWheelEvent,
     QWidget,
@@ -220,6 +219,18 @@ def stacked_pair(text, widget, label_style):
     return pair
 
 
+def lay_out_whole(check):
+    """Lay ``check`` out by its whole rect, and return it.
+
+    macOS trims a check box's layout rect to its native mark (2 px left, 3
+    top, 9 right, 4 bottom), so a row puts the next widget inside the box's
+    own rect; a box whose stylesheet draws a smaller indicator then runs its
+    text under that widget.
+    """
+    check.setAttribute(Qt.WidgetAttribute.WA_LayoutUsesWidgetRect)
+    return check
+
+
 def vertical_scroll(widget):
     """Scroll vertically without squeezing the widget below its minimum height."""
     scroll = QScrollArea()
@@ -356,16 +367,6 @@ class _CurrentRowScrollHook(QObject):
             row = tree.visualRect(tree.currentIndex())
         center = tree.viewport().mapTo(scroll.widget(), row.center())
         scroll.ensureVisible(center.x(), center.y(), 0, row.height() // 2 + 1)
-
-
-class ElidedTipDelegate(QStyledItemDelegate):
-    """Shows a cell's whole text as its tooltip while the cell is too narrow for it and elides it."""
-
-    def helpEvent(self, event, view, option, index):
-        if event.type() == QEvent.Type.ToolTip and self.sizeHint(option, index).width() > option.rect.width():
-            QToolTip.showText(event.globalPos(), index.data(), view, option.rect)
-            return True
-        return super().helpEvent(event, view, option, index)
 
 
 class FittingLabel(QLabel):

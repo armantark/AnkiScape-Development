@@ -9,7 +9,7 @@ from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows import test_tree_text_fit as _text_fit
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QTreeWidget
+    from aqt.qt import QTreeWidget, QWidget
 
 
 @unittest.skipUnless(_main_menu.HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
@@ -26,10 +26,9 @@ class CollectionsCollapsedTextFitTest(unittest.TestCase):
         self.flow.tearDown()
 
     def test_targets_stay_whole_after_resizing_with_the_drop_family_collapsed(self) -> None:
-        from ankiscape.ui.ui_tab_collections import NAVIGATION_MAX_SHARE
-
         dialog = self.flow._tab(_main_menu._make_player_data(), "Collections", 980)
         navigation = dialog.findChild(QTreeWidget, "collectionsFamilyTree")
+        detail = dialog.findChild(QWidget, "collectionsDetailPanel")
         for width in (720, 980, 720):
             with self.subTest(width=width):
                 family = navigation.topLevelItem(1)
@@ -49,7 +48,7 @@ class CollectionsCollapsedTextFitTest(unittest.TestCase):
                     if navigation.sizeHintForIndex(cell).width() > navigation.visualRect(cell).width()
                 ]
                 self.assertEqual(clipped, [])
-                self.assertLessEqual(navigation.width(), NAVIGATION_MAX_SHARE * navigation.parentWidget().width())
+                self.assertGreaterEqual(detail.width(), detail.sizeHint().width())
         dialog.close()
 
 

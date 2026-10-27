@@ -16,6 +16,8 @@ try:
         QVBoxLayout,
         QWidget,
     )
+
+    from .ui_text_fit import lay_out_whole
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
@@ -106,9 +108,9 @@ def build_quests_tab(ctx) -> "QWidget":
     )
     quest_search = quest_filter_bar.search_input
 
-    hide_completed_cb = QCheckBox("Hide completed")
+    hide_completed_cb = lay_out_whole(QCheckBox("Hide completed"))
     hide_completed_cb.setObjectName("questHideCompletedCheck")
-    hide_locked_cb = QCheckBox("Hide unable to start")
+    hide_locked_cb = lay_out_whole(QCheckBox("Hide unable to start"))
     hide_locked_cb.setObjectName("questHideLockedCheck")
 
     access_filter_combo = QComboBox()
