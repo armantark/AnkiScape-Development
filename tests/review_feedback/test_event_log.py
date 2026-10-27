@@ -120,7 +120,7 @@ class EventLogViewTest(unittest.TestCase):
         self.assertEqual(log[0]["text"], "event 5")
         self.assertEqual(log[-1]["text"], f"event {REVIEW_EVENT_LOG_RETAINED + 4}")
 
-    def test_one_reviews_identical_rows_collapse_and_never_cross_a_review_age(self):
+    def test_one_reviews_identical_rows_fold_across_other_rows_and_never_cross_a_review_age(self):
         impure = "The ore was too impure"
         data = _at_review(_player(), 4)
         for _ in range(2):
@@ -137,15 +137,14 @@ class EventLogViewTest(unittest.TestCase):
         self.assertEqual(
             [row["label"] for row in view["rows"]],
             [
-                f"0 reviews ago · {impure}",
+                f"0 reviews ago · {impure} - x6",
                 "0 reviews ago · Bank run — arrived and restocked",
-                f"0 reviews ago · {impure} - x5",
                 "0 reviews ago · +62 XP · Smithing",
                 f"1 review ago · {impure} - x2",
             ],
         )
-        self.assertEqual([row["repeat_label"] for row in view["rows"]], ["", "", "x5", "", "x2"])
-        self.assertEqual(view["title"], "Event log (5)")
+        self.assertEqual([row["repeat_label"] for row in view["rows"]], ["x6", "", "", "x2"])
+        self.assertEqual(view["title"], "Event log (4)")
         self.assertEqual(len(data["review_event_log"]), 10)
 
     def test_migration_repairs_malformed_rows(self):

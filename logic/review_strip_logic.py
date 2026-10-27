@@ -169,19 +169,17 @@ REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
 
 
 def _collapsed_newest_first(rows: list[dict[str, Any]]) -> list[tuple[dict[str, Any], int]]:
-    """Each run of identical rows from one review, with its length.
+    """Each distinct row of one review, at its newest place, with its count.
 
     A failing step logs its failure once per step, so one fast review wrote
-    "The ore was too impure" five times. Rows keep their review, so a run never
-    crosses a review age and each label's age stays true.
+    "The ore was too impure" five times, and again after a bank run in between.
+    The fold keys on the review, so it never crosses a review age.
     """
-    runs: list[tuple[dict[str, Any], int]] = []
+    folded: dict[tuple[int, str, str], list[Any]] = {}
     for entry in reversed(rows):
-        if runs and runs[-1][0] == entry:
-            runs[-1] = (entry, runs[-1][1] + 1)
-        else:
-            runs.append((entry, 1))
-    return runs
+        key = (entry["review"], entry["kind"], entry["text"])
+        folded.setdefault(key, [entry, 0])[1] += 1
+    return [(entry, count) for entry, count in folded.values()]
 
 
 def _drawer_row(entry: dict[str, Any], count: int, now: int) -> dict[str, Any]:
