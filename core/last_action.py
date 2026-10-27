@@ -3,7 +3,8 @@
 The switch to Bankstanding saves a record of the running action under
 ``LAST_ACTION_KEY``. The review HUD's Resume button restarts it, and the action
 queue reuses both the record shape and ``start_action``. A record holds every
-key its tab's start path needs; ``start_action`` calls that tab's own start
+key its tab's start path needs, plus the reason it stopped for the HUD's status
+line; ``start_action`` calls that tab's own start
 function, so a restart runs the same requirement checks and shows the same
 refusal as the tab.
 """
@@ -31,7 +32,8 @@ from ..logic_pure.logic_pure import (
 LAST_ACTION_KEY = "last_action"
 _BANKSTANDING = "bankstanding"
 _KINDS = frozenset({"skill", "utility", "quest", "combat"})
-_HIDDEN = {"visible": False, "text": "", "tooltip": ""}
+_IDLE_AT_BANK = "idle at the Bank"
+_HIDDEN = {"visible": False, "text": "", "tooltip": "", "bank_status": _IDLE_AT_BANK}
 
 
 def last_action_record_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
@@ -91,7 +93,11 @@ def last_action_name_pure(record: Mapping[str, Any]) -> str:
 
 
 def resume_button_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
-    """Resume shows only at Bankstanding, for a saved action that can still run."""
+    """Resume shows only at Bankstanding, for a saved action that can still run.
+
+    ``bank_status`` is the Bankstanding line under the HUD title: why the saved
+    action stopped while Resume is offered, else the plain idle line.
+    """
     at_bank = (
         is_utility_review_action(current_skill)
         and player_data.get("current_utility") == _BANKSTANDING
@@ -107,7 +113,13 @@ def resume_button_view_pure(player_data: Mapping[str, Any], current_skill: Any) 
             return dict(_HIDDEN)
         stages = QUEST_DATA[record["quest_id"]].get("stages", 1)
         tooltip = f"Restart {name} at stage {int(state.get('progress', 0) or 0)}/{stages}."
-    return {"visible": True, "text": f"Resume {name}", "tooltip": tooltip}
+    reason = str(record.get("reason") or "")
+    return {
+        "visible": True,
+        "text": f"Resume {name}",
+        "tooltip": tooltip,
+        "bank_status": f"stopped: {reason}" if reason else _IDLE_AT_BANK,
+    }
 
 
 def quest_blocked_message(quest_name: str, reasons: tuple[str, ...]) -> str:

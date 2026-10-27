@@ -361,20 +361,23 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
 
         self.assertIsNone(hud.findChild(QLabel, "geOfferNotice"))
 
-    def test_resume_shows_only_at_bankstanding_and_wraps_the_longest_quest_name(self) -> None:
+    def test_resume_shows_only_at_bankstanding_with_its_stop_reason_and_longest_name(self) -> None:
         from tests.ui_flows.qt_text_fit import text_fit_defects
 
         parent = QMainWindow()
         parent.resize(900, 560)
         parent.show()
         hud = self._ui.ReviewHUD(parent)
+        bank_run = self._ui.ReviewBankRunButton(hud)
+        hud.attach_bank_run_button(bank_run)
         resume = hud.findChild(QPushButton, "reviewResumeButton")
         clicks = []
         resume.set_action(lambda: clicks.append("resume"))
         pd = _make_player_data()
         quest_id = "recipe_for_disaster_defeating_the_culinaromancer"
         pd["quests"] = {quest_id: {"started": True, "progress": 1, "completed": False}}
-        pd["last_action"] = {"kind": "quest", "quest_id": quest_id}
+        reason = "You need 1 Pot (unfired) to craft Empty pot. (+3 more)"
+        pd["last_action"] = {"kind": "quest", "quest_id": quest_id, "reason": reason}
         pd["current_utility"] = "bankstanding"
 
         hud.set_data(pd, "Utilities")
@@ -386,7 +389,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             resume.accessibleName(),
             "Resume Recipe for Disaster: Defeating the Culinaromancer",
         )
+        self.assertEqual(hud.sub_lbl.text(), f"Bankstanding • stopped: {reason}")
         self.assertEqual(text_fit_defects(hud), [])
+        self.assertLessEqual(
+            abs(bank_run.geometry().center().y() - resume.geometry().center().y()), 1
+        )
         resume.click()
         self.assertEqual(clicks, ["resume"])
 
@@ -394,6 +401,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         hud.set_data(pd, "Utilities")
         self.assertFalse(resume.isVisible())
         pd["quests"][quest_id]["completed"] = False
+        self.assertEqual(hud.sub_lbl.text(), "Bankstanding • idle at the Bank")
         pd["current_utility"] = "gather_flax"
         hud.set_data(pd, "Utilities")
         self.assertFalse(resume.isVisible())

@@ -78,10 +78,14 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertIn("Needs Iron chainbody", blocked[1])
 
         addon.load_player_data()
-        self.assertEqual(addon._state.player_data["last_action"], {"kind": "quest", "quest_id": _BKF})
+        self.assertEqual(
+            addon._state.player_data["last_action"],
+            {"kind": "quest", "quest_id": _BKF, "reason": "Needs Iron chainbody"},
+        )
         view = self._resume_view(addon)
         self.assertTrue(view["visible"])
         self.assertEqual(view["text"], "Resume Black Knights' Fortress")
+        self.assertEqual(view["bank_status"], "stopped: Needs Iron chainbody")
 
         self.assertFalse(addon.on_resume_last_action())
         self.assertEqual(self.errors, [blocked, blocked])
@@ -121,7 +125,12 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
                 "Crafting",
                 {"crafting_level": 50, "current_craft": "fire_empty_pot"},
                 run_dry_crafting,
-                {"kind": "skill", "skill": "Crafting", "target": "fire_empty_pot"},
+                {
+                    "kind": "skill",
+                    "skill": "Crafting",
+                    "target": "fire_empty_pot",
+                    "reason": "You need 1 Pot (unfired) to craft Empty pot.",
+                },
                 "Resume Crafting",
             ),
             (
@@ -129,7 +138,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
                 "Utilities",
                 {"current_utility": "gather_flax"},
                 stop_from_the_menu,
-                {"kind": "utility", "utility_id": "gather_flax"},
+                {"kind": "utility", "utility_id": "gather_flax", "reason": "Training was stopped manually."},
                 "Resume Gather flax",
             ),
             (
@@ -137,7 +146,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
                 "Combat",
                 {"current_combat_target": "chicken", "combat_action": "attack"},
                 run_out_of_food,
-                {"kind": "combat", "target": "chicken", "combat_action": "attack"},
+                {"kind": "combat", "target": "chicken", "combat_action": "attack", "reason": "No food left."},
                 "Resume Combat",
             ),
         )

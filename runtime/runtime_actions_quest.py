@@ -38,7 +38,10 @@ from .runtime_actions_shared import (
 
 
 def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reasons: tuple[str, ...]) -> None:
-    ctx.deactivate_current_skill()
+    # The review HUD shows this short reason beside Resume in a fixed-height
+    # box, so it names the first blocker; the dialog below lists them all.
+    more = f" (+{len(reasons) - 1} more)" if len(reasons) > 1 else ""
+    ctx.deactivate_current_skill(f"{reasons[0]}{more}")
     ctx.show_error_message("Quest blocked", quest_blocked_message(quest_name, reasons))
 
 

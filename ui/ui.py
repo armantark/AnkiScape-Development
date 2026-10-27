@@ -2379,6 +2379,8 @@ if HAS_QT:
             info.addWidget(self.second_progress)
 
             self.sub_lbl = QLabel("")
+            # A Bankstanding stop reason can run past one line.
+            self.sub_lbl.setWordWrap(True)
             self.sub_lbl.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 11px;")
             info.addWidget(self.sub_lbl)
 
@@ -2482,7 +2484,7 @@ if HAS_QT:
             button.setParent(self)
             button.setFixedSize(button.sizeHint())
             self.action_column.addWidget(
-                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom
+                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
             )
 
         def _skill_icon_path(self, skill: str) -> Optional[str]:
@@ -2739,9 +2741,7 @@ if HAS_QT:
                     # neither surface grants XP, so a "(no XP)" tail only
                     # restates the title. Bankstanding keeps its line because
                     # "deliberately not training" is not implied by the title.
-                    activity_kind = (
-                        "idle at the Bank" if spec.get("no_op") else ""
-                    )
+                    activity_kind = self.resume_button.bank_status if spec.get("no_op") else ""
                 ip = skill_icon_path_for(surface_name) or self._placeholder_icon_path()
                 if ip:
                     pm = QPixmap(ip)

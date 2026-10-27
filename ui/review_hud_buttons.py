@@ -77,6 +77,7 @@ if HAS_QT:
                 """
             )
             self._action_callback = None
+            self.bank_status = ""
             self.clicked.connect(self._activate)
             self.setVisible(False)
 
@@ -101,6 +102,7 @@ if HAS_QT:
             self._text.setText(view["text"])
             self.setToolTip(view["tooltip"])
             self.setAccessibleName(view["text"])
+            self.bank_status = view["bank_status"]
             self.setEnabled(self._action_callback is not None)
             self.setVisible(view["visible"])
 

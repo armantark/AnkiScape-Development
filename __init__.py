@@ -1308,8 +1308,8 @@ def _switch_to_bankstanding(
         return False
 
     stopped = last_action_record_pure(_state.player_data, _state.current_skill)
-    _state.player_data[LAST_ACTION_KEY] = stopped
     reason_text = str(reason or "").strip() or f"{last_action_name_pure(stopped) or 'Current action'} could not continue."
+    _state.player_data[LAST_ACTION_KEY] = {**stopped, "reason": reason_text} if stopped else {}
     _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     _state.player_data["current_utility"] = "bankstanding"
     _append_review_event(_state.player_data, "activity", _bankstanding_event_text(reason_text))
