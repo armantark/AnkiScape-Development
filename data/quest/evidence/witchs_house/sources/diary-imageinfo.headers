@@ -1,0 +1,20 @@
+HTTP/2 200 
+date: Sat, 24 Oct 2026 11:07:05 GMT
+content-type: application/json; charset=utf-8
+x-content-type-options: nosniff
+content-security-policy: default-src 'self'; script-src 'none'; object-src 'none'
+x-frame-options: DENY
+content-disposition: inline; filename=api-result.json
+vary: Accept-Encoding, Treat-as-Untrusted, Cookie, Authorization
+cache-control: private, must-revalidate, max-age=0
+x-request-id: 7b1b858e075641111a0c9f625bd849ea
+server-timing: upstream;dur=17.0
+access-control-allow-origin: *
+x-server: nginx-5c974575b6-jgcmb
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+via: 1.1 google
+alt-svc: h3=":443"; ma=86400
+cf-cache-status: BYPASS
+server: cloudflare
+cf-ray: a4f8840ecb832eef-LAX
+

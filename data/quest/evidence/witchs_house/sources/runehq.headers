@@ -1,0 +1,32 @@
+HTTP/2 200 
+server: nginx
+date: Sat, 24 Oct 2026 11:06:26 GMT
+content-type: text/html
+x-archive-orig-x-powered-by: PHP/5.3.3
+x-archive-orig-connection: close
+x-archive-orig-date: Fri, 17 Feb 2012 15:31:48 GMT
+x-archive-orig-server: lighttpd/1.4.28
+cache-control: max-age=1800
+accept-ranges: bytes
+memento-datetime: Fri, 17 Feb 2012 15:31:48 GMT
+link: <http://www.runehq.com:80/quest/witchs-house>; rel="original", <https://web.archive.org/web/timemap/link/http://www.runehq.com:80/quest/witchs-house>; rel="timemap"; type="application/link-format", <https://web.archive.org/web/http://www.runehq.com:80/quest/witchs-house>; rel="timegate"
+content-security-policy: default-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: archive.org web.archive.org web-static.archive.org wayback-api.archive.org athena.archive.org analytics.archive.org pragma.archivelab.org wwwb-events.archive.org
+x-archive-src: alexa20120218-16/52_26_20120217153054_crawl103.arc.gz
+server-timing: captures_list;dur=0.495643, exclusion.robots;dur=0.044760, exclusion.robots.policy;dur=0.034608, esindex;dur=0.006852, cdx.remote;dur=23.915881, LoadShardBlock;dur=132.356945, PetaboxLoader3.datanode;dur=109.993472, PetaboxLoader3.resolve;dur=114.503276, load_resource;dur=188.180946
+x-app-server: wwwb-app204-dc6
+x-ts: 200
+x-tr: 363
+server-timing: TR;dur=0,Tw;dur=0,Tc;dur=2
+set-cookie: wb-p-SERVER=wwwb-app204; path=/
+cache-control: private
+x-location: All
+x-as: 20001
+x-rl: 0
+x-na: 0
+x-page-cache: MISS
+server-timing: MISS
+x-nid: TWC-20001-PACWEST
+referrer-policy: no-referrer-when-downgrade
+permissions-policy: interest-cohort=()
+x-sd: 0
+

@@ -37,7 +37,7 @@ def apply_quest_review_step_pure(player_data, quest_id, blockers, *, quest_data=
     data, result = apply_quest_service_review_pure(player_data, quest_id, blockers)
     if result != "unchanged":
         pending = "pending" if quest_id == ORONWEN_QUEST_ID else "partial"
-        return data, {"handed_in": pending, "collected": "ready"}[result]
+        return data, {"handed_in": pending, "collected": "ready", "deed_only": "deed_only"}[result]
     return apply_hazeel_opening_review_pure(player_data, quest_id, quest_data, blockers, eligibility_reasons)
 
 

@@ -1,0 +1,35 @@
+HTTP/2 200 
+server: nginx
+date: Sat, 24 Oct 2026 11:06:26 GMT
+content-type: text/html; charset=UTF-8
+x-archive-orig-date: Wed, 16 May 2012 13:01:45 GMT
+x-archive-orig-server: Apache
+x-archive-orig-expires: Thu, 19 Nov 1981 08:52:00 GMT
+x-archive-orig-cache-control: max-age=1, private, must-revalidate
+x-archive-orig-pragma: no-cache
+x-archive-orig-vary: Accept-Encoding,User-Agent
+x-archive-orig-connection: close
+cache-control: max-age=1800
+accept-ranges: bytes
+memento-datetime: Wed, 16 May 2012 13:01:45 GMT
+link: <http://runescape.salmoneus.net/quests/witchs-house.html>; rel="original", <https://web.archive.org/web/timemap/link/http://runescape.salmoneus.net/quests/witchs-house.html>; rel="timemap"; type="application/link-format", <https://web.archive.org/web/http://runescape.salmoneus.net/quests/witchs-house.html>; rel="timegate"
+content-security-policy: default-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: archive.org web.archive.org web-static.archive.org wayback-api.archive.org athena.archive.org analytics.archive.org pragma.archivelab.org wwwb-events.archive.org
+x-archive-src: WIDE-20120516121243-crawl420/WIDE-20120516125909-02580.warc.gz
+server-timing: captures_list;dur=0.374319, exclusion.robots;dur=0.036868, exclusion.robots.policy;dur=0.028354, esindex;dur=0.005697, cdx.remote;dur=26.281553, LoadShardBlock;dur=225.317089, PetaboxLoader3.datanode;dur=120.742056, PetaboxLoader3.resolve;dur=372.122767, load_resource;dur=359.040479
+x-app-server: wwwb-app221-dc8
+x-ts: 200
+x-tr: 629
+server-timing: TR;dur=0,Tw;dur=0,Tc;dur=0
+set-cookie: wb-p-SERVER=wwwb-app221; path=/
+cache-control: private
+x-location: All
+x-as: 20001
+x-rl: 0
+x-na: 0
+x-page-cache: MISS
+server-timing: MISS
+x-nid: TWC-20001-PACWEST
+referrer-policy: no-referrer-when-downgrade
+permissions-policy: interest-cohort=()
+x-sd: 0
+

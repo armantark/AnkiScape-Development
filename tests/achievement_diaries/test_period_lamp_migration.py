@@ -50,7 +50,7 @@ class PeriodLampMigrationTest(unittest.TestCase):
         return data
 
     def test_v106_v107_v124_add_only_missing_elite_lamps_for_every_original_state(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 125)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 126)
         for version, tier_id, original in product((106, 107, 124), ELITES, ORIGINAL_STATES):
             with self.subTest(version=version, tier_id=tier_id, original=original):
                 self._assert_legacy_reward(version, tier_id, original)

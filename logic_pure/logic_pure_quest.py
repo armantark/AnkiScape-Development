@@ -15,17 +15,21 @@ from .quest.another_cook import (
 )
 from .quest.completion_rewards import apply_completion_rewards_pure
 from .quest.elemental_workshop import (
-    opening_blockers_pure, opening_review_ready_pure,
-    apply_opening_review_pure,
+    opening_blockers_pure, opening_review_ready_pure, apply_opening_review_pure,
+)
+from .quest.review_steps import (
+    apply_quest_review_step_pure, quest_review_requirement_pure,
+    quest_review_ready_pure, quest_review_blockers_pure,
 )
 from .quest.stage_items import (  # noqa: F401 (re-export)
     _quest_stage_item_pairs, _quest_stage_item_option_groups, _quest_stage_strings, _has_quest_tool,
     _quest_item_requirement_text, _quest_item_option_reason,
 )
 from .quest.hazeel import hazeel_opening_choice_ready_pure, hazeel_opening_state_blockers_pure
-from .quest.review_steps import (apply_quest_review_step_pure, quest_review_requirement_pure,
-    quest_review_ready_pure, quest_review_blockers_pure)
 from .quest.enakhra import enakhra_opening_blockers_pure
+from .quest.witchs_house import (
+    witchs_house_stage_rows_pure, witchs_house_extra_blockers_pure, witchs_house_next_progress_pure,
+)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
@@ -629,6 +633,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
         *_quest_stage_skill_blockers(player_data, stage, source, requirement.get("required_skills")),
         *_quest_requirement_contact_blockers(player_data, quest_id, requirement, stage, source),
         *_quest_requirement_combat_blockers(player_data, quest_id, requirement, stage, source),
+        *witchs_house_extra_blockers_pure(player_data, quest_id, requirement),
     ))
 
 
@@ -639,7 +644,9 @@ def _quest_current_stage_selected_requirements(player_data, quest_id, quest_data
     current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
     mandatory_rows = []
     variant_rows_by_id = {}
-    for requirement in _quest_current_stage_rows(quest, current_stage):
+    for requirement in witchs_house_stage_rows_pure(
+        player_data, quest_id, _quest_current_stage_rows(quest, current_stage),
+    ):
         variant = _quest_stage_requirement_variant(requirement)
         if variant:
             variant_rows_by_id.setdefault(variant, []).append(requirement)
@@ -1184,7 +1191,7 @@ def apply_quest_progress_pure(
     data, step_result = apply_quest_review_step_pure(
         data, quest_id, blockers, quest_data=quest_data, eligibility_reasons=quest_eligibility_reasons_pure,
     )
-    if step_result in ("pending", "partial"):
+    if step_result in ("pending", "partial", "deed_only"):
         return (data, True, False, *empty_refusal)
     data, opening_ok = apply_opening_review_pure(
         data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,
@@ -1205,7 +1212,7 @@ def apply_quest_progress_pure(
     if not _consume_quest_current_stage_items(data, quest_id, quest):
         return (player_data, False, False, *empty_refusal)
     total_stages = _positive_int(quest.get("stages", 1), 1)
-    state["progress"] = min(total_stages, current_stage + 1)
+    state["progress"] = witchs_house_next_progress_pure(data, quest_id, current_stage, total_stages)
     completed_now = state["progress"] >= total_stages
     clue_reward_refusal_reason = ""
     if completed_now:
