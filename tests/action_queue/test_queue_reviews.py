@@ -244,3 +244,68 @@ class ActionQueueReviewTest(QueueProfile):
         view = action_queue_view_pure(addon._state.player_data)
         self.assertTrue(view["paused"])
         self.assertEqual(view["entries"][0]["done"], 0)
+
+    def _paused_at_first_entry(self, name):
+        addon = self._queue_addon(name, (_MINE_IRON, 30), (_SMELT_IRON, 5))
+        captured = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        self.assertTrue(captured["on_stop_training"]())
+        return addon
+
+    def test_a_resume_that_fails_partway_leaves_the_entry_and_its_queue_in_step(self):
+        from ankiscape.core.action_queue import action_queue_view_pure
+
+        with self.subTest("a HUD that cannot draw does not split a start that committed"):
+            addon = self._paused_at_first_entry("ankiscape_queue_resume_hud")
+            with patch.object(addon, "update_review_hud", side_effect=RuntimeError("no reviewer")):
+                self.assertTrue(addon.on_resume_last_action())
+            self.assertEqual(addon._state.current_skill, "Mining")
+            self.assertFalse(action_queue_view_pure(addon._state.player_data)["paused"])
+
+        with self.subTest("a save that fails after the start never splits the saved entry from its queue"):
+            addon = self._paused_at_first_entry("ankiscape_queue_resume_save")
+            saves = []
+            real_save = addon.save_player_data
+
+            def save_once():
+                saves.append(1)
+                if len(saves) > 1:
+                    raise OSError("disk full")
+                real_save()
+
+            with patch.object(addon, "save_player_data", side_effect=save_once):
+                try:
+                    addon.on_resume_last_action()
+                except OSError:
+                    pass
+            addon.load_player_data()
+            running = addon._state.current_skill == "Mining"
+            self.assertEqual(running, not action_queue_view_pure(addon._state.player_data)["paused"])
+
+    def test_a_late_reason_refines_only_the_entry_its_own_stop_passed(self):
+        from ankiscape.core.action_queue import ACTION_QUEUE_KEY, action_queue_pure, pass_queue_entry_pure
+        from ankiscape.core.review_event_log import record_review_event_pure
+
+        addon = self._queue_addon(
+            "ankiscape_queue_late_reason_scope",
+            (_MINE_IRON, 30),
+            ({"kind": "skill", "skill": "Agility", "target": "gnome_normal"}, 1),
+            toolbelt={"mining": []},
+            agility_level=40,
+        )
+        # An older Mining stop that gave no reason passed the first entry, and the player then paused Agility.
+        generic = "Mining could not continue."
+        older_line = f"Queue: Mining: Iron stopped · {generic}"
+        player_data = record_review_event_pure(addon._state.player_data, "activity", older_line)
+        queue = pass_queue_entry_pure(action_queue_pure(player_data), generic)
+        addon._state.player_data = {**player_data, ACTION_QUEUE_KEY: {**queue, "paused": True}, "current_ore": "copper"}
+        addon.save_skill("Mining", None)
+
+        self._answer(addon)
+
+        reason = "You need a usable pickaxe to train Mining. Mining has been switched off."
+        self.assertEqual(self.errors, [("Missing pickaxe", reason)])
+        self.assertEqual(addon._state.player_data["last_action"]["reason"], reason)
+        self.assertEqual(action_queue_pure(addon._state.player_data)["entries"][0]["stopped"], generic)
+        self.assertIn(older_line, self._log(addon))

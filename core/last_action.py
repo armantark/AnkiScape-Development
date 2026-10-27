@@ -177,41 +177,49 @@ def start_values(addon, current: Mapping[str, Any], record: Mapping[str, Any]) -
     return updated, skill.display_name
 
 
-def start_action(addon, record: Mapping[str, Any]) -> bool:
+def start_action(addon, record: Mapping[str, Any], extra_values: Mapping[str, Any] | None = None) -> bool:
     """Start a record with the checks its tab's Start runs; True when it runs.
 
-    A skill or fight restarts on the record's own target, so a target picked in
-    the tab since the stop never runs under the record's name, and the
-    selection and the start are one undo step.
+    The record restarts on its own target, so a target picked in the tab since
+    the stop never runs under the record's name. The selection, the start and
+    ``extra_values`` are one save and one undo step, so none lands without the others.
     """
-    kind = record.get("kind")
-    if kind == "utility":
-        return bool(addon.start_activity_for_reviews(record["utility_id"]))
-    if kind == "quest":
-        return _start_quest(addon, str(record["quest_id"]))
-    refusal = addon.skill_start_refusal(record.get("skill"))
+    refusal = _start_refusal(addon, record)
     if refusal:
         addon.show_error_message(*refusal)
         return False
-    updated, review_action = start_values(addon, addon._state.player_data, record)
-    committed = addon.commit_direct_action(lambda _current: (updated, True), selected_skill=review_action)
+    started = start_values(addon, addon._state.player_data, record)
+    if started is None:
+        # The tab's own Start refuses the same record and shows why, such as a
+        # quest's requirements or a Shooting Star layer above the player's level.
+        if record["kind"] == "quest":
+            return bool(addon.on_set_quest(record["quest_id"]))
+        return bool(addon.start_activity_for_reviews(record["utility_id"]))
+    updated, review_action = started
+    committed = addon.commit_direct_action(
+        lambda _current: ({**updated, **(extra_values or {})}, True), selected_skill=review_action
+    )
     if committed:
-        addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+        try:
+            addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+        except Exception:
+            pass
     return committed
 
 
-def _start_quest(addon, quest_id: str) -> bool:
+def _start_refusal(addon, record: Mapping[str, Any]) -> tuple[str, str] | None:
+    """The error title and message the record's tab shows when its Start refuses now; None when it starts."""
+    if record["kind"] != "quest":
+        return addon.skill_start_refusal(record.get("skill"))
     # The Quests tab refuses a blocked step without a word because its card
     # already lists the blocker; from the HUD the player needs the review's text.
     player_data = addon._state.player_data
+    quest_id = str(record["quest_id"])
     reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
     if reasons and not can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA):
         name = str(QUEST_DATA[quest_id].get("display_name", quest_id))
-        addon.show_error_message("Quest blocked", quest_blocked_message(name, tuple(reasons)))
-        return False
-    return bool(addon.on_set_quest(quest_id)) and bool(
-        addon.save_skill(QUEST_REVIEW_ACTION_DISPLAY_NAME, None)
-    )
+        return "Quest blocked", quest_blocked_message(name, tuple(reasons))
+    return None
 
 
 def resume_last_action(addon) -> bool:

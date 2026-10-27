@@ -34,7 +34,7 @@ from .action_products import (
     action_used_input_pure,
     spec_field_pure,
 )
-from .action_registry import is_utility_review_action
+from .action_registry import UTILITY_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action
 from .last_action import (
     LAST_ACTION_KEY,
     last_action_name_pure,
@@ -324,19 +324,13 @@ def resume_action_queue(addon) -> bool:
     A paused entry restarts as Resume restarts any action: a refusal shows its
     tab's reason, starts nothing and leaves the queue paused.
     """
-    player_data = addon._state.player_data
-    queue = action_queue_pure(player_data)
+    queue = action_queue_pure(addon._state.player_data)
     entry = current_queue_entry_pure(queue)
     if not (queue["paused"] or queue["waiting"]) or entry is None:
         return False
     if queue["waiting"]:
         return _commit_run(addon, {**queue, "paused": False, "waiting": False})
-    if not start_action(addon, entry["action"]):
-        return False
-    # The start's undo step restores the paused queue with the action it replaced.
-    player_data[ACTION_QUEUE_KEY] = {**queue, "paused": False}
-    addon.save_player_data()
-    return True
+    return start_action(addon, entry["action"], {ACTION_QUEUE_KEY: {**queue, "paused": False}})
 
 
 def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -364,8 +358,12 @@ def stop_action(addon) -> Any:
 
     Stop training and a Bankstanding picked by hand both come here, so either
     saves what it stopped as the last action, which Resume offers back, and
-    pauses a queue that ran it.
+    pauses a queue that ran it. At Bankstanding already nothing stops, so no
+    Edit > Undo step is added that would undo nothing.
     """
+    surface = addon._normalize_legacy_utility_skill(addon._state.current_skill)
+    if surface == UTILITY_REVIEW_ACTION_DISPLAY_NAME and addon._state.player_data.get("current_utility") == "bankstanding":
+        return addon._state.current_skill
 
     def _change(current):
         updated = current
@@ -526,13 +524,21 @@ def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | No
     return reason_text
 
 
-def refine_stop_reason(addon, generic: str, reason: str) -> None:
-    """Put the words a review shows after its stop where that stop wrote its ``generic`` reason.
+def unexplained_stop_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
+    """A stop given no reason: the generic reason it records, and the queue position whose entry it may pass."""
+    return {
+        "reason": generic_stop_reason_pure(player_data, current_skill),
+        "position": action_queue_pure(player_data)["index"],
+    }
+
+
+def refine_stop_reason(addon, stop: Mapping[str, Any] | None, reason: str) -> None:
+    """Put the words a review shows after its ``stop`` where that stop wrote its generic reason.
 
     Most review handlers stop their action first and say why after, so the
     stop records a generic reason. The refusal's own words replace it in the
     Bankstanding notice and its log line, the last action that Resume shows,
-    and the queue entry the stop passed with its log line. ``generic`` is empty
+    and the queue entry this stop passed with its log line. ``stop`` is None
     when the handler stopped nothing or gave its stop a reason; only a pending
     notice takes the new words then.
     """
@@ -541,12 +547,12 @@ def refine_stop_reason(addon, generic: str, reason: str) -> None:
         return
     player_data = addon._state.player_data
     _refine_bankstanding_notice(addon._state.pending_bankstanding_notice, player_data, reason)
-    if not generic:
+    if stop is None:
         return
     record = player_data.get(LAST_ACTION_KEY)
-    if isinstance(record, dict) and record.get("reason") == generic:
+    if isinstance(record, dict) and record.get("reason") == stop["reason"]:
         player_data[LAST_ACTION_KEY] = {**record, "reason": reason}
-    _refine_passed_entry(player_data, generic, reason)
+    _refine_passed_entry(player_data, stop, reason)
 
 
 def _refine_bankstanding_notice(notice: dict[str, Any] | None, player_data: dict[str, Any], reason: str) -> None:
@@ -558,19 +564,19 @@ def _refine_bankstanding_notice(notice: dict[str, Any] | None, player_data: dict
         event_log[-1]["text"] = bankstanding_event_text(reason)[:500]
 
 
-def _refine_passed_entry(player_data: dict[str, Any], generic: str, reason: str) -> None:
-    """The latest queue entry passed with ``generic``, and its log line, take ``reason``."""
+def _refine_passed_entry(player_data: dict[str, Any], stop: Mapping[str, Any], reason: str) -> None:
+    """The entry ``stop`` passed, and its log line, take ``reason``; a stop that passed none changes no entry.
+
+    An older entry passed with the same generic words belongs to an earlier stop.
+    """
     queue = action_queue_pure(player_data)
-    passed = next(
-        (position for position in reversed(range(queue["index"])) if queue["entries"][position].get("stopped") == generic),
-        None,
-    )
-    if passed is None:
+    position, generic = stop["position"], stop["reason"]
+    if position >= queue["index"] or queue["entries"][position].get("stopped") != generic:
         return
     entries = list(queue["entries"])
-    entries[passed] = {**entries[passed], "stopped": reason}
+    entries[position] = {**entries[position], "stopped": reason}
     player_data[ACTION_QUEUE_KEY] = {**queue, "entries": entries}
-    line = f"Queue: {queue_entry_name_pure(entries[passed]['action'])} stopped · "
+    line = f"Queue: {queue_entry_name_pure(entries[position]['action'])} stopped · "
     for row in reversed(player_data.get("review_event_log") or ()):
         if isinstance(row, dict) and row.get("text") == line + generic:
             row["text"] = (line + reason)[:500]

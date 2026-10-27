@@ -202,6 +202,12 @@ class TestIntegrationSmoke(fixtures.ReviewedProfile):
         )
         self.assertEqual(self._resume_view(addon)["text"], "Resume Gather flax")
 
+        # Picking Bankstanding again changes nothing, so it leaves no Edit > Undo step that would do nothing.
+        undo_steps = list(addon.mw.col.custom_undo_entries)
+        self.assertTrue(menu["on_set_utility"]("bankstanding"))
+        self.assertEqual(addon.mw.col.custom_undo_entries, undo_steps)
+        self.assertEqual(addon._state.player_data["last_action"]["utility_id"], "gather_flax")
+
         # Picking a utility while Mining runs only selects it for later; nothing stops.
         addon._state.current_skill = "Mining"
         menu["on_set_utility"]("gather_flax")
