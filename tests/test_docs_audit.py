@@ -39,12 +39,13 @@ class DocumentationAuditTests(unittest.TestCase):
         self.assertTrue(report.ok, report.issues)
         self.assertEqual((report.markdown_files, report.html_files), (2, 1))
 
-    def test_startup_budget_accepts_under_limit_without_counting_archives(self) -> None:
+    def test_startup_budget_accepts_under_limit_without_counting_archives_or_papercuts(self) -> None:
         root = self._repo()
-        for name in ("activeContext", "future-work-kanban", "goal-priority-matrix", "loop-queue", "papercuts"):
+        for name in ("activeContext", "future-work-kanban", "goal-priority-matrix", "loop-queue"):
             self._track(root, f"memory-bank/{name}.md", "- context\n" * 100)
+        self._track(root, "memory-bank/papercuts.md", "- papercut\n" * 799)
         self._track(root, "memory-bank/archive/progress-2026-09.md", "history\n" * 4000)
-        self._track(root, "memory-bank/progress.md", "progress\n" * 2499)
+        self._track(root, "memory-bank/progress.md", "progress\n" * 2599)
         result = subprocess.run(
             [sys.executable, str(ROOT / "tools/audit_docs.py"), "--root", str(root)],
             capture_output=True, text=True,
@@ -55,8 +56,8 @@ class DocumentationAuditTests(unittest.TestCase):
     def test_startup_budget_refuses_at_limit_with_each_file_count(self) -> None:
         root = self._repo()
         counts = {
-            "activeContext": 48, "future-work-kanban": 1580, "goal-priority-matrix": 152,
-            "loop-queue": 235, "papercuts": 58, "progress": 927,
+            "activeContext": 48, "future-work-kanban": 1638, "goal-priority-matrix": 152,
+            "loop-queue": 235, "progress": 927,
         }
         for name, count in counts.items():
             self._track(root, f"memory-bank/{name}.md", "- context\n" * count)
@@ -111,18 +112,29 @@ class DocumentationAuditTests(unittest.TestCase):
         self.assertEqual([issue.kind for issue in report.issues], ["dated_entry_in_active_context"])
         self.assertEqual(report.issues[0].line, 7)
 
+    def test_papercuts_refuse_at_their_own_cap(self) -> None:
+        root = self._repo()
+        self._track(root, "memory-bank/papercuts.md", "- papercut\n" * 800)
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual(
+            [(issue.kind, issue.path, issue.detail) for issue in report.issues],
+            [("papercuts_line_cap_exceeded", "memory-bank/papercuts.md", "800 papercut lines must stay under 800")],
+        )
+
     def test_rejects_papercut_lines_without_the_bullet(self) -> None:
         root = self._repo()
         self._track(
             root,
             "memory-bank/papercuts.md",
-            "# Papercuts\n\n- 2026-09-24T10:00:00-07:00 — ok\n2026-09-24T11:00:00-07:00: bare\n",
+            "# Papercuts\n> Header note.\n\n- 2026-09-24T10:00:00-07:00 — ok\n2026-09-24T11:00:00-07:00: bare\n",
         )
 
         report = AUDIT_DOCS.audit_docs(root)
 
         self.assertEqual(
-            [(issue.kind, issue.line) for issue in report.issues], [("papercut_without_bullet", 4)]
+            [(issue.kind, issue.line) for issue in report.issues], [("papercut_without_bullet", 5)]
         )
 
     def test_reports_broken_links_and_unclosed_fences(self) -> None:

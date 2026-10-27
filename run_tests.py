@@ -282,11 +282,15 @@ def parse_arguments() -> argparse.Namespace:
         help="print only failures and the final unittest summary",
     )
     parser.add_argument("--failfast", action="store_true")
-    parser.add_argument("--processes", type=int, default=1,
-                        help="parallel worker processes, keeping each test module together (default: 1)")
+    parser.add_argument("--processes", type=int,
+                        help=("parallel worker processes, keeping each test module together "
+                              "(default: 4 for a full run, 1 with selectors)"))
     parser.add_argument("--worker-input", help=argparse.SUPPRESS)
     parser.add_argument("--worker-result", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.processes is None:
+        # A worker runs its share serially; only the coordinating run fans out.
+        args.processes = 1 if args.selectors or args.worker_input else 4
     if args.processes < 1:
         parser.error("--processes must be at least 1")
     if bool(args.worker_input) != bool(args.worker_result):
@@ -297,8 +301,25 @@ def parse_arguments() -> argparse.Namespace:
     return args
 
 
+def qt_interpreter(root: str) -> str | None:
+    """The checkout's Qt test interpreter, when this run should move to it."""
+    environment = os.path.join(root, ".venv-qt")
+    python = os.path.join(environment, "bin", "python")
+    if os.environ.get("ANKISCAPE_PLAIN_LANE") or not os.path.exists(python):
+        return None
+    if os.path.realpath(sys.prefix) == os.path.realpath(environment):
+        return None
+    return python
+
+
 def main() -> int:
     root = os.path.dirname(os.path.abspath(__file__))
+    if python := qt_interpreter(root):
+        # Homebrew python3 has neither Pillow nor aqt, so a local run under it reports
+        # their tests as failures. The plain lanes set ANKISCAPE_PLAIN_LANE because
+        # they prove the add-on's logic without the Qt environment.
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        os.execv(python, [python, os.path.abspath(__file__), *sys.argv[1:]])
     os.chdir(root)
 
     args = parse_arguments()

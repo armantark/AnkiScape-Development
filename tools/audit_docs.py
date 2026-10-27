@@ -231,20 +231,29 @@ DATED_HEADING_RE = re.compile(r"^## .*\d{4}-\d{2}-\d{2}")
 STARTUP_LINE_BUDGET = 3000
 STARTUP_FILES = tuple(f"memory-bank/{name}.md" for name in (
     "activeContext", "progress", "future-work-kanban",
-    "goal-priority-matrix", "loop-queue", "papercuts",
+    "goal-priority-matrix", "loop-queue",
 ))
+PAPERCUTS = Path("memory-bank") / "papercuts.md"
+# Papercuts grow by one line per incident; a cap of their own keeps them from
+# competing with progress for the shared startup budget (owner, 2026-10-27).
+PAPERCUTS_LINE_CAP = 800
+
+
+def _line_count(path: Path) -> int:
+    return path.read_bytes().count(b"\n") if path.exists() else 0
 
 
 def _audit_startup_budget(root: Path, issues: list[DocIssue]) -> None:
-    counts: dict[str, int] = {}
-    for relative in STARTUP_FILES:
-        path = root / relative
-        counts[relative] = path.read_bytes().count(b"\n") if path.exists() else 0
+    counts = {relative: _line_count(root / relative) for relative in STARTUP_FILES}
     total = sum(counts.values())
     if total >= STARTUP_LINE_BUDGET:
         detail = f"{total} startup lines must stay under {STARTUP_LINE_BUDGET}: "
         detail += ", ".join(f"{path}={count}" for path, count in counts.items())
         issues.append(DocIssue("startup_line_budget_exceeded", ACTIVE_CONTEXT.as_posix(), 1, detail))
+    papercuts = _line_count(root / PAPERCUTS)
+    if papercuts >= PAPERCUTS_LINE_CAP:
+        detail = f"{papercuts} papercut lines must stay under {PAPERCUTS_LINE_CAP}"
+        issues.append(DocIssue("papercuts_line_cap_exceeded", PAPERCUTS.as_posix(), 1, detail))
 
 
 def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
@@ -254,13 +263,10 @@ def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIss
             issues.append(DocIssue("dated_entry_in_active_context", _relative(path, root), line_number, line))
 
 
-PAPERCUTS = Path("memory-bank") / "papercuts.md"
-
-
 def _audit_papercuts(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
     """Every papercut is one `- ` line, so moves and no-loss checks compare lines exactly."""
     for line_number, line in enumerate(text.splitlines(), 1):
-        if line and not line.startswith(("#", "- ")):
+        if line and not line.startswith(("#", "> ", "- ")):
             issues.append(DocIssue("papercut_without_bullet", _relative(path, root), line_number, line))
 
 
