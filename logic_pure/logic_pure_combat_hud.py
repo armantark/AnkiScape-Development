@@ -236,6 +236,8 @@ def _prayer_share(uptime):
 def _combat_setup_prayer_status(player_data):
     """One line saying which prayers the next fight runs, and why."""
     if not bool(player_data.get("combat_prayers_enabled", True)):
+        if _chosen_prayer_ids(player_data):
+            return "Off: no prayers run in fights. The greyed ticks are saved for when prayers are on."
         return "Off: no prayers run in fights."
     names, uptime, picked = combat_fight_prayers_pure(player_data)
     if not names:

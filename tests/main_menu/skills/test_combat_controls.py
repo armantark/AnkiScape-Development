@@ -576,6 +576,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(picked, {"steel_skin", "ultimate_strength", "incredible_reflexes"})
         self.assertTrue(ultimate.property("picked"))
         self.assertTrue(status.text().startswith("Picked for you"))
+        auto_pick = dialog.findChild(QPushButton, "combatPrayerAutoPickButton")
+        self.assertEqual((auto_pick.text(), auto_pick.isEnabled()), ("Using the best pick", False))
         self.assertTrue(max_hit.text().startswith("Your max hit: 160 LP"))
 
         burst.click()
@@ -597,6 +599,25 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(pd["combat_selected_prayers"], [])
         self.assertTrue(ultimate.isChecked())
         self.assertTrue(swap_note.isHidden())
+
+    def test_unticked_prayers_keep_the_ticks_as_saved_choices(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "prayer_level": 43, "combat_prayer_points": 430,
+            "combat_selected_prayers": ["burst_of_strength"], "combat_prayers_enabled": False,
+        })
+        dialog = self._open(pd)
+        burst = dialog.findChild(QCheckBox, "combatPrayerCheck::burst_of_strength")
+        auto_pick = dialog.findChild(QPushButton, "combatPrayerAutoPickButton")
+        self.assertTrue(burst.isChecked())
+        self.assertFalse(burst.isEnabled())
+        self.assertEqual(
+            dialog.findChild(QLabel, "combatPrayerStatusLabel").text(),
+            "Off: no prayers run in fights. The greyed ticks are saved for when prayers are on.",
+        )
+        self.assertFalse(auto_pick.isEnabled())
+        self.assertEqual(auto_pick.toolTip(), "Tick “Use prayers in fights” first.")
+        self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength"])
 
     def test_saving_a_preset_for_the_target_switches_the_target_to_it(self) -> None:
         from ankiscape.ui import ui_combat_setup_panel as panel

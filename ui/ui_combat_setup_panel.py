@@ -162,6 +162,7 @@ def _check_box_css(panel) -> str:
     A prayer the game picked ticks blue; the player's own choices tick green."""
     dim = dim_text_css(panel)
     readable = dim_text_css(panel, 200)
+    saved = dim_text_css(panel, 70)
     faint = dim.rsplit(",", 1)[0] + ", 0.35)"
     mark = _CHECK_MARK.replace(os.sep, "/")
     return (
@@ -169,7 +170,8 @@ def _check_box_css(panel) -> str:
         f"QCheckBox::indicator {{ width: 13px; height: 13px; border: 1px solid {dim}; border-radius: 3px; background: palette(base); }}"
         f"QCheckBox::indicator:disabled {{ border-color: {faint}; }}"
         f"QCheckBox::indicator:checked {{ border-color: #46b96a; background: #2f8f4e; image: url({mark}); }}"
-        "QCheckBox::indicator:checked:disabled { border-color: rgba(70, 185, 106, 0.45); background: rgba(47, 143, 78, 0.45); }"
+        # A tick kept while it cannot act (prayers off) is grey, not green.
+        f"QCheckBox::indicator:checked:disabled {{ border-color: {dim}; background: {saved}; }}"
         'QCheckBox[picked="true"]::indicator:checked { border-color: #5b9be0; background: #2f6fb8; }'
     )
 
@@ -409,7 +411,7 @@ def _add_prayer_section(layout, player_data, send_config):
         _set_combo_data(time_combo, view["prayer_uptime"])
         for widget in (book_combo, time_combo, hide_lower):
             widget.setEnabled(view["prayers_enabled"])
-        auto_pick.setEnabled(view["prayers_enabled"] and not view["prayers_picked"] and send_config is not None)
+        _sync_auto_pick(auto_pick, view, send_config is not None)
         sync_grid(view)
         locked_toggle.setText(f"Unlocks later ({len(view['locked_prayers'])})")
         locked_toggle.setVisible(bool(view["locked_prayers"]))
@@ -417,6 +419,19 @@ def _add_prayer_section(layout, player_data, send_config):
         locked.setVisible(bool(view["locked_prayers"]) and locked_toggle.isChecked())
 
     return sync
+
+
+def _sync_auto_pick(auto_pick, view, can_send) -> None:
+    """The way back to the game's pick, saying why when it cannot be used."""
+    in_use = view["prayers_enabled"] and view["prayers_picked"]
+    auto_pick.setText("Using the best pick" if in_use else "Pick the best for me")
+    auto_pick.setEnabled(can_send and view["prayers_enabled"] and not in_use)
+    if not view["prayers_enabled"]:
+        auto_pick.setToolTip("Tick “Use prayers in fights” first.")
+    elif in_use:
+        auto_pick.setToolTip("The blue ticks are already the best prayers for your weapon.")
+    else:
+        auto_pick.setToolTip("Clear your ticks and let the game pick the best prayers for your weapon.")
 
 
 def _prayer_check(row) -> "QCheckBox":
