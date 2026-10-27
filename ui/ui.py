@@ -1621,7 +1621,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -4810,7 +4810,7 @@ def show_main_menu(
     Callbacks apply changes and handle persistence in the caller.
     """
     _debug_log("ui.show_main_menu: enter")
-    dialog = QDialog(mw)
+    dialog = guard_wheel(QDialog(mw))
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("AnkiScape Menu")
     dialog.setMinimumWidth(720)
@@ -26947,7 +26947,7 @@ def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> 
     """Skill selection dialog that returns the chosen skill or None if cancelled.
     Disables Smithing when no bars can be smelted (per provided boolean).
     """
-    dialog = QDialog(mw)
+    dialog = guard_wheel(QDialog(mw))
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Skill Selection")
     layout = QVBoxLayout()

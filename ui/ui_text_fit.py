@@ -7,10 +7,16 @@ None of them uses heightForWidth: a vertical QBoxLayout treats such an item as
 rigid, which would stop the flexible list beside them from giving up height.
 Each remembers the width it was last given and sizes itself for that width, so
 a width change settles after one extra layout pass.
+
+guard_wheel keeps the mouse wheel from changing number boxes and drop-down
+lists in an AnkiScape window, so the wheel scrolls the page instead.
 """
 
 from aqt.qt import (  # type: ignore
+    QAbstractSpinBox,
+    QApplication,
     QCheckBox,
+    QComboBox,
     QEvent,
     QFrame,
     QHBoxLayout,
@@ -18,6 +24,7 @@ from aqt.qt import (  # type: ignore
     QLayout,
     QModelIndex,
     QObject,
+    QPointF,
     QRect,
     QScrollArea,
     QSize,
@@ -31,6 +38,7 @@ from aqt.qt import (  # type: ignore
     QTimer,
     QToolTip,
     QVBoxLayout,
+    QWheelEvent,
     QWidget,
 )
 
@@ -411,3 +419,64 @@ def wrap_last_column(tree, minimum_chars):
     tree.setWordWrap(True)
     tree.header().setStretchLastSection(False)
     tree.setItemDelegateForColumn(tree.columnCount() - 1, _WrappedLastColumn(tree, minimum_chars))
+
+
+_WHEEL_GUARDED = "ankiscapeWheelGuard"
+
+
+class _WheelGuard(QObject):
+    """Refuses the wheel on number boxes and drop-down lists inside windows marked by guard_wheel.
+
+    It is installed on the application because a wheel event reaches the box
+    itself, never its window. The mark keeps Anki's own windows untouched. Anki's
+    Fusion style lets the wheel change a drop-down list (only the native macOS
+    style does not), so lists are covered with the number boxes.
+    """
+
+    def eventFilter(self, watched, event):
+        if event.type() != QEvent.Type.Wheel or not isinstance(watched, (QAbstractSpinBox, QComboBox)):
+            return False
+        owner = watched
+        while owner is not None and not owner.property(_WHEEL_GUARDED):
+            owner = owner.parent()
+        if owner is None:
+            return False
+        # Qt does not offer a sent wheel event to the parent widgets once the
+        # box ignores it, so each ancestor gets a copy here until the scroll
+        # area's viewport takes it.
+        scrolled = False
+        page = watched.parentWidget()
+        while page is not None and not scrolled:
+            scrolled = _offer_wheel(page, event)
+            page = page.parentWidget()
+        event.setAccepted(scrolled)
+        return True
+
+
+def _offer_wheel(widget, event):
+    """Sends `widget` a copy of a wheel event, positioned in its own coordinates; True when it took it."""
+    copy = QWheelEvent(
+        QPointF(widget.mapFromGlobal(event.globalPosition().toPoint())),
+        event.globalPosition(),
+        event.pixelDelta(),
+        event.angleDelta(),
+        event.buttons(),
+        event.modifiers(),
+        event.phase(),
+        event.inverted(),
+    )
+    QApplication.sendEvent(widget, copy)
+    return copy.isAccepted()
+
+
+_wheel_guard = None
+
+
+def guard_wheel(window):
+    """Marks `window`, and every window and widget it owns, as a place where the wheel never edits a value."""
+    global _wheel_guard
+    if _wheel_guard is None:
+        _wheel_guard = _WheelGuard()
+    window.setProperty(_WHEEL_GUARDED, True)
+    QApplication.instance().installEventFilter(_wheel_guard)
+    return window

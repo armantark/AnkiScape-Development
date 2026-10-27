@@ -46,6 +46,8 @@ try:
         QWidget,
     )
 
+    from .ui_text_fit import guard_wheel
+
     HAS_QT = True
 except Exception:
     mw = None
@@ -281,6 +283,7 @@ if HAS_QT:
         def __init__(self, plan: PaceOnboardingPlan, median: int | None, parent: QWidget | None = None) -> None:
             super().__init__(parent)
             self.setObjectName("paceDialog")
+            guard_wheel(self)
             self.setWindowTitle(PACE_DIALOG_TITLE)
             self.setMinimumWidth(540)
             self._median = median

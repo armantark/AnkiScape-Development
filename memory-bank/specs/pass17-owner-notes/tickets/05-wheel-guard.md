@@ -4,9 +4,15 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] An offscreen test sends a wheel event over a number box inside a scroll area: the value stays and the scroll area moves.
-- [ ] The guard covers the Settings game speed and world-day boxes, a Grand Exchange box and a box built in a loop.
-- [ ] The drop-down list finding is recorded in the ticket, with the guard covering lists when the wheel changes them.
-- [ ] One play-checklist line added.
+- [x] An offscreen test sends a wheel event over a number box inside a scroll area: the value stays and the scroll area moves.
+- [x] The guard covers the Settings game speed and world-day boxes, a Grand Exchange box and a box built in a loop.
+- [x] The drop-down list finding is recorded in the ticket, with the guard covering lists when the wheel changes them.
+- [x] One play-checklist line added.
+
+**Drop-down finding:** Anki's default widget style ("Anki") is Fusion, and Fusion
+lets the wheel change a drop-down list (`SH_ComboBox_AllowWheelScrolling` is 1
+for Fusion and Windows, 0 only for the native macOS style). A probe confirmed
+it: an unguarded Fusion list moved from item 1 to item 2 under the wheel. The
+guard therefore covers drop-down lists too.
