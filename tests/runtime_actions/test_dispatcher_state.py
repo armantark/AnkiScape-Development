@@ -606,6 +606,8 @@ class DispatcherStateTest(unittest.TestCase):
 
     def test_tools_quest_choices_and_hidden_xp_share_the_profile_save(self):
         from ankiscape.core.storage_pure import default_player_data
+        from ankiscape.data.quest.hazeel_opening import PROOFS, SHARED
+        from tests.test_combat_quest_gate import _answer_review
 
         self.state.player_data = default_player_data(self.addon.ORE_DATA, ITEM_DEFINITIONS)
         self.state.current_skill = "Mining"
@@ -626,6 +628,10 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(self.state.player_data["dungeoneering_exp"], 100)
         self.assertEqual(self.state.player_data["dungeoneering_level"], 2)
         self.assertTrue(self.addon.on_set_quest("hazeel_cult"))
+        self.state.current_skill = "Quests"
+        for action_id in SHARED:
+            _answer_review(self.addon)
+            self.assertIn(PROOFS[action_id], self.saved[-1][0]["quest_action_proofs"])
         self.assertTrue(self.addon.on_set_quest_route_choice("hazeel_cult", "Side with Hazeel's cult"))
         self.assertEqual(self.saved[-1][0]["quest_route_states"]["hazeel_cult"], ["Side with Hazeel's cult"])
         self.assertTrue(self.addon._set_combat_prayer_config("pin_target_preset", True))

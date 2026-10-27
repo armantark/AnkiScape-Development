@@ -1,0 +1,20 @@
+{
+  "data/quest/hazeel_assets/mark_of_hazeel.png": {
+    "file_title": "Hazeel's mark.png",
+    "file_page_url": "https://runescape.wiki/w/index.php?title=File:Hazeel%27s_mark.png&oldid=6412175",
+    "file_page_oldid": 6412175,
+    "file_page_timestamp": "2012-10-15T04:43:03Z",
+    "file_page_body_sha256": "e616196b0c8f7eed1162a77552b0e6445947d0d5aa724e3bc9efd059c997c99f",
+    "image_url": "https://runescape.wiki/images/archive/20131111000938%21Hazeel%27s_mark.png?b71bb",
+    "source_wiki": "rs3",
+    "mime": "image/png",
+    "mediatype": "BITMAP",
+    "size": 253,
+    "width": 28,
+    "height": 29,
+    "sha256": "7727f58e3597f1c0e5038e5474c99f6ddcf2a7abd47db14d3373ddcda7b8b8f5",
+    "sha1": "11fd466e741dcffce5e3db4fefe6dd39ebba2296",
+    "timestamp": "2010-04-04T00:52:14Z",
+    "license_string": "unknown"
+  }
+}

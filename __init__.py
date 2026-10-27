@@ -3456,7 +3456,7 @@ def _on_main_menu(
             pure_ok = ok
             return updated, ok
 
-        if not commit_direct_action(_change):
+        if not commit_direct_action(_change, selected_skill="Activities" if action_id == "start_from_bank" else None):
             if not pure_ok:
                 return {
                     "ok": False,
