@@ -60,6 +60,20 @@ class QueueMenuCommandTest(QueueProfile):
         self.assertEqual(self._rows(addon), [("Smithing: Iron bar", "done", 10)])
         self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron bar done."])
 
+    def test_a_bury_entry_counts_the_bones_it_buries(self):
+        bury = {"kind": "skill", "skill": "Prayer", "target": "bury_bones"}
+        addon = self._queue_addon("ankiscape_queue_menu_bury", **{"inventory": {"Bones": 40}})
+        view = queue_add_view_pure(addon._state.player_data, bury)
+        self.assertEqual((view["count"], view["unit"], view["materials"]), (40, "Bones used", "Bones: Bank 40"))
+
+        self.assertTrue(self._menu(addon)("add", {"action": bury, "count": 40})["ok"])
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+
+        # At 10x one review buries ten bones; the entry counts each of them, not the one review.
+        self.assertEqual(addon._state.player_data["inventory"]["Bones"], 30)
+        self.assertEqual(self._rows(addon), [("Prayer: Bones", "current", 10)])
+
     def test_a_sixth_entry_is_refused_and_clear_keeps_the_running_action(self):
         addon = self._queue_addon("ankiscape_queue_menu_cap")
         command = self._menu(addon)

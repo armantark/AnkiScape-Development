@@ -49,6 +49,22 @@ def action_product_items_pure(action: Mapping[str, Any]) -> tuple[str, ...]:
     return _item_names(names)
 
 
+def action_used_input_pure(action: Mapping[str, Any]) -> str:
+    """The one item an action that makes nothing uses up, such as Bones for burying; empty otherwise.
+
+    The player plans such an action by that item ("bury 100 bones"), so its
+    queue entry counts it instead of reviews.
+    """
+    if action.get("kind") == "utility":
+        spec = UTILITY_ACTIVITY_DATA.get(action.get("utility_id"), {})
+    elif action.get("kind") == "skill":
+        spec = action_target_spec_pure(action)
+    else:
+        return ""
+    needs = tuple(_field(spec, "requirements") or ()) if spec else ()
+    return needs[0] if len(needs) == 1 and not action_product_items_pure(action) else ""
+
+
 def product_gains_pure(action: Mapping[str, Any], changes: Mapping[str, int]) -> dict[str, int]:
     """The review's gains of the action's product items, from its item changes."""
     products = action_product_items_pure(action)

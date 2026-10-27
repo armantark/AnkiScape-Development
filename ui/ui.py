@@ -4882,8 +4882,9 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
-    from .ui_action_queue import ActionQueuePanel, activity_queue_control, menu_queue_command, surface_queue_control
+    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, surface_queue_control
     from .ui_dnd_favourite import DndFavouriteControls
+    from .ui_activity_leave import LeaveRule, leave_running_activity
 
     def _after_queue_command(result: dict) -> None:
         warn.setText(result["message"])
@@ -4894,7 +4895,11 @@ def show_main_menu(
             ctx.refresh("quests")
             _render_panel()
 
-    queue_command = menu_queue_command(on_action_queue_command, _after_queue_command)
+    queue_command = menu_queue(
+        player_data, on_action_queue_command, _after_queue_command, lambda activity: _leave_running_activity(activity)
+    )
+    # Targets picked while the queue runs that panel's action, by panel: (apply, target).
+    held_targets: dict = {}
     ctx = MainMenuCtx(
         player_data=player_data,
         dialog=dialog,
@@ -5092,6 +5097,9 @@ def show_main_menu(
     ctx.refreshers["active_label"] = _refresh_active_label
 
     def _set_active(display_name: str) -> None:
+        # A target picked while the queue ran this panel's action applies only now.
+        apply_pick, pick = held_targets.pop(display_name, (lambda _target: None, ""))
+        apply_pick(pick)
         # Mirror the original gating: never let users train a skill they cannot
         # actually progress, and explain why instead of silently selecting it.
         if display_name == "Smithing" and not _smithing_available():
@@ -5126,7 +5134,7 @@ def show_main_menu(
             return
         if display_name in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}:
             start = activity_start_transition.get(display_name)
-            if callable(start) and start():
+            if callable(start) and start(pick):
                 warn.setText("")
                 state["active"] = display_name
                 _refresh_active_label()
@@ -5219,8 +5227,8 @@ def show_main_menu(
                 row = rows_by_target.get(item.data(Qt.ItemDataRole.UserRole))
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
-                on_select(item.data(Qt.ItemDataRole.UserRole))
-                _mark_current_target(item)
+                if on_select(item.data(Qt.ItemDataRole.UserRole)) is not False:
+                    _mark_current_target(item)
 
         target_list.itemClicked.connect(_on_target_selected)
         target_list.itemActivated.connect(_on_target_selected)
@@ -5353,8 +5361,8 @@ def show_main_menu(
             if on_select is not None:
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
-                on_select(target_id)
-                _mark_current_target(item)
+                if on_select(target_id) is not False:
+                    _mark_current_target(item)
 
         def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
             role = item.data(0, Qt.ItemDataRole.UserRole)
@@ -5390,6 +5398,10 @@ def show_main_menu(
         expanded_groups: Optional[set] = None,
         set_group_expanded=None,
     ) -> QWidget:
+        skill, select = state["skill"], on_select
+        on_select = select and (
+            lambda target: not held_by_queue(player_data, held_targets, skill, select, target) and select(target)
+        )
         if len(rows) < 25 or not any(row.group for row in rows):
             return _build_flat_target_list(
                 sorted(rows, key=lambda r: r.sort_key or (r.label,)),
@@ -7569,6 +7581,339 @@ def show_main_menu(
         task_only.toggled.connect(_set_task_only)
         layout.addWidget(search, 1)
         return container
+
+    def _leave_running_activity(activity_id: str) -> bool:
+        return leave_running_activity(dialog, show_error_message, (
+            LeaveRule(
+                FLASH_POWDER_FACTORY_ACTIVITY_ID,
+                lambda: flash_powder_factory_view_pure(player_data)["active"],
+                "Leave Flash Powder Factory?",
+                "Switching activities cashes out the current factory score with the early-exit penalty.",
+                on_agility_command,
+                "leave_flash_powder_factory",
+                "Factory actions are unavailable.",
+                "Flash Powder Factory",
+                "Could not leave the factory.",
+            ),
+            LeaveRule(
+                PYRAMID_PLUNDER_ACTIVITY_ID,
+                lambda: pyramid_plunder_view_pure(player_data)["active"],
+                "Leave Pyramid Plunder?",
+                "Switching activities leaves the pyramid and banks the retained artefacts.",
+                on_agility_command,
+                "leave_pyramid_plunder",
+                "Pyramid Plunder actions are unavailable.",
+                "Pyramid Plunder",
+                "Could not leave the pyramid.",
+            ),
+            LeaveRule(
+                WEREWOLF_SKULLBALL_ACTIVITY_ID,
+                lambda: werewolf_skullball_view_pure(player_data)["active"],
+                "Leave Werewolf Skullball?",
+                "Switching activities leaves the current Skullball run.",
+                on_agility_command,
+                "leave_werewolf_skullball",
+                "Skullball actions are unavailable.",
+                "Werewolf Skullball",
+                "Could not leave the course.",
+            ),
+            LeaveRule(
+                GNOME_BALL_ACTIVITY_ID,
+                lambda: gnome_ball_view_pure(player_data)["active"],
+                "Leave Gnome Ball?",
+                "Switch activities? Scored XP stays; the unfinished goals and referee reward are forfeited.",
+                on_agility_command,
+                "leave_gnome_ball",
+                "Gnome Ball actions are unavailable.",
+                "Gnome Ball",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                FISH_FLINGERS_ACTIVITY_ID,
+                lambda: fish_flingers_view_pure(player_data)["active"],
+                "Leave Fish Flingers?",
+                "Switch activities? The entry ticket and unfinished event score are forfeited.",
+                on_fish_flingers_command,
+                "leave_fish_flingers",
+                "Fish Flingers actions are unavailable.",
+                "Fish Flingers",
+                "Could not leave the event.",
+            ),
+            LeaveRule(
+                FISHING_TRAWLER_ACTIVITY_ID,
+                lambda: fishing_trawler_view_pure(player_data)["active"],
+                "Leave Fishing Trawler?",
+                "Switch activities? Unused supplies return to the bank, but the unfinished haul is forfeited.",
+                on_fishing_trawler_command,
+                "leave_fishing_trawler",
+                "Fishing Trawler actions are unavailable.",
+                "Fishing Trawler",
+                "Could not leave the trip.",
+            ),
+            LeaveRule(
+                TROUBLE_BREWING_ACTIVITY_ID,
+                lambda: trouble_brewing_view_pure(player_data)["active"],
+                "Leave Trouble Brewing?",
+                "Switch activities? Unfinished rum, contribution, and match rewards are forfeited.",
+                on_trouble_brewing_command,
+                "leave",
+                "Trouble Brewing actions are unavailable.",
+                "Trouble Brewing",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                CASTLE_WARS_ACTIVITY_ID,
+                lambda: castle_wars_view_pure(player_data)["active"],
+                "Leave Castle Wars?",
+                "Switch activities? The unfinished score, contribution, and tickets are forfeited.",
+                on_castle_wars_command,
+                "leave",
+                "Castle Wars actions are unavailable.",
+                "Castle Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                PEST_CONTROL_ACTIVITY_ID,
+                lambda: pest_control_view_pure(player_data)["active"],
+                "Leave Pest Control?",
+                "Switch activities? The unfinished assault and all pending rewards are forfeited.",
+                on_pest_control_command,
+                "leave",
+                "Pest Control actions are unavailable.",
+                "Pest Control",
+                "Could not leave the game.",
+            ),
+            LeaveRule(
+                SOUL_WARS_ACTIVITY_ID,
+                lambda: soul_wars_view_pure(player_data)["active"],
+                "Leave Soul Wars?",
+                "Switch activities? The unfinished match, fragments, and pending Zeal are forfeited.",
+                on_soul_wars_command,
+                "leave",
+                "Soul Wars actions are unavailable.",
+                "Soul Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                SHADES_OF_MORTTON_ACTIVITY_ID,
+                lambda: shades_of_mortton_view_pure(player_data)["active"],
+                "Leave Shades of Mort'ton?",
+                "Switch activities? Temple repair, sanctity, and reward ledgers are preserved.",
+                on_shades_of_mortton_command,
+                "leave",
+                "Mort'ton actions are unavailable.",
+                "Shades of Mort'ton",
+                "Could not leave Mort'ton.",
+            ),
+            LeaveRule(
+                TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+                lambda: tzhaar_fight_pit_view_pure(player_data)["active"],
+                "Leave the TzHaar Fight Pit?",
+                "Switch activities? The safe match ends and pending TokKul is forfeited.",
+                on_tzhaar_fight_pit_command,
+                "leave",
+                "Fight Pit actions are unavailable.",
+                "TzHaar Fight Pit",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                DUEL_ARENA_ACTIVITY_ID,
+                lambda: duel_arena_view_pure(player_data)["active"],
+                "Forfeit the Duel Arena challenge?",
+                "Switch activities? The challenge ends safely and all combat stats are restored.",
+                on_duel_arena_command,
+                "abandon",
+                "Duel Arena actions are unavailable.",
+                "Duel Arena",
+                "Could not forfeit the challenge.",
+                lambda: "No Forfeit is enabled; finish the bounded duel through reviews."
+                if "no_forfeit" in duel_arena_view_pure(player_data)["selected_rule_ids"]
+                else "",
+            ),
+            LeaveRule(
+                CLAN_WARS_ACTIVITY_ID,
+                lambda: clan_wars_view_pure(player_data)["active"],
+                "Leave Clan Wars?",
+                "Switch activities? You will leave through the portal and end the bounded match.",
+                on_clan_wars_command,
+                "leave",
+                "Clan Wars actions are unavailable.",
+                "Clan Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                TROLL_INVASION_ACTIVITY_ID,
+                lambda: troll_invasion_view_pure(player_data)["active"],
+                "Leave Troll Invasion?",
+                "Switch activities? The safe run ends and its current partial completion is cashed out.",
+                on_troll_invasion_command,
+                "leave",
+                "Troll Invasion actions are unavailable.",
+                "Troll Invasion",
+                "Could not leave the invasion.",
+            ),
+            LeaveRule(
+                MAGE_TRAINING_ARENA_ACTIVITY_ID,
+                lambda: mage_training_arena_view_pure(player_data)["active"],
+                "Leave the Mage Training Arena?",
+                "Switch activities and return to the Arena lobby?",
+                on_mage_training_arena_command,
+                "leave",
+                "Mage Training Arena actions are unavailable.",
+                "Mage Training Arena",
+                "Could not leave the Arena.",
+            ),
+            LeaveRule(
+                RANGING_GUILD_ACTIVITY_ID,
+                lambda: ranging_guild_view_pure(player_data)["active"],
+                "Leave the Ranging Guild competition?",
+                "Switch activities and forfeit the unfinished score?",
+                on_ranging_guild_command,
+                "leave",
+                "Ranging Guild actions are unavailable.",
+                "Ranging Guild",
+                "Could not leave the competition.",
+            ),
+            LeaveRule(
+                MOBILISING_ARMIES_ACTIVITY_ID,
+                lambda: mobilising_armies_view_pure(player_data)["active"],
+                "Forfeit the scenario?",
+                "Switch activities and forfeit the battle without rank or credits?",
+                on_mobilising_armies_command,
+                "forfeit",
+                "Mobilising Armies actions are unavailable.",
+                "Mobilising Armies",
+                "Could not forfeit the battle.",
+            ),
+            LeaveRule(
+                GNOME_RESTAURANT_ACTIVITY_ID,
+                lambda: gnome_restaurant_view_pure(player_data)["order"],
+                "Drop the gnome delivery?",
+                "Switch activities and hand the delivery box back?",
+                on_gnome_restaurant_command,
+                "leave",
+                "Gnome Restaurant actions are unavailable.",
+                "Gnome Restaurant",
+                "Could not hand the box back.",
+            ),
+            LeaveRule(
+                DOMINION_TOWER_ACTIVITY_ID,
+                lambda: dominion_tower_view_pure(player_data)["active"],
+                "Leave the Dominion Tower?",
+                "Switch activities and end the current tower run?",
+                on_dominion_tower_command,
+                "leave",
+                "Dominion Tower actions are unavailable.",
+                "Dominion Tower",
+                "Could not leave the tower.",
+            ),
+            LeaveRule(
+                TEMPLE_TREKKING_ACTIVITY_ID,
+                lambda: temple_trekking_view_pure(player_data)["active"],
+                "Abandon Temple Trekking?",
+                "Switch activities and abandon the active trek without a token?",
+                on_temple_trekking_command,
+                "abandon",
+                "Temple Trekking actions are unavailable.",
+                "Temple Trekking",
+                "Could not abandon the trek.",
+            ),
+            LeaveRule(
+                GOBLIN_RAIDS_ACTIVITY_ID,
+                lambda: goblin_raids_view_pure(player_data, speed=_game_speed())["active"],
+                "Leave Goblin Raids?",
+                lambda: "Switch activities and walk away from the goblins?"
+                + (
+                    " The spoils you have not claimed will be lost."
+                    if goblin_raids_view_pure(player_data, speed=_game_speed())["pending_spoils"]
+                    else ""
+                ),
+                on_goblin_raids_command,
+                "leave",
+                "Goblin Raids actions are unavailable.",
+                "Goblin Raids",
+                "Could not leave the goblins.",
+            ),
+            LeaveRule(
+                CRUCIBLE_ACTIVITY_ID,
+                lambda: crucible_view_pure(player_data)["active"],
+                "Leave the Crucible?",
+                lambda: "Switch activities? You abandon your bounty target, so the "
+                f"{crucible_view_pure(player_data)['fee']['abandon_component']} coin "
+                "abandonment part of your fee goes to the opponent.",
+                on_crucible_command,
+                "leave",
+                "Crucible actions are unavailable.",
+                "The Crucible",
+                "Could not leave the arena.",
+            ),
+            LeaveRule(
+                BARBARIAN_ASSAULT_ACTIVITY_ID,
+                lambda: barbarian_assault_view_pure(player_data)["active"],
+                "Leave Barbarian Assault?",
+                "Switch activities? The current wave restarts and its pending points are forfeited.",
+                on_barbarian_assault_command,
+                "leave",
+                "Barbarian Assault actions are unavailable.",
+                "Barbarian Assault",
+                "Could not leave the run.",
+            ),
+            LeaveRule(
+                GREAT_ORB_PROJECT_ACTIVITY_ID,
+                lambda: great_orb_project_view_pure(player_data)["active"],
+                "Leave Great Orb Project?",
+                "Switch activities? Pending tokens and saved essence are forfeited.",
+                on_great_orb_project_command,
+                "leave_great_orb_project",
+                "Great Orb Project actions are unavailable.",
+                "Great Orb Project",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                COURT_CASES_ACTIVITY_ID,
+                lambda: court_cases_view_pure(player_data)["active"],
+                "Give up court case?",
+                "Switch activities? Preparation is lost and a consumed Court summons is not returned.",
+                on_court_cases_command,
+                "leave",
+                "Court Cases actions are unavailable.",
+                "Court Cases",
+                "Could not leave the case.",
+            ),
+            LeaveRule(
+                PHOENIX_LAIR_ACTIVITY_ID,
+                lambda: phoenix_lair_view_pure(player_data)["active"],
+                "Abandon Phoenix Lair run?",
+                "Switch activities? Unfinished guardian, twig, and pyre progress is lost. Earned drops and Combat XP remain, and today's allowance is not consumed.",
+                on_phoenix_lair_command,
+                "leave",
+                "Phoenix Lair actions are unavailable.",
+                "Phoenix Lair",
+                "Could not abandon the run.",
+            ),
+            LeaveRule(
+                SKELETAL_HORROR_ACTIVITY_ID,
+                lambda: skeletal_horror_view_pure(player_data)["active"],
+                "Leave the Skeletal Horror lair?",
+                "Switch activities? Current phase progress is lost, but the weekly entry is not consumed.",
+                on_skeletal_horror_command,
+                "leave",
+                "Skeletal Horror actions are unavailable.",
+                "Skeletal Horror",
+                "Could not leave the lair.",
+            ),
+            LeaveRule(
+                BORK_ACTIVITY_ID,
+                lambda: bork_view_pure(player_data)["active"],
+                "Leave Bork's chamber?",
+                "Switch activities? Bork heals to full, but the daily kill is not consumed.",
+                on_bork_command,
+                "leave",
+                "Bork actions are unavailable.",
+                "Bork",
+                "Could not leave the chamber.",
+            ),
+        ), activity_id)
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
@@ -18994,756 +19339,12 @@ def show_main_menu(
             selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
-            if (
-                activity_id != FLASH_POWDER_FACTORY_ACTIVITY_ID
-                and flash_powder_factory_view_pure(player_data)["active"]
+            if not activate and held_by_queue(
+                player_data, held_targets, surface_name, lambda _target: None, activity_id
             ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Flash Powder Factory?",
-                    "Switching activities cashes out the current factory score with the early-exit penalty.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_flash_powder_factory", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Factory actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Flash Powder Factory",
-                        str((result or {}).get("message", "Could not leave the factory.")),
-                    )
-                    return False
-            if (
-                activity_id != PYRAMID_PLUNDER_ACTIVITY_ID
-                and pyramid_plunder_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Pyramid Plunder?",
-                    "Switching activities leaves the pyramid and banks the retained artefacts.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_pyramid_plunder", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Pyramid Plunder actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Pyramid Plunder",
-                        str((result or {}).get("message", "Could not leave the pyramid.")),
-                    )
-                    return False
-            if (
-                activity_id != WEREWOLF_SKULLBALL_ACTIVITY_ID
-                and werewolf_skullball_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Werewolf Skullball?",
-                    "Switching activities leaves the current Skullball run.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_werewolf_skullball", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Skullball actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Werewolf Skullball",
-                        str((result or {}).get("message", "Could not leave the course.")),
-                    )
-                    return False
-            if (
-                activity_id != GNOME_BALL_ACTIVITY_ID
-                and gnome_ball_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Gnome Ball?",
-                    "Switch activities? Scored XP stays; the unfinished goals "
-                    "and referee reward are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_gnome_ball", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Gnome Ball actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Gnome Ball",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != FISH_FLINGERS_ACTIVITY_ID
-                and fish_flingers_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Fish Flingers?",
-                    "Switch activities? The entry ticket and unfinished event score are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_fish_flingers_command("leave_fish_flingers", {})
-                    if on_fish_flingers_command is not None
-                    else {"ok": False, "message": "Fish Flingers actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Fish Flingers",
-                        str((result or {}).get("message", "Could not leave the event.")),
-                    )
-                    return False
-            if (
-                activity_id != FISHING_TRAWLER_ACTIVITY_ID
-                and fishing_trawler_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Fishing Trawler?",
-                    "Switch activities? Unused supplies return to the bank, but the unfinished haul is forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_fishing_trawler_command("leave_fishing_trawler", {})
-                    if on_fishing_trawler_command is not None
-                    else {"ok": False, "message": "Fishing Trawler actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Fishing Trawler",
-                        str((result or {}).get("message", "Could not leave the trip.")),
-                    )
-                    return False
-            if (
-                activity_id != TROUBLE_BREWING_ACTIVITY_ID
-                and trouble_brewing_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Trouble Brewing?",
-                    "Switch activities? Unfinished rum, contribution, and match rewards are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_trouble_brewing_command("leave", {})
-                    if on_trouble_brewing_command is not None
-                    else {"ok": False, "message": "Trouble Brewing actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Trouble Brewing",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != CASTLE_WARS_ACTIVITY_ID
-                and castle_wars_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Castle Wars?",
-                    "Switch activities? The unfinished score, contribution, and tickets are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_castle_wars_command("leave", {})
-                    if on_castle_wars_command is not None
-                    else {"ok": False, "message": "Castle Wars actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Castle Wars",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != PEST_CONTROL_ACTIVITY_ID
-                and pest_control_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Pest Control?",
-                    "Switch activities? The unfinished assault and all pending rewards are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_pest_control_command("leave", {})
-                    if on_pest_control_command is not None
-                    else {"ok": False, "message": "Pest Control actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Pest Control",
-                        str((result or {}).get("message", "Could not leave the game.")),
-                    )
-                    return False
-            if (
-                activity_id != SOUL_WARS_ACTIVITY_ID
-                and soul_wars_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Soul Wars?",
-                    "Switch activities? The unfinished match, fragments, and pending Zeal are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_soul_wars_command("leave", {})
-                    if on_soul_wars_command is not None
-                    else {"ok": False, "message": "Soul Wars actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Soul Wars",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != SHADES_OF_MORTTON_ACTIVITY_ID
-                and shades_of_mortton_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Shades of Mort'ton?",
-                    "Switch activities? Temple repair, sanctity, and reward ledgers are preserved.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_shades_of_mortton_command("leave", {})
-                    if on_shades_of_mortton_command is not None
-                    else {"ok": False, "message": "Mort'ton actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Shades of Mort'ton",
-                        str((result or {}).get("message", "Could not leave Mort'ton.")),
-                    )
-                    return False
-            if (
-                activity_id != TZHAAR_FIGHT_PIT_ACTIVITY_ID
-                and tzhaar_fight_pit_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the TzHaar Fight Pit?",
-                    "Switch activities? The safe match ends and pending TokKul is forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_tzhaar_fight_pit_command("leave", {})
-                    if on_tzhaar_fight_pit_command is not None
-                    else {"ok": False, "message": "Fight Pit actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "TzHaar Fight Pit",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            duel_view = duel_arena_view_pure(player_data)
-            if activity_id != DUEL_ARENA_ACTIVITY_ID and duel_view["active"]:
-                if "no_forfeit" in duel_view["selected_rule_ids"]:
-                    show_error_message(
-                        "Duel Arena",
-                        "No Forfeit is enabled; finish the bounded duel through reviews.",
-                    )
-                    return False
-                answer = QMessageBox.question(
-                    dialog,
-                    "Forfeit the Duel Arena challenge?",
-                    "Switch activities? The challenge ends safely and all combat stats are restored.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_duel_arena_command("abandon", {})
-                    if on_duel_arena_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Duel Arena actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Duel Arena",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not forfeit the challenge.",
-                            )
-                        ),
-                    )
-                    return False
-            clan_view = clan_wars_view_pure(player_data)
-            if activity_id != CLAN_WARS_ACTIVITY_ID and clan_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Clan Wars?",
-                    "Switch activities? You will leave through the portal and "
-                    "end the bounded match.",
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_clan_wars_command("leave", {})
-                    if on_clan_wars_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Clan Wars actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Clan Wars",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the match.",
-                            )
-                        ),
-                    )
-                    return False
-            troll_view = troll_invasion_view_pure(player_data)
-            if activity_id != TROLL_INVASION_ACTIVITY_ID and troll_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Troll Invasion?",
-                    "Switch activities? The safe run ends and its current partial completion is cashed out.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_troll_invasion_command("leave", {})
-                    if on_troll_invasion_command is not None
-                    else {"ok": False, "message": "Troll Invasion actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Troll Invasion",
-                        str((result or {}).get("message", "Could not leave the invasion.")),
-                    )
-                    return False
-            mage_training_view = mage_training_arena_view_pure(player_data)
-            if (
-                activity_id != MAGE_TRAINING_ARENA_ACTIVITY_ID
-                and mage_training_view["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Mage Training Arena?",
-                    "Switch activities and return to the Arena lobby?",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_mage_training_arena_command("leave", {})
-                    if on_mage_training_arena_command is not None
-                    else {"ok": False, "message": "Mage Training Arena actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Mage Training Arena",
-                        str((result or {}).get("message", "Could not leave the Arena.")),
-                    )
-                    return False
-            ranging_view = ranging_guild_view_pure(player_data)
-            if activity_id != RANGING_GUILD_ACTIVITY_ID and ranging_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Ranging Guild competition?",
-                    "Switch activities and forfeit the unfinished score?",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_ranging_guild_command("leave", {})
-                    if on_ranging_guild_command is not None
-                    else {"ok": False, "message": "Ranging Guild actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Ranging Guild",
-                        str((result or {}).get("message", "Could not leave the competition.")),
-                    )
-                    return False
-            if activity_id != MOBILISING_ARMIES_ACTIVITY_ID:
-                mobilising_view = mobilising_armies_view_pure(player_data)
-                if mobilising_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Forfeit the scenario?",
-                        "Switch activities and forfeit the battle without rank or credits?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_mobilising_armies_command("forfeit", {})
-                        if on_mobilising_armies_command is not None
-                        else {"ok": False, "message": "Mobilising Armies actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Mobilising Armies",
-                            str((result or {}).get("message", "Could not forfeit the battle.")),
-                        )
-                        return False
-            if activity_id != GNOME_RESTAURANT_ACTIVITY_ID:
-                gnome_view = gnome_restaurant_view_pure(player_data)
-                if gnome_view["order"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Drop the gnome delivery?",
-                        "Switch activities and hand the delivery box back?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_gnome_restaurant_command("leave", {})
-                        if on_gnome_restaurant_command is not None
-                        else {"ok": False, "message": "Gnome Restaurant actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Gnome Restaurant",
-                            str((result or {}).get("message", "Could not hand the box back.")),
-                        )
-                        return False
-            if activity_id != DOMINION_TOWER_ACTIVITY_ID:
-                tower_view = dominion_tower_view_pure(player_data)
-                if tower_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Leave the Dominion Tower?",
-                        "Switch activities and end the current tower run?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_dominion_tower_command("leave", {})
-                        if on_dominion_tower_command is not None
-                        else {"ok": False, "message": "Dominion Tower actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Dominion Tower",
-                            str((result or {}).get("message", "Could not leave the tower.")),
-                        )
-                        return False
-            if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
-                temple_view = temple_trekking_view_pure(player_data)
-                if temple_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Abandon Temple Trekking?",
-                        "Switch activities and abandon the active trek without a token?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_temple_trekking_command("abandon", {})
-                        if on_temple_trekking_command is not None
-                        else {"ok": False, "message": "Temple Trekking actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Temple Trekking",
-                            str((result or {}).get("message", "Could not abandon the trek.")),
-                        )
-                        return False
-            goblin_view = goblin_raids_view_pure(player_data, speed=_game_speed())
-            if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
-                question = "Switch activities and walk away from the goblins?"
-                if goblin_view["pending_spoils"]:
-                    question += " The spoils you have not claimed will be lost."
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Goblin Raids?",
-                    question,
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_goblin_raids_command("leave", {})
-                    if on_goblin_raids_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Goblin Raids actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Goblin Raids",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the goblins.",
-                            )
-                        ),
-                    )
-                    return False
-            crucible_view = crucible_view_pure(player_data)
-            if activity_id != CRUCIBLE_ACTIVITY_ID and crucible_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Crucible?",
-                    "Switch activities? You abandon your bounty target, so the "
-                    f"{crucible_view['fee']['abandon_component']} coin "
-                    "abandonment part of your fee goes to the opponent.",
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_crucible_command("leave", {})
-                    if on_crucible_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Crucible actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "The Crucible",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the arena.",
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
-                and barbarian_assault_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Barbarian Assault?",
-                    "Switch activities? The current wave restarts and its pending points are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_barbarian_assault_command("leave", {})
-                    if on_barbarian_assault_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Barbarian Assault actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Barbarian Assault",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the run."
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
-                and great_orb_project_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Great Orb Project?",
-                    "Switch activities? Pending tokens and saved essence are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_great_orb_project_command("leave_great_orb_project", {})
-                    if on_great_orb_project_command is not None
-                    else {"ok": False, "message": "Great Orb Project actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Great Orb Project",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != COURT_CASES_ACTIVITY_ID
-                and court_cases_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Give up court case?",
-                    "Switch activities? Preparation is lost and a consumed Court summons is not returned.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_court_cases_command("leave", {})
-                    if on_court_cases_command is not None
-                    else {"ok": False, "message": "Court Cases actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Court Cases",
-                        str((result or {}).get("message", "Could not leave the case.")),
-                    )
-                    return False
-            if (
-                activity_id != PHOENIX_LAIR_ACTIVITY_ID
-                and phoenix_lair_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Abandon Phoenix Lair run?",
-                    "Switch activities? Unfinished guardian, twig, and pyre progress is lost. "
-                    "Earned drops and Combat XP remain, and today's allowance is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_phoenix_lair_command("leave", {})
-                    if on_phoenix_lair_command is not None
-                    else {"ok": False, "message": "Phoenix Lair actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Phoenix Lair",
-                        str((result or {}).get("message", "Could not abandon the run.")),
-                    )
-                    return False
-            if (
-                activity_id != SKELETAL_HORROR_ACTIVITY_ID
-                and skeletal_horror_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Skeletal Horror lair?",
-                    "Switch activities? Current phase progress is lost, but the "
-                    "weekly entry is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_skeletal_horror_command("leave", {})
-                    if on_skeletal_horror_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Skeletal Horror actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Skeletal Horror",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the lair."
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != BORK_ACTIVITY_ID
-                and bork_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Bork's chamber?",
-                    "Switch activities? Bork heals to full, but the daily kill "
-                    "is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_bork_command("leave", {})
-                    if on_bork_command is not None
-                    else {"ok": False, "message": "Bork actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Bork",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the chamber."
-                            )
-                        ),
-                    )
-                    return False
+                return True
+            if not _leave_running_activity(activity_id):
+                return False
             if selection_callback(activity_id) is False:
                 return False
             player_data["current_utility"] = activity_id
@@ -21240,7 +20841,12 @@ def show_main_menu(
             else name
         )
         header = QWidget()
-        hl = LeadRowLayout(header)
+        header_rows = QVBoxLayout(header)
+        header_rows.setContentsMargins(0, 0, 0, 0)
+        header_rows.setSpacing(6)
+        title_row = QWidget()
+        header_rows.addWidget(title_row)
+        hl = LeadRowLayout(title_row)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
         if is_utility:
@@ -21320,7 +20926,9 @@ def show_main_menu(
                     )
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
-            hl.addWidget(surface_queue_control(player_data, queue_command, name))
+            header_rows.addWidget(
+                surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1])
+            )
             if name in _TRAIN_BUTTON_KEYS:
                 _MAIN_MENU_CTX[_TRAIN_BUTTON_KEYS[name]] = train_btn
         panel_layout.addWidget(header)
@@ -26456,7 +26064,8 @@ def show_main_menu(
     content_layout.addWidget(tabs, 1)
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
-    layout.addWidget(ActionQueuePanel(player_data, queue_command))
+    queue_panel = ActionQueuePanel(player_data, queue_command, lambda: state["active"])
+    layout.addWidget(queue_panel)
 
     # Footer controls stay outside the tab strip so Help remains at the
     # bottom-right beside the dialog action.
@@ -26465,7 +26074,7 @@ def show_main_menu(
     f_layout = QHBoxLayout(footer)
     f_layout.setContentsMargins(0, 8, 0, 0)
     f_layout.setSpacing(8)
-    f_layout.addStretch(1)
+    f_layout.addWidget(queue_panel.empty_line, 1)
     f_layout.addWidget(help_button)
     close = QPushButton("Close")
     close.clicked.connect(dialog.accept)

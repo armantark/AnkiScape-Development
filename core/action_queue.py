@@ -3,9 +3,9 @@
 At 10x speed an action uses up its materials in a few cards, so the player
 plans a chain such as mine, smelt, smith instead of restarting each step. An
 entry is an action in the last-action record shape and a count in that
-action's own unit: the product items it makes, kills for a fight, reviews for
-an action that makes nothing, and no count for a quest, which runs until it
-stops. After each review the runtime adds the review's progress, and a full
+action's own unit: the product items it makes, the one item it uses when it
+makes nothing (bones buried), kills for a fight, reviews for any other action,
+and no count for a quest, which runs until it stops. After each review the runtime adds the review's progress, and a full
 entry starts the next one. When an entry's action stops for a missing material
 or requirement, the queue notes why and starts the next entry in place of the
 switch to Bankstanding; only a finished queue lets that switch happen, with its
@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .action_products import action_product_items_pure, action_target_spec_pure
+from .action_products import action_product_items_pure, action_target_spec_pure, action_used_input_pure
 from .action_registry import (
     COMBAT_REVIEW_ACTION_DISPLAY_NAME,
     QUEST_REVIEW_ACTION_DISPLAY_NAME,
@@ -127,12 +127,14 @@ def same_action_pure(first: Mapping[str, Any], second: Mapping[str, Any]) -> boo
 
 
 def queue_entry_unit_pure(action: Mapping[str, Any]) -> str:
-    """What an entry counts: "items" (its products), "kills", "reviews", or "" for a quest."""
+    """What an entry counts: "items" (its products), "uses" (its one input), "kills", "reviews", or "" for a quest."""
     if action["kind"] == "quest":
         return ""
     if action["kind"] == "combat":
         return "kills"
-    return "items" if action_product_items_pure(action) else "reviews"
+    if action_product_items_pure(action):
+        return "items"
+    return "uses" if action_used_input_pure(action) else "reviews"
 
 
 def queue_entry_progress_pure(
@@ -148,6 +150,8 @@ def queue_entry_progress_pure(
     if unit == "items":
         changes = review_item_changes_pure(before, after)
         return sum(max(0, changes.get(item, 0)) for item in action_product_items_pure(action))
+    if unit == "uses":
+        return max(0, -review_item_changes_pure(before, after).get(action_used_input_pure(action), 0))
     return 1 if unit == "reviews" else 0
 
 
@@ -171,6 +175,7 @@ def _queue_entry_row(queue: Mapping[str, Any], position: int) -> dict[str, Any]:
         "name": queue_entry_name_pure(action),
         "unit": queue_entry_unit_pure(action),
         "products": action_product_items_pure(action),
+        "used": action_used_input_pure(action),
         "count": entry["count"],
         "done": done,
         "state": state,
