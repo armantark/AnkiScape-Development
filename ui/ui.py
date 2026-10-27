@@ -76,7 +76,7 @@ from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
 from .ui_first_cell_tree import FirstCellSelectionTree
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
-from ..core.action_registry import review_action_handler_key
+from ..core.action_registry import landmark_activity_name, review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
@@ -618,9 +618,8 @@ from ..logic.brawling_gloves_logic import (
     brawling_wilderness_enabled_pure,
 )
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
+from .review_hud_buttons import ReviewBankRunButton
 from ..logic.review_strip_logic import (
-    REVIEW_BANK_RUN_LABEL,
-    REVIEW_BANK_RUN_TOOLTIP,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
     REVIEW_STRIP_WIDTH,
@@ -1031,22 +1030,6 @@ _SPECIAL_ACTIVITY_TARGETS = {
     EVIL_TREE_UTILITY_ID,
     BIG_CHINCHOMPA_UTILITY_ID,
 }
-# The landmarks live outside UTILITY_ACTIVITY_DATA, so a spec lookup returns an
-# empty dict and the HUD would otherwise fall back to a literal placeholder name.
-_LANDMARK_ACTIVITY_NAMES = {
-    _STRONGHOLD_UTILITY_KEY: "Stronghold of Security",
-    _KNIGHT_WAVES_UTILITY_KEY: "Knight Waves Training Ground",
-    _MAGE_ARENA_UTILITY_KEY: "Mage Arena",
-}
-
-
-def _landmark_activity_name(activity_key: object) -> str:
-    target_id = str(activity_key or "")
-    if target_id.startswith("mage_arena_attune:"):
-        return "Mage Arena attunement"
-    return _LANDMARK_ACTIVITY_NAMES.get(target_id, "")
-
-
 # How long a resolved world event keeps its outcome in the Activities strip.
 # Not sourced — the source game had no such surface. Long enough to be seen
 # during an ordinary run, short enough that the strip does not become the
@@ -1511,6 +1494,7 @@ if HAS_QT:
     _HUD_ENEMY = "#E53935"  # Material red (enemy health)
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
+    from .review_hud_buttons import ReviewResumeButton
 
     class _ResponsiveGridScrollArea(QScrollArea):
         """Notify a grid when its viewport width changes."""
@@ -2449,6 +2433,9 @@ if HAS_QT:
             chips_column.setSpacing(1)
             chips_column.addWidget(self.chips_lbl)
             chips_column.addWidget(self.slayer_lbl)
+            # Resume shows only at Bankstanding, where the chips are empty.
+            self.resume_button = ReviewResumeButton(self)
+            chips_column.addWidget(self.resume_button)
             bottom_row = QHBoxLayout()
             bottom_row.setContentsMargins(0, 0, 0, 0)
             bottom_row.setSpacing(6)
@@ -2581,6 +2568,7 @@ if HAS_QT:
             self._set_slayer_progress("")
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
+            self.resume_button.set_data(player_data, skill)
             # While a bank run is active or queued it owns the entire progress
             # area (owner ruling: including combat's health/enemy presentation).
             # The ordinary branches re-show whatever they need below.
@@ -2744,7 +2732,7 @@ if HAS_QT:
                 else:
                     activity_name = (
                         str(spec.get("display_name", ""))
-                        or _landmark_activity_name(activity_key)
+                        or landmark_activity_name(activity_key)
                         or str(activity_key)
                     )
                     # "Utilities"/"Activities" already sit in title_lbl and
@@ -3233,30 +3221,6 @@ if HAS_QT:
                 pass
             return False
 
-    class ReviewBankRunButton(QPushButton):
-        """Always-present strip action backed by the runtime bank-run seam."""
-
-        def __init__(self, parent=None):
-            super().__init__(REVIEW_BANK_RUN_LABEL, parent)
-            self.setObjectName("reviewBankRunButton")
-            self.setToolTip(REVIEW_BANK_RUN_TOOLTIP)
-            self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            self._action_callback = None
-            self.clicked.connect(self._activate)
-
-        def set_data(self, view: dict, action_callback=None) -> None:
-            self._action_callback = action_callback
-            self.setText(str(view.get("text", REVIEW_BANK_RUN_LABEL)))
-            self.setToolTip(str(view.get("tooltip", REVIEW_BANK_RUN_TOOLTIP)))
-            self.setEnabled(bool(view.get("enabled")) and action_callback is not None)
-            visible = bool(view.get("visible", True))
-            self.setProperty("ankiscapeOverlayRequested", visible)
-            self.setVisible(visible)
-
-        def _activate(self) -> None:
-            if self._action_callback is not None:
-                self._action_callback()
-
     class ReviewFillDrawer(QWidget):
         """Grand Exchange status, stacked above the Event log.
 
@@ -3673,12 +3637,6 @@ else:
         def __init__(self, kind: str = "distractions", parent=None):
             pass
         def set_data(self, view: dict, open_target=None) -> None:
-            pass
-
-    class ReviewBankRunButton:
-        def __init__(self, parent=None):
-            pass
-        def set_data(self, view: dict, action_callback=None) -> None:
             pass
 
     class ReviewFillDrawer:
@@ -4207,6 +4165,11 @@ def update_review_bank_run_button(
             action_callback,
         )
     _sync_review_strip_layout()
+
+
+def set_review_resume_action(action_callback) -> None:
+    if HAS_QT and _REVIEW_HUD is not None:
+        _REVIEW_HUD.resume_button.set_action(action_callback)
 
 
 def ensure_review_fill_drawer() -> None:

@@ -7,6 +7,7 @@ from textwrap import fill
 from typing import Any
 
 from ..core.constants import CLAIM_DATA, EQUIPMENT_DATA, QUEST_DATA
+from ..core.last_action import quest_blocked_message
 from ..logic.bar_crawl_logic import apply_bar_crawl_drink_effects_pure
 from ..logic_pure.logic_pure import (
     apply_quest_combat_encounter_pure,
@@ -38,8 +39,7 @@ from .runtime_actions_shared import (
 
 def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reasons: tuple[str, ...]) -> None:
     ctx.deactivate_current_skill()
-    reason_lines = "\n".join(f"• {reason}" for reason in reasons)
-    ctx.show_error_message("Quest blocked", f"{quest_name} is blocked:\n{reason_lines}\n\nQuesting has been switched off until this is resolved.")
+    ctx.show_error_message("Quest blocked", quest_blocked_message(quest_name, reasons))
 
 
 def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], encounter_id: Any) -> bool:

@@ -360,3 +360,41 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         hud.set_data(pd, "Mining")
 
         self.assertIsNone(hud.findChild(QLabel, "geOfferNotice"))
+
+    def test_resume_shows_only_at_bankstanding_and_wraps_the_longest_quest_name(self) -> None:
+        from tests.ui_flows.qt_text_fit import text_fit_defects
+
+        parent = QMainWindow()
+        parent.resize(900, 560)
+        parent.show()
+        hud = self._ui.ReviewHUD(parent)
+        resume = hud.findChild(QPushButton, "reviewResumeButton")
+        clicks = []
+        resume.set_action(lambda: clicks.append("resume"))
+        pd = _make_player_data()
+        quest_id = "recipe_for_disaster_defeating_the_culinaromancer"
+        pd["quests"] = {quest_id: {"started": True, "progress": 1, "completed": False}}
+        pd["last_action"] = {"kind": "quest", "quest_id": quest_id}
+        pd["current_utility"] = "bankstanding"
+
+        hud.set_data(pd, "Utilities")
+        for _ in range(5):
+            QApplication.processEvents()
+
+        self.assertTrue(resume.isVisible())
+        self.assertEqual(
+            resume.accessibleName(),
+            "Resume Recipe for Disaster: Defeating the Culinaromancer",
+        )
+        self.assertEqual(text_fit_defects(hud), [])
+        resume.click()
+        self.assertEqual(clicks, ["resume"])
+
+        pd["quests"][quest_id]["completed"] = True
+        hud.set_data(pd, "Utilities")
+        self.assertFalse(resume.isVisible())
+        pd["quests"][quest_id]["completed"] = False
+        pd["current_utility"] = "gather_flax"
+        hud.set_data(pd, "Utilities")
+        self.assertFalse(resume.isVisible())
+        parent.deleteLater()

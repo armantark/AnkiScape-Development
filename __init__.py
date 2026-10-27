@@ -37,6 +37,7 @@ from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
 import random
+import sys
 import os
 import datetime
 from collections.abc import Mapping
@@ -247,6 +248,7 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
+from .core.last_action import LAST_ACTION_KEY, last_action_name_pure, last_action_record_pure, resume_last_action
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
@@ -1244,26 +1246,6 @@ def show_skill_selection():
         return
     save_skill(selected, None)
 
-def _default_bankstanding_reason() -> str:
-    utility_id = str(_state.player_data.get("current_utility", "") or "")
-    if (
-        _state.current_skill
-        in {
-            UTILITY_REVIEW_ACTION_DISPLAY_NAME,
-            ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
-            "Utility / Activities",
-        }
-        and utility_id
-        and utility_id != "bankstanding"
-    ):
-        action_name = utility_id.replace("_", " ").title()
-    else:
-        action_name = str(_state.current_skill or "Current action")
-        if action_name == "None":
-            action_name = "Current action"
-    return f"{action_name} could not continue."
-
-
 def _bankstanding_event_text(reason: str) -> str:
     return f"Switched to Bankstanding · {reason}"
 
@@ -1325,7 +1307,9 @@ def _switch_to_bankstanding(
     ):
         return False
 
-    reason_text = str(reason or "").strip() or _default_bankstanding_reason()
+    stopped = last_action_record_pure(_state.player_data, _state.current_skill)
+    _state.player_data[LAST_ACTION_KEY] = stopped
+    reason_text = str(reason or "").strip() or f"{last_action_name_pure(stopped) or 'Current action'} could not continue."
     _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     _state.player_data["current_utility"] = "bankstanding"
     _append_review_event(_state.player_data, "activity", _bankstanding_event_text(reason_text))
@@ -1376,22 +1360,23 @@ def _fishing_materials_text(method_spec, inventory) -> str:
     return "any of " + ", ".join(f"1 {bait}" for bait in bait_options)
 
 
-def save_skill(skill, dialog):
+def save_skill(skill, dialog) -> bool:
     if skill == "Smithing" and not can_smith_any():
         show_error_message(
             "No Smithing Actions Available",
             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
         )
-    else:
-        if _select_review_action(skill):
-            _save_player_data_if_anki_ready()
-        # Update the HUD immediately so users see the new skill progress without waiting for XP
-        try:
-            update_review_hud(_state.player_data, _state.current_skill)
-        except Exception:
-            pass
-        if dialog:
-            dialog.accept()
+        return False
+    if _select_review_action(skill):
+        _save_player_data_if_anki_ready()
+    # Update the HUD immediately so users see the new skill progress without waiting for XP
+    try:
+        update_review_hud(_state.player_data, _state.current_skill)
+    except Exception:
+        pass
+    if dialog:
+        dialog.accept()
+    return True
 
 
 def on_crafting_answer():
@@ -1557,6 +1542,10 @@ def on_request_review_bank_run() -> bool:
     return committed
 
 
+def on_resume_last_action() -> bool:
+    return resume_last_action(sys.modules[__name__])
+
+
 def _update_review_bank_run_surface() -> None:
     handler_key = review_action_handler_key(_state.current_skill)
     update_review_bank_run_button(
@@ -1565,6 +1554,7 @@ def _update_review_bank_run_surface() -> None:
         on_request_review_bank_run,
         target_id=_active_review_bank_run_target(handler_key),
     )
+    ui.set_review_resume_action(on_resume_last_action)
 
 
 def _refresh_bank_run_surfaces() -> None:
