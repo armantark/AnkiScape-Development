@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] The last action record is saved by the switch to Bankstanding for skills, utilities and activities, quests and combat, and survives a profile reload.
-- [ ] Black Knights' Fortress blocked for an iron chainbody, then given one, resumes at its step from the Resume click (real review handler).
-- [ ] A Resume click with the requirement still missing shows the same reason text and leaves Bankstanding.
-- [ ] Hill-climb rounds recorded under the evidence folder; the probe passes and the taste vote approves, or five rounds end with the best candidate reported.
-- [ ] One play-checklist line added.
+- [x] The last action record is saved by the switch to Bankstanding for skills, utilities and activities, quests and combat, and survives a profile reload.
+- [x] Black Knights' Fortress blocked for an iron chainbody, then given one, resumes at its step from the Resume click (real review handler).
+- [x] A Resume click with the requirement still missing shows the same reason text and leaves Bankstanding.
+- [x] Hill-climb rounds recorded under the evidence folder; the probe passes and the taste vote approves, or five rounds end with the best candidate reported.
+- [x] One play-checklist line added.
