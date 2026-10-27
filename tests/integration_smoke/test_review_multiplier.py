@@ -268,7 +268,8 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 10}))
-        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda _text: None)
+        shown = []
+        addon.mw.exp_popup = types.SimpleNamespace(show_text=shown.append)
         addon._state.player_data = {"inventory": {}, "current_utility": "gather_grain", "completed_achievements": []}
         addon._state.current_skill = "Utility / Activities"
         addon._state.card_turned = True
@@ -281,6 +282,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         )
         tooltip = next(row.tooltip for row in rows if row.target_id == "gather_grain")
         self.assertEqual(addon._state.player_data["inventory"]["Wheat"], 280)
+        self.assertIn("+280 Wheat", shown)
         self.assertTrue(tooltip.startswith("Gathers up to 280 per successful card at 10x game speed. No skill XP.\n"), tooltip)
 
     def test_bankstanding_advances_only_the_normal_review_market_tick(self):
