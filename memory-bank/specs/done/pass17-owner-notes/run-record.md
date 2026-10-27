@@ -32,8 +32,9 @@ It is Qt bug QTBUG-149612 in the macOS accessibility bridge, fixed upstream in Q
   `631a5e4b1`, so the crash predates Pass 17. Probe: `/Users/armantarkhanian/Code/ankiscape-pass17/evidence/a11y/probe_a11y_nav.py`.
 - `83c2a81b9` closes the probe's path (`show_settled()` in `ui/ui_first_cell_tree.py`; target search empties the old
   tree before removal) but not every path Codex computer use takes (terra-5), nor Anki's own Browse window (terra-4).
-- Still open in the probe: typing in the Utilities search while a client reads its 183-row tree (`sortItems`,
-  `ui/ui_utility_activity_list.py`).
+- Closed after the run (retro decision 1): typing in the Utilities or Activities search while a client reads the
+  tree (`sortItems` in `ui/ui_utility_activity_list.py`, exit 139 three times out of three). The search now takes every
+  row out before it reorders and hides rows, and the probe's five scenarios pass three times out of three.
 - Effect on native checks: long Skills-list walks under computer use can crash; keep native packets short and
   out of Browse. The two checks the crash prevented natively (the greyed-Train reason on Cooking and
   Runecrafting, the "Pick cabbages" tooltip) pass in the gate's Qt lane

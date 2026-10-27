@@ -19,7 +19,9 @@ VoiceOver) reads those frames, so two Qt paths free a cell they still use:
   reset before control returns to the event loop. A tree that leaves the
   screen is emptied before it is detached, because detaching restyles it and
   a restyle lays it out again; emptying resets the model, which invalidates
-  the cells first, and the bridge builds no element for an invalid cell.
+  the cells first, and the bridge builds no element for an invalid cell. A
+  tree that reorders or hides rows on screen (a list search) takes every row
+  out first for the same reason, then puts them back and runs settle_tree.
 """
 
 try:
@@ -139,5 +141,10 @@ def show_settled(widget) -> None:
     """Show ``widget`` with every tree in it laid out and its accessibility reset already run."""
     widget.show()
     for tree in widget.findChildren(QTreeView):
-        tree.executeDelayedItemsLayout()
-        QCoreApplication.sendPostedEvents(tree, QEvent.Type.MetaCall)
+        settle_tree(tree)
+
+
+def settle_tree(tree) -> None:
+    """Lay out ``tree`` and run the accessibility reset that layout queues, before control returns to the event loop."""
+    tree.executeDelayedItemsLayout()
+    QCoreApplication.sendPostedEvents(tree, QEvent.Type.MetaCall)
