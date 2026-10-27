@@ -595,10 +595,10 @@ def _resolve_encounter(
         enemy["max_hit"] = 300 + (380 * missing // maximum)
     if enemy_id == "akrisae":
         enemy["protect_from_player_class"] = encounter["protected_class"]
-    saved_prayers = list(data.get("combat_selected_prayers", ()) or ())
+    prayers_enabled = data.get("combat_prayers_enabled", True)
     verac_special = enemy_id == "verac" and _roll(rng) < 1 / 3
     if verac_special:
-        data["combat_selected_prayers"] = []
+        data["combat_prayers_enabled"] = False
         enemy["stats"]["attack"] = 100_000
     data["current_combat_target"] = BARROWS_COMBAT_TARGET_ID
     data["combat_encounter"] = copy.deepcopy(encounter["encounter"])
@@ -613,8 +613,7 @@ def _resolve_encounter(
         safe_death=False,
         allow_bank_run=False,
     )
-    if verac_special and _int(data.get("combat_prayer_points")) > 0:
-        data["combat_selected_prayers"] = saved_prayers
+    data["combat_prayers_enabled"] = prayers_enabled
     if not ok:
         return data, False, dict(result)
     prayer_drained = _drain_barrows_prayer(

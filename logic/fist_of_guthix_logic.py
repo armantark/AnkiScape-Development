@@ -389,7 +389,7 @@ def _build_combat_player(player_data: Mapping[str, Any], active: Mapping[str, An
     local["combat_status_effects"] = {}
     local["combat_auto_eat_food"] = []
     local["combat_auto_flee"] = False
-    local["combat_selected_prayers"] = []
+    local["combat_prayers_enabled"] = False
     local["combat_vengeance"] = False
     local["combat_dream_thrift"] = False
     local["combat_spellbook_swap"] = ""

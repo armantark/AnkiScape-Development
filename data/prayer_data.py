@@ -38,7 +38,10 @@ REDEMPTION_SOURCE = "RuneScape Wiki Redemption oldid=6292830 (2012-09-24)"
 DEFAULT_PRAYER_TARGET = "bury_bones"
 PRAYER_GROUP_ORDER = ("Bury", "Scatter", "Ectofuntus", "Gilded altar")
 PRAYER_UI_METHOD_ORDER = ("base", "ectofuntus", "gilded_hosted", "gilded_owned")
-PRAYER_UPTIME_POLICIES = {"off": 0.0, "40": 0.4, "70": 0.7, "100": 1.0}
+# A ticked Prayers/Curses keeps the prayers on all fight unless the advanced
+# editor lowers the uptime. The retired "off" policy reads as the default.
+PRAYER_UPTIME_POLICIES = {"40": 0.4, "70": 0.7, "100": 1.0}
+DEFAULT_PRAYER_UPTIME = "100"
 GRIND_BONES_BATCH_SIZE = 9
 COLLECT_SLIME_BATCH_SIZE = 28
 ECTOFUNTUS_MULTIPLIER = 4.0

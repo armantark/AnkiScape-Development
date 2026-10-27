@@ -786,7 +786,7 @@ class ReviewStripTest(unittest.TestCase):
         self.assertEqual(hud.progress.styleSheet(), hud.enemy_progress.styleSheet())
         self.assertTrue(hud.combat_resources.isVisible())
         self.assertEqual(hud.combat_resource_labels["lifepoints"].text(), "512/730")
-        self.assertEqual(hud.combat_resource_labels["prayer"].text(), "31/50")
+        self.assertEqual(hud.combat_resource_labels["prayer"].toolTip(), "31/50 · Incredible Reflexes, Ultimate Strength, Steel Skin")
         self.assertEqual(hud.combat_resource_labels["summoning"].text(), "17/42")
         for resource_id in ("lifepoints", "prayer", "summoning"):
             icon = hud.findChild(QLabel, f"combatHudResourceIcon_{resource_id}")

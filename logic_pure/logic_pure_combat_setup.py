@@ -3,7 +3,6 @@ lifepoints and whether it still fights back, the prayers the player asked for
 and the prayer points they drain, and where a carried live fight resumes its
 attack clocks."""
 
-from ..data.prayer_data import PRAYER_UPTIME_POLICIES
 from .logic_pure_prayer import (
     _castle_wars_halo_drain_multipliers,
     active_prayer_selection_pure,
@@ -11,6 +10,7 @@ from .logic_pure_prayer import (
     prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
     prayer_uptime_fraction_pure,
+    requested_prayer_uptime_pure,
 )
 from .logic_pure_state import _non_negative_float, _non_negative_int, _positive_int
 
@@ -43,7 +43,7 @@ def _combat_prayer_request(data, live_cadence, automatic_protection_prayer=None)
     selected_prayers = tuple(active_prayer_selection_pure(data, automatic_protection_prayer=automatic_protection_prayer))
     halo_drain_multipliers = _castle_wars_halo_drain_multipliers(data, selected_prayers)
     requested_uptime = (
-        float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
+        requested_prayer_uptime_pure(data)
         if live_cadence and selected_prayers
         else prayer_uptime_fraction_pure(data)
     )

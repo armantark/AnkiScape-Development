@@ -443,7 +443,6 @@ from .logic_pure_urns import (
 )
 
 from .logic_pure_prayer import (
-    prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
 )
 
@@ -587,25 +586,14 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             spell_id,
         )
     else:
-        # Combat drinks loaded potions, then rolls with this target's prayer
-        # setup drained across one ordinary review burst, so the preview
-        # projects that same hit. Magic keeps its own projection above until
-        # the owner's Magic decision.
+        # Combat drinks loaded potions, then rolls with this target's prayers
+        # as the next card starts them; its drain only lowers later ticks.
+        # Magic keeps its own projection above until the owner's decision.
         loadout = _combat_target_loadout(player_data, target_id)
         _combat_auto_drink_potions(loadout, combat_class)
-        selected_prayers, halo_drain_multipliers, requested_uptime = _combat_prayer_request(loadout, False)
-        _points, _counter, prayer_uptime = prayer_drain_and_effective_uptime_pure(
-            _non_negative_int(loadout.get("combat_prayer_points", 0), 0),
-            loadout.get("combat_prayer_drain_counter", 0.0),
-            selected_prayers,
-            _equipment_bonus_value(player_totals, "prayer"),
-            COMBAT_BURST_TICKS,
-            requested_uptime,
-            halo_drain_multipliers,
-        )
         player_attack_roll, player_max_hit = _combat_player_attack_rolls(
             loadout, combat_class, style_id, melee_style_type, player_totals,
-            prayer_effect_state_pure(loadout, prayer_uptime), ammo_name, spell_spec, spell_id,
+            prayer_effect_state_pure(loadout), ammo_name, spell_spec, spell_id,
         )
     enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
         _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
@@ -624,7 +612,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         combat_class,
         accuracy,
         {
-            "player_max_hit": int(player_max_hit * 10),
+            # A live card rolls whole old-HP hits, so the max hit moves in 10s.
+            "player_max_hit": int(player_max_hit) * 10,
             "ammo": ammo_name or "",
             "spell_id": spell_id if combat_class == "magic" else "",
             "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",

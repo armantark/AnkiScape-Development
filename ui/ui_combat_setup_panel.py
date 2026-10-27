@@ -1,11 +1,13 @@
 """ui_combat_setup_panel.py - the Equipment tab's combat setup column.
 
-Everything from "Combat mode" to "Current target": the next-review action,
-attack style, autocast, Borrowed Power, the prayer and auto-eat toggles, the
-advanced preset editor, and the loot rules. The saved settings and unlocks it
-draws come from ``combat_setup_panel_view_pure``; every change goes out through
-the ``on_set_*`` callbacks the main menu was given. ``build_combat_setup_panel``
-returns the panel with the refresh the main menu runs after gear changes.
+The current target and the max hit the next fight rolls against it, then every
+setting that fight reads, in sight and grouped: Attack, Prayer, Food and loot,
+Presets, Lunar spells. The saved settings and what the next fight gets from
+them come from ``combat_setup_panel_view_pure``. Every change goes out through
+the ``on_set_*`` callbacks the main menu was given, then ``on_changed``, the
+main menu's refresh, re-reads this panel and rebuilds the combat target list,
+so no readout lags behind its control. ``build_combat_setup_panel`` returns
+the panel with its refresh, which the main menu also runs after gear changes.
 """
 
 try:
@@ -18,9 +20,9 @@ try:
         QLabel,
         QPixmap,
         QPushButton,
+        QSizePolicy,
         QSpinBox,
         Qt,
-        QToolButton,
         QVBoxLayout,
         QWidget,
     )
@@ -46,6 +48,11 @@ from ..logic_pure.logic_pure_combat_hud import (
     toggled_combat_prayer_selection_pure,
 )
 from .ui import _COMBAT_HUB_NAME, current_target_display_name, dim_text_css
+from .ui_text_fit import FlowLayout, WrappingCheckBox, side_pair
+
+_LABEL_STYLE = "color: palette(text);"
+
+_UPTIME_CHOICES = (("All fight", "100"), ("70% of the fight", "70"), ("40% of the fight", "40"))
 
 
 def combat_mode_text(player_data: dict) -> str:
@@ -66,93 +73,118 @@ def build_combat_setup_panel(
     on_set_combat_auto_eat_threshold,
     on_set_loot_threshold,
     on_set_loot_override,
+    on_changed=None,
 ):
-    """Return ``(panel, refresh)``; ``refresh`` re-reads the gear-dependent rows."""
-    view = combat_setup_panel_view_pure(player_data)
+    """Return ``(panel, refresh)``; ``refresh`` re-reads every section."""
     panel = QWidget()
     layout = QVBoxLayout(panel)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(8)
-
-    mode_label = QLabel(f"Combat mode: {combat_mode_text(player_data)}")
-    mode_label.setObjectName("combatModeLabel")
-    mode_label.setStyleSheet("color: palette(text); font-weight: 600;")
-    layout.addWidget(mode_label)
-
-    refresh_action = _add_action_row(layout, player_data, view, on_set_combat_action)
-    rebuild_style_combo = _add_style_row(layout, player_data, on_set_combat_style)
-    _add_spell_row(layout, player_data, view, on_set_combat_spell)
-    refresh_borrowed_power = _add_borrowed_power_row(layout, player_data, view, on_set_combat_prayer_config)
-
-    # The casual "Auto-bury bones" box and the advanced editor's
-    # "Auto-bury/scatter" box are one setting, so ticking either ticks both.
-    auto_prayer_checks = []
-
-    def _set_auto_prayer_training(checked: bool) -> None:
-        for check in auto_prayer_checks:
-            check.blockSignals(True)
-            check.setChecked(bool(checked))
-            check.blockSignals(False)
-        if on_set_combat_prayer_config is not None:
-            on_set_combat_prayer_config(
-                "combat_auto_prayer_training", bool(checked)
-            )
-
-    def _auto_prayer_check(text: str, object_name: str) -> "QCheckBox":
-        check = QCheckBox(text)
-        check.setObjectName(object_name)
-        check.setChecked(view["auto_prayer_training"])
-        check.toggled.connect(_set_auto_prayer_training)
-        auto_prayer_checks.append(check)
-        return check
-
-    _add_casual_toggles(layout, player_data, view, on_set_combat_prayer_config, _auto_prayer_check)
-    _add_auto_eat_row(layout, view, on_set_combat_auto_eat_threshold)
-    _add_advanced_editor(layout, player_data, view, on_set_combat_prayer_config, _auto_prayer_check)
-    _add_loot_rules(
-        layout,
-        view,
-        loot_override_rows,
-        item_icon_path,
-        on_set_loot_threshold,
-        on_set_loot_override,
-    )
-
-    current_target_label = QLabel(
-        f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
-    )
-    current_target_label.setObjectName("combatCurrentTargetLabel")
-    current_target_label.setStyleSheet(
-        "color: palette(text); font-weight: 600; padding-top: 2px;"
-    )
-    layout.addWidget(current_target_label)
+    syncs = []
 
     def refresh() -> None:
-        fresh_view = combat_setup_panel_view_pure(player_data)
-        mode_label.setText(f"Combat mode: {combat_mode_text(player_data)}")
-        rebuild_style_combo()
-        refresh_action(fresh_view)
-        refresh_borrowed_power(fresh_view)
-        current_target_label.setText(
-            f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
-        )
+        latest = combat_setup_panel_view_pure(player_data, EQUIPMENT_ITEM_DATA)
+        for sync in syncs:
+            sync(latest)
 
+    def then_refresh(callback):
+        """Send one change, then let every readout re-read the save."""
+        if callback is None:
+            return None
+
+        def send(*args):
+            result = callback(*args)
+            (on_changed or refresh)()
+            return result
+
+        return send
+
+    send_config = then_refresh(on_set_combat_prayer_config)
+    syncs.append(_add_target_header(layout, player_data))
+    _add_section_header(layout, "Attack")
+    syncs.append(_add_action_row(layout, player_data, then_refresh(on_set_combat_action)))
+    syncs.append(_add_style_row(layout, player_data, then_refresh(on_set_combat_style)))
+    syncs.append(_add_spell_row(layout, then_refresh(on_set_combat_spell)))
+    syncs.append(_add_borrowed_power_row(layout, player_data, send_config))
+    syncs.append(_add_prayer_section(layout, player_data, send_config))
+    syncs.append(_add_food_and_loot(layout, on_set_combat_auto_eat_threshold, send_config, on_set_loot_threshold))
+    if loot_override_rows:
+        _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_override)
+    syncs.append(_add_presets(layout, player_data, send_config))
+    syncs.append(_add_lunar_spells(layout, player_data, send_config))
     layout.addStretch(1)
+    refresh()
     return panel, refresh
 
 
-def _add_action_row(layout, player_data, view, on_set_combat_action):
-    action_row = QWidget()
-    action_row_layout = QHBoxLayout(action_row)
-    action_row_layout.setContentsMargins(0, 0, 0, 0)
-    action_row_layout.setSpacing(8)
-    action_row_layout.addWidget(QLabel("Next review"))
+def _row(layout, *widgets, grow=-1):
+    """One line of widgets; the one at ``grow`` takes the spare width, or the
+    line keeps its natural widths when ``grow`` is None."""
+    row = QWidget()
+    row_layout = QHBoxLayout(row)
+    row_layout.setContentsMargins(0, 0, 0, 0)
+    row_layout.setSpacing(8)
+    grown = None if grow is None else widgets[grow]
+    for widget in widgets:
+        row_layout.addWidget(widget, 1 if widget is grown else 0)
+    if grown is None:
+        row_layout.addStretch(1)
+    layout.addWidget(row)
+    return row
+
+
+def _text_label(text: str) -> "QLabel":
+    label = QLabel(text)
+    label.setStyleSheet(_LABEL_STYLE)
+    return label
+
+
+def _add_section_header(layout, text: str) -> None:
+    header = QLabel(text)
+    header.setStyleSheet("color: palette(text); font-weight: 600; padding-top: 6px;")
+    layout.addWidget(header)
+
+
+def _set_checked(check, checked: bool) -> None:
+    check.blockSignals(True)
+    check.setChecked(bool(checked))
+    check.blockSignals(False)
+
+
+def _set_combo_data(combo, value) -> None:
+    combo.blockSignals(True)
+    combo.setCurrentIndex(max(0, combo.findData(value)))
+    combo.blockSignals(False)
+
+
+def _target_name(player_data) -> str:
+    return current_target_display_name(_COMBAT_HUB_NAME, player_data) or "this target"
+
+
+def _add_target_header(layout, player_data):
+    target_label = QLabel()
+    target_label.setObjectName("combatCurrentTargetLabel")
+    target_label.setStyleSheet("color: palette(text); font-weight: 600;")
+    layout.addWidget(target_label)
+    max_hit_label = QLabel()
+    max_hit_label.setObjectName("combatMaxHitLabel")
+    max_hit_label.setStyleSheet("color: palette(text);")
+    max_hit_label.setToolTip("Counts your gear, attack style, loaded potions and the prayers below.")
+    layout.addWidget(max_hit_label)
+
+    def sync(view) -> None:
+        target_label.setText(f"Current target: {_target_name(player_data)}")
+        max_hit_label.setText(view["max_hit_text"])
+
+    return sync
+
+
+def _add_action_row(layout, player_data, on_set_combat_action):
     action_combo = QComboBox()
     action_combo.setObjectName("combatActionCombo")
-    action_row_layout.addWidget(action_combo, 1)
-    layout.addWidget(action_row)
+    action_row = _row(layout, _text_label("Next review"), action_combo)
 
-    def refresh(latest) -> None:
+    def sync(view) -> None:
         hud = combat_hud_state_pure(player_data)
         state = hud["finisher"]
         action_combo.blockSignals(True)
@@ -163,108 +195,79 @@ def _add_action_row(layout, player_data, view, on_set_combat_action):
             finisher_item = action_combo.model().item(1)
             finisher_item.setEnabled(bool(state["available"]))
             finisher_item.setToolTip(hud["finisher_tooltip"])
-            if latest["finisher_chosen"] and state["available"]:
+            if view["finisher_chosen"] and state["available"]:
                 action_combo.setCurrentIndex(1)
         action_combo.blockSignals(False)
         action_row.setVisible(bool(state["required"]))
 
     if on_set_combat_action is not None:
         action_combo.currentIndexChanged.connect(
-            lambda _index: on_set_combat_action(
-                str(action_combo.currentData())
-            )
+            lambda _index: on_set_combat_action(str(action_combo.currentData()))
         )
-    refresh(view)
-    return refresh
+    return sync
 
 
 def _add_style_row(layout, player_data, on_set_combat_style):
-    # Attack-style picker. The valid styles depend on the equipped weapon's
-    # combat class (melee/ranged); a magic weapon has a single fixed style, so
-    # the combo is omitted and the mode label above already reads "Magic".
-    # The combo is rebuilt on refresh so swapping weapons re-scopes the options.
-    style_row = QWidget()
-    style_row_layout = QHBoxLayout(style_row)
-    style_row_layout.setContentsMargins(0, 0, 0, 0)
-    style_row_layout.setSpacing(8)
-    style_label = QLabel("Attack style")
-    style_label.setStyleSheet("color: palette(text);")
-    style_row_layout.addWidget(style_label)
-    layout.addWidget(style_row)
-    style_combo_ref = {"combo": None}
+    # The valid styles depend on the equipped weapon's combat class; a magic
+    # weapon has one fixed style, so the row names it instead of offering a
+    # choice. The combo is rebuilt only when the weapon changes its options.
+    style_combo = QComboBox()
+    style_combo.setObjectName("combatStyleCombo")
+    fixed_style = QLabel()
+    fixed_style.setObjectName("combatFixedStyleLabel")
+    fixed_style.setStyleSheet(_LABEL_STYLE)
+    fixed_style.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+    _row(layout, _text_label("Attack style"), style_combo, fixed_style, grow=1)
 
-    def rebuild() -> None:
-        # D2: the options are the equipped weapon's actual AttackStyleData slots,
-        # each labeled with its attack type (stab/slash/crush). Selecting a row
-        # stores both the weapon_style and the style_type, so parity keys off the
-        # exact slot the player picked.
+    def sync(_view) -> None:
+        # D2: the options are the equipped weapon's AttackStyleData slots, each
+        # labeled with its attack type and the skills it trains; selecting one
+        # stores both the weapon_style and the style_type.
         options = combat_weapon_style_options_pure(player_data, EQUIPMENT_ITEM_DATA)
-        old = style_combo_ref["combo"]
-        if old is not None:
-            old.setParent(None)
-            old.deleteLater()
-            style_combo_ref["combo"] = None
-        if len(options) <= 1:
-            # Magic (single fixed style) — no selector needed.
-            style_row.setVisible(False)
-            return
-        combo = QComboBox()
-        combo.setObjectName("combatStyleCombo")
-        current_index = 0
-        for index, option in enumerate(options):
-            # Spell out which skills each slot trains, so the choice of XP is
-            # visible at the point of selection (e.g. "Aggressive (Crush) —
-            # Attack + Strength + Defence + Constitution" for the 2h shared slot).
-            trains = " + ".join(option["trained_skills"])
-            combo.addItem(
-                f"{option['display_name']} — {trains}",
-                (option["weapon_style"], option["style_type"]),
-            )
-            if option["is_current"]:
-                current_index = index
-        combo.setCurrentIndex(current_index)
-        if on_set_combat_style is not None:
-            combo.currentIndexChanged.connect(
-                lambda _index, c=combo: on_set_combat_style(c.currentData())
-            )
-        style_row_layout.addWidget(combo, 1)
-        style_combo_ref["combo"] = combo
-        style_row.setVisible(True)
+        fixed = len(options) <= 1
+        style_combo.setVisible(not fixed)
+        fixed_style.setVisible(fixed)
+        fixed_style.setText(combat_mode_text(player_data))
+        style_combo.blockSignals(True)
+        if [style_combo.itemData(i) for i in range(style_combo.count())] != [
+            (option["weapon_style"], option["style_type"]) for option in options
+        ]:
+            style_combo.clear()
+            for option in options:
+                style_combo.addItem(
+                    f"{option['display_name']} — {' + '.join(option['trained_skills'])}",
+                    (option["weapon_style"], option["style_type"]),
+                )
+        current = next((index for index, option in enumerate(options) if option["is_current"]), 0)
+        style_combo.setCurrentIndex(current)
+        style_combo.blockSignals(False)
 
-    rebuild()
-    return rebuild
+    if on_set_combat_style is not None:
+        style_combo.currentIndexChanged.connect(lambda _index: on_set_combat_style(style_combo.currentData()))
+    return sync
 
 
-def _add_spell_row(layout, player_data, view, on_set_combat_spell) -> None:
-    spell_row = QWidget()
-    spell_layout = QHBoxLayout(spell_row)
-    spell_layout.setContentsMargins(0, 0, 0, 0)
-    spell_layout.setSpacing(8)
-    spell_label = QLabel("Autocast")
-    spell_label.setStyleSheet("color: palette(text);")
+def _add_spell_row(layout, on_set_combat_spell):
     spell_combo = QComboBox()
     spell_combo.setObjectName("combatSpellCombo")
-    selected_spell_index = 0
-    for spell in view["spells"]:
-        spell_combo.addItem(spell["name"], spell["id"])
-        spell_index = spell_combo.count() - 1
-        spell_combo.model().item(spell_index).setEnabled(spell["unlocked"])
-        if spell["id"] == view["autocast_spell"]:
-            selected_spell_index = spell_index
-    spell_combo.setCurrentIndex(selected_spell_index)
+    spell_row = _row(layout, _text_label("Autocast"), spell_combo)
+
+    def sync(view) -> None:
+        spell_combo.blockSignals(True)
+        spell_combo.clear()
+        for spell in view["spells"]:
+            spell_combo.addItem(spell["name"], spell["id"])
+            spell_combo.model().item(spell_combo.count() - 1).setEnabled(spell["unlocked"])
+        spell_combo.setCurrentIndex(max(0, spell_combo.findData(view["autocast_spell"])))
+        spell_combo.blockSignals(False)
+        spell_row.setVisible(view["magic_mode"])
+
     if on_set_combat_spell is not None:
-        spell_combo.currentIndexChanged.connect(
-            lambda _index: on_set_combat_spell(
-                spell_combo.currentData()
-            )
-        )
-    spell_layout.addWidget(spell_label)
-    spell_layout.addWidget(spell_combo, 1)
-    layout.addWidget(spell_row)
-    spell_row.setVisible(combat_mode_text(player_data).lower().startswith("magic"))
+        spell_combo.currentIndexChanged.connect(lambda _index: on_set_combat_spell(spell_combo.currentData()))
+    return sync
 
 
-def _add_borrowed_power_row(layout, player_data, view, on_set_combat_prayer_config):
+def _add_borrowed_power_row(layout, player_data, send_config):
     borrowed_row = QWidget()
     borrowed_row.setObjectName("combatBorrowedPowerRow")
     borrowed_layout = QVBoxLayout(borrowed_row)
@@ -286,235 +289,78 @@ def _add_borrowed_power_row(layout, player_data, view, on_set_combat_prayer_conf
     borrowed_spell_ref = {"id": ""}
 
     def _set_armed(checked: bool) -> None:
-        spell_id = borrowed_spell_ref["id"]
-        if on_set_combat_prayer_config is not None:
-            on_set_combat_prayer_config(
-                "combat_borrowed_power_spell",
-                spell_id if checked else "",
-            )
-        borrowed_button.setText(
-            "One cast armed"
-            if checked
-            else "Cast once next review"
-        )
+        if send_config is not None:
+            send_config("combat_borrowed_power_spell", borrowed_spell_ref["id"] if checked else "")
 
     borrowed_button.clicked.connect(_set_armed)
 
-    def refresh(latest) -> None:
+    def sync(view) -> None:
         current = arcane_capacitor_status_pure(player_data)
         spell_id = str(current["spell_id"])
         borrowed_spell_ref["id"] = spell_id
-        spell_name = str(
-            COMBAT_MAGIC_SPELL_DATA.get(
-                spell_id,
-                {},
-            ).get("display_name", spell_id)
-        )
+        spell_name = str(COMBAT_MAGIC_SPELL_DATA.get(spell_id, {}).get("display_name", spell_id))
         charges = int(current["charges"])
-        borrowed_name.setText(
-            f"Borrowed Power · {spell_name} · {charges:,} charges"
-        )
-        borrowed_name.setToolTip(
-            f"{charges:,} Arcane capacitor charges remaining."
-        )
-        visible = bool(
-            current["equipped"]
-            and spell_id in BORROWED_POWER_COMBAT_SPELLS
-            and combat_mode_text(player_data).lower().startswith("magic")
-        )
-        armed = bool(visible and latest["borrowed_power_spell"] == spell_id)
-        borrowed_button.blockSignals(True)
-        borrowed_button.setChecked(armed)
-        borrowed_button.setText(
-            "One cast armed"
-            if armed
-            else "Cast once next review"
-        )
-        borrowed_button.setEnabled(
-            visible and on_set_combat_prayer_config is not None
-        )
-        borrowed_button.blockSignals(False)
+        borrowed_name.setText(f"Borrowed Power · {spell_name} · {charges:,} charges")
+        borrowed_name.setToolTip(f"{charges:,} Arcane capacitor charges remaining.")
+        visible = bool(current["equipped"] and spell_id in BORROWED_POWER_COMBAT_SPELLS and view["magic_mode"])
+        armed = bool(visible and view["borrowed_power_spell"] == spell_id)
+        _set_checked(borrowed_button, armed)
+        borrowed_button.setText("One cast armed" if armed else "Cast once next review")
+        borrowed_button.setEnabled(visible and send_config is not None)
         borrowed_row.setVisible(visible)
 
-    refresh(view)
-    return refresh
+    return sync
 
 
-def _add_casual_toggles(layout, player_data, view, on_set_combat_prayer_config, auto_prayer_check) -> None:
-    casual_toggles = QWidget()
-    casual_toggles.setObjectName("combatMagicCasualControls")
-    casual_layout = QHBoxLayout(casual_toggles)
-    casual_layout.setContentsMargins(0, 0, 0, 0)
-    prayer_master = QCheckBox("Prayers/Curses")
-    prayer_master.setObjectName("combatPrayerMasterCheck")
-    prayer_master.setChecked(view["prayers_enabled"])
-    dream_thrift = QCheckBox("Dream thrift")
-    dream_thrift.setObjectName("combatDreamThriftCheck")
-    dream_thrift.setChecked(view["dream_thrift"])
-    casual_auto_prayer = auto_prayer_check("Auto-bury bones", "combatCasualAutoPrayerTrainingCheck")
-    dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
-    dream_thrift.setEnabled(
-        on_set_combat_prayer_config is not None and not dream_reasons
-    )
-    if dream_reasons:
-        dream_thrift.setToolTip(f"Requires {dream_reasons[0]}.")
-    if on_set_combat_prayer_config is not None:
-        prayer_master.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_prayers_enabled", bool(enabled)))
-        dream_thrift.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_dream_thrift", bool(enabled)))
-    casual_layout.addWidget(prayer_master)
-    casual_layout.addWidget(dream_thrift)
-    casual_layout.addWidget(casual_auto_prayer)
-    casual_layout.addStretch(1)
-    layout.addWidget(casual_toggles)
-
-
-def _add_auto_eat_row(layout, view, on_set_combat_auto_eat_threshold) -> None:
-    auto_eat_row = QWidget()
-    auto_eat_layout = QHBoxLayout(auto_eat_row)
-    auto_eat_layout.setContentsMargins(0, 0, 0, 0)
-    auto_eat_layout.setSpacing(8)
-    threshold_label = QLabel("Auto-eat")
-    threshold_label.setStyleSheet("color: palette(text);")
-    threshold_spin = QSpinBox()
-    threshold_spin.setObjectName("combatAutoEatThresholdSpin")
-    threshold_spin.setRange(1, 99)
-    threshold_spin.setSuffix("%")
-    threshold_spin.setValue(view["auto_eat_threshold"])
-    if on_set_combat_auto_eat_threshold is not None:
-        threshold_spin.valueChanged.connect(lambda value: on_set_combat_auto_eat_threshold(value))
-    auto_eat_layout.addWidget(threshold_label)
-    auto_eat_layout.addWidget(threshold_spin, 1)
-    layout.addWidget(auto_eat_row)
-
-
-def _add_advanced_editor(layout, player_data, view, on_set_combat_prayer_config, auto_prayer_check) -> None:
-    advanced_toggle = QToolButton()
-    advanced_toggle.setObjectName("combatAdvancedPresetToggle")
-    advanced_toggle.setText("Advanced preset editor")
-    advanced_toggle.setCheckable(True)
-    advanced_toggle.setChecked(False)
-    layout.addWidget(advanced_toggle)
-    advanced_panel = QWidget()
-    advanced_panel.setObjectName("combatAdvancedPresetPanel")
-    advanced_layout = QVBoxLayout(advanced_panel)
-    advanced_layout.setContentsMargins(0, 0, 0, 0)
-    advanced_layout.setSpacing(8)
-    advanced_panel.setVisible(False)
-    advanced_toggle.toggled.connect(advanced_panel.setVisible)
-    layout.addWidget(advanced_panel)
-
-    prayer_header = QLabel("Prayer")
-    prayer_header.setStyleSheet("color: palette(text); font-weight: 600;")
-    advanced_layout.addWidget(prayer_header)
-    _add_prayer_controls(advanced_layout, view, on_set_combat_prayer_config)
-    _add_magic_advanced(advanced_layout, view, on_set_combat_prayer_config)
-    _add_preset_scope(advanced_layout, view, on_set_combat_prayer_config)
-    _add_prayer_grid(advanced_layout, player_data, view, on_set_combat_prayer_config)
-    advanced_layout.addWidget(
-        auto_prayer_check(
-            "Auto-bury/scatter combat drops (costs simulated ticks)",
-            "combatAutoPrayerTrainingCheck",
-        )
-    )
-
-
-def _add_prayer_controls(advanced_layout, view, on_set_combat_prayer_config) -> None:
-    prayer_controls = QWidget()
-    prayer_controls_layout = QHBoxLayout(prayer_controls)
-    prayer_controls_layout.setContentsMargins(0, 0, 0, 0)
-    prayer_controls_layout.setSpacing(8)
-    preset_combo = QComboBox()
-    preset_combo.setObjectName("combatPresetCombo")
-    for name in view["preset_names"]:
-        preset_combo.addItem(name, name)
-    preset_combo.setCurrentText(view["active_preset"])
-    if on_set_combat_prayer_config is not None:
-        preset_combo.currentTextChanged.connect(lambda name: on_set_combat_prayer_config("apply_preset", name))
-    prayer_controls_layout.addWidget(QLabel("Preset"))
-    prayer_controls_layout.addWidget(preset_combo, 1)
-    save_preset = QPushButton("Save current…")
-    save_preset.setObjectName("combatSavePresetButton")
-    if on_set_combat_prayer_config is not None:
-        def _save_current_preset() -> None:
-            name, accepted = QInputDialog.getText(save_preset, "Save combat preset", "Preset name")
-            if accepted and name.strip():
-                on_set_combat_prayer_config("save_preset", name.strip())
-        save_preset.clicked.connect(_save_current_preset)
-    prayer_controls_layout.addWidget(save_preset)
-
+def _add_prayer_section(layout, player_data, send_config):
+    _add_section_header(layout, "Prayer")
+    master = QCheckBox("Use prayers in fights")
+    master.setObjectName("combatPrayerMasterCheck")
+    layout.addWidget(master)
+    status = QLabel()
+    status.setObjectName("combatPrayerStatusLabel")
+    status.setWordWrap(True)
+    status.setStyleSheet("color: palette(text);")
+    layout.addWidget(status)
     book_combo = QComboBox()
     book_combo.setObjectName("combatPrayerBookCombo")
     book_combo.addItem("Standard prayers", "standard")
     book_combo.addItem("Ancient Curses", "curses")
-    curses_index = book_combo.findData("curses")
-    if curses_index >= 0:
-        book_combo.model().item(curses_index).setEnabled(view["curses_unlocked"])
-    book_combo.setCurrentIndex(max(0, book_combo.findData(view["prayer_book"])))
-    if on_set_combat_prayer_config is not None:
-        book_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_book", book_combo.currentData()))
-    prayer_controls_layout.addWidget(book_combo)
-
     uptime_combo = QComboBox()
     uptime_combo.setObjectName("combatPrayerUptimeCombo")
-    for label, value in (("Off", "off"), ("Conservative 40%", "40"), ("Aggressive 70%", "70"), ("Always 100%", "100")):
+    for label, value in _UPTIME_CHOICES:
         uptime_combo.addItem(label, value)
-    uptime_combo.setCurrentIndex(max(0, uptime_combo.findData(view["prayer_uptime"])))
-    if on_set_combat_prayer_config is not None:
-        uptime_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_uptime", uptime_combo.currentData()))
-    prayer_controls_layout.addWidget(uptime_combo)
-    advanced_layout.addWidget(prayer_controls)
+    choices = QWidget()
+    choices_layout = FlowLayout(choices)
+    choices_layout.setContentsMargins(0, 0, 0, 0)
+    choices_layout.addWidget(side_pair("Book", book_combo, _LABEL_STYLE))
+    choices_layout.addWidget(side_pair("Keep on", uptime_combo, _LABEL_STYLE))
+    layout.addWidget(choices)
+    hide_lower = QCheckBox("Hide lower-tier prayers")
+    hide_lower.setObjectName("combatPrayerHideLowerCheck")
+    layout.addWidget(hide_lower)
+    sync_grid = _add_prayer_grid(layout, player_data, send_config, hide_lower)
+    if send_config is not None:
+        master.toggled.connect(lambda enabled: send_config("combat_prayers_enabled", bool(enabled)))
+        book_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_book", book_combo.currentData()))
+        uptime_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_uptime", uptime_combo.currentData()))
 
+    def sync(view) -> None:
+        _set_checked(master, view["prayers_enabled"])
+        status.setText(view["prayer_status"])
+        book_combo.model().item(book_combo.findData("curses")).setEnabled(view["curses_unlocked"])
+        _set_combo_data(book_combo, view["prayer_book"])
+        _set_combo_data(uptime_combo, view["prayer_uptime"])
+        for widget in (book_combo, uptime_combo, hide_lower):
+            widget.setEnabled(view["prayers_enabled"])
+        sync_grid(view)
 
-def _add_magic_advanced(advanced_layout, view, on_set_combat_prayer_config) -> None:
-    magic_advanced = QWidget()
-    magic_advanced_layout = QHBoxLayout(magic_advanced)
-    magic_advanced_layout.setContentsMargins(0, 0, 0, 0)
-    vengeance_check = QCheckBox("Vengeance")
-    vengeance_check.setObjectName("combatVengeanceCheck")
-    vengeance_check.setChecked(view["vengeance"])
-    swap_combo = QComboBox()
-    swap_combo.setObjectName("combatSpellbookSwapCombo")
-    swap_combo.addItem("No Spellbook Swap", "")
-    swap_combo.addItem("Swap autocast", str(view["autocast_spell"]))
-    swap_combo.addItem("Swap Vengeance", "vengeance")
-    swap_combo.addItem("Swap Dream", "dream")
-    swap_combo.setCurrentIndex(max(0, swap_combo.findData(view["spellbook_swap"])))
-    if on_set_combat_prayer_config is not None:
-        vengeance_check.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_vengeance", bool(enabled)))
-        swap_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_spellbook_swap", str(swap_combo.currentData() or "")))
-    magic_advanced_layout.addWidget(vengeance_check)
-    magic_advanced_layout.addWidget(QLabel("One off-book effect"))
-    magic_advanced_layout.addWidget(swap_combo, 1)
-    advanced_layout.addWidget(magic_advanced)
-
-
-def _add_preset_scope(advanced_layout, view, on_set_combat_prayer_config) -> None:
-    preset_scope = QWidget()
-    preset_scope_layout = QHBoxLayout(preset_scope)
-    preset_scope_layout.setContentsMargins(0, 0, 0, 0)
-    pin_preset = QCheckBox("Pin preset to this target")
-    pin_preset.setObjectName("combatPinPresetCheck")
-    pin_preset.setChecked(view["preset_pinned"])
-    override_prayers = QCheckBox("Override prayers")
-    override_prayers.setObjectName("combatOverridePrayersCheck")
-    override_prayers.setChecked(view["prayers_overridden"])
-    override_uptime = QCheckBox("Override uptime")
-    override_uptime.setObjectName("combatOverridePrayerUptimeCheck")
-    override_uptime.setChecked(view["uptime_overridden"])
-    if on_set_combat_prayer_config is not None:
-        pin_preset.toggled.connect(lambda enabled: on_set_combat_prayer_config("pin_target_preset", enabled))
-        override_prayers.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_selected_prayers", enabled)))
-        override_uptime.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_prayer_uptime", enabled)))
-    preset_scope_layout.addWidget(pin_preset)
-    preset_scope_layout.addWidget(override_prayers)
-    preset_scope_layout.addWidget(override_uptime)
-    advanced_layout.addWidget(preset_scope)
+    return sync
 
 
 def _prayer_check(row) -> "QCheckBox":
-    check = QCheckBox(row["label"])
+    check = WrappingCheckBox(row["label"])
     check.setObjectName(f"combatPrayerCheck::{row['id']}")
-    check.setEnabled(row["unlocked"])
     if row["tooltip"]:
         check.setToolTip(row["tooltip"])
     check.setProperty("prayerLevel", row["level"])
@@ -522,88 +368,168 @@ def _prayer_check(row) -> "QCheckBox":
     return check
 
 
-def _add_prayer_grid(advanced_layout, player_data, view, on_set_combat_prayer_config) -> None:
-    hide_lower = QCheckBox("Hide lower-tier prayers")
-    hide_lower.setObjectName("combatPrayerHideLowerCheck")
-    advanced_layout.addWidget(hide_lower)
+def _add_prayer_grid(layout, player_data, send_config, hide_lower):
     prayer_grid = QWidget()
     prayer_grid.setObjectName("combatPrayerCheckboxGrid")
-    prayer_grid_layout = QGridLayout(prayer_grid)
-    prayer_grid_layout.setContentsMargins(0, 0, 0, 0)
-    prayer_checks = []
+    grid_layout = FlowLayout(prayer_grid, fill=True)
+    grid_layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(prayer_grid)
+    checks = {}
+    lower_tier = {"below": 1}
 
-    def _on_prayer_toggled(prayer_id: str, checked: bool) -> None:
-        if on_set_combat_prayer_config is None:
-            return
-        on_set_combat_prayer_config(
-            "combat_selected_prayers",
-            toggled_combat_prayer_selection_pure(player_data, prayer_id, checked),
-        )
-        # The save drops prayers that conflict with the newly ticked one, so
-        # the boxes re-read what was kept.
-        _show_selected_prayers(prayer_checks, combat_setup_panel_view_pure(player_data)["selected_prayers"])
+    def _on_toggled(prayer_id: str, checked: bool) -> None:
+        if send_config is not None:
+            send_config("combat_selected_prayers", toggled_combat_prayer_selection_pure(player_data, prayer_id, checked))
 
-    for index, row in enumerate(view["prayers"]):
+    def _hide_lower(hidden: bool) -> None:
+        for check in checks.values():
+            check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= lower_tier["below"])
+
+    hide_lower.toggled.connect(_hide_lower)
+
+    def sync(view) -> None:
+        # The book decides which prayers exist, so a book change rebuilds the
+        # boxes; otherwise they re-read what the save kept after conflicts.
+        if list(checks) != [row["id"] for row in view["prayers"]]:
+            _rebuild_prayer_boxes(grid_layout, checks, view["prayers"], _on_toggled)
+        lower_tier["below"] = view["lower_tier_below"]
+        for row in view["prayers"]:
+            check = checks[row["id"]]
+            _set_checked(check, row["id"] in view["selected_prayers"])
+            check.setEnabled(row["unlocked"] and view["prayers_enabled"])
+        _hide_lower(hide_lower.isChecked())
+
+    return sync
+
+
+def _rebuild_prayer_boxes(grid_layout, checks, rows, on_toggled) -> None:
+    for check in checks.values():
+        check.setParent(None)
+        check.deleteLater()
+    checks.clear()
+    for row in rows:
         check = _prayer_check(row)
-        check.setChecked(row["id"] in view["selected_prayers"])
-        check.toggled.connect(lambda checked, pid=row["id"]: _on_prayer_toggled(pid, checked))
-        prayer_grid_layout.addWidget(check, index // 3, index % 3)
-        prayer_checks.append(check)
-    hide_lower.toggled.connect(lambda hidden: _hide_lower_prayers(prayer_checks, view["lower_tier_below"], hidden))
-    advanced_layout.addWidget(prayer_grid)
+        check.toggled.connect(lambda checked, pid=row["id"]: on_toggled(pid, checked))
+        grid_layout.addWidget(check)
+        checks[row["id"]] = check
 
 
-def _show_selected_prayers(prayer_checks, active: set) -> None:
-    for prayer_check in prayer_checks:
-        prayer_check.blockSignals(True)
-        prayer_check.setChecked(str(prayer_check.property("prayerId")) in active)
-        prayer_check.blockSignals(False)
-
-
-def _hide_lower_prayers(prayer_checks, lower_tier_below: int, hidden: bool) -> None:
-    for check in prayer_checks:
-        check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= lower_tier_below)
-
-
-def _add_loot_rules(
-    layout,
-    view,
-    loot_override_rows,
-    item_icon_path,
-    on_set_loot_threshold,
-    on_set_loot_override,
-) -> None:
-    # ---- Loot from this enemy ----
-    # Deciding what to pick up belongs with the live combat controls, not the
-    # Bank tab. The default view is coarse: a value threshold plus a single
-    # "keep everything" toggle. Per-drop overrides are opt-in behind an
-    # "Advanced" disclosure, rendered as icon cells with a binary Keep | Drop
-    # pill (neither segment lit = follow the value threshold).
-    loot_header = QLabel("Loot")
-    loot_header.setObjectName("combatLootHeader")
-    loot_header.setStyleSheet("color: palette(text); font-weight: 600;")
-    layout.addWidget(loot_header)
-
-    loot_row = QWidget()
-    loot_row_layout = QHBoxLayout(loot_row)
-    loot_row_layout.setContentsMargins(0, 0, 0, 0)
-    loot_row_layout.setSpacing(8)
-    loot_label = QLabel("Leave loot under")
-    loot_label.setStyleSheet("color: palette(text);")
+def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_threshold):
+    _add_section_header(layout, "Food and loot")
+    auto_eat = QSpinBox()
+    auto_eat.setObjectName("combatAutoEatThresholdSpin")
+    auto_eat.setRange(1, 99)
+    auto_eat.setSuffix("% life points")
+    _row(layout, _text_label("Auto-eat at"), auto_eat)
+    auto_bury = WrappingCheckBox("Auto-bury bones and scatter ashes (costs simulated ticks)")
+    auto_bury.setObjectName("combatAutoPrayerTrainingCheck")
+    layout.addWidget(auto_bury)
     loot_spin = QSpinBox()
     loot_spin.setObjectName("combatLootThresholdSpin")
     loot_spin.setRange(0, 100000)
     loot_spin.setSingleStep(5)
-    loot_spin.setSuffix(" gp value")
-    loot_spin.setValue(view["loot_threshold"])
+    loot_spin.setSuffix(" coins")
+    _row(layout, _text_label("Leave loot worth under"), loot_spin)
+    if on_set_auto_eat is not None:
+        auto_eat.valueChanged.connect(lambda value: on_set_auto_eat(value))
+    if send_config is not None:
+        auto_bury.toggled.connect(lambda checked: send_config("combat_auto_prayer_training", bool(checked)))
     if on_set_loot_threshold is not None:
         loot_spin.valueChanged.connect(lambda value: on_set_loot_threshold(int(value)))
-    loot_row_layout.addWidget(loot_label)
-    loot_row_layout.addWidget(loot_spin, 1)
-    layout.addWidget(loot_row)
 
-    if loot_override_rows:
-        _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_override)
+    def sync(view) -> None:
+        for spin, value in ((auto_eat, view["auto_eat_threshold"]), (loot_spin, view["loot_threshold"])):
+            spin.blockSignals(True)
+            spin.setValue(value)
+            spin.blockSignals(False)
+        _set_checked(auto_bury, view["auto_prayer_training"])
+
+    return sync
+
+
+def _add_presets(layout, player_data, send_config):
+    _add_section_header(layout, "Presets")
+    preset_combo = QComboBox()
+    preset_combo.setObjectName("combatPresetCombo")
+    save_preset = QPushButton("Save as new preset…")
+    save_preset.setObjectName("combatSavePresetButton")
+    _row(layout, _text_label("Preset"), preset_combo, save_preset, grow=1)
+    pin_preset = WrappingCheckBox()
+    pin_preset.setObjectName("combatPinPresetCheck")
+    remember_prayers = WrappingCheckBox()
+    remember_prayers.setObjectName("combatOverridePrayersCheck")
+    remember_uptime = WrappingCheckBox()
+    remember_uptime.setObjectName("combatOverridePrayerUptimeCheck")
+    for check in (pin_preset, remember_prayers, remember_uptime):
+        layout.addWidget(check)
+    if send_config is not None:
+        preset_combo.currentTextChanged.connect(lambda name: send_config("apply_preset", name))
+
+        def _save_current_preset() -> None:
+            name, accepted = QInputDialog.getText(save_preset, "Save combat preset", "Preset name")
+            if accepted and name.strip():
+                send_config("save_preset", name.strip())
+
+        save_preset.clicked.connect(_save_current_preset)
+        pin_preset.toggled.connect(lambda enabled: send_config("pin_target_preset", enabled))
+        remember_prayers.toggled.connect(lambda enabled: send_config("target_override", ("combat_selected_prayers", enabled)))
+        remember_uptime.toggled.connect(lambda enabled: send_config("target_override", ("combat_prayer_uptime", enabled)))
+
+    def sync(view) -> None:
+        target = _target_name(player_data)
+        preset_combo.blockSignals(True)
+        preset_combo.clear()
+        preset_combo.addItems(view["preset_names"])
+        preset_combo.setCurrentText(view["active_preset"])
+        preset_combo.blockSignals(False)
+        for check, text, checked in (
+            (pin_preset, f"Always use this preset against {target}", view["preset_pinned"]),
+            (remember_prayers, f"Remember these prayers for {target}", view["prayers_overridden"]),
+            (remember_uptime, f"Remember this prayer uptime for {target}", view["uptime_overridden"]),
+        ):
+            check.setText(text)
+            _set_checked(check, checked)
+
+    return sync
+
+
+def _add_lunar_spells(layout, player_data, send_config):
+    _add_section_header(layout, "Lunar spells")
+    vengeance = QCheckBox("Vengeance")
+    vengeance.setObjectName("combatVengeanceCheck")
+    dream_thrift = QCheckBox("Dream thrift")
+    dream_thrift.setObjectName("combatDreamThriftCheck")
+    _row(layout, vengeance, dream_thrift, grow=None)
+    swap_combo = QComboBox()
+    swap_combo.setObjectName("combatSpellbookSwapCombo")
+    _row(layout, _text_label("Spellbook Swap"), swap_combo)
+    dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+    dream_thrift.setEnabled(send_config is not None and not dream_reasons)
+    if dream_reasons:
+        dream_thrift.setToolTip(f"Requires {dream_reasons[0]}.")
+    if send_config is not None:
+        vengeance.toggled.connect(lambda enabled: send_config("combat_vengeance", bool(enabled)))
+        dream_thrift.toggled.connect(lambda enabled: send_config("combat_dream_thrift", bool(enabled)))
+        swap_combo.currentIndexChanged.connect(
+            lambda _i: send_config("combat_spellbook_swap", str(swap_combo.currentData() or ""))
+        )
+
+    def sync(view) -> None:
+        _set_checked(vengeance, view["vengeance"])
+        _set_checked(dream_thrift, view["dream_thrift"])
+        swap_combo.blockSignals(True)
+        swap_combo.clear()
+        for label, value in (
+            ("No Spellbook Swap", ""),
+            ("Swap autocast", str(view["autocast_spell"])),
+            ("Swap Vengeance", "vengeance"),
+            ("Swap Dream", "dream"),
+        ):
+            swap_combo.addItem(label, value)
+        swap_combo.setCurrentIndex(max(0, swap_combo.findData(view["spellbook_swap"])))
+        swap_combo.blockSignals(False)
+
+    return sync
 
 
 _LOOT_MODES = ("auto", "keep", "leave")
@@ -622,6 +548,10 @@ def _loot_override_cells(loot_override_rows) -> list:
 
 
 def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_override) -> None:
+    # The default view is coarse: a value threshold plus a single "keep
+    # everything" toggle. Per-drop overrides are opt-in, rendered as icon cells
+    # with a binary Keep | Drop pill (neither segment lit = follow the value
+    # threshold).
     cells = _loot_override_cells(loot_override_rows)
     loot_cell_state: dict = {}
     loot_pill_refreshers: dict = {}
@@ -637,9 +567,7 @@ def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_
 
     def _sync_keep_all() -> None:
         all_keep = bool(cells) and all(loot_cell_state.get(name) == "keep" for name, _mode in cells)
-        keep_all_check.blockSignals(True)
-        keep_all_check.setChecked(all_keep)
-        keep_all_check.blockSignals(False)
+        _set_checked(keep_all_check, all_keep)
 
     def _on_keep_all(checked: bool) -> None:
         for name, _mode in cells:
@@ -648,7 +576,7 @@ def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_
     keep_all_check.toggled.connect(_on_keep_all)
     layout.addWidget(keep_all_check)
 
-    loot_adv_check = QCheckBox("Advanced: keep or drop specific drops")
+    loot_adv_check = QCheckBox("Keep or drop specific drops")
     loot_adv_check.setObjectName("combatLootAdvancedCheck")
     layout.addWidget(loot_adv_check)
 
@@ -683,7 +611,7 @@ def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_
 
 
 # Each drop gets a joined two-segment pill — Keep | Drop. Neither segment lit
-# means "Auto": that drop follows the "Leave loot under N gp" threshold.
+# means "Auto": that drop follows the "Leave loot worth under" threshold.
 # Clicking a lit segment again clears back to Auto, so the binary switch still
 # reaches all three backend modes the engine understands (auto / keep / leave).
 def _loot_segment_css(container, side: str, active: bool, accent: str) -> str:

@@ -78,7 +78,7 @@ def _jad_player(style, healer=False, **overrides):
             "combat_lifepoints": 990,
             "equipment": {},
             "combat_prayers_enabled": False,
-            "combat_prayer_uptime": "off",
+            "combat_prayer_uptime": "100",
             "combat_selected_prayers": ["protect_from_melee", "ultimate_strength"],
             **overrides,
         }

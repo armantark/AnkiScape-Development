@@ -11,9 +11,18 @@ from tests.test_combat_logic import _player
 
 
 class PrayerStopConfigurationTests(unittest.TestCase):
-    def test_saved_selection_with_no_points_and_uptime_off_spends_the_card(self):
+    def test_a_save_with_the_retired_off_uptime_prays_like_a_ticked_box(self):
         player = _player(combat_auto_flee=False, combat_prayer_points=0,
                          combat_selected_prayers=["thick_skin"], combat_prayer_uptime="off")
+        ctx, _calls, ok = answer_combat(player)
+        self.assertTrue(ok)
+        self.assertEqual(ctx.card.stop_reason, "prayer_empty")
+        self.assertEqual(ctx.player_data["combat_last_result"]["ticks_elapsed"], 1)
+
+    def test_with_no_prayer_chosen_running_out_of_points_spends_the_card(self):
+        # The best-prayer pick lapses when the points run out; only a chosen
+        # prayer stops the card.
+        player = _player(combat_auto_flee=False, prayer_level=10, combat_prayer_points=1)
         ctx, _calls, ok = answer_combat(player)
         self.assertTrue(ok)
         self.assertEqual(ctx.card.stop_reason, "")

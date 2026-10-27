@@ -268,6 +268,8 @@ class WarriorsGuildPureTests(unittest.TestCase):
         player["warriors_guild"]["tokens"] = {
             key: 30 for key in WARRIORS_GUILD_TOKEN_KEYS
         }
+        # Hits roll in whole old-HP units, so the 5% shows once it lifts one.
+        player["equipment"] = {"weapon": "Rune scimitar"}
         player, ok, _ = enter_warriors_guild_cyclops_room_pure(player)
         self.assertTrue(ok)
         multi_hit = combat_target_preview_pure(

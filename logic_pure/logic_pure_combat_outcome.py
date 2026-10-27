@@ -271,7 +271,10 @@ def _combat_tick_stop_reason(data, live_cadence, lifepoints, maximum, prayer_poi
         return "fled" if data.get("combat_auto_flee", True) else "low_lp_no_food"
     if not poison_before and (data.get("combat_status_effects") or {}).get("poison"):
         return "poison_started"
-    if prayer_points <= 0 and requested_prayer_uptime > 0 and any(COMBAT_PRAYERS_BY_ID[prayer].drain > 0 for prayer in prayers):
+    # Only prayers the player chose stop the card; the best-prayer pick for an
+    # empty choice simply lapses when the points run out.
+    chosen = set(data.get("combat_selected_prayers") or ())
+    if prayer_points <= 0 and requested_prayer_uptime > 0 and any(COMBAT_PRAYERS_BY_ID[prayer].drain > 0 for prayer in prayers if prayer in chosen):
         return "prayer_empty"
     return ""
 

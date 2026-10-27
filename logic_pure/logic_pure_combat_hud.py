@@ -1,17 +1,19 @@
 """What the combat surfaces show: the HUD's health, prayer and summoning bars,
 last-fight summary and finisher text, and the settings the Equipment tab's
-combat setup panel draws."""
+combat setup panel draws, with the prayers and max hit its next fight gets."""
 
 from typing import Mapping
 
-from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA, DEFAULT_COMBAT_SPELL
-from ..data.prayer_data import COMBAT_PRAYERS
+from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA, DEFAULT_COMBAT_SPELL, DEFAULT_COMBAT_TARGET
+from ..data.prayer_data import COMBAT_PRAYERS, COMBAT_PRAYERS_BY_ID, DEFAULT_PRAYER_UPTIME, PRAYER_UPTIME_POLICIES
 from ..logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from .logic_pure_combat_finishers import (
     combat_finisher_notice_pure,
     combat_finisher_tooltip_pure,
 )
-from .logic_pure_combat_model import combat_max_lifepoints_pure
+from .logic_pure_combat_loadout import _combat_target_loadout
+from .logic_pure_combat_model import combat_attack_style_for_equipment_pure, combat_max_lifepoints_pure
+from .logic_pure_prayer import active_prayer_selection_pure, prayer_uptime_fraction_pure
 from .logic_pure_state import _non_negative_int, _positive_int
 
 
@@ -42,15 +44,32 @@ def _combat_hud_player_bars(player_data):
             summoning_max,
         ),
     )
+    prayer_text = f"{prayer_current}/{prayer_max}"
+    names, uptime = combat_fight_prayers_pure(player_data)
+    if names:
+        prayer_text += " · " + ", ".join(names) + (f" ({uptime:.0%})" if uptime < 1 else "")
     return {
         "player_lifepoints": current_lp,
         "player_max_lifepoints": max_lp,
         "player_pct": _combat_hud_pct(current_lp, max_lp),
         "prayer_points": prayer_current,
         "prayer_max_points": prayer_max,
+        "prayer_text": prayer_text,
         "summoning_points": summoning_current,
         "summoning_max_points": summoning_max,
     }
+
+
+def combat_fight_prayers_pure(player_data):
+    """The prayers the next fight with the current target runs, by name, and
+    the share of it they stay on. None run while Prayers/Curses is unticked or
+    the prayer points are spent."""
+    target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
+    loadout = _combat_target_loadout(player_data, target_id)
+    uptime = prayer_uptime_fraction_pure(loadout)
+    if uptime <= 0:
+        return [], 0.0
+    return [COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in active_prayer_selection_pure(loadout)], uptime
 
 
 def _combat_hud_enemy_bar(player_data, target_id, enemy_data):
@@ -106,15 +125,18 @@ def _combat_hud_finisher_text(finisher):
     }
 
 
-def combat_setup_panel_view_pure(player_data):
-    """Every saved setting the combat setup panel shows, and which spells and
-    prayers it offers as unlocked."""
-    target_id = str(player_data.get("current_combat_target", ""))
+def combat_setup_panel_view_pure(player_data, equipment_data):
+    """Every saved setting the combat setup panel shows, which spells and
+    prayers it offers as unlocked, and what the next fight gets from them: the
+    prayers it runs and the max hit they give."""
+    target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
+    uptime = str(player_data.get("combat_prayer_uptime", DEFAULT_PRAYER_UPTIME))
     target_overrides = (player_data.get("combat_target_overrides", {}) or {}).get(target_id, {}) or {}
     presets = player_data.get("combat_presets", {}) or {}
     active_preset = str(player_data.get("combat_active_preset", "Default"))
     return {
         "finisher_chosen": player_data.get("combat_action") == "finisher",
+        "magic_mode": combat_attack_style_for_equipment_pure(player_data, equipment_data) == "magic_standard",
         "autocast_spell": player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL),
         "spells": _combat_setup_spell_rows(player_data),
         "borrowed_power_spell": player_data.get("combat_borrowed_power_spell"),
@@ -126,7 +148,9 @@ def combat_setup_panel_view_pure(player_data):
         "active_preset": active_preset,
         "curses_unlocked": _quest_completed(player_data, "the_temple_at_senntisten"),
         "prayer_book": player_data.get("combat_prayer_book", "standard"),
-        "prayer_uptime": player_data.get("combat_prayer_uptime", "off"),
+        "prayer_uptime": uptime if uptime in PRAYER_UPTIME_POLICIES else DEFAULT_PRAYER_UPTIME,
+        "prayer_status": _combat_setup_prayer_status(player_data),
+        "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data),
         "vengeance": bool(player_data.get("combat_vengeance", False)),
         "spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
         "preset_pinned": (player_data.get("combat_target_presets", {}) or {}).get(target_id) == active_preset,
@@ -147,6 +171,29 @@ def toggled_combat_prayer_selection_pure(player_data, prayer_id, checked):
     if checked:
         selected.insert(0, prayer_id)
     return selected
+
+
+def _combat_setup_prayer_status(player_data):
+    """One line saying which prayers the next fight runs, and why."""
+    if not bool(player_data.get("combat_prayers_enabled", True)):
+        return "Off: no prayers run in fights."
+    names, uptime = combat_fight_prayers_pure(player_data)
+    if not names:
+        return "No prayer points left. The next bank run's altar stop restores them."
+    share = "all fight" if uptime >= 1 else f"for {uptime:.0%} of the fight"
+    if player_data.get("combat_selected_prayers"):
+        return f"Next fight runs {', '.join(names)}, {share}."
+    return f"None chosen, so the next fight runs the best for your weapon: {', '.join(names)}, {share}."
+
+
+def _combat_setup_max_hit_text(player_data, target_id, equipment_data):
+    # The engine builds its HUD state from this module.
+    from .logic_pure_combat_engine import combat_target_preview_pure
+
+    preview = combat_target_preview_pure(player_data, target_id, equipment_data=equipment_data)
+    if preview.get("state") == "blocked":
+        return f"Can't fight this target yet: {', '.join(preview.get('reasons') or ('locked',))}."
+    return f"Your max hit: {preview.get('player_max_hit', 0)} LP · accuracy {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
 
 
 def _int_or(value, default):
@@ -201,7 +248,7 @@ def _combat_setup_prayer_rows(player_data):
             requirements.append(f"{prayer.defence_level} Defence")
         rows.append({
             "id": prayer.id,
-            "label": f"{prayer.display_name} (Lv {'; '.join(requirements)})",
+            "label": f"{prayer.display_name} (Lv {prayer.level}{f', Def {prayer.defence_level}' if prayer.defence_level > 1 else ''})",
             "level": prayer.level,
             "unlocked": (
                 prayer.level <= prayer_level

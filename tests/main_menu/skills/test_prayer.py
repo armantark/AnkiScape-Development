@@ -137,7 +137,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         dialog = self._open(pd)
         piety = dialog.findChild(QCheckBox, "combatPrayerCheck::piety")
         self.assertIsNotNone(piety)
-        self.assertIn("70 Defence", piety.text())
+        self.assertIn("Def 70", piety.text())
         self.assertIn("70 Defence", piety.toolTip())
         self.assertFalse(piety.isEnabled())
 

@@ -41,8 +41,9 @@ you are in the game, with the date the change reached main.
 ## Combat
 
 - [ ] Earn Druidic Ritual and Jungle Potion, get Tai Bwo Wannai Trio supplies from shops and skills, and finish Trio through its Monkey and Jogre fights. Prepare and equip a karambwan-poisoned Steel spear, fight The Shaikahan, and see one Shaikahan bone enter your pack; before Trio completion or with the wrong weapon, no bone is awarded. (2026-09-29)
-- [ ] Hover a monster row in the Combat target list: the tooltip's "Your max hit" and "Accuracy" lines include the Strength, Attack or Ranged prayer you will have up in that fight. No other surface shows the max hit. (2026-09-28)
-- [ ] With Prayer set to Off, your carried Prayer potions stay full. (2026-09-28)
+- [ ] With Strength 72, Prayer 43 and a Rune scimitar on Aggressive, hover the "Cave crawler (Lvl 23)" row in Skills > Combat: with "Use prayers in fights" unticked on the Equipment tab its tooltip reads "Your max hit: 140 LP"; tick it and tick Burst of Strength, and the tooltip and the Equipment tab's "Your max hit" line read 150 LP at once. Max hits move in whole 10 LP steps. (after promotion)
+- [ ] On the Equipment tab, tick "Use prayers in fights" and Burst of Strength: the line under the box reads "Next fight runs Burst of Strength, all fight." Answer a Combat card: the review strip's prayer orb reads "N/43 · Burst of Strength" and the points drop. Untick Burst of Strength: the line names the best prayers for your weapon instead. (after promotion)
+- [ ] With "Use prayers in fights" unticked, your carried Prayer potions stay full. (2026-09-28)
 - [ ] After a quest fight, an ordinary fight still pulls you out when you run low with no food. (2026-09-28)
 - [ ] With a bow and the right supplies, a manual Ranged finishing blow goes through. (2026-09-28)
 - [ ] Fight a Gelatinous abomination without Spiked gauntlets on: when it drops to 1 LP the review strip shows "Wear Spiked gauntlets to finish" whole on an amber line, the event log says so once, and the combat target's hover reads "not worn". Put the gauntlets on and your next hit crushes it. (2026-09-30)

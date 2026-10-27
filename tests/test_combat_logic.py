@@ -81,7 +81,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_target_preview_pure,
     combat_wilderness_equipment_risk_pure,
     apply_consumable_pure,
-    derive_casual_combat_magic_pure,
+    active_prayer_selection_pure,
     reclaim_death_office_items_pure,
     reconcile_combat_method_pure,
     request_combat_bank_run_now_pure,
@@ -695,18 +695,18 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
         self.assertGreater(fought_with("protect_from_magic")["enemy_damage"], 0)
 
     def test_casual_max_safety_selects_melee_prayer_for_pyrefiend(self):
-        prepared = derive_casual_combat_magic_pure(
+        prepared = active_prayer_selection_pure(
             _player(
                 current_combat_target="pyrefiend",
                 combat_pack_mode="max_safety",
                 prayer_level=99,
-                combat_prayers_enabled=True,
+                combat_prayer_points=990,
             )
         )
 
         self.assertEqual(
-            prepared["combat_selected_prayers"],
-            ["protect_from_melee"],
+            prepared,
+            ("protect_from_melee",),
         )
 
     def test_casual_max_safety_tracks_killerwatt_distance_style(self):
@@ -716,18 +716,18 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
             ("magic_standard", "protect_from_missiles"),
         ):
             with self.subTest(attack_style=attack_style):
-                prepared = derive_casual_combat_magic_pure(
+                prepared = active_prayer_selection_pure(
                     _player(
                         current_combat_target="killerwatt",
                         combat_attack_style=attack_style,
                         combat_pack_mode="max_safety",
                         prayer_level=99,
-                        combat_prayers_enabled=True,
+                        combat_prayer_points=990,
                     )
                 )
                 self.assertEqual(
-                    prepared["combat_selected_prayers"],
-                    [expected_prayer],
+                    prepared,
+                    (expected_prayer,),
                 )
 
     def test_ranged_enemy_max_hit_uses_its_ranged_stat_not_melee_strength(self):

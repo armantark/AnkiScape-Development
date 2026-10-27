@@ -368,6 +368,36 @@ class ElidedTipDelegate(QStyledItemDelegate):
         return super().helpEvent(event, view, option, index)
 
 
+class ElidedLabel(QLabel):
+    """A one-line label that gives up width before its neighbours do: it ends
+    its text with an ellipsis at the width it gets, and then shows the whole
+    text as its tooltip."""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._whole = super().text()
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+    def setText(self, text):
+        self._whole = text
+        self._elide()
+
+    def sizeHint(self):
+        return QSize(self.fontMetrics().horizontalAdvance(self._whole) + 2, super().sizeHint().height())
+
+    def minimumSizeHint(self):
+        return QSize(self.fontMetrics().horizontalAdvance("…"), super().minimumSizeHint().height())
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._elide()
+
+    def _elide(self):
+        shown = self.fontMetrics().elidedText(self._whole, Qt.TextElideMode.ElideRight, self.contentsRect().width())
+        super().setText(shown)
+        self.setToolTip("" if shown == self._whole else self._whole)
+
+
 class _WrappedLastColumn(QStyledItemDelegate):
     def __init__(self, tree, minimum_chars):
         super().__init__(tree)

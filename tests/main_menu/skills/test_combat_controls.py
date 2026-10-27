@@ -13,7 +13,7 @@ from tests.test_main_menu_widget import (
     os,
 )
 if HAS_AQT:
-    from tests.test_main_menu_widget import QApplication, QCheckBox, QComboBox, QIcon, QLabel, QListWidget, QPushButton, QSpinBox, QToolButton, QWidget
+    from tests.test_main_menu_widget import QApplication, QCheckBox, QComboBox, QIcon, QLabel, QListWidget, QPushButton, QSpinBox, QWidget
 from tests.main_menu import fixtures
 
 
@@ -299,11 +299,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
 
         style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
         spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
-        mode_label = dialog.findChild(QLabel, "combatModeLabel")
-        self.assertIsNone(style_combo)
-        self.assertIsNotNone(spell_combo)
-        self.assertIsNotNone(mode_label)
-        self.assertIn("Magic", mode_label.text())
+        fixed_style = dialog.findChild(QLabel, "combatFixedStyleLabel")
+        self.assertTrue(style_combo.isHidden())
+        self.assertFalse(spell_combo.parentWidget().isHidden())
+        self.assertFalse(fixed_style.isHidden())
+        self.assertIn("Magic", fixed_style.text())
         self.assertEqual(spell_combo.currentData(), "wind_strike")
         self.assertEqual(spell_combo.currentText(), "Wind Strike")
         for spell_id in ("water_strike", "earth_strike", "fire_strike", "wind_bolt", "fire_blast", "fire_wave"):
@@ -505,9 +505,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             }
         )
         dialog = self._open_with_equip(pd)
-        mode_label = dialog.findChild(QLabel, "combatModeLabel")
-        self.assertIsNotNone(mode_label)
-        self.assertIn("Accurate", mode_label.text())
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        self.assertIn("Accurate", style_combo.currentText())
 
         menu = dialog._ankiscape_equip_menu_for("Shortbow")
         action = next(action for action in menu.actions() if action.text() == "Equip")
@@ -515,9 +514,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
         self.assertEqual(pd["equipment"], {"weapon": "Shortbow"})
-        self.assertIn("Ranged Accurate", mode_label.text())
+        self.assertEqual(style_combo.currentData(), ("ranged_accurate", "auto"))
 
-    def test_combat_magic_casual_controls_and_advanced_disclosure_fit_short_dialog(self) -> None:
+    def test_every_combat_setting_is_in_sight_in_a_short_dialog(self) -> None:
         pd = _make_player_data()
         pd["equipment"] = {"weapon": "Staff of air"}
         dialog = self._open(pd)
@@ -525,40 +524,77 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         dialog.resize(900, 560)
         dialog.show()
         QApplication.processEvents()
-        casual = dialog.findChild(QWidget, "combatMagicCasualControls")
-        autocast = dialog.findChild(QComboBox, "combatSpellCombo")
-        advanced_toggle = dialog.findChild(QToolButton, "combatAdvancedPresetToggle")
-        advanced = dialog.findChild(QWidget, "combatAdvancedPresetPanel")
-        casual_auto_bury = dialog.findChild(
-            QCheckBox, "combatCasualAutoPrayerTrainingCheck"
-        )
-        advanced_auto_bury = dialog.findChild(
-            QCheckBox, "combatAutoPrayerTrainingCheck"
-        )
-        self.assertTrue(casual.isVisible())
-        self.assertTrue(autocast.isVisible())
-        self.assertTrue(casual_auto_bury.isVisible())
-        self.assertFalse(advanced.isVisible())
-        casual_auto_bury.setChecked(True)
+        panel = dialog.findChild(QWidget, "equipmentCombatSetupPanel")
+        for kind, name in (
+            (QComboBox, "combatSpellCombo"),
+            (QCheckBox, "combatPrayerMasterCheck"),
+            (QComboBox, "combatPrayerUptimeCombo"),
+            (QSpinBox, "combatAutoEatThresholdSpin"),
+            (QCheckBox, "combatAutoPrayerTrainingCheck"),
+            (QSpinBox, "combatLootThresholdSpin"),
+            (QComboBox, "combatPresetCombo"),
+            (QCheckBox, "combatPinPresetCheck"),
+            (QCheckBox, "combatOverridePrayersCheck"),
+            (QCheckBox, "combatOverridePrayerUptimeCheck"),
+            (QCheckBox, "combatVengeanceCheck"),
+            (QComboBox, "combatSpellbookSwapCombo"),
+        ):
+            with self.subTest(name=name):
+                self.assertTrue(dialog.findChild(kind, name).isVisibleTo(panel))
+        auto_bury = dialog.findChild(QCheckBox, "combatAutoPrayerTrainingCheck")
+        auto_bury.setChecked(True)
         QApplication.processEvents()
-        self.assertTrue(advanced_auto_bury.isChecked())
-        self.assertEqual(
-            self._prayer_config_calls[-1],
-            ("combat_auto_prayer_training", True),
-        )
-        advanced_toggle.click()
+        self.assertEqual(self._prayer_config_calls[-1], ("combat_auto_prayer_training", True))
+        scroll = panel.parentWidget()
+        while not hasattr(scroll, "horizontalScrollBar"):
+            scroll = scroll.parentWidget()
+        self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
+
+    def test_a_ticked_prayer_box_updates_its_readouts_and_the_target_tooltip_at_once(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "attack_level": 70, "strength_level": 72, "prayer_level": 43, "combat_prayer_points": 430,
+            "current_combat_target": "chicken", "combat_attack_style": "aggressive",
+            "equipment": {"weapon": "Rune scimitar"}, "combat_prayers_enabled": False,
+        })
+        dialog = self._open(pd, current_skill="Combat")
+        status = dialog.findChild(QLabel, "combatPrayerStatusLabel")
+        max_hit = dialog.findChild(QLabel, "combatMaxHitLabel")
+        burst = dialog.findChild(QCheckBox, "combatPrayerCheck::burst_of_strength")
+        self.assertIn("Your max hit: 140 LP", _tree_row(_find_tree_with_user_role(dialog, "chicken"), "chicken").toolTip(0))
+        self.assertEqual(status.text(), "Off: no prayers run in fights.")
+        self.assertFalse(burst.isEnabled())
+
+        dialog.findChild(QCheckBox, "combatPrayerMasterCheck").click()
+        burst.click()
         QApplication.processEvents()
-        self.assertTrue(advanced.isVisible())
-        advanced_auto_bury.setChecked(False)
+
+        self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength"])
+        self.assertEqual(status.text(), "Next fight runs Burst of Strength, all fight.")
+        self.assertTrue(max_hit.text().startswith("Your max hit: 150 LP"))
+        self.assertIn("Your max hit: 150 LP", _tree_row(_find_tree_with_user_role(dialog, "chicken"), "chicken").toolTip(0))
+
+    def test_choosing_a_preset_or_book_redraws_the_boxes_it_changed(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "prayer_level": 99, "defense_level": 99, "combat_prayer_points": 990,
+            "quests": {**pd.get("quests", {}), "the_temple_at_senntisten": {"completed": True}},
+            "combat_presets": {
+                "Default": {"combat_selected_prayers": [], "combat_auto_eat_threshold_percent": 40},
+                "Slayer": {"combat_selected_prayers": ["steel_skin"], "combat_auto_eat_threshold_percent": 70},
+            },
+        })
+        dialog = self._open(pd)
+        dialog.findChild(QComboBox, "combatPresetCombo").setCurrentText("Slayer")
         QApplication.processEvents()
-        self.assertFalse(casual_auto_bury.isChecked())
-        self.assertEqual(
-            self._prayer_config_calls[-1],
-            ("combat_auto_prayer_training", False),
-        )
-        self.assertLessEqual(advanced_toggle.geometry().bottom(), dialog.height())
-        self.assertIsNotNone(dialog.findChild(QCheckBox, "combatVengeanceCheck"))
-        self.assertIsNotNone(dialog.findChild(QComboBox, "combatSpellbookSwapCombo"))
+        self.assertTrue(dialog.findChild(QCheckBox, "combatPrayerCheck::steel_skin").isChecked())
+        self.assertEqual(dialog.findChild(QSpinBox, "combatAutoEatThresholdSpin").value(), 70)
+
+        book = dialog.findChild(QComboBox, "combatPrayerBookCombo")
+        book.setCurrentIndex(book.findData("curses"))
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QCheckBox, "combatPrayerCheck::turmoil"))
+        self.assertIsNone(dialog.findChild(QCheckBox, "combatPrayerCheck::steel_skin"))
 
     def test_combat_prayer_controls_show_preset_picker_and_gate_curses(self) -> None:
         dialog = self._open(_make_player_data())
