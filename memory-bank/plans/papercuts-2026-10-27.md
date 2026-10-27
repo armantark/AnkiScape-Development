@@ -15,3 +15,9 @@ Owner authorization: "Remove the causes of AnkiScape's open papercuts, one class
 ## Events
 
 - Root read AGENTS.md, memory-bank/README.md, and promotion gate help; worktree began clean on goal/papercuts-2026-10-27.
+
+- All 751 baseline entries and eight owner supplements were read. The source-bound inventory records exclusive primary causes; the unchanged inventory audit covers 749 dated entries, with two double-bullet entries preserved separately.
+- Selected nine cause classes: bounded generated output, nonstandard case flag, machine-local documentation paths, silent wiki redirects, market tick naming, Runecrafting audit drift, assembled catalog ownership, duplicate imports, and missing-speed interpretation. No class closes composite incidents with another surviving cause.
+- Focused proof: python3 run_tests.py tests.test_papercut_tools tests.maintenance.test_repo_search tests.maintenance.test_wiki_parity tests.test_grand_exchange_logic tests.pace.test_game_speed_setting tests.pace.test_pace_onboarding — Ran 81 tests in 31.744s, OK.
+- Kimi K3.1 (advertised k3.1-pro) reviewed /tmp/papercuts-review.diff, 23624 bytes, diff-only against 2e885047f; returned No findings. Initial unavailable-model spelling was corrected from the advertised provider catalog. No review-authorized edits were needed.
+- Full plain lane uses the remote runner's existing source environment and plain-site through python3 run_tests.py; it executes only this checkout. Existing hardcoded source defaults remain an open class; documentation names the current paths and the legacy-default caveat.
