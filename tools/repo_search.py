@@ -83,10 +83,12 @@ def search_text(
     include_large: bool,
     max_results: int,
     max_columns: int,
+    ignore_case: bool = False,
 ) -> tuple[list[str], bool, int]:
     command = _rg_base(paths, include_large)
     command[2:2] = [
         "--line-number",
+        "--with-filename",
         "--no-heading",
         "--max-columns",
         str(max_columns),
@@ -94,6 +96,8 @@ def search_text(
         "-e",
         pattern,
     ]
+    if ignore_case:
+        command.insert(2, "--ignore-case")
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     assert process.stdout is not None
     lines: list[str] = []
@@ -141,10 +145,25 @@ def _line_range(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tu
     return Path(path), int(start), int(end)
 
 
+def print_bounded(lines: Sequence[str], max_chars: int) -> bool:
+    remaining = max_chars
+    for line in lines:
+        if len(line) + 1 > remaining:
+            print(
+                f"Output stopped at {max_chars} characters; narrow the query/range or raise --max-chars.",
+                file=sys.stderr,
+            )
+            return False
+        print(line)
+        remaining -= len(line) + 1
+    return True
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("pattern", nargs="?", help="regular expression for text or repository-relative paths")
     parser.add_argument("paths", nargs="*", help="existing files or directories; shell globs are unnecessary")
+    parser.add_argument("-i", "--ignore-case", action="store_true", help="match text without case sensitivity")
     parser.add_argument("--names", action="store_true", help="search file names instead of file contents")
     parser.add_argument("--include-large", action="store_true", help="include known giant generated/archive files")
     parser.add_argument(
@@ -153,12 +172,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         metavar=("FILE", "START", "END"),
         help="print a bounded source excerpt; giant lines include an omission marker",
     )
+    parser.add_argument("--max-chars", type=int, default=12000, help="aggregate stdout character budget")
     parser.add_argument("--max-results", type=int, default=200)
     parser.add_argument("--max-columns", type=int, default=500)
     args = parser.parse_args(argv)
 
-    if args.max_results < 1 or args.max_columns < 1:
-        parser.error("--max-results and --max-columns must be at least 1")
+    if min(args.max_results, args.max_columns, args.max_chars) < 1:
+        parser.error("--max-results, --max-columns and --max-chars must be at least 1")
     if args.line_range:
         line_range = _line_range(args, parser)
     elif args.pattern is None:
@@ -192,13 +212,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 include_large=args.include_large,
                 max_results=args.max_results,
                 max_columns=args.max_columns,
+                ignore_case=args.ignore_case,
             )
     except (re.error, RuntimeError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
 
-    for line in lines:
-        print(line)
+    if not print_bounded(lines, args.max_chars):
+        return 2
     if truncated:
         print(
             f"Search stopped at {args.max_results} results; narrow the paths/pattern "
