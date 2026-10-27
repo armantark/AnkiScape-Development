@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] The panel's offscreen captures before and after the move match at 560 points tall.
-- [ ] The existing combat panel tests pass unchanged.
-- [ ] The main menu file shrinks by the moved block.
+- [x] The panel's offscreen captures before and after the move match at 560 points tall.
+- [x] The existing combat panel tests pass unchanged.
+- [x] The main menu file shrinks by the moved block.
