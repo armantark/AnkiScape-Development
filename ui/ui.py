@@ -20921,9 +20921,9 @@ def show_main_menu(
                         if name == "Prayer"
                         else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
                     )
-                    # A greyed Train button says why on screen, not only on hover.
-                    hl.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason",
-                                        styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
+                    # A greyed Train button says why on screen, on its own wrapping row so no width clips it.
+                    header_rows.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason", wordWrap=True,
+                                                 styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             header_rows.addWidget(surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1]))
