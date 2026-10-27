@@ -73,7 +73,7 @@ except Exception:
 
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
-from .ui_first_cell_tree import FirstCellSelectionTree
+from .ui_first_cell_tree import FirstCellSelectionTree, show_settled
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
 from .ui_palette import dim_text_color, dim_text_css
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
@@ -21279,7 +21279,7 @@ def show_main_menu(
             elif name == "Dungeoneering":
                 built_panel._ankiscape_refresh_dungeoneering()
             panel_layout.addWidget(built_panel, 1)
-            built_panel.show()
+            show_settled(built_panel)
             if name == "Farming":
                 _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
             if name == _ACTIVITIES_HUB_NAME:
