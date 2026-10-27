@@ -256,6 +256,24 @@ TREASURE_TRAILS_EASY_STEPS: dict[str, dict[str, Any]] = {
             "simple",
             "Search the crate near a cart in Port Khazard.",
         ),
+        # Wiki Simple clues oldid=6579176: clue 161, note 162–163, level 164.
+        # RuneHQ capture 20121103160103: 1306–1307, upstairs, first chest from east.
+        # Wiki note says ground-floor northeast room after the Al Kharid update
+        # and speculates about an oversight. Preserve the upstairs literal;
+        # neither that speculation nor the floor disagreement is a runtime rule.
+        _step("simple_al_kharid_palace_chests", "simple", "Search the chests upstairs in Al Kharid palace."),
+        # Wiki Simple clues oldid=6579176: clue 206, note 207, level 208;
+        # note: northwest Al Kharid house with a range. RuneHQ 20121103160103:
+        # 1336–1337 most northern, west of silk stall; 1371–1372 northwesternmost,
+        # south of gem trader; both say southwest crate. Locator equivalence is
+        # unestablished. One identity: Darkan SIMPLE_S_13/SIMPLE_S_29 duplicates
+        # supply no second period identity or extra selection weight.
+        _step("simple_al_kharid_northernmost_house_crates", "simple", "Search the crates in the northernmost house in Al Kharid."),
+        # Wiki Simple clues oldid=6579176: clue 218, note 219, level 220;
+        # note: southeast of Varrock Palace, south of the tree farming patch.
+        # RuneHQ 20121103160103: 1386–1387, cart northeast of double-loop path,
+        # outside inner courtyard. These descriptions establish no spatial rule.
+        _step("simple_varrock_cart_crates", "simple", "Search the crates near a cart in Varrock."),
     )
 }
 
