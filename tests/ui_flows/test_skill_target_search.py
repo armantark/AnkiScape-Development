@@ -93,10 +93,13 @@ class SkillTargetSearchTest(unittest.TestCase):
         from tests.test_main_menu_widget import _utility_row
         from tests.ui_flows.qt_text_fit import text_fit_defects
 
+        from unittest.mock import patch
+
         dialog = self.menu._open(_make_player_data())
         dialog.show()
         dialog.resize(720, 560)
-        tree = self.menu._open_utility(dialog)
+        with patch("ankiscape.ui.ui_utility_activity_list._game_speed", return_value=10):
+            tree = self.menu._open_utility(dialog)
         row = _utility_row(tree, "gather_snape_grass")
         row.parent().setExpanded(True)
         tree.scrollToItem(row)
@@ -110,7 +113,7 @@ class SkillTargetSearchTest(unittest.TestCase):
         metrics = tree.fontMetrics()
         text_width = max(metrics.horizontalAdvance(line) for line in row.text(0).splitlines())
         self.assertLessEqual(text_width + tree.iconSize().width() + 12, rect.width())
-        self.assertIn("Processes up to 3 per successful card. No skill XP.", row.toolTip(0))
+        self.assertIn("Gathers up to 30 per successful card at 10x game speed. No skill XP.", row.toolTip(0))
         self.assertIn("No materials required", row.toolTip(0))
         self.assertEqual(text_fit_defects(tree.parentWidget()), [])
         tree.itemClicked.emit(row, 0)

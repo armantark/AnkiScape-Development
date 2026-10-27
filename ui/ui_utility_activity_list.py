@@ -65,6 +65,7 @@ from .ui import (
     _STRONGHOLD_UTILITY_KEY,
     _UTILITY_GROUP_LABELS,
     CatalogFilterBar,
+    _game_speed,
     _pixel_path_icon,
     activity_collapsed_groups,
     dim_text_color,
@@ -223,6 +224,7 @@ def _surface_rows(player_data: dict, current: str, is_activities: bool) -> tuple
         BIRD_NEST_OPEN_TABLES,
         DEFAULT_UTILITY_ACTIVITY,
         QUEST_UNLOCK_RULES,
+        speed=_game_speed(),
     )
     surface_id = ACTIVITY_SURFACE_ID if is_activities else UTILITY_SURFACE_ID
     rows = tuple(

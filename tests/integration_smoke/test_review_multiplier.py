@@ -252,6 +252,37 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["+56 Wool"])
 
+    def test_a_gathering_row_quotes_what_one_card_gathers_at_the_game_speed(self):
+        from ankiscape.core.constants import (
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+        )
+        from ankiscape.core.target_metadata import utility_activity_rows
+
+        addon = _load_addon_as_package("ankiscape_grain_speed_integration")
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 10}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda _text: None)
+        addon._state.player_data = {"inventory": {}, "current_utility": "gather_grain", "completed_achievements": []}
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        rows = utility_activity_rows(
+            {}, UTILITY_ACTIVITY_DATA, UTILITY_ITEM_IMAGES, BIRD_NEST_OPEN_TABLES, DEFAULT_UTILITY_ACTIVITY, speed=10
+        )
+        tooltip = next(row.tooltip for row in rows if row.target_id == "gather_grain")
+        self.assertEqual(addon._state.player_data["inventory"]["Wheat"], 280)
+        self.assertTrue(tooltip.startswith("Gathers up to 280 per successful card at 10x game speed. No skill XP.\n"), tooltip)
+
     def test_bankstanding_advances_only_the_normal_review_market_tick(self):
         addon = _load_addon_as_package("ankiscape_bankstanding_integration")
 
