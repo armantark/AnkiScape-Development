@@ -73,24 +73,24 @@ class RealUndoHistoryTest(unittest.TestCase):
         self.reviewer._answerCard(3)
         self.assertEqual(self.collection.get_card(card.id).reps, 1)
 
-    def _checkpoint(self, depths):
+    def _checkpoint(self, depths, current_skill="Prayer"):
         state = self.addon._state
         self.assertEqual(
             (len(state.review_undo_stack), len(state.direct_action_undo_stack)), depths
         )
         saved = json.loads(json.dumps(state.player_data))
         self.assertEqual(self.collection.get_config("ankiscape_player_data"), saved)
-        self.assertEqual(self.collection.get_config("ankiscape_current_skill"), "Prayer")
+        self.assertEqual(self.collection.get_config("ankiscape_current_skill"), current_skill)
         return copy.deepcopy(state.player_data), random.getstate()
 
-    def _undo(self, operation, expected, depths):
+    def _undo(self, operation, expected, depths, current_skill="Prayer"):
         self.assertEqual(self.collection.undo_status().undo, operation)
         changes = self.collection.undo()
         self.assertEqual(changes.operation, operation)
         # AQT delivers this backend result to the registered hook after undo.
         for callback in sys.modules["aqt"].gui_hooks.state_did_undo:
             callback(changes)
-        self.assertEqual(self._checkpoint(depths), expected)
+        self.assertEqual(self._checkpoint(depths, current_skill=current_skill), expected)
 
     def test_answers_and_purchase_undo_in_collection_order(self):
         initial = self._checkpoint((0, 0))
@@ -121,3 +121,47 @@ class RealUndoHistoryTest(unittest.TestCase):
         self.collection.close()
         self.collection.reopen()
         self.assertEqual(self._checkpoint((0, 0)), initial)
+
+    def test_nature_spirit_commission_real_undo_replay_and_reopen(self):
+        from tests.quest_catalog.test_nature_spirit_opening import (
+            QUEST_ID, RECEIPT, earned_prerequisite_player, pie_balances,
+        )
+
+        addon = self.addon
+        player = earned_prerequisite_player(self)
+        player["current_quest"] = QUEST_ID
+        addon._state.player_data = player
+        addon._state.current_skill = "Quests"
+        addon.save_player_data()
+        # Anki's JSON codec rounds some combat/Mining telemetry floats. Capture
+        # the real persisted boundary before comparing full Undo snapshots.
+        addon.load_player_data()
+        addon.save_player_data()
+        baseline = self._checkpoint((0, 0), current_skill="Quests")
+        previous_operation = self.collection.undo_status().undo
+        self.assertEqual(self.collection.get_card(self.cards[0].id).reps, 0)
+        self._answer(self.cards[0])
+        first = self._checkpoint((1, 0), current_skill="Quests")
+        self.assertEqual(pie_balances(first[0]), (3, 3))
+        self.assertIn(RECEIPT, first[0]["quest_action_proofs"])
+        self.assertEqual(first[0]["quests"][QUEST_ID]["progress"], 2)
+        self._undo("Answer Card", baseline, (0, 0), current_skill="Quests")
+        self.assertEqual(addon._state.current_skill, "Quests")
+        self.assertEqual(self.collection.get_card(self.cards[0].id).reps, 0)
+        self.assertEqual(self.collection.undo_status().undo, previous_operation)
+        self.assertNotIn(RECEIPT, addon._state.player_data["quest_action_proofs"])
+        self.assertEqual(pie_balances(addon._state.player_data), (0, 0))
+        self._answer(self.collection.get_card(self.cards[0].id))
+        replay = self._checkpoint((1, 0), current_skill="Quests")
+        self.assertEqual(replay, first)
+        self.assertEqual(replay[0]["quest_action_proofs"].count(RECEIPT), 1)
+        self.collection.close()
+        self.collection.reopen()
+        addon.load_player_data()
+        self.assertEqual(pie_balances(addon._state.player_data), (3, 3))
+        self.assertEqual(addon._state.player_data["quest_action_proofs"].count(RECEIPT), 1)
+        self.assertEqual(addon._state.player_data["quests"][QUEST_ID]["progress"], 2)
+        self.assertEqual(
+            self.collection.get_config("ankiscape_player_data"),
+            json.loads(json.dumps(replay[0])),
+        )
