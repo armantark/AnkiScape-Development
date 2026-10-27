@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** done
 
-- [ ] Unit tests: 150 ticks at 10x reads "3 cards left"; 60 ticks at 10x reads "1 card left"; 600 ticks at 10x reads "10 cards left".
-- [ ] A real antipoison dose in combat shows "Poison immune: N cards left" on the review HUD.
-- [ ] A search for remaining-time texts in ticks finds none left.
-- [ ] One play-checklist line added.
+- [x] Unit tests: 150 ticks at 10x reads "3 cards left"; 60 ticks at 10x reads "1 card left"; 600 ticks at 10x reads "10 cards left".
+- [x] A real antipoison dose in combat shows "Poison immune: N cards left" on the review HUD.
+- [x] A search for remaining-time texts in ticks finds none left.
+- [x] One play-checklist line added.

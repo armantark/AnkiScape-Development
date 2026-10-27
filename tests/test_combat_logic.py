@@ -4832,7 +4832,7 @@ class CombatLogicTest(unittest.TestCase):
             "tick_progress": 0,
             "source": "https://runescape.wiki/w/index.php?title=Poison_(historical)&oldid=5979526",
         })
-        self.assertEqual(combat_status_summary_pure(poisoned), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(poisoned, 1), "Poisoned: 30 LP in 5 cards")
 
     def test_safe_recovery_advances_poison_status_after_healing(self):
         player = _player(
@@ -4852,7 +4852,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_lifepoints"], 30)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 9)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 28 LP in 10 ticks")
+        self.assertEqual(combat_status_summary_pure(recovered, 1), "Poisoned: 28 LP in 2 cards")
 
     def test_combat_burst_advances_poison_status_by_review_ticks(self):
         player = _player(
@@ -4902,7 +4902,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("Antipoison oldid 5606640", recovered["combat_status_effects"]["poison_immunity"]["source"])
         self.assertEqual(recovered["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
         self.assertEqual(combat_poison_immunity_ticks_pure(recovered), 100)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poison immune: 100 ticks")
+        self.assertEqual(combat_status_summary_pure(recovered, 1), "Poison immune: 17 cards left")
 
     def test_poison_enemy_applies_player_poison_on_source_chance(self):
         player = _player(
@@ -4925,7 +4925,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["status_damage"], {})
         self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
-        self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(new_data, 1), "Poisoned: 30 LP in 5 cards")
 
     def test_source_poison_rows_reach_combat_state(self):
         cases = (

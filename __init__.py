@@ -2716,8 +2716,8 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_tears_of_guthix_command_pure(
             _state.player_data,
-            str(action_id),
-            payload,
+            str(action_id), payload,
+            speed=_review_action_multiplier(),
         )
         if not ok:
             return {

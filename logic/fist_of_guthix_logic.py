@@ -24,6 +24,7 @@ from ..data.fist_of_guthix_data import (
     FIST_OF_GUTHIX_ROUND_TICKS,
     FIST_OF_GUTHIX_STANCES,
 )
+from .pace.short_timers import cards_left_text_pure
 from ..logic_pure.logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
 
 
@@ -758,7 +759,7 @@ def fist_of_guthix_can_review_pure(player_data: Mapping[str, Any]) -> bool:
     return bool(state["tutorial_complete"])
 
 
-def fist_of_guthix_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def fist_of_guthix_view_pure(player_data: Mapping[str, Any], speed: int = 1) -> dict[str, Any]:
     data = sanitize_equipment_instance_state_pure(
         player_data, FIST_OF_GUTHIX_CONDITION_DATA
     )
@@ -818,6 +819,7 @@ def fist_of_guthix_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             else active["opponent"]["stance"],
             "round_ticks": active["round_ticks"],
             "round_ticks_remaining": FIST_OF_GUTHIX_ROUND_TICKS - active["round_ticks"],
+            "round_left_text": cards_left_text_pure(FIST_OF_GUTHIX_ROUND_TICKS - active["round_ticks"], speed),
             "player_charges": active["player_charges"],
             "opponent_charges": active["opponent_charges"],
             "player_lifepoints": active["player_lifepoints"],

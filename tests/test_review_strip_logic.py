@@ -539,7 +539,7 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertEqual(view["count"], 1)
         self.assertTrue(view["rows"][0]["live"])
         self.assertIn("Entry ready", view["rows"][0]["status"])
-        self.assertIn("collection ticks", view["rows"][0]["status"])
+        self.assertIn("8 cards of tears", view["rows"][0]["status"])
 
     def test_farming_rows_belong_only_to_the_farming_badge(self):
         from ankiscape.logic.farming_logic import (

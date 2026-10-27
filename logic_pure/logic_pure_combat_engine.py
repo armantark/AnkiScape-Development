@@ -2104,7 +2104,6 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "attack_style_name": str(style.get("display_name", style_id)),
         "trained_skills": combat_attack_style_trained_skills_pure(xp_style_id),
         **last_fight,
-        "status": combat_status_summary_pure(player_data),
         **_combat_hud_finisher_text(finisher),
         "finisher": finisher,
     }

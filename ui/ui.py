@@ -2621,7 +2621,7 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            combat_status = combat_status_summary_pure(player_data)
+            combat_status = combat_status_summary_pure(player_data, _game_speed())
             has_hatchet = (
                 best_woodcutting_axe_pure(
                     int(player_data.get("woodcutting_level", 1) or 1),
@@ -2788,7 +2788,7 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA)
+            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA, _game_speed())
             if state is not None:
                 ip = os.path.join(current_dir, "icon", "attack_icon.png")
                 if not os.path.exists(ip):
@@ -8476,7 +8476,7 @@ def show_main_menu(
                 )
                 bonus_ticks = int(view["ore_bonus_ticks_remaining"])
                 star_detail.setText(
-                    f"Extra-ore bonus: {bonus_ticks:,} ticks remaining"
+                    f"Extra-ore bonus: {view['ore_bonus_left_text']}"
                     if bonus_ticks > 0
                     else "A communal star falls about every 20 answered cards."
                 )
@@ -8673,7 +8673,7 @@ def show_main_menu(
 
         def _refresh_fist_of_guthix_panel() -> None:
             syncing_fog["active"] = True
-            view = fist_of_guthix_view_pure(player_data)
+            view = fist_of_guthix_view_pure(player_data, speed=_game_speed())
             selected = (
                 player_data.get("current_utility")
                 == FIST_OF_GUTHIX_ACTIVITY_ID
@@ -8710,7 +8710,7 @@ def show_main_menu(
                     f"{opponent.get('display_name', 'Arena rival')} · "
                     f"you {int(match.get('player_charges', 0)):,} vs "
                     f"{int(match.get('opponent_charges', 0)):,} charges · "
-                    f"{int(match.get('round_ticks_remaining', 0))} ticks left"
+                    f"{match['round_left_text']}"
                 )
                 supplies = match.get("temporary_supplies", {}) or {}
                 fog_detail.setText(
@@ -10950,7 +10950,7 @@ def show_main_menu(
         tears_layout.addWidget(tears_actions)
 
         def _refresh_tears_of_guthix_panel() -> None:
-            view = tears_of_guthix_view_pure(player_data)
+            view = tears_of_guthix_view_pure(player_data, speed=_game_speed())
             active = bool(view["active"])
             selected = (
                 active
@@ -11015,7 +11015,7 @@ def show_main_menu(
                         )
                     )
                     tears_summary.setText(
-                        f"{int(view['collection_ticks'])} ticks of tears · "
+                        f"{view['collection_text']} of tears · "
                         f"{int(view['entry_beats'])} collection beats · "
                         f"{int(view['xp_per_tear'])} XP per tear into "
                         f"{reward_skill['display_name']}"

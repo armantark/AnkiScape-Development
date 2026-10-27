@@ -25,6 +25,7 @@ from ..data.tears_of_guthix_data import (
     TEARS_OF_GUTHIX_TICKS_PER_REVIEW,
     TEARS_OF_GUTHIX_XP_PER_LEVEL,
 )
+from .pace.short_timers import cards_text_pure
 from .pace.world_clock import cards_to_next_world_week_pure, world_week_index_pure
 
 
@@ -183,7 +184,7 @@ def _sync_entries(
     return synced
 
 
-def tears_of_guthix_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def tears_of_guthix_view_pure(player_data: Mapping[str, Any], speed: int = 1) -> dict[str, Any]:
     state = _sync_entries(
         sanitize_tears_of_guthix_state_pure(player_data.get("tears_of_guthix")),
         player_data,
@@ -241,6 +242,7 @@ def tears_of_guthix_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "reviews_to_entry": reviews_to_entry,
         "entry_ready": bool(not missing and progress_met and week_ready),
         "collection_ticks": ticks,
+        "collection_text": cards_text_pure(ticks, speed),
         "entry_beats": _beats(ticks),
         "session_beats": _beats(state["session_ticks"]),
         "remaining_beats": _beats(state["remaining_ticks"]),
@@ -276,6 +278,7 @@ def apply_tears_of_guthix_command_pure(
     player_data: Mapping[str, Any],
     action_id: str,
     payload: Mapping[str, Any] | None = None,
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
     state = _sync_entries(
@@ -337,7 +340,7 @@ def apply_tears_of_guthix_command_pure(
                 "remaining_ticks": ticks,
                 "tears": 0,
                 "last_result": (
-                    f"Juna lets you into the cavern for {ticks} ticks "
+                    f"Juna lets you into the cavern for {cards_text_pure(ticks, speed)} "
                     f"({_beats(ticks)} collection beats)."
                 ),
             }

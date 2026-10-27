@@ -500,10 +500,8 @@ def _goblin_raids_notification_statuses(
     return ()
 
 
-def _tears_of_guthix_notification_statuses(
-    player_data: Mapping[str, Any],
-) -> tuple[str, ...]:
-    view = tears_of_guthix_view_pure(player_data)
+def _tears_of_guthix_notification_statuses(player_data: Mapping[str, Any], speed: int) -> tuple[str, ...]:
+    view = tears_of_guthix_view_pure(player_data, speed)
     if view["active"]:
         return (
             f"{int(view['tears'])} tears · {int(view['remaining_beats'])} beats left · "
@@ -511,7 +509,7 @@ def _tears_of_guthix_notification_statuses(
         )
     if view["entry_ready"]:
         return (
-            f"Entry ready · {int(view['collection_ticks'])} collection ticks · "
+            f"Entry ready · {view['collection_text']} of tears · "
             f"rewarding {view['reward_skill']['display_name']}",
         )
     return ()
@@ -702,7 +700,7 @@ DND_NOTIFICATION_STATUS_PROJECTIONS: dict[
     SHATTERED_HEART_ACTIVITY_ID: _at_every_speed(_shattered_heart_notification_statuses),
     SHOOTING_STAR_ACTIVITY_ID: _shooting_star_notification_statuses,
     SKELETAL_HORROR_ACTIVITY_ID: _at_every_speed(_skeletal_horror_notification_statuses),
-    TEARS_OF_GUTHIX_ACTIVITY_ID: _at_every_speed(_tears_of_guthix_notification_statuses),
+    TEARS_OF_GUTHIX_ACTIVITY_ID: _tears_of_guthix_notification_statuses,
     TREASURE_TRAILS_ACTIVITY_ID: _at_every_speed(_treasure_trails_notification_statuses),
     TROLL_INVASION_ACTIVITY_ID: _at_every_speed(_troll_invasion_notification_statuses),
 }
