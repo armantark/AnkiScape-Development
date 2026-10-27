@@ -4,7 +4,7 @@ combat setup panel draws, with the prayers and max hit its next fight gets."""
 
 from typing import Mapping
 
-from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA, DEFAULT_COMBAT_SPELL, DEFAULT_COMBAT_TARGET
+from ..data.combat_data import COMBAT_ENEMY_DATA, COMBAT_MAGIC_SPELL_DATA, DEFAULT_COMBAT_SPELL, DEFAULT_COMBAT_TARGET
 from ..data.prayer_data import COMBAT_PRAYERS, COMBAT_PRAYERS_BY_ID, DEFAULT_PRAYER_UPTIME, PRAYER_UPTIME_POLICIES
 from ..logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from .logic_pure_combat_finishers import (
@@ -142,46 +142,72 @@ def combat_setup_panel_view_pure(player_data, equipment_data):
     prayers it offers as unlocked, and what the next fight gets from them: the
     prayers it runs and the max hit they give."""
     target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
-    uptime = str(player_data.get("combat_prayer_uptime", DEFAULT_PRAYER_UPTIME))
     target_overrides = (player_data.get("combat_target_overrides", {}) or {}).get(target_id, {}) or {}
     presets = player_data.get("combat_presets", {}) or {}
     active_preset = str(player_data.get("combat_active_preset", "Default"))
     magic_mode = combat_attack_style_for_equipment_pure(player_data, equipment_data) == "magic_standard"
+    pinned_preset = str((player_data.get("combat_target_presets", {}) or {}).get(target_id, "") or "")
     return {
+        **_combat_setup_prayer_view(player_data),
         "finisher_chosen": player_data.get("combat_action") == "finisher",
         "magic_mode": magic_mode,
         "styles": _combat_setup_style_rows(player_data, equipment_data),
         "autocast_spell": player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL),
         "spells": _combat_setup_spell_rows(player_data),
         "borrowed_power_spell": player_data.get("combat_borrowed_power_spell"),
-        "prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
         "dream_thrift": bool(player_data.get("combat_dream_thrift", False)),
         "auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
         "auto_eat_threshold": max(1, min(_int_or(player_data.get("combat_auto_eat_threshold_percent", 40) or 40, 40), 99)),
         "preset_names": [str(name) for name in presets] if isinstance(presets, dict) else ["Default"],
         "active_preset": active_preset,
-        "curses_unlocked": _quest_completed(player_data, "the_temple_at_senntisten"),
-        "prayer_book": player_data.get("combat_prayer_book", "standard"),
-        "prayer_uptime": uptime if uptime in PRAYER_UPTIME_POLICIES else DEFAULT_PRAYER_UPTIME,
-        "prayer_status": _combat_setup_prayer_status(player_data),
         "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mode),
         "vengeance": bool(player_data.get("combat_vengeance", False)),
         "spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
-        "preset_pinned": (player_data.get("combat_target_presets", {}) or {}).get(target_id) == active_preset,
+        "pinned_preset": pinned_preset,
         "prayers_overridden": "combat_selected_prayers" in target_overrides,
         "uptime_overridden": "combat_prayer_uptime" in target_overrides,
-        "selected_prayers": set(player_data.get("combat_selected_prayers", ()) or ()),
-        "prayers": _combat_setup_prayer_rows(player_data),
-        # "Hide lower-tier prayers" keeps the 15 levels below the player's own.
-        "lower_tier_below": max(1, int(player_data.get("prayer_level", 1) or 1) - 15),
+        "target_summary": _combat_setup_target_summary(player_data, target_id, pinned_preset, target_overrides),
         "loot_threshold": max(0, _int_or(player_data.get("loot_value_threshold", DEFAULT_LOOT_VALUE_THRESHOLD), DEFAULT_LOOT_VALUE_THRESHOLD)),
     }
 
 
+def _combat_setup_prayer_view(player_data):
+    """The Prayer group: its settings, the boxes it ticks, and the prayers it
+    lists as unlocking later."""
+    uptime = str(player_data.get("combat_prayer_uptime", DEFAULT_PRAYER_UPTIME))
+    rows = _combat_setup_prayer_rows(player_data)
+    locked = [row["label"] for row in rows if not row["unlocked"]]
+    ticked = _ticked_prayer_ids(player_data)
+    return {
+        "prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
+        "curses_unlocked": _quest_completed(player_data, "the_temple_at_senntisten"),
+        "prayer_book": player_data.get("combat_prayer_book", "standard"),
+        "prayer_uptime": uptime if uptime in PRAYER_UPTIME_POLICIES else DEFAULT_PRAYER_UPTIME,
+        "prayer_status": _combat_setup_prayer_status(player_data),
+        "selected_prayers": set(ticked),
+        "prayers_picked": bool(ticked) and not _chosen_prayer_ids(player_data),
+        "prayers": [row for row in rows if row["unlocked"]],
+        "locked_prayers_text": f"Unlocks later: {', '.join(locked)}" if locked else "",
+        # "Hide lower-tier prayers" keeps the 15 levels below the player's own.
+        "lower_tier_below": max(1, int(player_data.get("prayer_level", 1) or 1) - 15),
+    }
+
+
+def _chosen_prayer_ids(player_data):
+    return sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
+
+
+def _ticked_prayer_ids(player_data):
+    """The boxes the grid ticks: the player's choice, or, while nothing is
+    chosen, the prayers the game picks, so the grid shows what runs."""
+    return _chosen_prayer_ids(player_data) or active_prayer_selection_pure(player_data)
+
+
 def toggled_combat_prayer_selection_pure(player_data, prayer_id, checked):
-    """The selection after one prayer box changes; a newly ticked prayer goes
-    first, so it wins any conflict when the save is sanitized."""
-    selected = [str(pid) for pid in (player_data.get("combat_selected_prayers", ()) or ()) if str(pid) != prayer_id]
+    """The selection after one prayer box changes, starting from the ticked
+    boxes, picked ones included. A newly ticked prayer goes first, so the save
+    drops only the ticked prayer that shares its slot."""
+    selected = [str(pid) for pid in _ticked_prayer_ids(player_data) if str(pid) != prayer_id]
     if checked:
         selected.insert(0, prayer_id)
     return selected
@@ -203,7 +229,10 @@ def _combat_setup_prayer_status(player_data):
     if not names:
         return "No prayer points left. The next bank run's altar stop restores them."
     if picked:
-        return f"Nothing ticked, so the next fight runs the best for your weapon: {_and_list(names)}, for {_prayer_share(uptime)}."
+        return (
+            f"Picked for you (blue ticks): the best for your weapon, for {_prayer_share(uptime)}. "
+            "Tick or untick a box to make your own choice."
+        )
     return f"Next fight runs {_and_list(names)} for {_prayer_share(uptime)}."
 
 
@@ -224,6 +253,35 @@ def _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mod
     if names:
         prayers = f"with {_and_list(names)}{'' if uptime >= 1 else f' for {_prayer_share(uptime)}'}{' (picked for you)' if picked else ''}"
     return f"Your max hit: {preview.get('player_max_hit', 0)} LP {prayers} · {accuracy}"
+
+
+def _combat_setup_target_summary(player_data, target_id, pinned_preset, target_overrides):
+    """Which source wins against this target: its kept prayers and prayer
+    time beat its preset, which beats the settings above."""
+    loadout = _combat_target_loadout(player_data, target_id)
+    preset = ((player_data.get("combat_presets", {}) or {}).get(pinned_preset) or {}) if pinned_preset else {}
+    sources = []
+    for field, shown in (
+        ("combat_selected_prayers", _summary_prayers(loadout)),
+        ("combat_prayer_uptime", _prayer_share(PRAYER_UPTIME_POLICIES.get(str(loadout.get("combat_prayer_uptime")), 1.0))),
+    ):
+        if field in target_overrides:
+            source = "kept for this target"
+        elif field in preset:
+            source = f"from preset {pinned_preset}"
+        else:
+            source = "from above"
+        sources.append(f"{shown} ({source})")
+    name = COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
+    preset_part = f"preset {pinned_preset}" if pinned_preset else "no preset"
+    return f"Against {name}: {preset_part} · prayers {sources[0]} · prayer time {sources[1]}"
+
+
+def _summary_prayers(loadout):
+    if not bool(loadout.get("combat_prayers_enabled", True)):
+        return "off"
+    chosen = _chosen_prayer_ids(loadout)
+    return _and_list([COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in chosen]) if chosen else "picked for you"
 
 
 def _combat_setup_style_rows(player_data, equipment_data):
@@ -277,34 +335,30 @@ def _combat_setup_spell_rows(player_data):
 
 
 def _combat_setup_prayer_rows(player_data):
-    """The current book's prayers; Knight Waves prayers explain their gate."""
+    """The current book's prayers, each naming its gates on hover. A locked
+    prayer's label also names them, for the line that lists what unlocks later."""
     prayer_level = int(player_data.get("prayer_level", 1) or 1)
     defence_level = int(player_data.get("defense_level", 1) or 1)
     gates = {
         "the_temple_at_senntisten": _quest_completed(player_data, "the_temple_at_senntisten"),
         "knight_waves": bool((player_data.get("knight_waves", {}) or {}).get("completed")),
     }
-    book = str(player_data.get("combat_prayer_book", "standard"))
     rows = []
     for prayer in COMBAT_PRAYERS:
-        if prayer.book != book:
+        if prayer.book != str(player_data.get("combat_prayer_book", "standard")):
             continue
-        requirements = [f"{prayer.level} Prayer"]
-        if prayer.defence_level > 1:
-            requirements.append(f"{prayer.defence_level} Defence")
+        unlocked = (
+            prayer.level <= prayer_level
+            and prayer.defence_level <= defence_level
+            and gates.get(prayer.quest_gate, True)
+        )
+        levels = f"Lv {prayer.level}{f', Def {prayer.defence_level}' if prayer.defence_level > 1 else ''}{', Knight Waves' if prayer.quest_gate == 'knight_waves' else ''}"
+        requirements = f"{prayer.level} Prayer{f', {prayer.defence_level} Defence' if prayer.defence_level > 1 else ''}"
         rows.append({
             "id": prayer.id,
-            "label": f"{prayer.display_name} (Lv {prayer.level}{f', Def {prayer.defence_level}' if prayer.defence_level > 1 else ''})",
+            "label": prayer.display_name if unlocked else f"{prayer.display_name} ({levels})",
             "level": prayer.level,
-            "unlocked": (
-                prayer.level <= prayer_level
-                and prayer.defence_level <= defence_level
-                and gates.get(prayer.quest_gate, True)
-            ),
-            "tooltip": (
-                f"Requires {', '.join(requirements)}, and Knight Waves completion."
-                if prayer.quest_gate == "knight_waves"
-                else ""
-            ),
+            "unlocked": unlocked,
+            "tooltip": f"Requires {requirements}{', and Knight Waves completion' if prayer.quest_gate == 'knight_waves' else ''}.",
         })
     return rows

@@ -21,6 +21,7 @@ try:
         QHBoxLayout,
         QInputDialog,
         QLabel,
+        QLayout,
         QPixmap,
         QPushButton,
         QSizePolicy,
@@ -151,16 +152,19 @@ def _add_section_header(layout, text: str) -> None:
 
 def _check_box_css(panel) -> str:
     """Boxes drawn from the theme's text colour, so an empty box keeps its
-    outline on a dark base and a disabled label stays readable on a light one."""
+    outline on a dark base and a disabled label stays readable on a light one.
+    A prayer the game picked ticks blue; the player's own choices tick green."""
     dim = dim_text_css(panel)
+    readable = dim_text_css(panel, 200)
     faint = dim.rsplit(",", 1)[0] + ", 0.35)"
     mark = _CHECK_MARK.replace(os.sep, "/")
     return (
-        f"QCheckBox:disabled {{ color: {dim}; }}"
+        f"QCheckBox:disabled {{ color: {readable}; }}"
         f"QCheckBox::indicator {{ width: 13px; height: 13px; border: 1px solid {dim}; border-radius: 3px; background: palette(base); }}"
         f"QCheckBox::indicator:disabled {{ border-color: {faint}; }}"
         f"QCheckBox::indicator:checked {{ border-color: #46b96a; background: #2f8f4e; image: url({mark}); }}"
         "QCheckBox::indicator:checked:disabled { border-color: rgba(70, 185, 106, 0.45); background: rgba(47, 143, 78, 0.45); }"
+        'QCheckBox[picked="true"]::indicator:checked { border-color: #5b9be0; background: #2f6fb8; }'
     )
 
 
@@ -341,6 +345,8 @@ def _add_prayer_section(layout, player_data, send_config):
         time_combo.addItem(label, value)
     hide_lower = QCheckBox("Hide lower-tier prayers")
     hide_lower.setObjectName("combatPrayerHideLowerCheck")
+    auto_pick = QPushButton("Pick the best for me")
+    auto_pick.setObjectName("combatPrayerAutoPickButton")
     choices = QWidget()
     choices_layout = FlowLayout(choices)
     choices_layout.setContentsMargins(0, 0, 0, 0)
@@ -348,7 +354,7 @@ def _add_prayer_section(layout, player_data, send_config):
         master,
         side_pair("Book", book_combo, _LABEL_STYLE),
         side_pair("Prayer time", time_combo, _LABEL_STYLE),
-        hide_lower,
+        auto_pick,
     ):
         choices_layout.addWidget(widget)
     layout.addWidget(choices)
@@ -358,10 +364,17 @@ def _add_prayer_section(layout, player_data, send_config):
     status.setStyleSheet(_LABEL_STYLE)
     layout.addWidget(status)
     sync_grid = _add_prayer_grid(layout, player_data, send_config, hide_lower)
+    layout.addWidget(hide_lower)
+    locked = QLabel()
+    locked.setObjectName("combatLockedPrayersLabel")
+    locked.setWordWrap(True)
+    locked.setStyleSheet(f"color: {dim_text_css(locked, 200)};")
+    layout.addWidget(locked)
     if send_config is not None:
         master.toggled.connect(lambda enabled: send_config("combat_prayers_enabled", bool(enabled)))
         book_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_book", book_combo.currentData()))
         time_combo.currentIndexChanged.connect(lambda _i: send_config("combat_prayer_uptime", time_combo.currentData()))
+        auto_pick.clicked.connect(lambda _checked=False: send_config("combat_selected_prayers", []))
 
     def sync(view) -> None:
         _set_checked(master, view["prayers_enabled"])
@@ -371,24 +384,25 @@ def _add_prayer_section(layout, player_data, send_config):
         _set_combo_data(time_combo, view["prayer_uptime"])
         for widget in (book_combo, time_combo, hide_lower):
             widget.setEnabled(view["prayers_enabled"])
+        auto_pick.setEnabled(view["prayers_enabled"] and not view["prayers_picked"] and send_config is not None)
         sync_grid(view)
+        locked.setText(view["locked_prayers_text"])
+        locked.setVisible(bool(view["locked_prayers_text"]))
 
     return sync
 
 
 def _prayer_check(row) -> "QCheckBox":
-    check = WrappingCheckBox(row["label"])
+    # One line each, so every row of the grid is the same height.
+    check = QCheckBox(row["label"])
     check.setObjectName(f"combatPrayerCheck::{row['id']}")
-    if row["tooltip"]:
-        check.setToolTip(row["tooltip"])
+    check.setToolTip(row["tooltip"])
     check.setProperty("prayerLevel", row["level"])
     check.setProperty("prayerId", row["id"])
     return check
 
 
 _PRAYER_COLUMNS = 3
-# Most labels fit this width on one line; the few longer ones wrap.
-_PRAYER_COLUMN_WIDTH = 180
 
 
 def _add_prayer_grid(layout, player_data, send_config, hide_lower):
@@ -398,8 +412,10 @@ def _add_prayer_grid(layout, player_data, send_config, hide_lower):
 
 
 class _PrayerGrid:
-    """The prayer boxes in equal columns, as many as the width allows up to
-    three, so they line up at every width; hidden boxes give up their cells."""
+    """The prayer boxes on one line each, in two or three equal columns as the
+    width allows, so they line up in even rows; hidden boxes give up their
+    cells. The grid asks only for two columns' width, so the column can still
+    narrow from three columns to two."""
 
     def __init__(self, player_data, send_config, hide_lower):
         self._player_data = player_data
@@ -411,6 +427,8 @@ class _PrayerGrid:
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setHorizontalSpacing(12)
         self._layout.setVerticalSpacing(4)
+        self._layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+        self._column_width = 1
         self._checks = {}
         self._lower_tier_below = 1
         self._placed = None
@@ -426,7 +444,11 @@ class _PrayerGrid:
         for row in view["prayers"]:
             check = self._checks[row["id"]]
             _set_checked(check, row["id"] in view["selected_prayers"])
-            check.setEnabled(row["unlocked"] and view["prayers_enabled"])
+            check.setEnabled(view["prayers_enabled"])
+            if check.property("picked") != view["prayers_picked"]:
+                check.setProperty("picked", view["prayers_picked"])
+                check.style().unpolish(check)
+                check.style().polish(check)
         self._show_tiers()
 
     def _rebuild(self, rows) -> None:
@@ -439,6 +461,10 @@ class _PrayerGrid:
             check.setParent(self.widget)
             check.toggled.connect(lambda checked, pid=row["id"]: self._toggled(pid, checked))
             self._checks[row["id"]] = check
+        spacing = self._layout.horizontalSpacing()
+        self._column_width = max((check.sizeHint().width() for check in self._checks.values()), default=1) + spacing
+        self.widget.setMinimumWidth(min(2, len(rows)) * self._column_width - spacing)
+        self._placed = None
 
     def _toggled(self, prayer_id: str, checked: bool) -> None:
         if self._send_config is not None:
@@ -455,7 +481,7 @@ class _PrayerGrid:
 
     def _place(self) -> None:
         shown = [check for check in self._checks.values() if not check.isHidden()]
-        columns = max(1, min(_PRAYER_COLUMNS, self.widget.width() // _PRAYER_COLUMN_WIDTH))
+        columns = max(min(2, len(shown)) or 1, min(_PRAYER_COLUMNS, self.widget.width() // self._column_width))
         key = (columns, tuple(id(check) for check in shown))
         if key == self._placed:
             return
@@ -516,16 +542,16 @@ def _add_presets(layout, player_data, send_config):
     saves.setWordWrap(True)
     saves.setStyleSheet(f"color: {dim_text_css(saves)};")
     layout.addWidget(saves)
-    target_heading = QLabel()
-    target_heading.setObjectName("combatTargetChoicesHeading")
-    target_heading.setWordWrap(True)
-    target_heading.setStyleSheet(_LABEL_STYLE)
-    layout.addWidget(target_heading)
-    pin_preset = WrappingCheckBox("The preset chosen above")
+    summary = QLabel()
+    summary.setObjectName("combatTargetSummaryLabel")
+    summary.setWordWrap(True)
+    summary.setStyleSheet("color: palette(text); font-weight: 600;")
+    layout.addWidget(summary)
+    pin_preset = WrappingCheckBox()
     pin_preset.setObjectName("combatPinPresetCheck")
-    remember_prayers = WrappingCheckBox("The prayers ticked above")
+    remember_prayers = WrappingCheckBox()
     remember_prayers.setObjectName("combatOverridePrayersCheck")
-    remember_time = WrappingCheckBox("The prayer time chosen above")
+    remember_time = WrappingCheckBox()
     remember_time.setObjectName("combatOverridePrayerUptimeCheck")
     for check in (pin_preset, remember_prayers, remember_time):
         layout.addWidget(check)
@@ -548,10 +574,15 @@ def _add_presets(layout, player_data, send_config):
         preset_combo.addItems(view["preset_names"])
         preset_combo.setCurrentText(view["active_preset"])
         preset_combo.blockSignals(False)
-        target_heading.setText(f"When fighting {_target_name(player_data)}, always use:")
-        _set_checked(pin_preset, view["preset_pinned"])
-        _set_checked(remember_prayers, view["prayers_overridden"])
-        _set_checked(remember_time, view["uptime_overridden"])
+        target = _target_name(player_data)
+        summary.setText(view["target_summary"])
+        for check, text, checked in (
+            (pin_preset, f"Switch to preset “{view['pinned_preset'] or view['active_preset']}” whenever I fight {target}", bool(view["pinned_preset"])),
+            (remember_prayers, f"Keep the prayers ticked now for {target}, whatever I tick for other targets", view["prayers_overridden"]),
+            (remember_time, f"Keep this prayer time for {target}, whatever I choose for other targets", view["uptime_overridden"]),
+        ):
+            check.setText(text)
+            _set_checked(check, checked)
 
     return sync
 

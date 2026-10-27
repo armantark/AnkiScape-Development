@@ -860,7 +860,6 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd["defense_level"] = 99
         pd["knight_waves"] = {"completed": False}
         dialog = self._open(pd)
-        chivalry = dialog.findChild(QCheckBox, "combatPrayerCheck::chivalry")
-        self.assertIsNotNone(chivalry)
-        self.assertFalse(chivalry.isEnabled())
-        self.assertIn("Knight Waves completion", chivalry.toolTip())
+        self.assertIsNone(dialog.findChild(QCheckBox, "combatPrayerCheck::chivalry"))
+        locked = dialog.findChild(QLabel, "combatLockedPrayersLabel")
+        self.assertIn("Chivalry (Lv 60, Def 65, Knight Waves)", locked.text())

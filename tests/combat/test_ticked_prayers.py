@@ -10,7 +10,10 @@ from ankiscape.core.combat_prayer_config import apply_combat_prayer_config_pure
 from ankiscape.core.constants import EQUIPMENT_ITEM_DATA
 from ankiscape.core.target_metadata import combat_target_rows
 from ankiscape.logic_pure.logic_pure_combat_engine import combat_hud_state_pure
-from ankiscape.logic_pure.logic_pure_combat_hud import combat_setup_panel_view_pure
+from ankiscape.logic_pure.logic_pure_combat_hud import (
+    combat_setup_panel_view_pure,
+    toggled_combat_prayer_selection_pure,
+)
 from tests.pace.test_combat_danger_stops import ENEMY, answer_combat
 from tests.test_combat_logic import _player
 
@@ -63,6 +66,19 @@ class TickedPrayersTests(unittest.TestCase):
         )
         prayed, _hits = _fight(player)
         self.assertLess(prayed["combat_prayer_points"], 430)
+
+    def test_ticking_over_the_pick_swaps_only_the_prayer_sharing_its_slot(self):
+        player = _melee_player()
+        self.assertEqual(
+            combat_setup_panel_view_pure(player, EQUIPMENT_ITEM_DATA)["selected_prayers"],
+            {"incredible_reflexes", "ultimate_strength", "steel_skin"},
+        )
+        player = apply_combat_prayer_config_pure(
+            player, "combat_selected_prayers", toggled_combat_prayer_selection_pure(player, "burst_of_strength", True)
+        )
+        self.assertEqual(player["combat_selected_prayers"], ["burst_of_strength", "incredible_reflexes", "steel_skin"])
+        _after, rolled = _fight(player)
+        self.assertEqual(rolled[0] * 10, 150)
 
     def test_the_tooltip_max_hit_follows_each_prayer_setting_and_matches_the_fight(self):
         player = _melee_player(combat_prayers_enabled=False)

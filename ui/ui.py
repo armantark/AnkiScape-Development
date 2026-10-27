@@ -819,25 +819,25 @@ def playable_review_skill_names() -> tuple:
 # alpha — guaranteed contrast in BOTH light and dark themes. (palette(mid) is fine
 # for borders/frames, which is its intended role.)
 
-def dim_text_color(widget=None) -> "QColor":
+def dim_text_color(widget=None, alpha=150) -> "QColor":
     """A dimmed-but-readable text QColor that works in light AND dark themes.
 
     Use for greyed/placeholder/disabled-row text (e.g. ``setForeground(...)``).
     """
     palette = widget.palette() if widget is not None else QApplication.palette()
     color = QColor(palette.color(QPalette.ColorRole.Text))
-    color.setAlpha(150)
+    color.setAlpha(alpha)
     return color
 
 
-def dim_text_css(widget=None) -> str:
+def dim_text_css(widget=None, alpha=150) -> str:
     """``rgba(...)`` form of :func:`dim_text_color` for Qt stylesheets.
 
     Stylesheets can't reference a dimmed text role (the stylesheet ``palette()``
     function only exposes solid roles, and ``mid`` is the trap we're avoiding), so
     bake an explicit rgba string from the live palette instead.
     """
-    c = dim_text_color(widget)
+    c = dim_text_color(widget, alpha)
     return f"rgba({c.red()}, {c.green()}, {c.blue()}, {c.alphaF():.2f})"
 
 
