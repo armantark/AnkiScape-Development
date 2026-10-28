@@ -14,6 +14,7 @@ from .hazeel_opening import NEUTRAL_JOURNAL
 from .cold_war import COLD_WAR_JOURNAL_STAGES, COLD_WAR_UNLOCKS
 from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_JOURNAL_STAGES
 from .garden_of_tranquillity import GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES as _GARDEN_OF_TRANQUILLITY_JOURNAL_STAGES
+from .stage_overrides.members.later import animal_magnetism as _animal_magnetism
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
     # Template:Questreq oldid=6552449.
@@ -277,6 +278,7 @@ def _grand_tree_journal_stages() -> Tuple[QuestStage, ...]:
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "animal_magnetism": _animal_magnetism.ANIMAL_MAGNETISM_JOURNAL_STAGES,
     # Authored commission paraphrase: Nature Spirit oldid 6555508 and quick
     # guide oldid 6283910; supplies are included, without asserting receipt.
     "nature_spirit": tuple(

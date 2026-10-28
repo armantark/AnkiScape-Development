@@ -682,6 +682,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/quest/one_small_favour.py": 3,
                 "logic_pure/quest/another_cook.py": 4,
                 "logic_pure/quest/oronwen.py": 3,
+                "logic_pure/quest/journal.py": 1,
                 "logic_pure/quest/grand_tree.py": 3,
                 "logic_pure/quest/watchtower.py": 3,
                 "logic_pure/quest/toktz_opening.py": 3,
