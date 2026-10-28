@@ -24,3 +24,4 @@ Times are PDT, 2026-10-28.
 | 02:13 | Ticket 02 landed (ended entries, Clear) | `ec171382d` | 44 queue tests plus 340 neighbour tests OK; three mutation proofs red; orchestrator rerun 61 OK |
 | 02:35 | Full plain lane at `e0e0874b6` (ticket 01 in) | — | 6,497 tests, OK (skipped=751) |
 | 02:43 | Full offscreen Qt lane, snapshot at 02:35 = `c0cbe0804` (tickets 01 and 02 in) | — | 6,502 tests, OK (skipped=5) |
+| 03:06 | Ticket 03 landed (queue box, fold, add feedback) | `9f199e588` | 701 focused tests OK; five mutation proofs red; orchestrator rerun 52 OK. The shared vertical_scroll helper now ignores preferred width, which also reaches the GE and Settings pages |

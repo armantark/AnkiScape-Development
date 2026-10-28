@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 (queue box), 04 (supply steps), 05 (dye mixing), 06 (Wyson)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-10-menu-copy
 
 - [ ] A before-and-after table of every changed string is saved under the evidence folder.
 - [ ] Every test that pins a changed string pins the new one; no text is cut or elided at 560 points tall.
