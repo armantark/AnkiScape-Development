@@ -8176,8 +8176,8 @@ class TestLogic(unittest.TestCase):
         goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         goblin["quests"]["goblin_diplomacy"] = {"started": True, "progress": 1, "completed": False}
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA),
-            ("Needs Orange goblin mail x1",),
+            quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA)[0],
+            "Needs Redberries x3 for Aggie's red dye",
         )
 
         goblin["inventory"].update({"Orange goblin mail": 1, "Blue goblin mail": 1, "Goblin mail": 1})

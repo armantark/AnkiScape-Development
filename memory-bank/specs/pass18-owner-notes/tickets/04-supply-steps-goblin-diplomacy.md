@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by Opus 5.5 implementer on goal/pass18-04-supply-steps
+**Status:** done
 
-- [ ] From 3 Redberries, 2 Onions, 2 Woad leaves and 15 Coins, Goblin Diplomacy completes in exactly 10 quest reviews, leaving none of those supplies and the quest's rewards paid.
-- [ ] Holding Orange dye skips the red, yellow and mix steps; holding Orange goblin mail skips the orange chain; holding all three mails, the quest takes 3 reviews.
-- [ ] With 2 Redberries, the quest stops with a reason that names Redberries and Aggie's red dye.
-- [ ] The quest card shows the next supply step before each review.
-- [ ] A second quest can declare recipes by data alone; a test with a small declared chain proves it.
+- [x] From 3 Redberries, 2 Onions, 2 Woad leaves and 15 Coins, Goblin Diplomacy completes in exactly 10 quest reviews, leaving none of those supplies and the quest's rewards paid.
+- [x] Holding Orange dye skips the red, yellow and mix steps; holding Orange goblin mail skips the orange chain; holding all three mails, the quest takes 3 reviews.
+- [x] With 2 Redberries, the quest stops with a reason that names Redberries and Aggie's red dye.
+- [x] The quest card shows the next supply step before each review.
+- [x] A second quest can declare recipes by data alone; a test with a small declared chain proves it.
