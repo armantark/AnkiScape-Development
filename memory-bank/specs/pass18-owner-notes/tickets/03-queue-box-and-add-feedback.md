@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Ended entries leave the queue, and Clear always ends at Bankstanding)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-03-queue-box
 
 - [ ] With 1, 3 and 5 entries at the default size and at 560 points tall, every row shows and no scroll bar appears; a long entry wraps whole.
 - [ ] A click on the title line folds the box to that line; a second click unfolds it; the fold survives closing and reopening the menu.
