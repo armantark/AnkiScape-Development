@@ -118,3 +118,25 @@ width; change nothing else on the Bank except the cut Bank Claims line.
   setup panel of ticket 07) and writes all new Pass 18 menu text. The rule is
   elegant and minimal. This is the owner's explicit choice of model for menu
   text, so the `write-like-me` copy-model route does not apply to it.
+
+## Round 3 (2026-10-27 23:49, answered 23:55)
+
+Fact before this round: Sol's audit of all 194 quests
+(`/Users/armantarkhanian/Code/ankiscape-pass18/facts/E-quest-supply-steps.md`)
+found 47 quests with 88 items that the period wiki marks as obtainable during
+the quest but that AnkiScape makes the player get outside it; 15 of those
+items have no verified route in the game today. 17 of the 47 quests have a
+Sol loop item by name, none of them for these items; 30 have none.
+
+**Q12. Goblin Diplomacy in Pass 18, the other 46 quests through the loop.**
+Pass 18 builds supply steps as one shared quest feature, with Goblin
+Diplomacy as its first quest. After Pass 18 is on main, one harvest brief per
+other quest goes into the AnkiScape loop's `harvest-briefs` folder, naming its
+items, the wiki quote and the supply-step feature.
+
+> 12. Yes
+
+The owner then confirmed the settled design summary (items 1 to 14 in the
+chat at 23:49, carried into `spec.md`):
+
+> Lgtm
