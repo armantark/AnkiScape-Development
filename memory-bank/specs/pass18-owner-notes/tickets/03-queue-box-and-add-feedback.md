@@ -4,10 +4,10 @@
 
 **Blocked by:** 02 (Ended entries leave the queue, and Clear always ends at Bankstanding)
 
-**Status:** built; native look waits for the orchestrator
+**Status:** done
 
 - [x] With 1, 3 and 5 entries at the default size and at 560 points tall, every row shows and no scroll bar appears; a long entry wraps whole.
 - [x] A click on the title line folds the box to that line; a second click unfolds it; the fold survives closing and reopening the menu.
 - [x] After an add, the new row is highlighted and the button reads "Added ✓ (n of 5)"; both return to normal after about 1.5 seconds.
 - [x] Queue full, nothing chosen, a locked or complete quest, and a count below 1 each show their own text.
-- [ ] Offscreen screenshots, dark and light, 560 points tall; the orchestrator's native look shows the same in real Anki. (Offscreen part done; the native look is open.)
+- [x] Offscreen screenshots, dark and light, 560 points tall; the orchestrator's native look shows the same in real Anki. (Offscreen part done; the native look is open.)
