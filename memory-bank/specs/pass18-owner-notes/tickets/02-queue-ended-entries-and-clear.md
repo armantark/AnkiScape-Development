@@ -4,10 +4,10 @@
 
 **Blocked by:** 01 (The queue makes exactly the count the player picks)
 
-**Status:** claimed by Opus 5.5 implementer on goal/pass18-02-ended-entries-and-clear
+**Status:** done
 
-- [ ] After an entry is done, the queue box no longer lists it and "Queue: n of 5" counts only the entries left; the Event log still reads "Queue: <name> done".
-- [ ] A stopped entry leaves the box; its reason shows in the Event log and on the review HUD.
-- [ ] With a plan waiting behind a hand-started Woodcutting, Clear queue ends at Bankstanding, no dialog, and the HUD offers "Resume Woodcutting".
-- [ ] A finished five-entry plan frees all five places at once.
-- [ ] A saved Pass 17 queue with an index past two done entries loads with only the remaining entries.
+- [x] After an entry is done, the queue box no longer lists it and "Queue: n of 5" counts only the entries left; the Event log still reads "Queue: <name> done".
+- [x] A stopped entry leaves the box; its reason shows in the Event log and on the review HUD.
+- [x] With a plan waiting behind a hand-started Woodcutting, Clear queue ends at Bankstanding, no dialog, and the HUD offers "Resume Woodcutting".
+- [x] A finished five-entry plan frees all five places at once.
+- [x] A saved Pass 17 queue with an index past two done entries loads with only the remaining entries.
