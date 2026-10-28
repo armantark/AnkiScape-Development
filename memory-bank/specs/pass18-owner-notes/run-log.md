@@ -19,3 +19,4 @@ Times are PDT, 2026-10-28.
 | 00:51 | Native check of 08, first run | — | Invalid: the runner's prompt named the default seed, so the tester used the 47-item save; runner fixed (packets name their own start state) |
 | 00:56 | Native check of 08 with the owner's save (`native/check-08/`) at `fbc0c02bb` | — | 154 item kinds; no overlapping squares or headings at 749 x 776, 749 x 572 or after reopening; at 1728 wide no overlap, one row seen only at the scroll edge. Verdict "blocked" for that edge row only. Guard verify unchanged: true |
 | 01:03 | Ticket 04 landed (supply steps, Goblin Diplomacy) | `4c2a2ec78` | 1,296 neighbour tests OK at `517f7a4f8`; orchestrator rerun 332 OK. Raw supplies finish in 10 reviews; the export-list hash re-pinned for `QuestSupplyRecipe` (precedent `87ff71c09`) |
+| 01:49 | Full offscreen Qt lane at `fcb8b0ce9` | — | 6,487 tests, OK (skipped=5) |
