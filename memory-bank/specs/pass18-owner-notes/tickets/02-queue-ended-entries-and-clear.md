@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (The queue makes exactly the count the player picks)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-02-ended-entries-and-clear
 
 - [ ] After an entry is done, the queue box no longer lists it and "Queue: n of 5" counts only the entries left; the Event log still reads "Queue: <name> done".
 - [ ] A stopped entry leaves the box; its reason shows in the Event log and on the review HUD.
