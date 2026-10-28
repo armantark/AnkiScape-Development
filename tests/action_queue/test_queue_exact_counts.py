@@ -11,6 +11,7 @@ from unittest.mock import patch
 from tests.action_queue.test_queue_reviews import _MINE_IRON, _SMITH_PLATEBODY, QueueProfile
 
 _COWS = {"kind": "combat", "target": "cow", "combat_action": "attack"}
+_WHITTLE_SHAFTS = {"kind": "skill", "skill": "Fletching", "target": "arrow_shafts"}
 _FIGHTER = {"attack_level": 99, "strength_level": 99, "defense_level": 99, "constitution_level": 99, "combat_lifepoints": 990}
 
 
@@ -63,6 +64,18 @@ class QueueExactCountTest(QueueProfile):
                 "Switched to Bankstanding · The queue is finished: Mining: Iron done.",
             ],
         )
+
+    def test_a_count_inside_one_whole_lot_keeps_the_lot_and_the_rest_of_the_card_runs_the_next_entry(self):
+        # One log always whittles 15 shafts; taking 5 back after the log is spent would lose what the player paid for.
+        addon = self._queue_addon("ankiscape_queue_exact_lot", (_WHITTLE_SHAFTS, 10), (_MINE_IRON, 5))
+        addon._state.player_data["inventory"]["Logs"] = 3
+
+        with patch.object(addon.random, "random", lambda: 0.5):
+            self._answer(addon)
+
+        inventory = addon._state.player_data["inventory"]
+        self.assertEqual((inventory["Arrow shafts"], inventory["Logs"], inventory["Iron ore"]), (15, 2, 5))
+        self.assertEqual(self._rows(addon), [("Fletching: Arrow shafts (Logs)", "done", 10), ("Mining: Iron", "done", 5)])
 
     def test_a_kill_entry_stops_inside_its_burst_and_the_smaller_of_its_and_a_slayer_tasks_counts_wins(self):
         with self.subTest("the entry's count ends the burst, and the rest of the card runs the next entry"):

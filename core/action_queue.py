@@ -57,7 +57,7 @@ from .last_action import (
 )
 from .review_event_log import record_review_event_pure
 from ..logic.agility_logic import apply_agility_command_pure
-from ..logic.inventory_pure import discard_inventory_quantity_pure, review_item_changes_pure
+from ..logic.inventory_pure import review_item_changes_pure
 from ..logic_pure.logic_pure import quest_state_pure
 
 ACTION_QUEUE_KEY = "action_queue"
@@ -422,7 +422,9 @@ class QueueCount:
     """The queue's count of one card's steps on its running entry.
 
     Each step of an entry that counts items, uses or kills learns what the entry
-    still needs, and the queue takes back any product the step made past it.
+    still needs. A step that can only make a whole lot (15 arrow shafts from a log)
+    keeps the whole lot: 2012 never made part of one, and taking products back
+    after the inputs were spent would lose what the player paid for.
     A full entry stops the card's steps, and ``hand_over`` starts the next entry.
     A queue whose running entry is not the selected action pauses, because the
     player started that action himself; a plan that waits is left waiting.
@@ -463,8 +465,6 @@ class QueueCount:
         result = step(ctx)
         ctx.queue_remainder, ctx.queue_use_size = None, 0
         progress = queue_entry_progress_pure(action, before, player_data)
-        if self.unit == "items" and progress > remainder:
-            _discard_extra_products(player_data, action, before, progress - remainder)
         self._credit(min(progress, remainder))
         return result
 
@@ -508,17 +508,6 @@ class QueueCount:
         return review_action is not None and review_action_handler_key(review_action) not in {
             "combat", *addon.runtime_actions.ONE_PER_CARD_HANDLER_KEYS
         }
-
-
-def _discard_extra_products(player_data: dict[str, Any], action: Mapping[str, Any], before: Mapping[str, Any], extra: int) -> None:
-    """Take ``extra`` of the products a step made back out of the Bank, the last product first."""
-    changes = review_item_changes_pure(before, player_data)
-    inventory = player_data.get("inventory") or {}
-    for item in reversed(action_product_items_pure(action)):
-        take = min(extra, max(0, changes.get(item, 0)))
-        inventory, _ = discard_inventory_quantity_pure(inventory, item, take)
-        extra -= take
-    player_data["inventory"] = inventory
 
 
 def _queue_takes_over_stop(addon, stopped: Mapping[str, Any], reason: str, *, automatic: bool) -> bool:

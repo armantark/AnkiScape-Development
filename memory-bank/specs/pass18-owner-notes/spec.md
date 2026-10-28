@@ -141,6 +141,10 @@ The owner played Pass 17 in native Anki on macOS and hit these problems:
   cap; the implementer lists every such step handler and caps each. For kill
   entries, the combat burst takes the remaining kills as its stop count, the
   way the Slayer kill cap works, and the smaller of the two caps wins.
+- A step that can only make a whole lot (15 arrow shafts from one log) keeps the
+  whole lot, and the entry ends at its count: 2012 never made part of a lot, and
+  removing products after their inputs were spent would lose what the player
+  paid for. Orchestrator decision during the build, for the owner's review.
 - When an entry reaches its count inside a card, the queue starts the next
   entry in the same review, and the card's remaining ticks go to it when it is
   a skill or utility entry. A combat or quest entry starts on the next card,
