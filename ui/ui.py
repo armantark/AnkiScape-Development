@@ -903,7 +903,7 @@ def is_equippable_item(item_name: str) -> bool:
 
 
 def equipment_slot_icon_path(slot_id: str) -> Optional[str]:
-    """Path to the greyed OSRS placeholder for a worn slot, or None if unfetched.
+    """Path to the 2012 placeholder icon for a worn slot, or None if unfetched.
 
     Slot art is developer-fetched by tools/fetch_equipment_assets.py into
     equipment_slots/<slot_id>.png. Missing files degrade to a text-only row.
@@ -24825,10 +24825,8 @@ def show_main_menu(
         special_points = max(
             0, int(summoning_state.get("special_move_points_current", 0) or 0)
         )
-        follower_resources.setText(
-            f"Summoning points: {current_points}/{level}  •  "
-            f"Special-move points: {special_points}/60"
-        )
+        # Summoning points already show in the point pools above worn equipment.
+        follower_resources.setText(f"Special-move points: {special_points}/60")
         restore_points_button.setEnabled(
             on_summoning_command is not None and current_points < level
         )

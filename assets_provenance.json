@@ -20714,28 +20714,28 @@
     "timestamp": "2012-01-16T17:14:38Z"
   },
   "equipment_slots/body.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Body_slot.png",
-    "file_title": "Body slot.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Body_slot.png?5e649",
+    "file_page_url": "https://runescape.wiki/wiki/File:Torso_slot.png",
+    "file_title": "Torso slot.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121034821%21Torso_slot.png?9ddb8",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "e962ac1de16eb13248fcb0175786cb31680b5812",
-    "size": 602,
-    "source_wiki": "osrs",
-    "timestamp": "2018-11-18T22:23:02Z"
+    "sha1": "27857fbb7efc8832f18d43384d816db480836bd4",
+    "size": 2006,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-16T17:44:41Z"
   },
   "equipment_slots/cape.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cape_slot.png",
-    "file_title": "Cape slot.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Cape_slot.png?2cf1e",
+    "file_page_url": "https://runescape.wiki/wiki/File:Back_slot.png",
+    "file_title": "Back slot.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121034647%21Back_slot.png?e1921",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b4325d269cad90a735fbbaa516fb594a81e1922b",
-    "size": 607,
-    "source_wiki": "osrs",
-    "timestamp": "2018-11-18T22:28:39Z"
+    "sha1": "a5c23ec48a2f77d3dae4db7cd09a4977c31d3796",
+    "size": 2007,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-16T17:46:45Z"
   },
   "equipment_slots/feet.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Feet_slot.png",
@@ -20810,28 +20810,28 @@
     "timestamp": "2012-01-16T17:39:01Z"
   },
   "equipment_slots/shield.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shield_slot.png",
-    "file_title": "Shield slot.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Shield_slot.png?595b4",
+    "file_page_url": "https://runescape.wiki/wiki/File:Off-hand_slot.png",
+    "file_title": "Off-hand slot.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121034840%21Off-hand_slot.png?8968a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "cea77ca3aebe3b4d510cc5649a03acb020d0c4e9",
-    "size": 606,
-    "source_wiki": "osrs",
-    "timestamp": "2018-11-18T22:22:35Z"
+    "sha1": "cedeec9978025bf48fe1c98656f25aa6dffce475",
+    "size": 1932,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-16T17:12:30Z"
   },
   "equipment_slots/weapon.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Weapon_slot.png",
-    "file_title": "Weapon slot.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Weapon_slot.png?ffed1",
+    "file_page_url": "https://runescape.wiki/wiki/File:Main_hand_slot.png",
+    "file_title": "Main hand slot.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121034750%21Main_hand_slot.png?df966",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d17587b0d592a82a0d4d5036a2869fdd860132c2",
-    "size": 615,
-    "source_wiki": "osrs",
-    "timestamp": "2018-11-18T22:22:58Z"
+    "sha1": "34892a899b9a07f181c921e7d4001367f1f82032",
+    "size": 2037,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-16T17:35:30Z"
   },
   "farmingitems/apple_sapling.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Apple_sapling.png",

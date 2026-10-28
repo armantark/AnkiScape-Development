@@ -24,7 +24,9 @@ No native run crashed Anki in Pass 18.
 2. **Wrapped skill rows.** Ticket 09 widened from the GE to every skill target list: long rows wrap onto two lines instead of ending in "...", so rows no longer share one height. This follows the owner's rule that cut text is fixed when seen. Default: keep.
 3. **Combat panel layout.** Ticket 10 hid the prayer status line (its only text now is "No prayer points left."), moved two notes into tooltips, and removed "Used " from every Shop result chip. Default: keep.
 4. **Wyson's result chip** reads "✓ Pay 20 coins for 2 woad leaves.", because the chip shows the offer's label. A past-tense chip needs a change to `ui/ui_tab_shop.py`, which the commit hook holds at its size.
-5. **Duplicate Summoning points.** The Kimi taste review says the follower panel's "Summoning points: n/n" repeats the status line above it. Not changed.
+5. **Duplicate Summoning points.** The Kimi taste review says the follower panel's "Summoning points: n/n" repeats the status line above it.
+
+The owner answered decisions 1, 2, 3 and 5 on the results page on 2026-10-28: "Keep the whole lot", "Keep the wrap", "Keep it" and "Remove it". The follower panel now shows only "Special-move points: n/60".
 
 ## Findings outside the tickets (not fixed)
 
