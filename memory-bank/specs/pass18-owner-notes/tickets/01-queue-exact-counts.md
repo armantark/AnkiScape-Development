@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-01-queue-exact-counts
 
 - [ ] Queuing 3 Goblin mail, 3 Redberries and 28 Onion at 10x, as the owner did, gives 3, 3 and 28, and the three entries finish in fewer cards than before.
 - [ ] A queued 1 Iron platebody at 10x makes 1; the rest of that card runs the next entry.

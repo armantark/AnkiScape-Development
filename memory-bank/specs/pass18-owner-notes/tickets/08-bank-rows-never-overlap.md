@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-08-bank-rows
 
 - [ ] The cause is named in the commit message, with the measurement that shows it.
 - [ ] With about 150 item kinds across the auto categories, at the default size, 560 points tall and full width, no two cells overlap and no heading overlaps a cell.

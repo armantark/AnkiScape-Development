@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by Opus 5.5 implementer on goal/pass18-04-supply-steps
 
 - [ ] From 3 Redberries, 2 Onions, 2 Woad leaves and 15 Coins, Goblin Diplomacy completes in exactly 10 quest reviews, leaving none of those supplies and the quest's rewards paid.
 - [ ] Holding Orange dye skips the red, yellow and mix steps; holding Orange goblin mail skips the orange chain; holding all three mails, the quest takes 3 reviews.

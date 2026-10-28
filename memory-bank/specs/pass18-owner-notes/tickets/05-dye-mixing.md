@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by GPT-6.1 Sol implementer on goal/pass18-05-dye-mixing
 
 - [ ] Searching Utilities for "dye" shows Mix orange, Mix green and Mix purple, each with its two inputs.
 - [ ] Right-clicking Red dye with Yellow dye and Blue dye held shows "Mix with" entries for Yellow (Orange dye) and Blue (Purple dye); with no partner dye held, no "Mix with" entry shows.

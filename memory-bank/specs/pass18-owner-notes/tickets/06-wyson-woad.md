@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by GPT-6.1 Sol implementer on goal/pass18-06-wyson-woad
 
 - [ ] The Shop tab lists both Wyson offers; each click with enough coins moves exactly its coins and leaves.
 - [ ] Without enough coins, the offer is refused with the shop's normal reason.
