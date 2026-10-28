@@ -2,7 +2,7 @@
 
 Date: `2026-10-28`
 
-Status: **owner-settled, six rulings and one interface approval; the grill continues.**
+Status: **owner-settled, nine rulings and three interface approvals; the grill continues.**
 
 These rulings continue the numbering of `grill-decisions-2026-10-25.md`. Each ruling
 settles a class of contract questions. A contract cites the ruling and quotes its
@@ -130,3 +130,57 @@ were needed). The frontend-taste review and the native visual check still run.
 - 3150 The Fremennik Trials: Manni's distraction lasts 121 ticks, marked as a
   placeholder, the smallest value that lasts until the next card at every game
   speed (ruling 2). Darkan's 25 ticks end before the next card can swap the beer.
+
+## Round 3
+
+Before this round, the reachability audit's model found that 57 of the 198
+quests can be finished from a new save and 141 cannot. 132 quests hold at least
+one generated placeholder goal, such as "Complete Monkey Madness stage 2
+objective", that no card can earn; 43 hold a fight with no combat stats; 34 need
+an item that no route gives; 66 are blocked only by placeholder goals. The Start
+button checked only start requirements, so a player could start all 141.
+Utilities held 31 free pickups, all in its Gathering group of 34 rows.
+
+The owner answered at 14:32 PDT: "8. A but say "Coming soon" instead", "9. Yes",
+and "10. No, just B. Another option is just making it a tab under the shop tab,
+in addition to the regular shops and minigame/activities rewards shops? But then
+we need to balance for taking multiple inventories at once still. I mean I guess
+it would still be queued actions. Otherwise if that's too complicated lmk (maybe
+the game design compendium has something to say about it)".
+
+## 13. Quests that cannot be finished show "Coming soon"
+
+Ruling line: a quest that a player cannot finish from a new save shows "Coming
+soon" on the Quests tab, and its Start button is disabled. A quest gets its Start
+button when no placeholder goal, fight without stats or missing item remains in
+it.
+
+- "Hide unable to start" also hides these quests.
+- A save that already started such a quest keeps its progress and sees the same
+  label until the quest can be finished.
+- This is also the owner's interface approval for the label and the disabled
+  Start button on the Quests tab.
+
+## 14. The loop finishes whole quests first
+
+Ruling line: the loop works on the unfinished quests with the fewest blockers
+first. It fixes one quest's blockers in order until a player can finish that
+quest. Work that adds a part to a quest that stays unfinished comes after.
+
+- The owner's principle: "Breadth first development only makes sense if the
+  breadth that you build can at least make a whole gameplay loop".
+- The 66 quests blocked only by placeholder goals come first; for each, its
+  re-staging row from ruling 3 is enough to finish it.
+- The quest-selection order in `goal-priority-matrix.md` follows this ruling.
+
+## 15. Free pickups become one Gather row
+
+Ruling line: the free pickups become one Gather row. In its detail box, the
+player picks the item to gather, and each gather still costs cards. Actions do
+not pick up their own free inputs, and free items never cost zero cards.
+
+- The owner chose only option B of four: A let each action pick up its own free
+  inputs, C made free items cost no card, and D changed nothing.
+- This is also the owner's interface approval for replacing the 31 free-pickup
+  rows with one row. The frontend-taste review still runs on the new detail box.
+- Where the row lives, Utilities or a list on the Shop tab, is still under grill.
