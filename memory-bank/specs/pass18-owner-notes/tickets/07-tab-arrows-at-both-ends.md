@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by Opus 5.5 implementer on goal/pass18-07-tab-arrows
+**Status:** built; native look waits for the orchestrator
 
-- [ ] At menu widths 720 and 980, the left arrow is at the bar's left end and the right arrow at its right end; scrolled fully either way, no tab overlaps an arrow.
-- [ ] At the first tab the left arrow is disabled; at the last, the right arrow is.
-- [ ] Selecting each of the 11 tabs leaves it fully visible.
-- [ ] The tab-bar test checks positions under the product style instead of replacing the style.
+- [x] At menu widths 720 and 980, the left arrow is at the bar's left end and the right arrow at its right end; scrolled fully either way, no tab overlaps an arrow.
+- [x] At the first tab the left arrow is disabled; at the last, the right arrow is.
+- [x] Selecting each of the 11 tabs leaves it fully visible.
+- [x] The tab-bar test checks positions under the product style instead of replacing the style.
 - [ ] The orchestrator's native look shows the arrows at both ends in real Anki.

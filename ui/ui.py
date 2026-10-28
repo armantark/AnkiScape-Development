@@ -1557,7 +1557,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, lay_out_whole, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -4738,12 +4738,7 @@ def show_main_menu(
     layout.setContentsMargins(16, 16, 16, 16)
     layout.setSpacing(12)
 
-    tabs = QTabWidget()
-    tabs.setDocumentMode(True)
-    tabs.setIconSize(QSize(18, 18))
-    tabs.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
-    tabs.tabBar().setExpanding(False)
-    tabs.setUsesScrollButtons(True)
+    tabs = main_menu_tabs()
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
         icon_path = os.path.join(current_dir, "icon", filename)
