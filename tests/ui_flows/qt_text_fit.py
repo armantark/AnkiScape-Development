@@ -165,7 +165,7 @@ def _wrapped_text_overruns(cell, width: int, height: int) -> bool:
     return widest > width or used_height > height
 
 
-def _item_view_defects(root) -> list[str]:
+def item_view_defects(root) -> list[str]:
     """Name each tree, list or table cell whose text its cell cuts short.
 
     Rows scrolled out of view count too: a column is as wide for them as for
@@ -211,7 +211,7 @@ def text_fit_defects(root) -> list[str]:
     """Name each visible label, control or item-view row whose text is clipped, leaves root, or overlaps another."""
     widgets = _shown_text_widgets(root)
     rects = [QRect(widget.mapTo(root, QPoint(0, 0)), widget.size()) for widget in widgets]
-    defects = _item_view_defects(root)
+    defects = item_view_defects(root)
     for widget, rect in zip(widgets, rects):
         if not root.rect().contains(rect):
             defects.append(f"{_text(widget)!r} at {rect} leaves {root.rect()}")

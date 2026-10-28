@@ -31,7 +31,7 @@ if __package__:
         order_player_price_map,
         select_player_price_ids,
     )
-    from .npc_shop_generation.service_rows import SERVICE_ROWS
+    from .npc_shop_generation.service_rows import SERVICE_ROWS, VENDOR_ACTIONS
     from .npc_shop_generation.source_inputs import (
         DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
         DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
@@ -47,7 +47,7 @@ else:
         order_player_price_map,
         select_player_price_ids,
     )
-    from npc_shop_generation.service_rows import SERVICE_ROWS
+    from npc_shop_generation.service_rows import SERVICE_ROWS, VENDOR_ACTIONS
     from npc_shop_generation.source_inputs import (
         DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
         DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
@@ -229,55 +229,6 @@ SHOP_ACCESS_RULES: dict[str, dict[str, Any]] = {
     "team_cape_simon_shop": {"kind": "wilderness", "label": "Wilderness"},
     "william_team_cape_shop": {"kind": "wilderness", "label": "Wilderness"},
 }
-
-
-VENDOR_ACTIONS = [
-    {
-        "id": "bartender_buy_beer",
-        "display_name": "Buy a pint of beer",
-        "provider": "Bartender",
-        "location": "Common pubs",
-        "currency_id": 995,
-        "price": 2,
-        "outputs": [{"item_id": 1917, "quantity": 1}],
-        "source": "Darkan BartenderUtils.buyDrinkOrIngredients and pub dialogue literals",
-        "action_type": "direct_purchase",
-    },
-    {
-        "id": "bartender_sell_beer_glass",
-        "display_name": "Sell empty beer glass",
-        "provider": "Bartender",
-        "location": "Common pubs",
-        "currency_id": 995,
-        "price": 0,
-        "inputs": [{"item_id": 1919, "quantity": 1}],
-        "outputs": [{"item_id": 995, "quantity": 2}],
-        "source": "Darkan BartenderUtils.sellBeerGlass",
-        "action_type": "direct_sale",
-    },
-    {
-        "id": "benny_buy_varrock_herald",
-        "display_name": "Buy a Varrock Herald",
-        "provider": "Benny",
-        "location": "Varrock Square",
-        "currency_id": 995,
-        "price": 50,
-        "outputs": [{"item_id": 11169, "quantity": 1}],
-        "source": "Darkan world/areas/varrock/npcs/Benny.java",
-        "action_type": "direct_purchase",
-    },
-    {
-        "id": "karim_buy_kebab",
-        "display_name": "Buy a kebab",
-        "provider": "Karim",
-        "location": "Al Kharid",
-        "currency_id": 995,
-        "price": 1,
-        "outputs": [{"item_id": 1971, "quantity": 1}],
-        "source": "Darkan world/areas/al_kharid/npcs/Karim.kt",
-        "action_type": "direct_purchase",
-    },
-]
 
 
 def _slug(text: str) -> str:

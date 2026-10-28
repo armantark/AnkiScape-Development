@@ -66,7 +66,7 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(report["routes"]["Pickled brain"], f"Magic:{s.BRAIN_CAST}")
         self.assertNotIn(f"Shop vendor:{s.ROAVAR}", {row["id"] for row in report["unresolved_actions"]})
         self.assertEqual(len(CREATURE_OF_FENKENSTRAIN_STAGE_TWO_TRANSACTION), 5)
-        self.assertEqual(SHOP_COVERAGE_SUMMARY["vendor_action_count"], 5)
+        self.assertEqual(SHOP_COVERAGE_SUMMARY["vendor_action_count"], 7)
         self.assertEqual([rule["quest_id"] for rule in SHOP_VENDOR_ACTIONS[s.ROAVAR]["access"]["rules"]],
                          ["priest_in_peril", s.QUEST_ID])
         self.assertIn("AnkiScape abstraction", SHOP_VENDOR_ACTIONS[s.ROAVAR]["source"])

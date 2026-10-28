@@ -3,7 +3,9 @@ plain lane can still import that module."""
 
 from collections.abc import Callable, Hashable
 
-from aqt.qt import QLabel, QListWidget, QListWidgetItem, QStyledItemDelegate, QStyleOptionViewItem, Qt, QTimer  # type: ignore
+from aqt.qt import QEvent, QLabel, QListWidget, QListWidgetItem, QSize, QStyledItemDelegate, QStyleOptionViewItem, Qt, QTimer, QTreeView  # type: ignore
+
+from .ui_first_cell_tree import settle_tree
 
 # Side padding of a Shop list row; the row stylesheet and the size hint share it.
 ROW_SIDE_PADDING = 7
@@ -36,21 +38,39 @@ def restore_current(selector: QListWidget, item: QListWidgetItem | None) -> None
 
 
 class WrappedRowDelegate(QStyledItemDelegate):
-    """Sizes a wrapped list row at the width its text is painted in.
+    """Sizes a wrapped list or tree row at the width its text is painted in.
 
     The stock size hint wraps at a layout width a few pixels wider than the
     painted row and ignores the stylesheet's side padding, so a row that only
     just fits would be elided ("Requires starting The Giant ...") or lose its
-    second line instead of wrapping.
+    second line instead of wrapping. A tree row is also indented by its depth.
     """
 
     def __init__(self, parent, side_padding: int = ROW_SIDE_PADDING) -> None:
         super().__init__(parent)
         self._side_padding = side_padding
+        if isinstance(parent, QTreeView):
+            # A tree keeps the row heights of its first layout, which ran before
+            # the tree had its width; a list re-lays out its rows by itself.
+            parent.viewport().installEventFilter(self)
+
+    def eventFilter(self, watched, event):  # type: ignore[no-untyped-def]
+        if event.type() == QEvent.Type.Resize and event.size().width() != event.oldSize().width():
+            self.parent().scheduleDelayedItemsLayout()
+            settle_tree(self.parent())
+        return False
 
     def sizeHint(self, option, index):  # type: ignore[no-untyped-def]
+        view = self.parent()
+        width = view.viewport().width() - 2 * self._side_padding
+        if isinstance(view, QTreeView):
+            depth, parent = int(view.rootIsDecorated()), index.parent()
+            while parent.isValid():
+                depth, parent = depth + 1, parent.parent()
+            width -= depth * view.indentation()
         painted = QStyleOptionViewItem(option)
-        painted.rect.setWidth(self.parent().viewport().width() - 2 * self._side_padding)
+        # Qt wraps only inside a valid rect, and a tree asks with a zero height.
+        painted.rect.setSize(QSize(width, max(painted.rect.height(), 1)))
         return super().sizeHint(painted, index)
 
 

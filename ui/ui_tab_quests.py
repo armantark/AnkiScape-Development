@@ -30,9 +30,11 @@ from ..logic_pure.logic_pure import (
     quest_catalog_sections_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_choices_pure,
-    quest_journal_rows_pure,
     quest_locked_reasons_pure,
     quest_state_pure,
+)
+from ..logic_pure.quest.card_view import (
+    quest_card_blocker_text_pure, quest_journal_view_rows_pure, quest_supply_step_text_pure,
 )
 from .ui import CatalogFilterBar, dim_text_css
 
@@ -149,15 +151,6 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_content_layout.setContentsMargins(0, 0, 0, 0)
     quest_content_layout.setSpacing(8)
 
-    def _short_stage_blocker_text(reasons: tuple) -> str:
-        if not reasons:
-            return ""
-        shown = [str(reason) for reason in reasons[:3]]
-        extra = len(reasons) - len(shown)
-        if extra > 0:
-            shown.append(f"+{extra} more")
-        return "Blocked: " + ", ".join(shown)
-
     def _quest_choice_button_name(quest_id: str, route_id: str) -> str:
         safe_route = "".join(ch if ch.isalnum() else "_" for ch in str(route_id).lower()).strip("_")
         return f"questChoice_{quest_id}_{safe_route}"
@@ -178,11 +171,10 @@ def build_quests_tab(ctx) -> "QWidget":
         if state.get("completed"):
             return "Completed"
         if state.get("started"):
-            blocker_text = _short_stage_blocker_text(
-                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-            )
-            if blocker_text:
-                return blocker_text
+            stage_text = (quest_supply_step_text_pure(player_data, quest_id, QUEST_DATA)
+                          or quest_card_blocker_text_pure(player_data, quest_id, QUEST_DATA))
+            if stage_text:
+                return stage_text
             return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
         return "Not started"
 
@@ -300,8 +292,7 @@ def build_quests_tab(ctx) -> "QWidget":
         q_state = quest_state_pure(player_data, quest_id)
         lock_reasons = () if q_state.get("completed") else quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
         lock_text = _short_lock_text(lock_reasons)
-        stage_blocker_reasons = () if q_state.get("completed") else quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-        stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
+        stage_blocker_text = quest_card_blocker_text_pure(player_data, quest_id, QUEST_DATA)
         choice_rows = () if q_state.get("completed") else quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA)
         choice_text = _short_choice_text(choice_rows)
         active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
@@ -338,7 +329,7 @@ def build_quests_tab(ctx) -> "QWidget":
             and state["active"] != "Quests"
             and not lock_reasons
             and not choice_rows
-            and (not stage_blocker_reasons or quest_review_ready)
+            and (not stage_blocker_text or quest_review_ready)
         )
         if lock_text:
             quest_btn.setToolTip(lock_text)
@@ -417,7 +408,7 @@ def build_quests_tab(ctx) -> "QWidget":
                     choice_row_layout.addWidget(choice_btn)
                 choice_row_layout.addStretch(1)
                 body_layout.addWidget(choice_row)
-            for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
+            for row in quest_journal_view_rows_pure(player_data, quest_id, QUEST_DATA):
                 stage_label = QLabel(f"Stage {row['stage']}")
                 stage_label.setStyleSheet("font-weight: 600; color: palette(text);")
                 body_layout.addWidget(stage_label)

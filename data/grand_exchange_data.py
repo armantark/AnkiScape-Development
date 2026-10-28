@@ -12,6 +12,7 @@ from typing import Iterable, Mapping
 
 from ..core.constants import ITEM_DEFINITIONS
 from ..core.item_registry import ItemDefinition
+from .grand_exchange.sell_demand import daily_sell_demand_capacity_pure
 from .item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
 
 try:
@@ -89,6 +90,7 @@ def build_ge_item_catalog_pure(
             "cache_value": cache_value if cache_value > 0 else None,
             "low_alchemy_value": int(cache_value * 0.4) if cache_value > 0 else None,
             "high_alchemy_value": int(cache_value * 0.6) if cache_value > 0 else None,
+            "sell_demand_daily_quantity": daily_sell_demand_capacity_pure(item_name, buy_limit),
             "buy_limit": buy_limit if buy_limit > 0 else None,
             "buy_limit_source": (
                 dict(period_buy_limit_source) if buy_limit > 0 else None

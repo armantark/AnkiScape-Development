@@ -160,13 +160,13 @@ def combat_setup_panel_view_pure(player_data, equipment_data):
         "auto_eat_threshold": max(1, min(_int_or(player_data.get("combat_auto_eat_threshold_percent", 40) or 40, 40), 99)),
         "preset_names": [str(name) for name in presets] if isinstance(presets, dict) else ["Default"],
         "active_preset": active_preset,
-        "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mode),
+        "max_hit_text": _combat_setup_max_hit_text(player_data, target_id, equipment_data),
         "vengeance": bool(player_data.get("combat_vengeance", False)),
         "spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
         "pinned_preset": pinned_preset,
         "prayers_overridden": "combat_selected_prayers" in target_overrides,
         "uptime_overridden": "combat_prayer_uptime" in target_overrides,
-        "target_summary": _combat_setup_target_summary(player_data, target_id, pinned_preset, target_overrides),
+        "target_summary": _combat_setup_target_summary(player_data, target_id, pinned_preset),
         "loot_threshold": max(0, _int_or(player_data.get("loot_value_threshold", DEFAULT_LOOT_VALUE_THRESHOLD), DEFAULT_LOOT_VALUE_THRESHOLD)),
     }
 
@@ -200,13 +200,13 @@ def _auto_pick_button(enabled, picked):
     """The way back to the game's pick, saying why when it cannot be used."""
     in_use = enabled and picked
     if not enabled:
-        tooltip = "Tick “Use prayers in fights” first."
+        tooltip = "Prayers are off."
     elif in_use:
-        tooltip = "The blue ticks are already the best prayers for your weapon."
+        tooltip = "Already the best prayers for your weapon."
     else:
-        tooltip = "Clear your ticks and let the game pick the best prayers for your weapon."
+        tooltip = "Replaces your ticks with the best prayers for your weapon."
     return {
-        "auto_pick_text": "Using the best pick" if in_use else "Pick the best for me",
+        "auto_pick_text": "Auto-picked" if in_use else "Auto-pick",
         "auto_pick_enabled": enabled and not in_use,
         "auto_pick_tooltip": tooltip,
     }
@@ -231,7 +231,7 @@ def prayer_swap_note_pure(player_data, prayer_id, checked):
     dropped = [COMBAT_PRAYERS_BY_ID[other].display_name for other in _ticked_prayer_ids(player_data) if other not in kept]
     if not dropped:
         return ""
-    return f"{COMBAT_PRAYERS_BY_ID[prayer_id].display_name} replaced {_and_list(dropped)}: they cannot run together."
+    return f"{COMBAT_PRAYERS_BY_ID[prayer_id].display_name} replaced {_and_list(dropped)}."
 
 
 def toggled_combat_prayer_selection_pure(player_data, prayer_id, checked):
@@ -248,73 +248,38 @@ def _and_list(names):
     return " and ".join((", ".join(names[:-1]), names[-1])) if len(names) > 1 else "".join(names)
 
 
-def _prayer_share(uptime):
-    return "the whole fight" if uptime >= 1 else f"{uptime:.0%} of the fight"
-
-
 def _combat_setup_prayer_status(player_data):
-    """One line saying which prayers the next fight runs, and why."""
+    """The one prayer fact the boxes cannot show: that none can run; empty otherwise."""
     if not bool(player_data.get("combat_prayers_enabled", True)):
-        if _chosen_prayer_ids(player_data):
-            return "Off: no prayers run in fights. The greyed ticks are saved for when prayers are on."
-        return "Off: no prayers run in fights."
-    names, uptime, picked = combat_fight_prayers_pure(player_data)
-    if not names:
-        return "No prayer points left. The next bank run's altar stop restores them."
-    if picked:
-        return (
-            f"Picked for you (blue ticks): the best for your weapon, for {_prayer_share(uptime)}. "
-            "Tick or untick a box to make your own choice."
-        )
-    return f"Next fight runs {_and_list(names)} for {_prayer_share(uptime)}."
+        return ""
+    names, _uptime, _picked = combat_fight_prayers_pure(player_data)
+    return "" if names else "No prayer points left."
 
 
-def _combat_setup_max_hit_text(player_data, target_id, equipment_data, magic_mode):
-    """The max hit and accuracy against the target, naming the prayers they
-    count, so a ticked prayer never moves the number without its reason."""
+def _combat_setup_max_hit_text(player_data, target_id, equipment_data):
+    """The max hit and accuracy against the target, with the ticked prayers counted."""
     # The engine builds its HUD state from this module.
     from .logic_pure_combat_engine import combat_target_preview_pure
 
     preview = combat_target_preview_pure(player_data, target_id, equipment_data=equipment_data)
     if preview.get("state") == "blocked":
-        return f"Can't fight this target yet: {', '.join(preview.get('reasons') or ('locked',))}."
-    accuracy = f"accuracy {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
-    if magic_mode:
-        return f"Your max hit: {preview.get('player_max_hit', 0)} LP · {accuracy} (prayers do not change Magic hits)"
-    names, uptime, picked = combat_fight_prayers_pure(player_data)
-    prayers = "with no prayers"
-    if names:
-        prayers = f"with {_and_list(names)}{'' if uptime >= 1 else f' for {_prayer_share(uptime)}'}{' (picked for you)' if picked else ''}"
-    return f"Your max hit: {preview.get('player_max_hit', 0)} LP {prayers} · {accuracy}"
+        return f"Cannot fight yet: {', '.join(preview.get('reasons') or ('locked',))}"
+    return f"Max hit: {preview.get('player_max_hit', 0)} LP · Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
 
 
-def _combat_setup_target_summary(player_data, target_id, pinned_preset, target_overrides):
-    """Which source wins against this target: its kept prayers and prayer
-    time beat its preset, which beats the settings above."""
+def _combat_setup_target_summary(player_data, target_id, pinned_preset):
+    """What fights against this target use once its preset and kept settings apply."""
     loadout = _combat_target_loadout(player_data, target_id)
-    preset = ((player_data.get("combat_presets", {}) or {}).get(pinned_preset) or {}) if pinned_preset else {}
-    sources = []
-    for field, shown in (
-        ("combat_selected_prayers", _summary_prayers(loadout)),
-        ("combat_prayer_uptime", _prayer_share(PRAYER_UPTIME_POLICIES.get(str(loadout.get("combat_prayer_uptime")), 1.0))),
-    ):
-        if field in target_overrides:
-            source = "kept for this target"
-        elif field in preset:
-            source = f"from preset {pinned_preset}"
-        else:
-            source = "from above"
-        sources.append(f"{shown} ({source})")
-    name = COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
-    preset_part = f"preset {pinned_preset}" if pinned_preset else "no preset"
-    return f"Against {name}: {preset_part} · prayers {sources[0]} · prayer time {sources[1]}"
-
-
-def _summary_prayers(loadout):
+    parts = [f"{pinned_preset} preset"] if pinned_preset else []
     if not bool(loadout.get("combat_prayers_enabled", True)):
-        return "off"
-    chosen = _chosen_prayer_ids(loadout)
-    return _and_list([COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in chosen]) if chosen else "picked for you"
+        parts.append("prayers off")
+    else:
+        chosen = _chosen_prayer_ids(loadout)
+        prayers = _and_list([COMBAT_PRAYERS_BY_ID[prayer_id].display_name for prayer_id in chosen]) if chosen else "auto-picked prayers"
+        uptime = PRAYER_UPTIME_POLICIES.get(str(loadout.get("combat_prayer_uptime")), 1.0)
+        parts.append(f"{prayers} for {'the whole fight' if uptime >= 1 else f'{uptime:.0%} of the fight'}")
+    name = COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
+    return f"Against {name}: {' · '.join(parts)}"
 
 
 def _combat_setup_style_rows(player_data, equipment_data):

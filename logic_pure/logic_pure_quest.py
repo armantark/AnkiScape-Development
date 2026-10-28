@@ -710,7 +710,7 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
         *blockers, *service_blockers,
         *hazeel_opening_state_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
         *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
-    ))
+    ), quest_data)
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):

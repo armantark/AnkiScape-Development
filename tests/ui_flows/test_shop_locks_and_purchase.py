@@ -197,8 +197,41 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         use.click()
         QApplication.processEvents()
         self.assertTrue(chip.isVisibleTo(self.dialog))
-        self.assertTrue(chip.text().startswith("✓ Used "), chip.text())
+        self.assertEqual(chip.text(), f"✓ {SHOP_VENDOR_ACTIONS[action_id]['display_name']}.")
         self.assertIs(chip.parentWidget(), self.dialog.findChild(QWidget, "shopServicesPanel"))
+
+    def test_wyson_sells_woad_leaves_one_offer_per_click(self) -> None:
+        self._select(lambda payload: payload.get("kind") == "provider" and payload.get("provider") == "Wyson the gardener")
+        services = _main_menu._find_named_list(self.dialog, "shopServiceList")
+
+        def offer(action_id: str) -> None:
+            # Each purchase rebuilds the list, so the row is found again by id.
+            services.setCurrentItem(next(
+                services.item(i) for i in range(services.count())
+                if services.item(i).data(Qt.ItemDataRole.UserRole)["id"] == action_id
+            ))
+            QApplication.processEvents()
+
+        self.assertEqual(
+            [services.item(i).data(Qt.ItemDataRole.UserRole)["id"] for i in range(services.count())],
+            ["wyson_buy_two_woad_leaves", "wyson_buy_one_woad_leaf"],
+        )
+        use = _main_menu._find_named_button(self.dialog, "shopServiceUseButton")
+        preview = _main_menu._find_named_label(self.dialog, "shopServicePreviewLabel")
+        self.pd["inventory"].update({"Coins": 50, "Woad leaf": 0})
+        for action_id, coins, leaves in (("wyson_buy_two_woad_leaves", 30, 2), ("wyson_buy_one_woad_leaf", 15, 3)):
+            with self.subTest(action=action_id):
+                offer(action_id)
+                use.click()
+                QApplication.processEvents()
+                self.assertEqual((self.pd["inventory"]["Coins"], self.pd["inventory"]["Woad leaf"]), (coins, leaves))
+
+        self.pd["inventory"]["Coins"] = 14
+        offer("wyson_buy_two_woad_leaves")
+        offer("wyson_buy_one_woad_leaf")
+        self.assertFalse(use.isEnabled())
+        self.assertTrue(preview.text().startswith("Missing requirements: "), preview.text())
+        self.assertIn("Coins", preview.text())
 
 
 if __name__ == "__main__":

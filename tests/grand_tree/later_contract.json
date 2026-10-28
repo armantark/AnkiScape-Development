@@ -51,6 +51,7 @@
   ],
   "miniquest": false,
   "choices": [],
+  "supply_recipes": [],
   "stage_requirements": [
     {
       "stage": 3,

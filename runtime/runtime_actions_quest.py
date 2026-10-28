@@ -189,7 +189,7 @@ def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, floa
 
 def _quest_review_announcement_phase(player_data, quest_id, stage_blockers):
     return (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
-            or quest_review_phase_pure(player_data, quest_id))
+            or quest_review_phase_pure(player_data, quest_id, stage_blockers, QUEST_DATA))
 
 
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:

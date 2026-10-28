@@ -56,14 +56,24 @@ def action_used_input_pure(action: Mapping[str, Any]) -> str:
     The player plans such an action by that item ("bury 100 bones"), so its
     queue entry counts it instead of reviews.
     """
+    needs = tuple(_requirements(action))
+    return needs[0] if len(needs) == 1 and not action_product_items_pure(action) else ""
+
+
+def action_use_size_pure(action: Mapping[str, Any]) -> int:
+    """How many of its used input one run of the action uses up; 0 for an action that counts no input."""
+    used = action_used_input_pure(action)
+    return int(_requirements(action)[used]) if used else 0
+
+
+def _requirements(action: Mapping[str, Any]) -> Mapping[str, Any]:
     if action.get("kind") == "utility":
         spec = UTILITY_ACTIVITY_DATA.get(action.get("utility_id"), {})
     elif action.get("kind") == "skill":
         spec = action_target_spec_pure(action)
     else:
-        return ""
-    needs = tuple(spec_field_pure(spec, "requirements") or ()) if spec else ()
-    return needs[0] if len(needs) == 1 and not action_product_items_pure(action) else ""
+        return {}
+    return (spec_field_pure(spec, "requirements") or {}) if spec else {}
 
 
 def product_gains_pure(action: Mapping[str, Any], changes: Mapping[str, int]) -> dict[str, int]:
