@@ -10,4 +10,4 @@
 - [x] At the first tab the left arrow is disabled; at the last, the right arrow is.
 - [x] Selecting each of the 11 tabs leaves it fully visible.
 - [x] The tab-bar test checks positions under the product style instead of replacing the style.
-- [ ] The orchestrator's native look shows the arrows at both ends in real Anki.
+- [x] The orchestrator's native look shows the arrows at both ends in real Anki.
