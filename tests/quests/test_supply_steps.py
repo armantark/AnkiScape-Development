@@ -142,4 +142,3 @@ class SupplyStepCardTest(unittest.TestCase):
                 self.assertEqual(status.text(), text)
                 self.assertEqual(action.isEnabled(), enabled)
                 dialog.close()
-

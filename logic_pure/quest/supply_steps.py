@@ -100,4 +100,3 @@ def supply_step_phase_pure(player_data, quest_id, quest_data, blockers):
     inventory = player_data.get("inventory", {}) or {}
     made = _run(recipe, inventory)[product] - _positive_int(inventory.get(product, 0), 0)
     return {"notice": f"+{made} {product}"}
-
