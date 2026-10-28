@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native look waits for the orchestrator
+**Status:** done
 
 - [x] The cause is named in the commit message, with the measurement that shows it.
 - [x] With about 150 item kinds across the auto categories, at the default size, 560 points tall and full width, no two cells overlap and no heading overlaps a cell.
 - [x] The Bank Claims description line shows whole at the default size and 560 points tall. (Measured whole in its row, 39 px tall where it needs 36; the cut in the native look was the Bank page's bottom edge before the page scrolls, so no Bank layout changed.)
-- [ ] The orchestrator's native look with the owner's save shows no overlap in real Anki.
+- [x] The orchestrator's native look with the owner's save shows no overlap in real Anki.
