@@ -17,15 +17,42 @@ its old column count, so the style overlays bars as macOS does.
 from __future__ import annotations
 
 import unittest
+from collections.abc import Iterator
 from itertools import combinations
 
 from tests.main_menu import fixtures
-from tests.test_main_menu_widget import HAS_AQT, _find_main_tabs, _make_player_data, _open_bank_tab, _open_equipment_tab
+from tests.main_menu.test_action_queue_panel import _ENTRIES
+from tests.test_main_menu_widget import (
+    HAS_AQT,
+    _find_main_tabs,
+    _goto_smithing,
+    _make_player_data,
+    _open_bank_tab,
+    _open_equipment_tab,
+    _open_ge_tab,
+)
 
 if HAS_AQT:
-    from aqt.qt import QAbstractScrollArea, QApplication, QFont, QProxyStyle, QSize, QStyle, QStyleFactory, Qt, QWidget
+    from aqt.qt import (
+        QAbstractButton,
+        QAbstractScrollArea,
+        QAbstractSpinBox,
+        QApplication,
+        QComboBox,
+        QFont,
+        QLabel,
+        QListWidget,
+        QProxyStyle,
+        QPushButton,
+        QSize,
+        QStyle,
+        QStyleFactory,
+        Qt,
+        QTreeWidget,
+        QWidget,
+    )
 
-    from tests.ui_flows.qt_text_fit import text_fit_defects
+    from tests.ui_flows.qt_text_fit import item_view_defects, text_fit_defects
 
     class _MacLayoutItemStyle(QProxyStyle):
         def subElementRect(self, element, option, widget):
@@ -70,6 +97,39 @@ def _overlaps(root) -> list[str]:
                     f" x {second.objectName() or type(second).__name__} {second.geometry().getRect()}"
                 )
     return found
+
+
+def _squeezed(root) -> list[str]:
+    """Each visible control under ``root`` given less height than it needs at its width."""
+    found = []
+    for widget in root.findChildren(QWidget):
+        if not isinstance(widget, (QLabel, QAbstractButton, QComboBox, QAbstractSpinBox)) or not widget.isVisibleTo(root):
+            continue
+        needed = widget.heightForWidth(widget.width()) if widget.hasHeightForWidth() else widget.minimumSizeHint().height()
+        if widget.height() < needed:
+            found.append(f"{widget.objectName() or type(widget).__name__} is {widget.height()} of {needed} px tall")
+    return found
+
+
+def _open_every_group(page) -> None:
+    # A player can open every group, so every row must fit.
+    _pump()
+    for tree in page.findChildren(QTreeWidget):
+        tree.expandAll()
+    _pump()
+
+
+def _each_skill_list(dialog, page) -> Iterator[str]:
+    """Shows each skill's target list in turn and yields the skill's name."""
+    skills = dialog.findChild(QListWidget, "skillListWidget")
+    categories = skills.parentWidget().parentWidget().layout().itemAt(0).widget()
+    for category in categories.findChildren(QPushButton):
+        category.click()
+        _pump()
+        for row in range(skills.count()):
+            skills.setCurrentRow(row)
+            _open_every_group(page)
+            yield skills.item(row).text()
 
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
@@ -117,6 +177,38 @@ class MacLayoutTest(fixtures.MainMenuWidgetTest):
         _pump()
         return dialog
 
+    def _queued_menu(self, entries: int, size: tuple[int, int] | None = None):
+        """The menu at its default size, or ``size``, with the first ``entries`` of a five-entry queue and the real GE catalog."""
+        from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
+        from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG
+        from ankiscape.logic.grand_exchange_logic import apply_ge_frontend_action_pure, ge_frontend_projection_pure
+
+        queue = action_queue_pure({})
+        for action, count in _ENTRIES[:entries]:
+            queue, _ok = add_queue_entry_pure(queue, action, count)
+        player = _make_player_data()
+        player["action_queue"] = queue
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=GE_ITEM_CATALOG)
+
+        def ge_action(action_id, payload):
+            _player, info = apply_ge_frontend_action_pure(player, action_id, payload, item_catalog=GE_ITEM_CATALOG)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(
+            player,
+            on_action_queue_command=lambda _command, _payload: None,
+            get_ge_projection=projection,
+            on_ge_action=ge_action,
+        )
+        dialog.show()
+        _pump()
+        if size is not None:
+            dialog.resize(*size)
+            _pump()
+        return dialog
+
     def test_no_font_or_style_margin_makes_two_widgets_of_a_row_overlap(self):
         for width in (720, 900):
             with self.subTest(width=width):
@@ -142,6 +234,48 @@ class MacLayoutTest(fixtures.MainMenuWidgetTest):
                     self.assertEqual(text_fit_defects(page), [])
                     self.assertEqual(_overlaps(page), [])
             dialog.close()
+
+    def test_a_full_queue_box_leaves_every_ge_offer_control_its_height_and_scrolls_the_page(self):
+        for entries in (2, 5):
+            for height in ("default", 560):
+                with self.subTest(entries=entries, height=height):
+                    dialog = self._queued_menu(entries)
+                    if height != "default":
+                        dialog.resize(dialog.width(), height)
+                        _pump()
+                    _open_ge_tab(dialog)
+                    items = dialog.findChild(QListWidget, "geItemList")
+                    # The item the owner's squeezed panel showed, with its two-line guide.
+                    woad = next(items.item(row) for row in range(items.count()) if items.item(row).text().startswith("Woad leaf"))
+                    items.setCurrentItem(woad)
+                    _pump()
+                    self.assertTrue(dialog.findChild(QWidget, "actionQueuePanel").isVisible())
+                    editor = dialog.findChild(QWidget, "geOfferEditor")
+                    self.assertEqual(dialog.findChild(QLabel, "geSelectedItemLabel").text(), "Woad leaf")
+                    self.assertEqual(_squeezed(editor), [])
+                    self.assertEqual(text_fit_defects(editor), [])
+                    self.assertGreater(_find_main_tabs(dialog).currentWidget().verticalScrollBar().maximum(), 0)
+                    dialog.close()
+
+    def test_every_skill_target_list_shows_each_row_whole_at_the_minimum_width(self):
+        for size in ((720, 540), (720, 560)):
+            for entries in (0, 5):
+                dialog = self._queued_menu(entries, size)
+                page = _find_main_tabs(dialog).widget(0).widget()
+                for name in _each_skill_list(dialog, page):
+                    with self.subTest(size=size, entries=entries, list=name):
+                        self.assertEqual(item_view_defects(page), [])
+                dialog.close()
+
+    def test_a_target_list_wraps_its_rows_again_when_the_menu_narrows(self):
+        dialog = self._queued_menu(0, (1100, 560))
+        _goto_smithing(dialog)
+        page = _find_main_tabs(dialog).widget(0).widget()
+        _open_every_group(page)
+        dialog.resize(720, 560)
+        _pump()
+        self.assertEqual(item_view_defects(page), [])
+        dialog.close()
 
     def test_a_bank_as_big_as_the_owners_keeps_every_row_and_heading_whole(self):
         from ankiscape.core.constants import ITEM_DEFINITIONS

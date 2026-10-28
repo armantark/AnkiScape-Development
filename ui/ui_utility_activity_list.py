@@ -76,6 +76,7 @@ from .ui import (
 from .ui_first_cell_tree import settle_tree
 
 _GROUP_ROLE_PREFIX = "__utility_group__:"
+_ROW_PADDING = 5
 
 
 class UtilityActivityList:
@@ -178,6 +179,8 @@ class UtilityActivityList:
 
 
 def _styled_tree() -> "QTreeWidget":
+    from .ui_tab_shop_widgets import WrappedRowDelegate
+
     tree = QTreeWidget()
     tree.setObjectName("utilityActivityTree")
     tree.setHeaderHidden(True)
@@ -187,6 +190,7 @@ def _styled_tree() -> "QTreeWidget":
     tree.setUniformRowHeights(False)
     tree.setWordWrap(True)
     tree.setTextElideMode(Qt.TextElideMode.ElideNone)
+    tree.setItemDelegate(WrappedRowDelegate(tree, _ROW_PADDING))
     tree.setMinimumHeight(140)
     tree_base = tree.palette().color(QPalette.ColorRole.Base)
     activity_selection = QColor(
@@ -197,7 +201,7 @@ def _styled_tree() -> "QTreeWidget":
     tree.setStyleSheet(
         "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
         " background: palette(base); color: palette(text); padding: 4px; }"
-        " QTreeWidget::item { min-height: 32px; padding: 5px;"
+        f" QTreeWidget::item {{ min-height: 32px; padding: {_ROW_PADDING}px;"
         " border-radius: 6px; }"
         f" QTreeWidget::item:selected {{ background: {activity_selection};"
         " color: palette(text); }"

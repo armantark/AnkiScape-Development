@@ -5144,7 +5144,9 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
+    from .ui_target_search import (
+        build_searchable_target_selector, short_target_row_label, style_flat_target_list, style_grouped_target_tree,
+    )
     from .ui_utility_activity_list import UtilityActivityList
     from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
 
@@ -5239,21 +5241,7 @@ def show_main_menu(
         set_group_expanded=None,
     ) -> QTreeWidget:
         tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setAlternatingRowColors(True)
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 28px; padding: 1px; }"
-            " QTreeWidget::item:selected { color: palette(text); }"
-            " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
+        style_grouped_target_tree(tree)
 
         ordered_groups = list(group_order or [])
         groups: dict = {group: [] for group in ordered_groups}
