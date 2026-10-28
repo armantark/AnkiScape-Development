@@ -2,7 +2,7 @@
 
 Date: `2026-10-28`
 
-Status: **owner-settled, nine rulings and three interface approvals; the grill continues.**
+Status: **owner-settled, eleven rulings and three interface approvals.**
 
 These rulings continue the numbering of `grill-decisions-2026-10-25.md`. Each ruling
 settles a class of contract questions. A contract cites the ruling and quotes its
@@ -183,4 +183,34 @@ not pick up their own free inputs, and free items never cost zero cards.
   inputs, C made free items cost no card, and D changed nothing.
 - This is also the owner's interface approval for replacing the 31 free-pickup
   rows with one row. The frontend-taste review still runs on the new detail box.
-- Where the row lives, Utilities or a list on the Shop tab, is still under grill.
+- Ruling 16 places the row in Utilities.
+
+## Round 4
+
+Before this round: a Shop tab purchase is instant, coins for items at once, and
+every Utilities row costs cards. 19 skill and Utilities targets need one of 10
+quests that cannot be finished; 4 of them need only the quest's start (Ugthanki
+dung from The Feud, and cutting, splitting and burning Arctic pine from The
+Fremennik Isles).
+
+The owner answered at 14:40 PDT: "11. Fine" and "12. Yes".
+
+## 16. The Gather row lives in Utilities
+
+Ruling line: the Gather row lives in Utilities and works like every other
+Utilities row: each gather costs cards, and the action queue takes it with a
+count.
+
+- A list on the Shop tab was the owner's alternative. It lost because Shop
+  buttons pay coins at once, and a free item there would need a button that
+  starts card actions instead.
+
+## 17. Content that needs a "Coming soon" quest locks with it
+
+Ruling line: content that needs a "Coming soon" quest shows "Coming soon" too and
+stays locked, even when it needs only the quest's start. A save that already met
+the requirement keeps the content.
+
+- Precedents: death runes (Mourning's End Part II), blood runes (Legacy of
+  Seergaze), monkfish (Swan Song); Ugthanki dung (The Feud) and the three Arctic
+  pine targets (The Fremennik Isles) lock for new players.

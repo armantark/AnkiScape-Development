@@ -50,6 +50,8 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   for stops the quest and names what is missing.
 - **Free pickup** — an action that gives an item and needs no input item and no
   tool, such as picking bananas or searching the Goblin Village crates.
+- **Coming soon** — the state of a quest that a player cannot finish from a new
+  save yet, and of content that needs such a quest. It cannot be started.
 - **Review HUD** — the compact box under each card in the reviewer that shows
   the current action, its progress and its buttons. Avoid: "activity widget".
 - **Encounter** — one fight against one enemy that persists between reviews:
