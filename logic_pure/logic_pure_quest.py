@@ -27,6 +27,7 @@ from .quest.stage_items import (  # noqa: F401 (re-export)
 )
 from .quest.hazeel import hazeel_opening_choice_ready_pure, hazeel_opening_state_blockers_pure
 from .quest.enakhra import enakhra_opening_blockers_pure
+from .quest.elder_kiln import elder_kiln_review_ready_pure
 from .quest.witchs_house import (
     witchs_house_stage_rows_pure, witchs_house_extra_blockers_pure, witchs_house_next_progress_pure,
 )
@@ -34,31 +35,7 @@ from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 from .quest.murder_mystery import apply_murder_mystery_opening_items_pure
-from ..data.combat_data import (
-    COMBAT_ATTACK_STYLE_DATA,
-    COMBAT_ANTIPOISON_POTION_DATA,
-    COMBAT_BURST_TICKS,
-    COMBAT_ENEMY_DATA,
-    COMBAT_FOOD_DATA,
-    CONSUMABLE_DATA,
-    KEBAB_DRAINABLE_SKILLS,
-    COMBAT_MAGIC_STAFF_DATA,
-    COMBAT_MAGIC_SPELL_DATA,
-    COMBAT_RANGED_AMMO_DATA,
-    COMBAT_RANGED_WEAPON_DATA,
-    DEFAULT_COMBAT_ATTACK_STYLE,
-    DEFAULT_COMBAT_SPELL,
-    DEFAULT_COMBAT_TARGET,
-    MAGIC_FORMULA_SOURCE_PATH,
-    MAGIC_STRATEGY_SOURCE_PATH,
-    MELEE_FORMULA_SOURCE_PATH,
-    MELEE_STRATEGY_SOURCE_PATH,
-    POTION_TYPE_SOURCE_PATH,
-    RANGED_FORMULA_SOURCE_PATH,
-    RANGED_STRATEGY_SOURCE_PATH,
-    WEAPON_TYPE_ATTACK_STYLES,
-    WEAPON_TYPE_UNARMED_STYLES,
-)
+from ..data.combat_data import COMBAT_BURST_TICKS, DEFAULT_COMBAT_TARGET
 
 from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     _COMBAT_EXP_KEY_DISPLAY,
@@ -875,6 +852,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
         or quest_review_ready_pure(player_data, quest_id, blockers, quest_data=quest_data,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
+        or elder_kiln_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
 

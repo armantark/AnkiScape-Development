@@ -22,6 +22,7 @@ MOURNER_FOOD_STORES_PROOF = "Use the rotten apple to sabotage the mourner food s
 BIOHAZARD_CAULDRON_ACTION = "Put the rotten apple in the Mourner HQ cauldron"
 THAKKRAD_CURED_YAK_HIDE_PROOF = "Cure yak-hide with Thakkrad"
 SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle"
+ELDER_KILN_HATCH_PROOF = "Hatch TzHaar-Mej-Jeh’s egg"
 
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
@@ -38,6 +39,7 @@ QUEST_ACTION_PROOF_RULES = {
     ACQUIRE_EVENT: ((), (ACQUIRE_PROOF,)),
     READ_EVENT: ((), (READ_PROOF,)),
     ("quest_service", "oronwen_repair"): ((), (ORONWEN_REPAIR_PROOF,)),
+    ("quest_activity", "elder_kiln_first_egg"): ((), (ELDER_KILN_HATCH_PROOF,)),
     ("magic", "crumble_undead_first_boneguard"): (
         (), ("Cast Crumble Undead during the boneguard fight",),
     ),
