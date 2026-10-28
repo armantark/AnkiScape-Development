@@ -1,0 +1,21 @@
+{
+  "timestamp": "2010-04-28T16:28:02Z",
+  "size": 1378,
+  "width": 29,
+  "height": 29,
+  "url": "https://runescape.wiki/images/archive/20140502173944%21Bark_sample.png?3adeb",
+  "descriptionurl": "https://runescape.wiki/w/File:Bark_sample.png",
+  "descriptionshorturl": "https://runescape.wiki/index.php?curid=19727",
+  "sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1",
+  "title": "File:Bark sample.png",
+  "api_sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1",
+  "actual_sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1",
+  "sha256": "6d8f1282e0bd80fe433bcbfcf752a23bd2a7a9e92edef2a4d7893a87d97deb96",
+  "saved_path": "data/quest/assets/bark_sample.png",
+  "proposed_registry_path": "data/quest/assets/bark_sample.png",
+  "verification": "sha1 and size agree with historical imageinfo entry",
+  "file_page_url": "https://runescape.wiki/w/File:Bark_sample.png",
+  "source_wiki": "rs3-period",
+  "license_string": "not stated by inspected imageinfo; Jagex game image",
+  "date_limit": "The URL’s 2014 archive-directory timestamp is not the image revision date. Independent period pixel consensus is unavailable."
+}

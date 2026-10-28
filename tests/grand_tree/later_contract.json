@@ -1,0 +1,188 @@
+{
+  "id": "the_grand_tree",
+  "display_name": "The Grand Tree",
+  "stages": 7,
+  "point_reward": 5,
+  "rewards": {},
+  "start_point": "Talk to King Narnode Shareen in The Grand Tree.",
+  "requirements": [
+    "Agility 25"
+  ],
+  "required_items": {},
+  "start_inventory": {},
+  "required_quests": [],
+  "required_skills": [
+    {
+      "skill_id": "agility",
+      "display_name": "Agility",
+      "level": 25
+    }
+  ],
+  "required_quest_points": 0,
+  "xp_rewards": [
+    {
+      "skill_id": "agility",
+      "amount": 7900.0
+    },
+    {
+      "skill_id": "attack",
+      "amount": 18400.0
+    },
+    {
+      "skill_id": "magic",
+      "amount": 2150.0
+    }
+  ],
+  "lamp_rewards": [],
+  "combat": "Black demon (level 172)",
+  "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823; https://runescape.wiki/w/List_of_quests_by_release_date",
+  "release_date": "2002-12-12",
+  "release_order": 34,
+  "members": true,
+  "difficulty": "Experienced",
+  "length": "Medium to Long",
+  "timeline": "Fifth Age",
+  "unlocks": [
+    "Ability to use the Grand Tree mine under The Grand Tree",
+    "Ability to use the Gnome glider transportation system",
+    "Ability to use the Agility Shortcut from the Grand Tree to the Barbarian Outpost (with 37 Agility)",
+    "Ability to use the Spirit Tree in the stronghold outside the Grand Tree (the Tree Gnome Village quest doesn't allow access to this tree)",
+    "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
+  ],
+  "miniquest": false,
+  "choices": [],
+  "stage_requirements": [
+    {
+      "stage": 3,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete The Grand Tree stage 3 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+    },
+    {
+      "stage": 4,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete The Grand Tree stage 4 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+    },
+    {
+      "stage": 5,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete The Grand Tree stage 5 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [
+        {
+          "encounter_id": "the_grand_tree_black_demon_172",
+          "display_name": "Black demon",
+          "level": 172,
+          "quantity": 1,
+          "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+          "source_text": "Black demon (level 172)",
+          "npc_stats": {
+            "hitpoints": 1570,
+            "attack": 145,
+            "strength": 148,
+            "defence": 152
+          },
+          "npc_bonuses": {
+            "defenceMagic": -10
+          },
+          "npc_configs": {
+            "attack_speed": 4,
+            "attack_style": "slash"
+          },
+          "guaranteed_drops": {},
+          "npc_stats_source": "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/demons/black_demon_lvl_172.plugin.kts",
+          "required_encounters": []
+        }
+      ],
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+    },
+    {
+      "stage": 6,
+      "description": "Generated from source-backed quest stage checkpoints.",
+      "variant": "",
+      "required_inventory": {},
+      "required_inventory_options": [],
+      "consumed_inventory": {},
+      "consumed_inventory_options": [],
+      "produced_inventory": {},
+      "repeatable_until_consumed": false,
+      "required_skills": [],
+      "required_tools": {},
+      "required_actions": [
+        "Complete The Grand Tree stage 6 objective"
+      ],
+      "auto_actions": [],
+      "required_routes": [],
+      "combat_encounters": [],
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+    }
+  ],
+  "journal_stages": {
+    "3": [
+      "Return to King Narnode Shareen. He will tell you that Glough has already caught the culprit - a human who was caught with three Daconia rocks. You will ask to see the prisoner, who is located on the top floor of the Grand Tree. Go up the ladder to the top floor of the tree and talk to the prisoner, whose name is Charlie. When you interrogate him for a motive, he will blurt out that he was only doing what Glough had paid him to do. He had gone to the \"gnome on the hill\" and gave him the \"seal\" in exchange for the rocks. He will tell you to search Glough's house for evidence.",
+      "Go to Glough's house again - search the cupboard and you will find his journal. After reading the journal, you find out that Glough, unlike his ancestors, wants to come out of hiding and launch an attack on the humans. When you confront Glough for being a spy and framing Charlie, he will become outraged and will order his guards to arrest you and throw you into jail.",
+      "Talk to Charlie while you are in the cell and he says that if you want to gather more information about Glough's plans, you will need to talk to the foreman at the Shipyard. He also gives you a password - \"Ka-Lu-Min\" - so that you can work undercover in Glough's crew.",
+      "The King will appear and apologize for Glough's actions. He will tell you to quickly escape on the Gnome glider, as Glough has set up guards on all other escape routes. Talk to the Gnome Pilot and he will fly you to Karamja; although, for whatever reason, the glider crash lands just west of the Ship yard. Walk to the shipyard and try to open the gate; you will be stopped by a shipyard worker. Tell him that Glough sent you, and give him the password that Charlie told you."
+    ],
+    "4": [
+      "After getting inside, go to the foreman, on the southern docks, and talk to him. You can either kill the foreman or answer his questions. If you want to kill him but have low life points, you can buy 10 bananas from the crew member nearby. If you chose to answer the foreman's questions, the answers can be obtained from reading Glough's journal.",
+      "Once you answer the foreman's questions, he will tell you about Glough's plan and then give you a lumber order. If instead you killed the foreman, he will drop the lumber order, which states Glough's plan to take over RuneScape. He plans to kill the Grand Tree and use it to create and launch 30 battleships to Port Sarim and proceed with an attack against the humans.",
+      "The glider was broken in the crash, so you will need to find another way back to The Grand Tree.",
+      "After you show King Narnode the order from the shipyard, he will still not believe your accusations. Speak to Charlie again on the top floor of The Grand Tree. He will suggest you speak to Anita, Glough's girlfriend. Anita can be found in the second tree house to the west of the swamp, north-west of the Grand Tree. Talk to her, and she will ask you to return Glough's key for her."
+    ],
+    "5": [
+      "Go to Glough's house and use the key to open the chest. Inside, you will find some invasion plans detailing his plan to seize control over RuneScape. Take the notes to King Shareen, who still won't believe your evidence as when they searched Glough's house, all they found were some sticks lashed together. Take the sticks from the king.",
+      "Before returning to Glough's house, equip yourself for battling the level 172 Black Demon. You can access a bank by going up the ladder next to the king, and heading south-west.",
+      "Return to Glough's house and climb up to the watchtower. You will find four stone stands. Use the sticks with the stands to spell out TUZO which, using your translation book, means \"OPEN.\" You will hear some gears turning, and the trap door on the platform opens. Enter, but be prepared.",
+      "The trapdoor ladder breaks right after you start the fight, so teleportation is the only way for a quick escape."
+    ],
+    "6": [
+      "After you enter, make sure to wait till Glough walks up to you and starts the conversation. If you move before he gets to you, you will have to exit and go back through the trap door. After you enter, and Glough talks to you, he will unleash a level 172 Black Demon upon you.",
+      "The Demon is very strong and can hit over 160 using melee attacks, so Protect from Melee is recommended. You can either fight the demon using Melee weapons such as halberds or a poisoned dragon dagger, hide and use Range/Magic, or defeat it with a cannon. If you choose to use range or magical attacks, then hide behind the blue rocks that are scattered throughout the dungeon. If he can still attack you, then keep moving till you find a suitable safespot. You can also go into the tunnel to where the demon cannot reach so you can attack him using long range weapons. Another option would be to head north until you get into the tunnels, stop right when you get in and move three spaces there. You can easily safespot from there.",
+      "After defeating the demon, walk along the passage until you find King Shareen standing by a ladder. Talk to him and tell him that Glough had sent a demon to attack you, but the king STILL does not believe you. He finally sends a guard to scout for Glough, to which the guard comes back with Glough, who was hiding amongst the stones. The king apologizes and asks you to locate the last Daconia rock.",
+      "Search the roots all around the area until you find the Daconia rock. It's important not to give up hope during this part. Though it can be time-consuming, you might need to search all of the roots. After obtaining the rock, talk to King Shareen again for your reward for saving the Grand Tree.",
+      "Quest complete!"
+    ]
+  }
+}

@@ -19,6 +19,8 @@ from ..logic_pure.logic_pure import (
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_lamps_waiting_text_pure,
 )
+from ..data.quest.grand_tree import PHASE_NOTICES
+from ..logic_pure.quest.grand_tree import grand_tree_phase_pure, grand_tree_review_ready_pure
 from ..logic_pure.quest.review_services import quest_review_service_phase_pure
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
 from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
@@ -131,7 +133,14 @@ def _announce_watchtower_progress(ctx, phase):
     ctx.show_activity_gain(fill(messages[phase], width=48))
 
 
-def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "", cook_phase: Any = None) -> None:
+def _announce_quest_progress(
+    ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any,
+    opening_message: str = "", cook_phase: Any = None, opening_phase=None,
+) -> None:
+    if opening_phase in PHASE_NOTICES:
+        # ExpPopup sizes to its text, so wrap the full notice for laptop windows.
+        ctx.show_activity_gain(fill(PHASE_NOTICES[opening_phase], width=48))
+        return
     if repair_phase == "recover_key":
         ctx.show_activity_gain("Recovered the backroom key from the fountain.")
         return
@@ -178,6 +187,11 @@ def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, floa
         ctx.show_quest_exp_delta(exp_before)
 
 
+def _quest_review_announcement_phase(player_data, quest_id, stage_blockers):
+    return (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
+            or quest_review_phase_pure(player_data, quest_id))
+
+
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
@@ -195,6 +209,9 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         or another_cook_review_ready_pure(player_data, quest_id, stage_blockers)
         or quest_review_ready_pure(player_data, quest_id, stage_blockers, quest_data=QUEST_DATA,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
+        or grand_tree_review_ready_pure(
+            player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
+        )
         or opening_review_ready_pure(
             player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
         )
@@ -210,10 +227,10 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    opening_phase = grand_tree_phase_pure(player_data, quest_id)
     opening_message = toktz_opening_message_pure(player_data, quest_id)
     cook_phase = another_cook_phase_pure(player_data, quest_id)
-    repair_phase = (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
-                    or quest_review_phase_pure(player_data, quest_id))
+    repair_phase = _quest_review_announcement_phase(player_data, quest_id, stage_blockers)
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(
@@ -243,5 +260,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         _announce_quest_completion(ctx, quest_id, quest, clue_reward_refusal_reason)
     else:
-        _announce_quest_progress(ctx, quest_id, quest, repair_phase, opening_message, cook_phase)
+        _announce_quest_progress(
+            ctx, quest_id, quest, repair_phase, opening_message,
+            cook_phase=cook_phase, opening_phase=opening_phase,
+        )
     return True

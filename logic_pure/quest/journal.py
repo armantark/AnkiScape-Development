@@ -3,6 +3,7 @@
 from ..logic_pure_state import quest_state_pure, _positive_int
 from .another_cook import another_cook_journal_row_pure
 from .review_services import quest_review_journal_row_pure
+from .grand_tree import grand_tree_journal_rows_pure
 from .elemental_workshop import opening_journal_rows_pure
 from .hazeel_journal import hazeel_journal_row_pure
 from .enakhra import enakhra_opening_journal_row_pure
@@ -50,4 +51,5 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         row = toktz_opening_journal_row_pure(player_data, quest_id, row)
         rows.append(enakhra_opening_journal_row_pure(player_data, quest_id, row))
     rows = opening_journal_rows_pure(player_data, quest_id, tuple(rows))
+    rows = grand_tree_journal_rows_pure(player_data, quest_id, rows)
     return witchs_house_journal_rows_pure(player_data, quest_id, rows)

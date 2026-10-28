@@ -401,6 +401,9 @@ QUEST_ITEM_IMAGES = {
     ),
 }
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
+    "Bark sample": os.path.join(current_dir, "data", "quest", "assets", "bark_sample.png"),
+    "Translation book": os.path.join(current_dir, "data", "quest", "assets", "translation_book.png"),
+    "Hazelmere's scroll": os.path.join(current_dir, "data", "quest", "assets", "hazelmeres_scroll.png"),
     "Ragged book": os.path.join(current_dir, "data", "quest", "assets", "ragged_book.png"),
     "Lever": "temple_lever.png",
     "Kitten": "pet_kitten.png",

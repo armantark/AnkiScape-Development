@@ -113,7 +113,10 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
 )
 
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest import grand_tree
 from .quest.progress_state import (
+    _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS as _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS,
+    _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS,
     _QUEST_ROUTE_INHERITANCE,  # noqa: F401 (re-export)
     _quest_route_completed,
     _quest_combat_completed_count,
@@ -694,7 +697,10 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return tuple()
-    service_blockers = enakhra_opening_blockers_pure(player_data, quest_id)
+    service_blockers = (
+        *enakhra_opening_blockers_pure(player_data, quest_id),
+        *grand_tree.grand_tree_opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
+    )
     choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
     if choice_blockers:
         return quest_review_blockers_pure(player_data, quest_id, (*choice_blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)))
@@ -708,28 +714,6 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
     return tuple(str(blocker.get("reason")) for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data))
-
-
-_QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
-    "missing_item",
-    "missing_item_option",
-    "missing_skill",
-    "missing_tool",
-    "required_action",
-    "unmet_route",
-    "quest_choice",
-}
-
-
-_QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
-    "missing_item",
-    "missing_item_option",
-    "missing_skill",
-    "missing_tool",
-    "missing_weapon",
-    "unmet_route",
-    "quest_choice",
-}
 
 
 def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data):
@@ -875,6 +859,7 @@ def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
         or quest_review_ready_pure(player_data, quest_id, blockers, quest_data=quest_data,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
+        or grand_tree.grand_tree_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
 
@@ -1173,6 +1158,16 @@ def _quest_progress_start_state(player_data, quest_id, quest_data):
     return data, state
 
 
+def _grand_tree_progress_result(original, data, quest_id, quest_data, blockers):
+    opening = grand_tree.apply_grand_tree_review_pure(
+        data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,
+    )
+    if opening is None:
+        return None
+    opening_data, ok = opening
+    return (opening_data if ok else original, ok, False)
+
+
 def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
@@ -1181,6 +1176,9 @@ def apply_quest_progress_pure(
     if state is None:
         return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    opening = _grand_tree_progress_result(player_data, data, quest_id, quest_data, blockers)
+    if opening is not None:
+        return (*opening, *empty_refusal)
     if toktz_opening_phase_pure(data, quest_id) is not None:
         event = toktz_opening_next_event_pure(data, quest_id)
         candidate, success = apply_toktz_opening_review_pure(data, quest_id, blockers, event)
