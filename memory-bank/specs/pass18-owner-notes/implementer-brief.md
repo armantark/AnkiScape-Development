@@ -21,8 +21,13 @@ full test lanes on the Mac Studio, the final review and the promotion gate.
   (`verdict.json` and PNGs).
 - Binding rules: `memory-bank/codex-briefs/STANDING-SLICE-CONTRACT.md`, read in
   full, and the repository `AGENTS.md` (Qt dark-mode text colors, offscreen
-  screenshot rules). Where this brief and the contract disagree, stop and
-  report.
+  screenshot rules). This brief replaces the contract's section 6 lane
+  commands and its `--expected-tests` collection for Pass 18: implementers run
+  the focused tests named under <build>, and the orchestrator runs the full
+  plain and offscreen Qt lanes, with their collected counts, on the Mac Studio
+  after each landing. The rest of section 6 still binds you, including that a
+  proof that a test is load-bearing leaves no trace. Where this brief and the
+  contract disagree in any other way, stop and report.
 </context>
 
 <worktree>
