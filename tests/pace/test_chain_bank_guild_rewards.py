@@ -21,7 +21,7 @@ from tests.test_combat_logic import _player
 
 def guild_player(*, payment_mode="multi", bones=6):
     return _player(
-        current_combat_target="cyclops", combat_auto_flee=False,
+        current_combat_target="cyclops", combat_auto_flee=False, combat_prayers_enabled=False,
         constitution_level=99, combat_lifepoints=990,
         inventory={"Big bones": bones},
         carried_inventory={"cyclops": {"Big bones": bones}},

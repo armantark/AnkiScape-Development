@@ -955,10 +955,10 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         if spec.get("deactivate_after_run"):
             ctx.show_activity_gain(str(display_name).replace("Buy ", "Bought ", 1))
         else:
-            total_outputs = sum(max(int(amount), 1) for amount in outputs.values() if isinstance(amount, int))
-            gained = total_outputs * max(int(processed), 0)
-            if gained > 0:
-                ctx.show_activity_gain(f"+{gained} items")
+            count = max(int(processed), 0)
+            gains = ", ".join(f"+{max(int(amount), 1) * count} {item}" for item, amount in outputs.items() if isinstance(amount, int))
+            if count:
+                ctx.show_activity_gain(gains)
     else:
         output_item = str(spec.get("output_item", activity_key))
         try:

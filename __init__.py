@@ -37,6 +37,7 @@ from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
 import random
+import sys
 import os
 import datetime
 from collections.abc import Mapping
@@ -96,6 +97,7 @@ from .core.logic import (
     DeferredAchievementDialogs as DeferredAchievementDialogs,
     level_up_check as _core_level_up_check,
     check_achievements,
+    record_review_event as _append_review_event,
     show_pending_review_dialogs,
 )
 from .logic_pure.logic_pure_combat_engine import player_combat_level_pure
@@ -229,6 +231,7 @@ from .core.injectors import register_deck_browser_button as _register_deck_brows
 from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .core.activity_feedback import (
     combine_activity_feedback as _combine_activity_feedback,
+    item_changes_text as _item_changes_text,
     lines_with_stop_reason as _lines_with_stop_reason,
 )
 from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
@@ -245,6 +248,10 @@ from .core.action_registry import (
     utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
+from .core.action_queue import (
+    advance_action_queue, apply_action_queue_command, bankstanding_event_text, unexplained_stop_pure,
+    record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, stop_action,
+)
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
 from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
@@ -257,10 +264,7 @@ from .logic.grand_exchange_logic import (
 )
 from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
 from .logic.bank_layout_logic import reconcile_bank_layout_for_player_pure
-from .logic.review_strip_logic import (
-    record_review_event_pure,
-    request_review_bank_run_pure,
-)
+from .logic.review_strip_logic import request_review_bank_run_pure
 from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .logic.agility_logic import apply_agility_command_pure
 from .logic.skilling_boost_logic import (
@@ -331,7 +335,7 @@ from .logic.pet_logic import (
 from .runtime import runtime_actions
 from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .runtime.dispatcher_state import state as _state
-from .core.xp_drops import whole_number_xp_breakdown
+from .core.xp_drops import NamedExperience as _NamedExperience, review_product_text as _review_product_text, whole_number_xp_breakdown
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
@@ -348,6 +352,8 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
+    if target == "bankstanding":
+        return bool(stop_action(sys.modules[__name__]))
     updated = dict(_state.player_data)
     if target == SHOOTING_STAR_ACTIVITY_ID:
         updated, joined, info = apply_shooting_star_join_pure(_state.player_data)
@@ -395,56 +401,6 @@ _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 
 
-class _NamedExperience(float):
-    """A numeric XP result that carries the skills which earned it."""
-
-    def __new__(cls, amount, skill_names=(), breakdown=()):
-        value = super().__new__(cls, float(amount))
-        value.skill_names = tuple(
-            dict.fromkeys(str(name) for name in skill_names if name)
-        )
-        totals = {}
-        for name, skill_amount in breakdown:
-            amount_value = float(skill_amount)
-            if name and amount_value > 0:
-                key = str(name)
-                totals[key] = totals.get(key, 0.0) + amount_value
-        if not totals and len(value.skill_names) == 1:
-            totals[value.skill_names[0]] = float(value)
-        value.breakdown = tuple(totals.items())
-        return value
-
-    @property
-    def display_text(self) -> str:
-        def amount_text(amount) -> str:
-            value = float(amount)
-            return f"{value:.1f}" if 0 < value < 1 else str(int(value))
-
-        if len(self.breakdown) > 1:
-            return " · ".join(
-                f"{name} +{amount_text(amount)} XP"
-                for name, amount in self.breakdown
-            )
-        amount = self.breakdown[0][1] if self.breakdown else self
-        message = f"+{amount_text(amount)} XP"
-        if self.skill_names:
-            message += f" · {', '.join(self.skill_names)}"
-        return message
-
-    def __add__(self, other):
-        return _NamedExperience(
-            float(self) + float(other),
-            (*self.skill_names, *getattr(other, "skill_names", ())),
-            (*self.breakdown, *getattr(other, "breakdown", ())),
-        )
-
-    def __radd__(self, other):
-        return _NamedExperience(
-            float(other) + float(self),
-            (*getattr(other, "skill_names", ()), *self.skill_names),
-            (*getattr(other, "breakdown", ()), *self.breakdown),
-        )
-
 def save_player_data():
     _state.player_data.update(reconcile_bank_layout_for_player_pure(_state.player_data))
     storage_save_player_data(_state.player_data, _state.current_skill)
@@ -484,8 +440,7 @@ def _initialize_debug_from_config():
 def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
     """The single runtime seam behind every floating review notification."""
 
-    updated = record_review_event_pure(_state.player_data, kind, text)
-    _state.player_data["review_event_log"] = updated["review_event_log"]
+    _append_review_event(_state.player_data, kind, text)
     if persist:
         try:
             storage_save_player_data(_state.player_data, _state.current_skill)
@@ -566,13 +521,13 @@ def _show_activity_gain(text: str) -> None:
         pass
 
 
-def _begin_review_feedback_context(initial_exp=None) -> None:
+def _begin_review_feedback_context(before_player_data=None) -> None:
     initial_xp = _state.review_feedback_initial_xp
-    initial_exp = _implemented_exp_keys_snapshot() if initial_exp is None else initial_exp
     _state.review_feedback_context = {
         "xp": float(initial_xp or 0.0),
-        "initial_exp": initial_exp,
+        "before": copy.deepcopy(_state.player_data) if before_player_data is None else before_player_data,
         "combat_level_before": player_combat_level_pure(_state.player_data),
+        "skill": _state.current_skill,
         "activity": [],
     }
     _state.review_feedback_initial_xp = 0.0
@@ -582,12 +537,13 @@ def _record_pending_review_xp_event() -> None:
     context = _state.review_feedback_context
     if context is None:
         return
-    breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
+    breakdown = whole_number_xp_breakdown(context["before"], _state.player_data)
     if not breakdown:
         return
     total = sum(amount for _name, amount in breakdown)
+    item_text = _item_changes_text(inventory_pure.review_item_changes_pure(context["before"], _state.player_data))
     message = _NamedExperience(
-        total, (name for name, _amount in breakdown), breakdown,
+        total, (name for name, _amount in breakdown), breakdown, item_text,
     ).display_text
     if context.get("xp_recorded"):
         # Level-up events can replace the log's dictionaries between awards.
@@ -607,20 +563,19 @@ def level_up_check(skill, data) -> None:
 
 
 def _finish_review_feedback_context(stop_reason: str = "") -> None:
-    context = _state.review_feedback_context or {"xp": 0.0, "initial_exp": {}, "activity": []}
+    context = _state.review_feedback_context or {"xp": 0.0, "before": {}, "activity": []}
     _record_pending_review_xp_event()
     _state.review_feedback_context = None
     _state.review_feedback_flushing = True
     try:
-        breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
+        breakdown = whole_number_xp_breakdown(context["before"], _state.player_data)
         xp_total = float(context.get("xp", 0.0))
         skill_names = [name for name, _amount in breakdown]
         activity_messages = context.get("activity", [])
         if xp_total > 0 and breakdown:
-            _show_exp(
-                _NamedExperience(xp_total, skill_names, breakdown),
-                record_event=False,
-            )
+            # The popup stays one short line: the action's product, never loot or what it used.
+            gains = _review_product_text(context["before"], _state.player_data, context.get("skill"))
+            _show_exp(_NamedExperience(xp_total, skill_names, breakdown, gains), record_event=False)
             for message in _lines_with_stop_reason(activity_messages, stop_reason):
                 _record_review_event("activity", str(message), persist=False)
         elif activity_messages:
@@ -1097,22 +1052,24 @@ def _show_runtime_exp(value) -> None:
 
 
 def _runtime_action_context() -> RuntimeActionContext:
-    last_reason = {"text": ""}
+    last_reason = {"text": "", "stop": None}
 
     def _show_runtime_error(title, message) -> None:
         last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
-        _update_pending_bankstanding_reason(last_reason["text"])
+        refine_stop_reason(sys.modules[__name__], last_reason["stop"], last_reason["text"])
         if _state.pending_bankstanding_notice is not None:
             _state.pending_bankstanding_notice["show_dialog"] = False
         show_error_message(title, message)
 
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
         notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
-        _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
+        reason = reason or last_reason["text"]
+        last_reason["stop"] = None if reason else unexplained_stop_pure(_state.player_data, _state.current_skill)
+        _switch_to_bankstanding(reason, caller_owns_notice=notice_owned)
 
     def _show_runtime_gain(text) -> None:
         last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
-        _update_pending_bankstanding_reason(last_reason["text"])
+        refine_stop_reason(sys.modules[__name__], last_reason["stop"], last_reason["text"])
         _show_activity_gain(text)
 
     return RuntimeActionContext(
@@ -1296,30 +1253,6 @@ def show_skill_selection():
         return
     save_skill(selected, None)
 
-def _default_bankstanding_reason() -> str:
-    utility_id = str(_state.player_data.get("current_utility", "") or "")
-    if (
-        _state.current_skill
-        in {
-            UTILITY_REVIEW_ACTION_DISPLAY_NAME,
-            ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
-            "Utility / Activities",
-        }
-        and utility_id
-        and utility_id != "bankstanding"
-    ):
-        action_name = utility_id.replace("_", " ").title()
-    else:
-        action_name = str(_state.current_skill or "Current action")
-        if action_name == "None":
-            action_name = "Current action"
-    return f"{action_name} could not continue."
-
-
-def _bankstanding_event_text(reason: str) -> str:
-    return f"Switched to Bankstanding · {reason}"
-
-
 def _show_pending_bankstanding_dialog() -> None:
     notice = _state.pending_bankstanding_notice
     _state.pending_bankstanding_notice = None
@@ -1340,17 +1273,6 @@ def _show_pending_review_dialogs() -> None:
     callbacks = tuple(_state.pending_review_dialogs)
     _state.pending_review_dialogs.clear()
     show_pending_review_dialogs(callbacks)
-
-
-def _update_pending_bankstanding_reason(reason) -> None:
-    notice = _state.pending_bankstanding_notice
-    reason_text = str(reason or "").strip()
-    if notice is None or not reason_text:
-        return
-    notice["reason"] = reason_text
-    event_log = _state.player_data.get("review_event_log")
-    if isinstance(event_log, list) and event_log and isinstance(event_log[-1], dict):
-        event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
 
 def _switch_to_bankstanding(
@@ -1377,15 +1299,12 @@ def _switch_to_bankstanding(
     ):
         return False
 
-    reason_text = str(reason or "").strip() or _default_bankstanding_reason()
+    reason_text = record_bankstanding_stop(sys.modules[__name__], reason, automatic=automatic)
+    if reason_text is None:
+        return False
     _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     _state.player_data["current_utility"] = "bankstanding"
-    updated = record_review_event_pure(
-        _state.player_data,
-        "activity",
-        _bankstanding_event_text(reason_text),
-    )
-    _state.player_data["review_event_log"] = updated["review_event_log"]
+    _append_review_event(_state.player_data, "activity", bankstanding_event_text(reason_text))
     if automatic:
         _state.pending_bankstanding_notice = {
             "reason": reason_text,
@@ -1413,42 +1332,31 @@ def _activity_session_cleared(before, after=None) -> bool:
     return runtime_actions.activity_session_cleared(before, after)
 
 
-def _missing_materials_text(requirements, inventory) -> str:
-    """Human-readable list of just the unmet requirements, e.g. "1 Unfired pot"."""
-    missing = [
-        f"{amount} {material}"
-        for material, amount in requirements.items()
-        if inventory.get(material, 0) < amount
-    ]
-    return ", ".join(missing) if missing else "materials"
-
-
-def _fishing_materials_text(method_spec, inventory) -> str:
-    bait_options = tuple(method_spec.get("bait_options") or ())
-    if not bait_options:
-        return "materials"
-    if len(bait_options) == 1:
-        bait = bait_options[0]
-        return f"1 {bait}"
-    return "any of " + ", ".join(f"1 {bait}" for bait in bait_options)
-
-
-def save_skill(skill, dialog):
+def skill_start_refusal(skill):
+    """Why a skill's Start refuses now, as an error title and message; None when it starts."""
     if skill == "Smithing" and not can_smith_any():
-        show_error_message(
+        return (
             "No Smithing Actions Available",
             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
         )
-    else:
-        if _select_review_action(skill):
-            _save_player_data_if_anki_ready()
-        # Update the HUD immediately so users see the new skill progress without waiting for XP
-        try:
-            update_review_hud(_state.player_data, _state.current_skill)
-        except Exception:
-            pass
-        if dialog:
-            dialog.accept()
+    return None
+
+
+def save_skill(skill, dialog) -> bool:
+    refusal = skill_start_refusal(skill)
+    if refusal:
+        show_error_message(*refusal)
+        return False
+    if _select_review_action(skill):
+        _save_player_data_if_anki_ready()
+    # Update the HUD immediately so users see the new skill progress without waiting for XP
+    try:
+        update_review_hud(_state.player_data, _state.current_skill)
+    except Exception:
+        pass
+    if dialog:
+        dialog.accept()
+    return True
 
 
 def on_crafting_answer():
@@ -1614,6 +1522,10 @@ def on_request_review_bank_run() -> bool:
     return committed
 
 
+def on_resume_last_action() -> bool:
+    return resume_action(sys.modules[__name__])
+
+
 def _update_review_bank_run_surface() -> None:
     handler_key = review_action_handler_key(_state.current_skill)
     update_review_bank_run_button(
@@ -1622,6 +1534,7 @@ def _update_review_bank_run_surface() -> None:
         on_request_review_bank_run,
         target_id=_active_review_bank_run_target(handler_key),
     )
+    ui.set_review_resume_action(on_resume_last_action)
 
 
 def _refresh_bank_run_surfaces() -> None:
@@ -1673,7 +1586,6 @@ def _on_main_menu(
         return committed
 
     from functools import partial
-    import sys
 
     from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
     from .core.menu_wicked_hood import apply_wicked_hood_command
@@ -1685,9 +1597,8 @@ def _on_main_menu(
     )
 
     _set_cooking_target = partial(set_cooking_target, sys.modules[__name__])
-    _set_cooking_equipment_choice = partial(
-        set_cooking_equipment_choice, sys.modules[__name__]
-    )
+    _stop_training = partial(stop_action, sys.modules[__name__])
+    _set_cooking_equipment_choice = partial(set_cooking_equipment_choice, sys.modules[__name__])
 
     def _set_brawling_wilderness_target(
         skill_id: str, target_id: str, enabled: bool
@@ -2716,8 +2627,8 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_tears_of_guthix_command_pure(
             _state.player_data,
-            str(action_id),
-            payload,
+            str(action_id), payload,
+            speed=_review_action_multiplier(),
         )
         if not ok:
             return {
@@ -4221,33 +4132,6 @@ def _on_main_menu(
     def _start_grave_walk():
         return commit_direct_action(start_combat_grave_walk_pure)
 
-    def _stop_training():
-        def _change(current):
-            updated = current
-            if (
-                _state.current_skill == "Agility"
-                and current.get("current_agility") == "brimhaven_arena"
-                and (current.get("agility_activity_state") or {}).get("brimhaven")
-            ):
-                updated, result = apply_agility_command_pure(
-                    current,
-                    "abandon",
-                    {},
-                    roll=0.5,
-                )
-                if not result.get("allowed"):
-                    return current, False
-            updated = dict(updated)
-            updated["current_utility"] = "bankstanding"
-            updated["combat_encounter"] = {}
-            return updated, True
-
-        return commit_direct_action(
-            _change,
-            bankstanding_reason="Training was stopped manually.",
-            bankstanding_automatic=False,
-        )
-
     ui.show_main_menu(
         _state.player_data,
         _state.current_skill,
@@ -4340,7 +4224,7 @@ def _on_main_menu(
         on_set_house_style=_set_house_style,
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
-        on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_set_utility=partial(select_utility_target, sys.modules[__name__]),
         on_start_activity=start_activity_for_reviews,
         on_stop_training=_stop_training,
         on_set_carried_keep_drop=_set_carried_keep_drop,
@@ -4410,6 +4294,7 @@ def _on_main_menu(
         initial_global_tab=initial_global_tab,
         on_check_achievements=check_achievements,
         on_save_player_data=save_player_data,
+        on_action_queue_command=partial(apply_action_queue_command, sys.modules[__name__]),
     )
 
 
@@ -4460,23 +4345,25 @@ def _set_combat_attack_style(selection):
     })
 
 
-def _set_combat_target(target):
+def _combat_target_values(current, target) -> dict:
     values = {
         "combat_action": "attack",
         "current_combat_target": target,
     }
-    if _state.player_data.get("current_combat_target") != target:
+    if current.get("current_combat_target") != target:
         values["combat_encounter"] = {}
     if target not in {"cyclops", "cyclossus"}:
-        guild_state = sanitize_warriors_guild_state_pure(
-            _state.player_data.get("warriors_guild")
-        )
+        guild_state = sanitize_warriors_guild_state_pure(current.get("warriors_guild"))
         if guild_state["in_cyclops_room"]:
             guild_state["in_cyclops_room"] = False
             guild_state["cyclossus_pending"] = False
             guild_state["token_drain_residual"] = 0
             values["warriors_guild"] = guild_state
-    return _set_values(values)
+    return values
+
+
+def _set_combat_target(target):
+    return _set_values(_combat_target_values(_state.player_data, target))
 
 
 def _set_values(values):
@@ -5262,6 +5149,7 @@ def _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, be
     if awards_review and (answers_farm_step or is_review_action(_state.current_skill)):
         _state.review_feedback_initial_xp = context_xp
         on_good_answer(before_state, defer_commit=True)
+        advance_action_queue(sys.modules[__name__], before_state["player_data"])
         _state.exp_awarded = True
     else:
         handler_key = review_action_handler_key(_state.current_skill)

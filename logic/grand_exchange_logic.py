@@ -7,7 +7,7 @@ import math
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional
 
 from .grand_exchange.profiles import (
-    GE_MARKET_DAY_CARDS, _clean_int, _stable_unit_interval,
+    GE_MARKET_DAY_CARDS as GE_MARKET_DAY_TICKS, _clean_int, _stable_unit_interval,
     _move_toward_zero, _market_liquidity_pure,
 )
 from .grand_exchange.demand import (
@@ -20,8 +20,8 @@ GE_SLOT_COUNT = 6
 DEFAULT_HIGH_VALUE_CONFIRMATION = 1_000_000
 DEFAULT_LOW_PRICE_MULTIPLIER = 0.1
 DEFAULT_HIGH_PRICE_MULTIPLIER = 10.0
-GE_MARKET_HOUR_CARDS = 10
-GE_BUY_LIMIT_WINDOW_CARDS = 40
+GE_MARKET_HOUR_TICKS = 10
+GE_BUY_LIMIT_WINDOW_TICKS = 40
 GE_MAX_PLAYER_IMPACT_BPS = 1_500
 GE_MIN_FILL_IMPACT_BPS = 25
 GE_MAX_FILL_IMPACT_BPS = 300
@@ -848,7 +848,7 @@ def _market_item_state_pure(
     if elapsed > 0:
         decay = (
             elapsed * GE_IMPACT_DECAY_BPS_PER_HOUR
-        ) // GE_MARKET_HOUR_CARDS
+        ) // GE_MARKET_HOUR_TICKS
         impact_bps = _move_toward_zero(impact_bps, decay)
         ambient_bps = int(round(ambient_bps * math.pow(0.5, elapsed / 600.0)))
         liquidity = _market_liquidity_pure(
@@ -871,7 +871,7 @@ def _market_item_state_pure(
             state["shock_start_tick"] = 0
             state["shock_end_tick"] = 0
             state["shock_peak_bps"] = 0
-            state["shock_cooldown_until_tick"] = market_tick + GE_MARKET_HOUR_CARDS
+            state["shock_cooldown_until_tick"] = market_tick + GE_MARKET_HOUR_TICKS
         if (
             _clean_int(state.get("shock_end_tick"), 0) <= 0
             and market_tick >= _clean_int(state.get("shock_cooldown_until_tick"), 0)
@@ -959,7 +959,7 @@ def _buy_limit_remaining_pure(
     usage = dict(raw_usage) if isinstance(raw_usage, Mapping) else {}
     window_start = _clean_int(usage.get("window_start_tick"), market_tick)
     bought = _clean_int(usage.get("bought"), 0)
-    if market_tick - window_start >= GE_BUY_LIMIT_WINDOW_CARDS:
+    if market_tick - window_start >= GE_BUY_LIMIT_WINDOW_TICKS:
         window_start = market_tick
         bought = 0
     usage_map[item_name] = {
@@ -999,7 +999,7 @@ def _record_trade_pure(
     unit_price: int,
 ) -> None:
     history_map = copy.deepcopy(dict(data.get("ge_trade_history") or {}))
-    window_start = (market_tick // GE_MARKET_DAY_CARDS) * GE_MARKET_DAY_CARDS
+    window_start = (market_tick // GE_MARKET_DAY_TICKS) * GE_MARKET_DAY_TICKS
     raw_history = history_map.get(item_name)
     history = dict(raw_history) if isinstance(raw_history, Mapping) else {}
     if _clean_int(history.get("window_start_tick"), window_start) != window_start:
@@ -1214,7 +1214,7 @@ def _update_guide_price_if_due_pure(
     item_spec: Mapping[str, Any],
     market_tick: int,
 ) -> None:
-    day_start = (market_tick // GE_MARKET_DAY_CARDS) * GE_MARKET_DAY_CARDS
+    day_start = (market_tick // GE_MARKET_DAY_TICKS) * GE_MARKET_DAY_TICKS
     last_update = _clean_int(item_state.get("last_guide_update_tick"), 0)
     if day_start <= last_update:
         return

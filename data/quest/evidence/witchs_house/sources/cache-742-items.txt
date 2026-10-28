@@ -1,0 +1,7 @@
+2407	Ball	model=2755	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=false	options=[null, null, null, null, drop]
+2408	Diary	model=2794	recolors=[5018]->[334]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=false	options=[Read, null, null, null, drop]
+2409	Door key	model=2372	recolors=[8128]->[7087]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=false	options=[null, null, null, null, drop]
+2410	Magnet	model=2798	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=false	options=[null, null, null, null, drop]
+2411	Key	model=2372	recolors=[8128]->[66]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=false	options=[null, null, null, null, drop]
+1059	Leather gloves	model=58609	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, Wear, null, null, drop]
+1985	Cheese	model=2365	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[Eat, null, null, null, drop]

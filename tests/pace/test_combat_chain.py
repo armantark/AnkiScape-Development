@@ -48,7 +48,7 @@ class CombatChainTests(unittest.TestCase):
         self.assertEqual(ctx.card.stop_reason, "")
 
     def test_slayer_finishes_at_the_last_assigned_kill_without_overshoot(self):
-        player = _player(current_combat_target="cow", combat_auto_flee=False,
+        player = _player(current_combat_target="cow", combat_auto_flee=False, combat_prayers_enabled=False,
                          slayer_assignment={"master_id": "turael_spria", "family_id": "cows",
                                             "initial_count": 2, "remaining": 2})
         enemy = {**ENEMY, "slayer_xp": 60, "stats": {**ENEMY["stats"], "hitpoints": 60}}
@@ -63,7 +63,7 @@ class CombatChainTests(unittest.TestCase):
         self.assertEqual(ctx.player_data["combat_encounter"], {})
 
     def test_the_next_enemy_starts_with_fresh_magic_effects_and_curse_ramp(self):
-        player = _player(combat_auto_flee=False, combat_attack_style="magic_standard",
+        player = _player(combat_auto_flee=False, combat_prayers_enabled=False, combat_attack_style="magic_standard",
                          current_combat_spell="confuse", equipment={"weapon": "Staff"},
                          combat_supply_loadout={"runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
                          combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,

@@ -408,10 +408,11 @@ def _run_gate_checks(
         )
         plain_command = (*remote_runner, "plain")
         qt_command = (*remote_runner, "qt")
-        qt_environment = None
+        plain_environment = qt_environment = None
     else:
         canonical = main_worktree(source_worktree)
         plain_command = ("/opt/homebrew/bin/python3", "run_tests.py", "--processes", "8")
+        plain_environment = {"ANKISCAPE_PLAIN_LANE": "1"}
         qt_command = (
             str(canonical / ".venv-qt" / "bin" / "python"),
             "run_tests.py", "--processes", "8",
@@ -423,7 +424,7 @@ def _run_gate_checks(
             "=== PLAIN LANE ===",
             plain_command,
             _tail_without_progress,
-            None,
+            plain_environment,
             None,
             PLAIN_LANE_TIMEOUT,
         ),

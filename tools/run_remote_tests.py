@@ -506,7 +506,7 @@ def _remote_lane_command(
     if lane == "plain":
         return (
             environment
-            + f"PYTHONPATH={shlex.quote(str(REMOTE_PLAIN_SITE))} "
+            + f"ANKISCAPE_PLAIN_LANE=1 PYTHONPATH={shlex.quote(str(REMOTE_PLAIN_SITE))} "
             + "/opt/homebrew/bin/python3 "
             + run_tests
         )

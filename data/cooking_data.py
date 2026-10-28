@@ -101,13 +101,13 @@ ITEMS_SOURCE_PATH = (
     "gg/rsmod/plugins/api/cfg/Items.kt"
 )
 ITEMS_YML_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
-WHEAT_PICK_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/objs/pick/pick_wheat.plugin.kts"
+PICKABLES_DARKAN_SOURCE = (
+    "Darkan darkan-world-server src/main/java/com/rs/game/content/world/Pickables.kt "
+    "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
 )
-MILL_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/objs/mill/flour_bin.plugin.kts"
+MILL_DARKAN_SOURCE = (
+    "Darkan darkan-world-server src/main/java/com/rs/game/content/world/Windmills.kt "
+    "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
 )
 WATER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -324,7 +324,7 @@ DEFAULT_COOKING_TARGET = "cook_shrimps"
 
 
 COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
-    CookingPrepActivity("gather_grain", "Gather grain", {}, "Grain", group="gathering", source=WHEAT_PICK_SOURCE_PATH),
+    CookingPrepActivity("gather_grain", "Pick wheat", {}, "Wheat", group="gathering", source=f"https://runescape.wiki/w/Wheat?oldid=5908312; {PICKABLES_DARKAN_SOURCE}"),
     CookingPrepActivity(
         "skewer_spider_on_a_stick",
         "Skewer a spider carcass",
@@ -332,7 +332,7 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
         "Raw spider on stick",
         source=SPIDER_RECIPE_SOURCE_PATH,
     ),
-    CookingPrepActivity("grind_grain_to_flour", "Grind grain to flour", {"Grain": 1, "Empty pot": 1}, "Pot of flour", source=MILL_SOURCE_PATH),
+    CookingPrepActivity("grind_grain_to_flour", "Grind wheat to flour", {"Wheat": 1, "Empty pot": 1}, "Pot of flour", source=f"{MILL_DARKAN_SOURCE} lines 85-104"),
     CookingPrepActivity(
         "wet_flour_to_bread_dough",
         "Make bread dough",
@@ -419,8 +419,13 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
 )
 
 
+# Item 1947 is "Wheat" in the rev-727 and rev-742 caches and on its period
+# wiki page (oldid 5908312: "Wheat (previously Grain)"); earlier builds stored
+# it under the 2011Scape name.
+LEGACY_COOKING_ITEM_MIGRATIONS: Dict[str, str] = {"Grain": "Wheat"}
+
 SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
-    "Grain": (1947, True),
+    "Wheat": (1947, True),
     "Empty pot": (1931, True),
     "Pot of flour": (1933, True),
     "Bread dough": (2307, True),

@@ -2205,7 +2205,7 @@ class TargetMetadataTest(unittest.TestCase):
             os.path.basename(swamp_toads.icon_path or ""),
             "swamp_toad.png",
         )
-        self.assertIn("Processes up to 28", swamp_toads.tooltip)
+        self.assertIn("Gathers up to 28 per successful card at 1x game speed", swamp_toads.tooltip)
         self.assertIn("Output: Swamp toad x1", swamp_toads.tooltip)
         self.assertIn("No materials required", swamp_toads.tooltip)
         self.assertTrue(blue_scales.enabled)
@@ -2218,7 +2218,7 @@ class TargetMetadataTest(unittest.TestCase):
             os.path.basename(black_mushrooms.icon_path or ""),
             "black_mushroom.png",
         )
-        self.assertIn("Processes up to 1", black_mushrooms.tooltip)
+        self.assertIn("Gathers up to 1 per successful card at 1x game speed", black_mushrooms.tooltip)
         self.assertIn("Output: Black mushroom x1", black_mushrooms.tooltip)
         self.assertIn("No materials required", black_mushrooms.tooltip)
         self.assertTrue(goblin_mail.enabled)
@@ -2226,7 +2226,7 @@ class TargetMetadataTest(unittest.TestCase):
             os.path.basename(goblin_mail.icon_path or ""),
             "goblin_mail.png",
         )
-        self.assertIn("Processes up to 3", goblin_mail.tooltip)
+        self.assertIn("Gathers up to 3 per successful card at 1x game speed", goblin_mail.tooltip)
         self.assertIn("Output: Goblin mail x1", goblin_mail.tooltip)
         self.assertIn("No materials required", goblin_mail.tooltip)
         self.assertFalse(red_dye.enabled)
@@ -2237,7 +2237,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Redberries x3 (you have 0)", red_dye.tooltip)
         self.assertIn("Coins x5 (you have 0)", red_dye.tooltip)
         self.assertIn("Output: Red dye x1", red_dye.tooltip)
-        self.assertIn("Processes up to 7", blue_scales.tooltip)
+        self.assertIn("Gathers up to 7 per successful card at 1x game speed", blue_scales.tooltip)
         self.assertIn("Output: Blue dragon scale x1", blue_scales.tooltip)
         self.assertIn("No materials required", blue_scales.tooltip)
         self.assertTrue(potato_cacti.enabled)
@@ -2245,7 +2245,7 @@ class TargetMetadataTest(unittest.TestCase):
             os.path.basename(potato_cacti.icon_path or ""),
             "potato_cactus.png",
         )
-        self.assertIn("Processes up to 3", potato_cacti.tooltip)
+        self.assertIn("Gathers up to 3 per successful card at 1x game speed", potato_cacti.tooltip)
         self.assertIn("Output: Potato cactus x1", potato_cacti.tooltip)
         self.assertIn("No materials required", potato_cacti.tooltip)
         self.assertFalse(nests.enabled)

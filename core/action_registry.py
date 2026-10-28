@@ -29,6 +29,13 @@ _SPECIAL_ACTIVITY_TARGETS = {
     EVIL_TREE_UTILITY_ID,
     BIG_CHINCHOMPA_UTILITY_ID,
 }
+# The landmarks live outside UTILITY_ACTIVITY_DATA, so a spec lookup returns an
+# empty dict and the HUD would otherwise fall back to a literal placeholder name.
+_LANDMARK_ACTIVITY_NAMES = {
+    "stronghold_of_security": "Stronghold of Security",
+    "knight_waves": "Knight Waves Training Ground",
+    "mage_arena": "Mage Arena",
+}
 LEGACY_UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utility / Activities"
 UTILITY_REVIEW_ACTION_ALIASES: Tuple[str, ...] = (
     "Utility",
@@ -59,6 +66,14 @@ def utility_review_surface_for_target(activity_id: str) -> str:
     ):
         return ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
     return UTILITY_REVIEW_ACTION_DISPLAY_NAME
+
+
+def landmark_activity_name(activity_key: object) -> str:
+    """A landmark's display name, or empty for every other target."""
+    target_id = str(activity_key or "")
+    if target_id.startswith("mage_arena_attune:"):
+        return "Mage Arena attunement"
+    return _LANDMARK_ACTIVITY_NAMES.get(target_id, "")
 
 
 def is_utility_review_action(identifier: str) -> bool:

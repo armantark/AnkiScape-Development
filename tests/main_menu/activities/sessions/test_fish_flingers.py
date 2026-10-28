@@ -2,6 +2,7 @@ from __future__ import annotations
 import unittest
 from tests.test_main_menu_widget import (
     HAS_AQT,
+    _FakeCol,
     _find_named_button,
     _find_named_label,
     _find_named_widget,
@@ -11,7 +12,7 @@ from tests.test_main_menu_widget import (
     patch,
 )
 if HAS_AQT:
-    from tests.test_main_menu_widget import QApplication, QComboBox, QLabel, QMessageBox, QProgressBar, QPushButton, QScrollArea
+    from tests.test_main_menu_widget import QApplication, QComboBox, QLabel, QMessageBox, QProgressBar, QPushButton, QScrollArea, QWidget
 from tests.main_menu import fixtures
 
 
@@ -52,7 +53,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         buy = reward_page.findChild(QPushButton, "fishFlingersBuyButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
-        self.assertIn("8 catches over 1,000 ticks", summary.text())
+        self.assertIn("8 catches over 167 cards", summary.text())
         self.assertEqual(primary.text(), "Start activity")
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
@@ -115,3 +116,26 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         )
         self.assertTrue(leave.isHidden())
         self.assertIn("forfeited", summary.text())
+
+    def test_fish_flingers_names_its_length_in_cards_at_the_game_speed(self) -> None:
+        # The ten-minute event is 1,000 ticks; a card at speed 10 spends 60.
+        from ankiscape.ui import ui
+
+        class _FakeMw(QWidget):
+            def __init__(self) -> None:
+                super().__init__()
+                self.col = _FakeCol()
+                self.col.set_config("ankiscape_review_action_multiplier", 10)
+
+        with patch.object(ui, "mw", _FakeMw()):
+            pd = _make_player_data()
+            pd.update({"activity_session": {"active_id": ""}, "fish_flingers_last_ticket_day": -1})
+            dialog = self._open(pd)
+            dialog.show()
+            activity_tree = self._open_activities(dialog)
+            row = _utility_row(activity_tree, "fish_flingers")
+            activity_tree.setCurrentItem(row)
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+            summary = _find_named_label(dialog, "fishFlingersSummary")
+            self.assertIn("8 catches over 17 cards", summary.text())

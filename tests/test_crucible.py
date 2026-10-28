@@ -514,6 +514,28 @@ class CrucibleArenaTest(unittest.TestCase):
         # The player's own prayer selection is left exactly as they set it.
         self.assertIn("protect_item", played["combat_selected_prayers"])
 
+    def test_a_lone_protect_item_choice_fights_without_prayer_and_stays_saved(self):
+        """The game's pick is for a player who chose nothing; this player chose
+        a prayer the arena disables, so the fight runs none."""
+        for book, prayer_id in (("standard", "protect_item"), ("curses", "curse_protect_item")):
+            with self.subTest(book=book):
+                player = _armoured_player(protect_item=True)
+                player.update(
+                    combat_prayer_book=book,
+                    combat_selected_prayers=[prayer_id],
+                    quests={"the_temple_at_senntisten": {"completed": True}},
+                )
+                entered, ok, _ = enter_crucible_pure(player, GE_ITEM_CATALOG)
+                self.assertTrue(ok)
+                played, ok, result = apply_crucible_review_pure(
+                    entered, random.Random(11).random, equipment_data=EQUIPMENT_DATA
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["combat"]["prayers"], ())
+                self.assertEqual(played["combat_prayer_points"], 600)
+                self.assertEqual(played["combat_selected_prayers"], [prayer_id])
+                self.assertTrue(played["combat_prayers_enabled"])
+
     def test_leaving_abandons_the_target_and_splits_the_fee_the_sourced_way(self):
         entered, ok, _ = enter_crucible_pure(_player(), GE_ITEM_CATALOG)
         self.assertTrue(ok)

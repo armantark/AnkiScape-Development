@@ -1,0 +1,42 @@
+{{QG|Witch's House}}
+==Walkthrough==
+{{Quest details
+|start         = Talk to the boy near the gate entrance of [[Taverley]].
+|difficulty    = easy
+|length        = short
+|members       = Yes
+|requirements  = You must be able to beat 4 monsters from level 19 to 53 without a break
+|items         = *[[Cheese]] (bring several)
+*[[Leather gloves]]
+|kills         = *[[Skavid]] (level 19)
+*[[Giant spider]] (level 30)
+*[[Bear]] (level 42)
+*[[Wolf]] (level 53)}}
+
+==Getting Started==
+*Talk to the [[Boy]] standing by the long garden just West of Falador.
+
+==Entering the House==
+*Head West and then North to the front door of the house near the boy.
+*Search the Northern potted plant.
+*Open the door.
+*Grab the [[Diary (Witch's House)|diary]] on the table and read it.
+*Go into the basement and, while wearing gloves, enter the gate.
+*Search the cupboard.
+*Go back up the ladder and into the small room to the south.
+*Use [[Cheese]] on the Mouse Hole on the Eastern wall.
+*Use the [[Magnet (Witch's House)|magnet]] on the mouse.
+
+==Retrieving the Ball==
+*Head to the fountain.
+**'''Note:''' Use the hedges to hide from [[Nora T. Hagg]] or most of the above steps will need to be repeated.
+*Search the fountain.
+*Go to the shed and use the key on the door.
+**'''Note:''' Do not take the [[ball]] yet.
+*Kill the [[Witch's experiment]] four times.
+
+==Finishing Up==
+*Take the ball.
+*Go back to the boy and give him the ball.
+*Quest complete!
+[[Category:Witch&#39;s House]]

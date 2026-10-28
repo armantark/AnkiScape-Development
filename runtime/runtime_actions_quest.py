@@ -7,6 +7,7 @@ from textwrap import fill
 from typing import Any
 
 from ..core.constants import CLAIM_DATA, EQUIPMENT_DATA, QUEST_DATA
+from ..core.last_action import quest_blocked_message
 from ..logic.bar_crawl_logic import apply_bar_crawl_drink_effects_pure
 from ..logic_pure.logic_pure import (
     apply_quest_combat_encounter_pure,
@@ -18,6 +19,7 @@ from ..logic_pure.logic_pure import (
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_lamps_waiting_text_pure,
 )
+from ..logic_pure.quest.review_services import quest_review_service_phase_pure
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
 from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
 from ..logic_pure.quest.hazeel_journal import hazeel_opening_announcement_pure
@@ -37,9 +39,11 @@ from .runtime_actions_shared import (
 
 
 def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reasons: tuple[str, ...]) -> None:
-    ctx.deactivate_current_skill()
-    reason_lines = "\n".join(f"• {reason}" for reason in reasons)
-    ctx.show_error_message("Quest blocked", f"{quest_name} is blocked:\n{reason_lines}\n\nQuesting has been switched off until this is resolved.")
+    # The review HUD shows this short reason beside Resume in a fixed-height
+    # box, so it names the first blocker; the dialog below lists them all.
+    more = f" (+{len(reasons) - 1} more)" if len(reasons) > 1 else ""
+    ctx.deactivate_current_skill(f"{reasons[0]}{more}")
+    ctx.show_error_message("Quest blocked", quest_blocked_message(quest_name, reasons))
 
 
 def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], encounter_id: Any) -> bool:
@@ -128,6 +132,12 @@ def _announce_watchtower_progress(ctx, phase):
 
 
 def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "", cook_phase: Any = None) -> None:
+    if repair_phase == "recover_key":
+        ctx.show_activity_gain("Recovered the backroom key from the fountain.")
+        return
+    if repair_phase == "recover_ball":
+        ctx.show_activity_gain("Recovered Harvey's ball from the shed.")
+        return
     if quest_id == "watchtower" and repair_phase:
         _announce_watchtower_progress(ctx, repair_phase)
         return
@@ -202,7 +212,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
 
     opening_message = toktz_opening_message_pure(player_data, quest_id)
     cook_phase = another_cook_phase_pure(player_data, quest_id)
-    repair_phase = quest_review_phase_pure(player_data, quest_id)
+    repair_phase = (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
+                    or quest_review_phase_pure(player_data, quest_id))
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(

@@ -34,8 +34,15 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 - **Action** — the one skill, activity, or utility that reviews advance for
   the player. The player has exactly one action at a time. Combat is the action
   "attack" against a chosen target.
+- **Action queue** — an ordered list of up to five actions, each with a count
+  in that action's own unit (bars made, logs cut, kills), that reviews work
+  through once from top to bottom. An entry that cannot continue gives a
+  notice and the next entry starts; an empty queue ends at Bankstanding.
+  Avoid: "loop", "task list".
 - **Bankstanding** — the neutral action every ended session lands on. An
   automatic switch to Bankstanding notifies the player; a manual Stop does not.
+- **Review HUD** — the compact box under each card in the reviewer that shows
+  the current action, its progress and its buttons. Avoid: "activity widget".
 - **Encounter** — one fight against one enemy that persists between reviews:
   the enemy's remaining life points and the attack countdowns carry from card
   to card. An encounter lives only while the action stays combat against the

@@ -61,15 +61,22 @@ class ExpPopupOverlayTest(unittest.TestCase):
             QApplication.processEvents()
         self.old_mw = ui.mw
         self.old_config = ui.get_config_bool
+        # Every review-widget singleton in ui must be listed: one left out
+        # outlives this fixture's teardown as a deleted widget, which the next
+        # test's fresh strip then tries to reuse.
         self.old_globals = {
             name: getattr(ui, name)
             for name in (
                 "_REVIEW_HUD",
                 "_REVIEW_STRIP",
                 "_REVIEW_CONTEXT_STRIP",
+                "_SHOOTING_STAR_NOTICE_BAND",
                 "_BANK_RUN_BUTTON",
+                "_MAIN_MENU_BUTTON",
                 "_DND_BADGE",
                 "_FARMING_BADGE",
+                "_STATUS_POPOVER",
+                "_STATUS_POPOVER_BADGE",
                 "_FILL_DRAWER",
                 "_EVENT_LOG_DRAWER",
             )

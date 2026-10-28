@@ -1,0 +1,88 @@
+{
+  "checked_at_utc": "2026-10-24",
+  "files": [
+    {
+      "path": "/Users/armantarkhanian/Documents/AnkiScape/memory-bank/shared-source-harvest-ledger.md",
+      "sha256_before_own_append": "75bf999fba2c33eb6b7d60d0c02fe432145c7bd8394978e7f0a1f67f4fe6886e",
+      "line_count": 253,
+      "relevant_hits": []
+    },
+    {
+      "path": "/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/shared-source-harvest-ledger.md",
+      "sha256_before_own_append": "6ec18b280e0d02f396b964367a6661cc2a8fad957d1dcd0e7b10166504ae2511",
+      "line_count": 6260,
+      "relevant_hits": [
+        {
+          "line": 851,
+          "text": "| Witch's House | [oldid 6474931](https://runescape.wiki/w/Witch%27s_House?oldid=6474931) | `2012-10-26T12:16:36Z` | `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/generation/quest_sources.json.gz` (wiki keys: `wikitext_witch_s_house_old`) | AnkiScape quest-catalog pin |"
+        },
+        {
+          "line": 852,
+          "text": "| Witch's House/Quick guide | [oldid 6196397](https://runescape.wiki/w/Witch%27s_House%2FQuick_guide?oldid=6196397) | `2012-09-05T07:42:46Z` | `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/generation/quest_sources.json.gz` (wiki keys: `wikitext_witch_s_house_quick_guide_old`) | AnkiScape quest-catalog pin |"
+        },
+        {
+          "line": 2431,
+          "text": "| Cerulean twitch source1371 latest-cutoff metadata | Fixed cutoff 2012-11-20T00:00:00Z; source1371; both shared ledgers checked, no product acceptance. | `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/source-selection-1371-cutoff-meta-npc-5074-20261020.json` SHA256 `6150c414ba5addc43920a480ea86808f293e627af25a9d7bbff2ae90810b5ead`; 232 bytes; pin-files.py receipt verified. | Darkan source1371. |"
+        }
+      ]
+    },
+    {
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/harvest-ledger.md",
+      "sha256_before_own_append": "a748a63d5bc95399fd3810624cf0ca665d24a065ee2d4529337098a49677fb82",
+      "line_count": 12378,
+      "relevant_hits": [
+        {
+          "line": 5057,
+          "text": "- 2026-10-21T02:34:02.430938+00:00 | AnkiScape | Leather gloves | 6454522 | 2012-10-22T20:45:40Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/0310-giant-dwarf-item-weights/sources/leather-gloves-6454522.txt | SHA-256 69ea396e2bd37f4a890dc8c6eb69b33e2e7efcb89d4ac94af691ab7db0506c28 | historical Wikia mirror API"
+        },
+        {
+          "line": 6727,
+          "text": "- 2026-10-21T02:37:59.785916+00:00 | AnkiScape | Witchwood icon | 6201473 | 2012-09-06T00:51:35Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/0310-giant-dwarf-item-weights/sources/witchwood-icon-6201473.txt | SHA-256 2889646e4fef0b2e70118b04f063deb31d09c54d0ef057de0f4c53458c39d27b | historical Wikia mirror API"
+        },
+        {
+          "line": 8958,
+          "text": "2026-10-23T00:52:31.833710+00:00 | AnkiScape | Template:Questreq | 6552449 | 2012-11-13T19:50:29Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/0740-should-be-replaced/sources/questreq-6552449.txt | SHA-256 02c5d8c2cd510450ad1117a49693b4cf31dab273ff7d86e01e176ff101277105 | https://runescape.wiki/w/index.php?title=Template%3AQuestreq&oldid=6552449&action=raw | 0740 Blood medallion evidence only; inside/exit-first returns kept separate; no qualified conditioned rate; quest dependencies and defaults unchanged | Literal relevant switch branches inspected; no recursive quest implementation/closure."
+        },
+        {
+          "line": 10351,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6446739 | 2012-10-20T07:40:42Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6446739.txt | SHA-256 1a8d08823fdd589db4d55c9203132a36aee3f5ed476dad3abe9ef524f4cfe177 | 1070-W6446739; cited original or supplying revision; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6446739&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10517,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6446738 | 2012-10-20T07:40:01Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6446738.txt | SHA-256 78f9a3dbcbc94f63e218d070d2441d89170f666abb53037c0f5e04f560b24b76 | 1070-W6446738; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6446738&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10518,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6446737 | 2012-10-20T07:38:45Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6446737.txt | SHA-256 dfe18b67938a63c5590501bce554cb44e599af914667c038a98a87ae6b395bbe | 1070-W6446737; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6446737&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10519,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6446726 | 2012-10-20T07:32:53Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6446726.txt | SHA-256 1a8d08823fdd589db4d55c9203132a36aee3f5ed476dad3abe9ef524f4cfe177 | 1070-W6446726; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6446726&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10520,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6446722 | 2012-10-20T07:31:31Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6446722.txt | SHA-256 8174844c148358d1d1d1c421036de5c9203cbd994251572318b24fcf3ded3722 | 1070-W6446722; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6446722&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10521,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6436975 | 2012-10-18T16:26:40Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6436975.txt | SHA-256 9a49ef6cb0703612a78186c3a09398b2c64307bc206037e3cc3855092e1cb6c5 | 1070-W6436975; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6436975&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10522,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6023319 | 2012-08-01T17:44:58Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6023319.txt | SHA-256 e4bf7e6637f90a22c37e9e6f28b08c9f58e3b2ecae2fb223ad35a23471ddfe31 | 1070-W6023319; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6023319&action=raw; evidence only, no product acceptance"
+        },
+        {
+          "line": 10523,
+          "text": "2026-10-23T10:58:36.961621+00:00 | AnkiScape | Template:Switch infobox | 6023085 | 2012-08-01T14:52:15Z | /Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/1070-champions-challenge-scroll-ladder/sources/template-switch-infobox-6023085.txt | SHA-256 7f4343acdd612ddfc98ce35a62b91f28656f8fd96a631d500638ac38c2cf3e8d | 1070-W6023085; retained cutoff/control/supplier-history original; uncited retention is not semantic inspection; https://runescape.fandom.com/index.php?title=Template%3ASwitch+infobox&oldid=6023085&action=raw; evidence only, no product acceptance"
+        }
+      ]
+    },
+    {
+      "path": "/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/darkan-pending-pins.md",
+      "sha256_before_own_append": "655655d5598d53b72b25a32233cedb1528bea3783251cb443dcf3fa170f31639",
+      "line_count": 19,
+      "relevant_hits": []
+    }
+  ],
+  "conclusion": "Reused all four Witch wiki bodies, three restored/original code revisions, retained cache727 packet and Leather gloves6454522. No Witch source hold found. Pending index no Witch entry. Ledger pointer old user-home paths resolved to actual current paths; gloves body moved from active to done; bytes verified. No source message tool used; ledger-only scope authorized."
+}

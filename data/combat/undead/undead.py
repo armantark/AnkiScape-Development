@@ -146,7 +146,7 @@ SKELETON_LOW_DROPS = {
                 {"item": "Iron dagger", "quantity": 1, "slots": 48},
                 {"item": "Fire talisman", "quantity": 1, "slots": 16},
                 {"item": "Iron ore", "quantity": 1, "slots": 8},
-                {"item": "Grain", "quantity": 1, "slots": 8},
+                {"item": "Wheat", "quantity": 1, "slots": 8},
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
             ),
         },

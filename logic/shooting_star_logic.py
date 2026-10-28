@@ -20,7 +20,7 @@ from ..data.shooting_star_data import (
 )
 from .pace.world_clock import answered_cards_pure, world_day_index_pure, calendar_ticks_pure
 from .pace.world_events import consumed_event_slot_pure, cards_until_event_pure, event_in_play_pure, event_slot_tick_pure, next_event_tick_pure
-from .pace.short_timers import cards_for_ticks_pure
+from .pace.short_timers import cards_for_ticks_pure, cards_left_text_pure
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
@@ -833,6 +833,9 @@ def shooting_star_view_pure(
         ),
         "ore_bonus_ticks_remaining": _int(
             state.get("ore_bonus_ticks_remaining")
+        ),
+        "ore_bonus_left_text": cards_left_text_pure(
+            _int(state.get("ore_bonus_ticks_remaining")), speed
         ),
         "last_result": str(state.get("last_result", "")),
     }

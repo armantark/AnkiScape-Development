@@ -508,7 +508,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     _auto_drink_skilling_potion_if_needed(ctx, "crafting", str(item), int(spec["level"]))
     player_level = skilling_effective_level_pure(player_data, "crafting")
     if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
     thread_roll = min(int(ctx.random_random() * 5), 4) + 1 if spec.get("consume_thread_on_roll") else None
@@ -566,7 +566,7 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     player_level = skilling_effective_level_pure(player_data, "fletching")
 
     if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Fletching to make {display_name}.")
         return False
 
     new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], fletching_data)
@@ -614,7 +614,7 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Herblore to make {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Herblore to make {display_name}.")
         return False
 
     new_inv, base_exp, ok = apply_herblore_action_pure(target, player_data["inventory"], HERBLORE_DATA)
@@ -685,10 +685,7 @@ def handle_summoning_answer(ctx: RuntimeActionContext) -> bool:
         if str(reason).startswith("Summoning level")
     )
     if level_reasons:
-        ctx.show_error_message(
-            "Insufficient level",
-            f"You need {level_reasons[0]} for {action.display_name}.",
-        )
+        _switch_material_failure_to_bankstanding(ctx, f"You need {level_reasons[0]} for {action.display_name}.")
         return False
 
     updated, ok, result = apply_summoning_training_action_pure(
@@ -911,7 +908,7 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Firemaking to burn {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Firemaking to burn {display_name}.")
         return False
 
     if not has_firemaking_materials_pure(target, player_data.get("inventory", {}), FIREMAKING_DATA):
@@ -1003,7 +1000,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if not spec.get("source_no_level_requirement") and player_level < spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
         return False
 
     if not has_cooking_materials_pure(target, player_data.get("inventory", {}), COOKING_DATA):
@@ -1139,7 +1136,7 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
     player_level = player_data.get("runecrafting_level", 1)
 
     if player_level < spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Runecrafting for {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Runecrafting for {display_name}.")
         return False
 
     rolls = [ctx.random_random() for _ in range(64)]
@@ -1238,7 +1235,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Smithing to make {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Smithing to make {display_name}.")
         return False
 
     has_forging_ring = has_ring_of_forging_pure(player_data)

@@ -1,0 +1,290 @@
+{
+  "cause": "Main merge conflicts and automatically merged service adapter rejected Witch deed_only recovery.",
+  "resolution": "Retain Witch migration/defaults and Hazeel valve sanitation/defaults; retain stage-item exports, Hazeel admission and review keyword arguments; preserve pending, partial and deed_only early successes; preserve both proof-writer assertions and mention counts.",
+  "checks": {
+    "merge_regression_red": {
+      "command": "python3 run_tests.py test_witchs_house_merge",
+      "exit": 1,
+      "tests": 2,
+      "errors": 2,
+      "exact_cause": "KeyError: 'deed_only' at logic_pure/quest/review_steps.py:40 in both stage=11 and stage=14 subtests"
+    },
+    "merge_regression_green": {
+      "command": "python3 run_tests.py test_witchs_house_merge",
+      "exit": 0,
+      "tests": 2,
+      "skips": 0
+    },
+    "audit_docs": {
+      "command": "python3 tools/audit_docs.py --json",
+      "exit": 0,
+      "exact_stdout": "{\n  \"markdown_files\": 1058,\n  \"html_files\": 2,\n  \"issues\": []\n}\n"
+    },
+    "retained_auditor_checks": {
+      "input_sha256": {
+        "tools/audit_docs.py": "3049aef999a1e0773b82a8dd68bae560d9607033b76b713df4c41041affb6345",
+        "tests/test_docs_audit.py": "3dba5e1db8bd79c1ab7b31ff2aa6c92bdf48d0ac970b97975f803e0d4093b99a"
+      },
+      "receipt": "build-16-verification.json checks.docs_audit (20 passed), checks.capture_probe (exit 0), checks.capture_red_receipt retained unchanged; matching auditor and test hashes."
+    },
+    "structural": {
+      "resolved_files": [
+        "core/quest_storage.py",
+        "logic_pure/logic_pure_quest.py",
+        "logic_pure/quest/review_steps.py",
+        "tests/test_quest_action_proofs.py",
+        "tests/quests/test_witchs_house_merge.py"
+      ],
+      "all_parse": true,
+      "unique_top_level_functions": true,
+      "no_conflict_markers": true,
+      "quest_orchestrator_lines": 1276
+    },
+    "source_custody": {
+      "packet_files": 105,
+      "indexed_captures": 60,
+      "all_bytes_and_lengths_match": true,
+      "source_fetches": 0,
+      "source_files": 103,
+      "packet_files_definition": "103 sources plus evidence.md and source-index.json; original manifest hashes retained.",
+      "final_hash_recheck": true
+    },
+    "remote_focused_plain_count": {
+      "command": "tools/run_remote_tests.py \"$PWD\" plain --collect-only <plain selectors>",
+      "exit": 0,
+      "exact_stdout": "Matching tests: 327\nStatic skip: tests.main_menu.quests.test_combat.MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection: aqt/PyQt6 not installed (use .venv-qt)\nStatic skip: tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_witchs_house_mouse_stage_blocker: aqt/PyQt6 not installed (use .venv-qt)\nStatic skip: tests.one_small_favour.test_existing_quest_surface.ExistingOpeningSurfaceTest.test_custody_refusal_text_and_bank_retained_icon_and_discard: Qt is unavailable; run the Qt lane\nStatic skip: tests.one_small_favour.test_existing_quest_surface.ExistingOpeningSurfaceTest.test_valid_prefixes_enable_existing_control_and_only_johanhus_finishes_journal: Qt is unavailable; run the Qt lane\nStatic skip: tests.one_small_favour.test_popup_geometry.OpeningPopupGeometryTest.test_full_request_and_counter_fit_native_window_before_and_after_undo: Qt is unavailable; run the Qt lane\nStatic skip: tests.quest_catalog.test_watchtower_opening_ui.WatchtowerOpeningUITest.test_clue_icon_resolves_on_existing_bank_surface: Qt/Anki runtime is not installed\nStatic skip: tests.quest_catalog.test_watchtower_opening_ui.WatchtowerOpeningUITest.test_legacy_row_is_uncompleted_and_later_rows_preserved: Qt/Anki runtime is not installed\nStatic skip: tests.quest_catalog.test_watchtower_opening_ui.WatchtowerOpeningUITest.test_missing_clue_disables_control_and_refuses_without_journal_mutation: Qt/Anki runtime is not installed\nStatic skip: tests.quest_catalog.test_watchtower_opening_ui.WatchtowerOpeningUITest.test_phase_journals_toggle_availability_and_geometry_in_both_palettes: Qt/Anki runtime is not installed\nStatic skip: tests.quest_catalog.test_watchtower_opening_ui.WatchtowerOpeningUITest.test_selecting_existing_control_does_not_perform_commission: Qt/Anki runtime is not installed\nStatic skip: tests.quests.test_witchs_house_runtime.WitchsHouseControlsTest.test_equipped_gloves_and_both_recovery_contexts_select_through_existing_controls: aqt/PyQt6 required\nStatic skip: tests.quests.test_witchs_house_runtime.WitchsHouseControlsTest.test_missing_diary_and_carried_gloves_block_existing_controls: aqt/PyQt6 required\nStatic skip: tests.quests.test_witchs_house_undo.WitchsHouseRealUndoTest.test_distinct_key_and_postfight_ball_recoveries_undo_and_replay_without_combat_replay: Real Anki Collection is required\nStatic skip: tests.quests.test_witchs_house_undo.WitchsHouseRealUndoTest.test_migrated_gate_resume_scalar_undo_replay_and_reopen_are_one_transaction: Real Anki Collection is required\nStatic skip: tests.quests.test_witchs_house_undo.WitchsHouseRealUndoTest.test_route_deeds_each_fight_and_hand_in_use_real_collection_undo_and_persist: Real Anki Collection is required\nStatic skip: tests.runtime_actions.quests.test_watchtower_collection.WatchtowerCollectionTest.test_all_three_deeds_undo_replay_and_survive_actual_collection_reopen: Anki runtime is not installed\nStatic skip: tests.runtime_actions.quests.watchtower_feedback.test_watchtower_toast.WatchtowerToastTest.test_each_phase_fits_light_and_dark_laptop_reviewer: Qt/Anki runtime is not installed\nStatic skip: tests.ui_flows.quests.test_hazeel_opening.HazeelOpeningUITest.test_both_first_journals_render_truthfully_without_mutation: aqt/PyQt6 not installed (use .venv-qt)\nStatic skip: tests.ui_flows.quests.test_hazeel_opening.HazeelOpeningUITest.test_choice_buttons_wait_for_clivet_briefing: aqt/PyQt6 not installed (use .venv-qt)\nStatic skip: tests.ui_flows.quests.test_hazeel_opening.HazeelOpeningUITest.test_hazeel_journal_fits_laptop_sizes: aqt/PyQt6 not installed (use .venv-qt)\nRuntime skips: unknown until tests run; metadata applies to this interpreter only.\nRemote plain inventory summary:\nMatching tests: 327\nRemote phase timings:\nRemote preparation: 1.459s (finished)\nSync: 5.912s (finished)\nTest execution: 10.409s (finished)\n",
+      "exact_stderr": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote mirror busy; waiting without a deadline for queue /Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue. --timeout starts after launch; run this command as a background task.\nRemote run: plain-1793074633-8e945707; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074633-8e945707.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074633-8e945707.report\n"
+    },
+    "local_focused_plain": {
+      "command": "python3 run_tests.py <307 exact IDs in build-17-focused-selectors.json>",
+      "exit": 1,
+      "count": 307,
+      "exact_stdout": "",
+      "exact_stderr": "...............................................................................................................................................................................................................................................................................F...................................\n======================================================================\nFAIL: test_known_combat_gap_examples_explain_why_rows_remain_statless (tests.test_quest_combat_stat_gap_audit.TestQuestCombatStatGapAudit.test_known_combat_gap_examples_explain_why_rows_remain_statless)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/armantarkhanian/ankiscape_worktrees/pool/.treehouse/AnkiScape-091389/11/AnkiScape/tests/test_quest_combat_stat_gap_audit.py\", line 42, in test_known_combat_gap_examples_explain_why_rows_remain_statless\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        audit.classify_gap(self.by_quest_and_name[(\"wanted\", \"Black Knight\")], self.darkan_groups, self.partial_groups),\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        \"darkan_same_name_wrong_level\",\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\nAssertionError: 'no_local_source_match' != 'darkan_same_name_wrong_level'\n- no_local_source_match\n+ darkan_same_name_wrong_level\n\n\n----------------------------------------------------------------------\nRan 307 tests in 64.447s\n\nFAILED (failures=1)\n"
+    },
+    "remote_focused_qt_count": {
+      "exit": 0,
+      "exact_stdout": "Matching tests: 327\nRuntime skips: unknown until tests run; metadata applies to this interpreter only.\nRemote qt inventory summary:\nMatching tests: 327\nRemote phase timings:\nRemote preparation: 2.506s (finished)\nSync: 2.427s (finished)\nTest execution: 10.411s (finished)\n",
+      "exact_stderr": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote mirror busy; waiting without a deadline for queue /Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue. --timeout starts after launch; run this command as a background task.\nRemote run: qt-1793074646-4c42eab5; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074646-4c42eab5.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074646-4c42eab5.report\n"
+    },
+    "count_full": {
+      "command": "python3 run_tests.py --count",
+      "tests": 6330,
+      "exit": 0
+    },
+    "count_focused_qt": {
+      "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py --count <qt selectors>",
+      "tests": 327,
+      "exit": 0
+    },
+    "local_focused_plain_with_sources": {
+      "command": "ANKISCAPE_GAME_MAIN=<retained game-main> ANKISCAPE_DARKAN_WORLD_SERVER=<retained darkan-world-server> python3 run_tests.py <307 plain exact selectors>",
+      "tests": 307,
+      "exit": 0,
+      "exact_stdout": "",
+      "exact_stderr": "...................................................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 307 tests in 59.627s\n\nOK\n"
+    },
+    "focused_qt": {
+      "lane": "qt",
+      "exit": 0,
+      "expected_tests": 327,
+      "selector_file": "build-17-focused-selectors.json",
+      "exact_output": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote run: qt-1793074667-5bca67b9; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074667-5bca67b9.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074667-5bca67b9.report\nqt.qpa.fonts: Populating font family aliases took 81 ms. Replace uses of missing font family \"Sans Serif\" with one that exists to avoid this cost. \nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n----------------------------------------------------------------------\nRan 327 tests in 97.902s\n\nOK\nRemote focused qt lane summary:\nRan 327 tests in 97.902s\nOK\nRemote phase timings:\nRemote preparation: 1.507s (finished)\nSync: 1.934s (finished)\nTest execution: 106.405s (finished)\n",
+      "run_id": "qt-1793074667-5bca67b9",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074667-5bca67b9.log": {
+          "sha256": "cdd1ef5500886a31dcff9139edee9a8f381dba7c27072b8382c5f5e629197f9b",
+          "bytes": 5848
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074667-5bca67b9.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793074667-5bca67b9.skips.json": {
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2
+        }
+      },
+      "tests": 327,
+      "seconds": 97.902,
+      "skipped": 0
+    },
+    "focused_plain_count": {
+      "lane": "plain",
+      "exit": 0,
+      "expected_tests": null,
+      "selector_file": "build-17-focused-selectors.json",
+      "exact_output": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote mirror busy; waiting without a deadline for queue /Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue. --timeout starts after launch; run this command as a background task.\nRemote run: plain-1793074990-5c5b3739; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074990-5c5b3739.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074990-5c5b3739.report\nMatching tests: 307\nRuntime skips: unknown until tests run; metadata applies to this interpreter only.\nRemote plain inventory summary:\nMatching tests: 307\nRemote phase timings:\nRemote preparation: 1.566s (finished)\nSync: 4.727s (finished)\nTest execution: 5.326s (finished)\n",
+      "run_id": "plain-1793074990-5c5b3739",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074990-5c5b3739.log": {
+          "sha256": "52ceb817078f61181cbc59560edce7697a44e499871daa13d1a154c60f577e31",
+          "bytes": 103
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074990-5c5b3739.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "skipped": 0
+    },
+    "focused_plain": {
+      "lane": "plain",
+      "exit": 0,
+      "expected_tests": 307,
+      "selector_file": "build-17-focused-selectors.json",
+      "exact_output": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote run: plain-1793074999-49d5fb76; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074999-49d5fb76.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074999-49d5fb76.report\n----------------------------------------------------------------------\nRan 307 tests in 59.801s\n\nOK\nRemote focused plain lane summary:\nRan 307 tests in 59.801s\nOK\nRemote phase timings:\nRemote preparation: 1.120s (finished)\nSync: 1.944s (finished)\nTest execution: 65.920s (finished)\n",
+      "run_id": "plain-1793074999-49d5fb76",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074999-49d5fb76.log": {
+          "sha256": "9d55e73ab728cc3030da98b5b591146557a3a658c66b4302fe26466698e43aca",
+          "bytes": 100
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074999-49d5fb76.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793074999-49d5fb76.skips.json": {
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2
+        }
+      },
+      "tests": 307,
+      "seconds": 59.801,
+      "skipped": 0
+    },
+    "style": {
+      "command": "/Users/armantarkhanian/.local/bin/pycodestyle --ignore=E501 tests/quests/test_witchs_house_merge.py",
+      "exit": 0,
+      "stdout": ""
+    },
+    "full_plain": {
+      "lane": "plain",
+      "exit": 0,
+      "expected_tests": null,
+      "selector_file": null,
+      "exact_output": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote run: plain-1793075070-c5cc4ffe; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793075070-c5cc4ffe.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793075070-c5cc4ffe.report\n\n----------------------------------------------------------------------\nRan 6330 tests in 639.152s\n\nOK (skipped=713)\nRemote plain lane summary:\nRan 6330 tests in 639.152s\nOK (skipped=713)\nRemote phase timings:\nRemote preparation: 1.892s (finished)\nSync: 3.171s (finished)\nTest execution: 649.706s (finished)\n",
+      "run_id": "plain-1793075070-c5cc4ffe",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793075070-c5cc4ffe.log": {
+          "sha256": "e7829eb644bbffe70e62ee3cd20cdf9a3b03fbcaa7e87f683861ba08e1ec52f4",
+          "bytes": 117
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793075070-c5cc4ffe.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "tests": 6330,
+      "seconds": 639.152,
+      "skipped": 713
+    },
+    "full_qt": {
+      "lane": "qt",
+      "exit": 0,
+      "expected_tests": null,
+      "selector_file": null,
+      "exact_output": "Remote verification uses the snapshot taken now; later edits require a new run.\nRemote mirror busy; waiting without a deadline for queue /Users/armantarkhanian/Library/Caches/ankiscape-remote-test-host.queue. --timeout starts after launch; run this command as a background task.\nRemote run: qt-1793075735-545bf658; log: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.log; report: /Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.report\n\n----------------------------------------------------------------------\nRan 6330 tests in 747.842s\n\nOK (skipped=5)\nRemote qt lane summary:\nRan 6330 tests in 747.842s\nOK (skipped=5)\nRemote phase timings:\nRemote preparation: 2.362s (finished)\nSync: 4.232s (finished)\nTest execution: 755.133s (finished)\n",
+      "run_id": "qt-1793075735-545bf658",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.log": {
+          "sha256": "98b4ef7cb876749c116cc65d2e88d634de35dd6eed809f2b8eefc62e1a332aea",
+          "bytes": 115
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "tests": 6330,
+      "seconds": 747.842,
+      "skipped": 5
+    }
+  },
+  "input_pins": {
+    "path": "data/quest/evidence/witchs_house/build-17-input-pins.json",
+    "files": 1623,
+    "sha256": "908ed09992ef613758dd40c744dd138f10aca266ea589350d5a3b744e4acf716"
+  },
+  "changed_prior_pins": [
+    "__init__.py",
+    "core/constants_parts/activity_assets.py",
+    "core/quest_storage.py",
+    "core/storage_pure.py",
+    "data/hunter_data.py",
+    "data/quest/catalog.py",
+    "data/quest/catalog_overrides.py",
+    "data/quest/item_names.py",
+    "data/quest/reward_items.py",
+    "data/quest/stage_overrides/members/classic/hazeel_cult.py",
+    "data/shop_data.py",
+    "data/treasure_trails_data.py",
+    "logic/farming_logic.py",
+    "logic/shop/services.py",
+    "logic/shop_logic.py",
+    "logic_pure/logic_pure.py",
+    "logic_pure/logic_pure_gathering.py",
+    "logic_pure/logic_pure_quest.py",
+    "logic_pure/quest/journal.py",
+    "logic_pure/quest/review_steps.py",
+    "runtime/runtime_actions_carried_overlay.py",
+    "runtime/runtime_actions_gathering.py",
+    "runtime/runtime_actions_quest.py",
+    "tests/main_menu/quests/test_journal.py",
+    "tests/quest_catalog/test_legends_prayer_readout.py",
+    "tests/quest_catalog/test_quest_root_prerequisites.py",
+    "tests/reachability/test_report_baseline.py",
+    "tests/runtime_actions/test_dispatcher_state.py",
+    "tests/test_logic.py",
+    "tests/test_quest_action_proofs.py",
+    "tests/test_quest_catalog.py",
+    "tests/test_runtime_actions.py",
+    "tests/test_shop_data.py",
+    "tests/treasure_trails/__init__.py",
+    "tests/treasure_trails/test_npc_catalog.py",
+    "tests/treasure_trails/test_sinclair_search_catalog.py",
+    "tests/treasure_trails/test_sinclair_search_review_undo.py"
+  ],
+  "resource_claim": "build-17-resources-60a77910e25217a6.json; loop-owned claims, no new claim or release",
+  "prior_receipts": "All earlier verification records retained unchanged. Auditor and capture-probe receipts preserved when their exact inputs match. Product inputs changed through merge, so fresh product verification required.",
+  "status": "Build complete. Focused plain 307/307 and Qt 327/327 passed without skips, including real Collection Undo/replay and reopen. Full plain and Qt each passed 6330 tests (713 and 5 skips). Normal docs audit passed with zero findings. Original capture bytes and hash-matched auditor/probe receipts retained. No commit, native Anki launch or promotion performed. Loop commit, independent review, native acceptance and promotion remain mandatory.",
+  "attempt_notes": [
+    "Initial plain-selection preparation expected static skips from --list, which reports IDs only; stopped before test execution. Read --count metadata, excluded the 20 environment-specific cases only from the plain focused selection. Qt retains all 327 cases. Initial remote inventory used 327 before this selection correction; retain as inventory, not product verification.",
+    "Local focused plain first ran without the retained Darkan source-root override: one combat gap audit classified the absent local-source match differently. Rerun uses the established source-root environment from the remote runner; no source, audit assertion or product change."
+  ],
+  "prior_report_sha256": "299c16ecdd24c72b06babce4b2bd978cdaf989a810518a7e798a9b30b27ac1ca",
+  "interim_binding": {
+    "all_input_hashes_match": true,
+    "input_files": 1623
+  },
+  "snapshot_custody": {
+    "files_per_snapshot": 1623,
+    "matching_runner_snapshots": [
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-sckzdfpl/source"
+    ],
+    "result": "Every pinned input matches each listed launch-time source snapshot; verification metadata is excluded."
+  },
+  "focused_selector_sha256": "df27f5f650ab5d84a1746560f4d96bd9fc21ffa91780b645f1a28622e76f9b18",
+  "full_qt_launch": {
+    "run_id": "qt-1793075735-545bf658",
+    "log": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.log",
+    "report": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793075735-545bf658.report",
+    "inputs": "build-17-input-pins.json"
+  },
+  "final_binding": {
+    "all_input_hashes_match": true,
+    "input_files": 1623,
+    "resolved_file_sha256": {
+      "core/quest_storage.py": "37e61ed685df6ae1c724cae2108df1b983edcc93f5aacd895792b3265255008b",
+      "logic_pure/logic_pure_quest.py": "ed6682fa63ada3e9e38bb593a37cc938e444ecceeb66850054b6963ebaa02546",
+      "logic_pure/quest/review_steps.py": "af1b1f9c5e2fc4cbc559ae63a06b9300ac2892bc6eb7be155d472c96171df3d1",
+      "tests/test_quest_action_proofs.py": "5d17b40f7670d82ca92110bb0c6d4547f3edb8f4253cfd729b534af7b5d6a969",
+      "tests/quests/test_witchs_house_merge.py": "195c3fc1359d477b16a082b6ede5b5a8056447625ebaa8b759d206295730d2fd"
+    },
+    "product_inputs_unchanged_during_verification": true,
+    "prior_passing_report_unchanged": true,
+    "verification_artifacts_match_recorded_hashes": true
+  },
+  "superseded_failures": "The new regression first reproduced both deed_only KeyErrors, then passed after the adapter fix. The local source-root omission was resolved by the established retained-source environment and passed without any product or assertion change. Both failed receipts are retained.",
+  "self_hash": "Excluded from input pins; final SHA-256 emitted in the build result."
+}

@@ -187,9 +187,9 @@ class TestCookingData(unittest.TestCase):
 
         self.assertEqual(len(data), len(COOKING_PREP_ACTIVITIES))
         self.assertEqual(data["gather_grain"]["requirements"], {})
-        self.assertEqual(data["gather_grain"]["output_item"], "Grain")
+        self.assertEqual(data["gather_grain"]["output_item"], "Wheat")
         self.assertEqual(data["gather_grain"]["group"], "gathering")
-        self.assertEqual(data["grind_grain_to_flour"]["requirements"], {"Grain": 1, "Empty pot": 1})
+        self.assertEqual(data["grind_grain_to_flour"]["requirements"], {"Wheat": 1, "Empty pot": 1})
         self.assertEqual(
             data["wet_flour_to_bread_dough"]["requirements"],
             {"Pot of flour": 1, "Bucket of water": 1},

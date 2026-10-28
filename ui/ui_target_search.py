@@ -99,6 +99,9 @@ def _drop_selector(layout, live: dict) -> None:
     previous = live["widget"]
     if previous is not None:
         layout.removeWidget(previous)
+        # Emptied before it is detached: see ui_first_cell_tree for the crash.
+        previous.blockSignals(True)
+        previous.clear()
         previous.setParent(None)
         previous.deleteLater()
 

@@ -541,7 +541,7 @@ class PromotionGateTest(unittest.TestCase):
             lane_calls["=== PLAIN LANE ==="].kwargs["command"],
             ("/opt/homebrew/bin/python3", "run_tests.py", "--processes", "8"),
         )
-        self.assertIsNone(lane_calls["=== PLAIN LANE ==="].kwargs["environment"])
+        self.assertEqual(lane_calls["=== PLAIN LANE ==="].kwargs["environment"], {"ANKISCAPE_PLAIN_LANE": "1"})
         self.assertEqual(
             lane_calls["=== QT LANE (monolithic) ==="].kwargs["command"],
             (str(canonical / ".venv-qt" / "bin" / "python"), "run_tests.py", "--processes", "8"),

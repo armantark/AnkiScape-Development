@@ -195,23 +195,23 @@ class TestWickedHoodLogic(unittest.TestCase):
         self.assertEqual(updated["wicked_hood"]["rune_withdrawals_remaining"], 5)
         self.assertEqual(updated["wicked_hood"]["teleports_remaining"], 3)
 
-    def test_essence_withdrawal_fills_only_free_carried_slots_and_preserves_remainder(self):
+    def test_essence_withdrawal_banks_the_whole_allowance_once_per_day(self):
         player = _player()
-        player["inventory"]["Shark"] = 27
-        player["carried_inventory"] = {"craft_air_runes": {"Shark": 27}}
+        player["inventory"]["Shark"] = 28
+        player["carried_inventory"] = {"craft_air_runes": {"Shark": 28}}
 
         updated, ok, info = apply_wicked_hood_command_pure(player, "essence")
 
         self.assertTrue(ok)
-        self.assertEqual(info["quantity"], 1)
-        self.assertEqual(updated["inventory"]["Rune essence"], 1)
-        self.assertEqual(updated["carried_inventory"]["craft_air_runes"]["Rune essence"], 1)
-        self.assertEqual(updated["wicked_hood"]["essence_remaining"], 99)
+        self.assertEqual(info["quantity"], 100)
+        self.assertEqual(updated["inventory"]["Rune essence"], 100)
+        self.assertEqual(updated["carried_inventory"], player["carried_inventory"])
+        self.assertEqual(updated["wicked_hood"]["essence_remaining"], 0)
 
         unchanged, ok, info = apply_wicked_hood_command_pure(updated, "essence")
         self.assertFalse(ok)
-        self.assertIn("No carried-pack space", info["reason"])
-        self.assertEqual(unchanged["wicked_hood"]["essence_remaining"], 99)
+        self.assertEqual(info["reason"], "No essence allowance remains.")
+        self.assertEqual(unchanged["inventory"]["Rune essence"], 100)
 
     def test_rune_withdrawals_use_period_quantities_and_elemental_second_use(self):
         player = _player()
@@ -256,8 +256,8 @@ class TestWickedHoodLogic(unittest.TestCase):
         withdrawn, ok, info = apply_wicked_hood_command_pure(fed, "essence")
         self.assertTrue(ok)
         self.assertEqual(info["item"], "Pure essence")
-        self.assertEqual(withdrawn["inventory"]["Pure essence"], 28)
-        self.assertEqual(withdrawn["wicked_hood"]["essence_remaining"], 72)
+        self.assertEqual(withdrawn["inventory"]["Pure essence"], 100)
+        self.assertEqual(withdrawn["wicked_hood"]["essence_remaining"], 0)
 
     def test_teleport_is_level_gated_and_consumed_only_by_matching_route(self):
         player = _player()

@@ -644,8 +644,6 @@ def apply_fight_caves_review_pure(
             carried_target_id=FIGHT_CAVES_COMBAT_TARGET_ID,
             safe_death=True,
         )
-    if _int(data.get("combat_prayer_points")) <= 0:
-        data["combat_selected_prayers"] = []
 
     if pressure_result.get("died"):
         reward = fight_caves_partial_tokkul_pure(state["wave"])
