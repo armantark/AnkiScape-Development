@@ -2,7 +2,8 @@
 
 The owner's case (Pass 17): the count box starts at the most the Bank allows,
 so a smelt entry with that count ends as done when the ore runs out, not as
-stopped short; the queue holds five entries and Clear drops the plan.
+stopped short; the queue holds five entries and Clear drops the plan and
+stops whatever runs.
 """
 
 from __future__ import annotations
@@ -57,7 +58,8 @@ class QueueMenuCommandTest(QueueProfile):
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
 
-        self.assertEqual(self._rows(addon), [("Smithing: Iron bar", "done", 10)])
+        self.assertEqual(self._rows(addon), [])
+        self.assertNotIn("Queue: Smithing: Iron bar stopped", " ".join(self._log(addon)))
         self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron bar done."])
 
     def test_a_bury_entry_counts_the_bones_it_buries(self):
@@ -111,12 +113,7 @@ class QueueMenuCommandTest(QueueProfile):
         self.assertEqual(addon._state.current_skill, "Woodcutting")
         self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
 
-        # Clear drops a waiting plan and leaves the hand-started action running.
-        self.assertTrue(command("clear", {})["ok"])
-        self.assertEqual(addon._state.current_skill, "Woodcutting")
-
         # Stopping the hand-started action starts the plan, and the menu learns what runs now.
-        command("add", {"action": _MINE_IRON, "count": 30})
         captured = {}
         addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
         addon._on_main_menu()

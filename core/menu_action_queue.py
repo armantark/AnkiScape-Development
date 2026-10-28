@@ -36,8 +36,6 @@ from ..logic.inventory_pure import CARRIED_CAPACITY
 from ..logic.summoning_logic import summoning_action_requirements_pure
 from ..logic_pure.logic_pure import _runecrafting_multiplier_info, quest_locked_reasons_pure, quest_state_pure
 
-_STATE_LABELS = {"done": "Done", "stopped": "Stopped", "waiting": "Next"}
-
 
 def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked: Any = None) -> dict[str, Any]:
     """The action a skill panel's Start would run now; empty when the panel has none selected.
@@ -136,12 +134,11 @@ _MAKES_VERB = {"Mining": "mined", "Woodcutting": "cut", "Fishing": "caught", "Hu
 
 
 def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[str]:
-    """What the queue's unfinished entries will still make of ``items``: "100 to be mined by entry 1"."""
+    """What the queue's entries will still make of ``items``: "100 to be mined by entry 1"."""
     queue = action_queue_pure(player_data)
     parts = []
-    for position in range(queue["index"], len(queue["entries"])):
-        entry = queue["entries"][position]
-        done = queue["done"] if position == queue["index"] else 0
+    for position, entry in enumerate(queue["entries"]):
+        done = queue["done"] if position == 0 else 0
         if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
             verb = _MAKES_VERB.get(entry["action"].get("skill"), "made")
             parts.append(f"{max(0, entry['count'] - done):,} to be {verb} by entry {position + 1}")
@@ -216,14 +213,11 @@ def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any
 def _row_text(row: Mapping[str, Any]) -> str:
     if row["count"] is None:
         return f"{row['name']} · until the quest stops"
-    text = f"{row['name']} · {row['done']:,} / {row['count']:,} {_unit_text(row['unit'], row['products'], row['used'])}"
-    return f"{text} · stopped: {row['stopped']}" if row["stopped"] else text
+    return f"{row['name']} · {row['done']:,} / {row['count']:,} {_unit_text(row['unit'], row['products'], row['used'])}"
 
 
 def _panel_hint(view: Mapping[str, Any], running: str) -> str:
     """One line on what the queue does next, and what Clear queue and Stop training do to it."""
-    if view["finished"]:
-        return "Finished. Clear queue removes the finished entries."
     if view["paused"]:
         return "Paused by Stop training. Resume queue continues it; Clear queue cancels the plan."
     if view["waiting"]:
@@ -237,9 +231,9 @@ _EMPTY_HINT = "Add up to 5 actions or quests. Entries run once, top to bottom."
 def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
     """The menu's queue box: a title, a hint line, one numbered line per entry, Resume or Start now, and Clear."""
     view = action_queue_view_pure(player_data)
-    can_resume = (view["paused"] or view["waiting"]) and not view["finished"]
+    can_resume = view["paused"] or view["waiting"]
     current = "Paused" if view["paused"] else "Waits" if view["waiting"] else "Now"
-    labels = {**_STATE_LABELS, "current": current}
+    labels = {"current": current, "waiting": "Next"}
     count = len(view["entries"])
     running = last_action_name_pure(last_action_record_pure(player_data, current_skill))
     return {

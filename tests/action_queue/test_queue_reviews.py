@@ -62,12 +62,11 @@ class ActionQueueReviewTest(QueueProfile):
 
             addon.load_player_data()
             self.assertEqual(
-                self._rows(addon),
-                [("Mining: Iron", "done", 10), ("Smithing: Iron bar", "current", 0), ("Smithing: Iron platebody", "waiting", 0)],
+                self._rows(addon), [("Smithing: Iron bar", "current", 0), ("Smithing: Iron platebody", "waiting", 0)]
             )
 
             self._answer(addon)
-            self.assertEqual(self._rows(addon)[1], ("Smithing: Iron bar", "current", 10))
+            self.assertEqual(self._rows(addon)[0], ("Smithing: Iron bar", "current", 10))
 
             # Ten ore made ten bars; the eleventh smelt finds no ore.
             self._answer(addon)
@@ -91,10 +90,7 @@ class ActionQueueReviewTest(QueueProfile):
                 "Switched to Bankstanding · The queue is finished: Smithing: Iron platebody done.",
             ],
         )
-        self.assertEqual(
-            self._rows(addon),
-            [("Mining: Iron", "done", 10), ("Smithing: Iron bar", "stopped", 10), ("Smithing: Iron platebody", "done", 1)],
-        )
+        self.assertEqual(self._rows(addon), [])
         # With the queue finished, Resume offers its last entry.
         view = resume_button_view_pure(addon._state.player_data, addon._state.current_skill)
         self.assertEqual(view["text"], "Resume Smithing")
@@ -117,7 +113,7 @@ class ActionQueueReviewTest(QueueProfile):
         self.assertEqual(self.bankstanding_dialogs, [])
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
-        self.assertEqual(self._rows(addon)[1], ("Mining: Iron", "current", 10))
+        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 10)])
 
     def test_an_entry_above_the_players_level_gives_its_notice_and_the_next_entry_starts(self):
         addon = self._queue_addon(
@@ -137,7 +133,7 @@ class ActionQueueReviewTest(QueueProfile):
         )
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
-        self.assertEqual(self._rows(addon), [("Smithing: Rune bar", "stopped", 0), ("Mining: Iron", "current", 10)])
+        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 10)])
 
     def test_an_entry_that_takes_over_a_stop_is_not_credited_with_the_review_that_stopped(self):
         addon = self._queue_addon(
@@ -150,19 +146,16 @@ class ActionQueueReviewTest(QueueProfile):
         self._answer(addon)
 
         self.assertEqual(addon._state.current_skill, "Agility")
-        self.assertEqual(
-            self._rows(addon), [("Smithing: Rune bar", "stopped", 0), ("Agility: Gnome Stronghold Course", "current", 0)]
-        )
+        self.assertEqual(self._rows(addon), [("Agility: Gnome Stronghold Course", "current", 0)])
         # A constant mid roll keeps a random distraction from moving Agility to another course.
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
         self.assertGreater(addon._state.player_data["agility_exp"], 0)
-        self.assertEqual(self._rows(addon)[1], ("Agility: Gnome Stronghold Course", "done", 1))
+        self.assertEqual(self._rows(addon), [])
+        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Agility: Gnome Stronghold Course done."])
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
 
     def test_a_stopped_entry_keeps_the_reason_its_review_gave_after_the_stop(self):
-        from ankiscape.core.action_queue import action_queue_view_pure
-
         addon = self._queue_addon(
             "ankiscape_queue_late_reason",
             (_MINE_IRON, 30),
@@ -177,7 +170,7 @@ class ActionQueueReviewTest(QueueProfile):
         self.assertEqual(self.errors, [("Missing pickaxe", reason)])
         self.assertEqual(addon._state.current_skill, "Agility")
         self.assertEqual(self._log(addon)[-1], f"Queue: Mining: Iron stopped · {reason}")
-        self.assertEqual(action_queue_view_pure(addon._state.player_data)["entries"][0]["stopped"], reason)
+        self.assertEqual(self._rows(addon), [("Agility: Gnome Stronghold Course", "current", 0)])
 
     def test_resume_of_a_paused_entry_that_cannot_start_shows_why_and_keeps_the_queue_paused(self):
         from ankiscape.core.action_queue import action_queue_view_pure
@@ -294,11 +287,11 @@ class ActionQueueReviewTest(QueueProfile):
             toolbelt={"mining": []},
             agility_level=40,
         )
-        # An older Mining stop that gave no reason passed the first entry, and the player then paused Agility.
+        # An older Mining stop that gave no reason ended the first entry, and the player then paused Agility.
         generic = "Mining could not continue."
         older_line = f"Queue: Mining: Iron stopped · {generic}"
         player_data = record_review_event_pure(addon._state.player_data, "activity", older_line)
-        queue = pass_queue_entry_pure(action_queue_pure(player_data), generic)
+        queue = pass_queue_entry_pure(action_queue_pure(player_data))
         addon._state.player_data = {**player_data, ACTION_QUEUE_KEY: {**queue, "paused": True}, "current_ore": "copper"}
         addon.save_skill("Mining", None)
 
@@ -307,7 +300,6 @@ class ActionQueueReviewTest(QueueProfile):
         reason = "You need a usable pickaxe to train Mining. Mining has been switched off."
         self.assertEqual(self.errors, [("Missing pickaxe", reason)])
         self.assertEqual(addon._state.player_data["last_action"]["reason"], reason)
-        self.assertEqual(action_queue_pure(addon._state.player_data)["entries"][0]["stopped"], generic)
         self.assertIn(older_line, self._log(addon))
 
     def test_a_stop_the_queue_takes_over_leaves_an_older_last_action_alone(self):

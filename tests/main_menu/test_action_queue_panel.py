@@ -51,7 +51,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
                 if ok and idle:
                     active["skill"] = payload["action"].get("skill", "Activities")
             elif name == "clear":
-                queue = {"entries": [], "index": 0, "done": 0, "paused": False}
+                queue = {"entries": [], "done": 0, "paused": False, "waiting": False}
             player_data[ACTION_QUEUE_KEY] = queue
             notify_action_queue_changed()
             return {"ok": ok, "active": active["skill"], "message": ""}

@@ -29,10 +29,7 @@ class QueueExactCountTest(QueueProfile):
         inventory = addon._state.player_data["inventory"]
         self.assertEqual([inventory.get(item, 0) for item in ("Goblin mail", "Redberries", "Onion")], [3, 3, 28])
         # One card runs all three entries; a queue that counted once per card needed a card for each.
-        self.assertEqual(
-            self._rows(addon),
-            [("Search Goblin Village crates", "done", 3), ("Pick redberries", "done", 3), ("Pick onions", "done", 28)],
-        )
+        self.assertEqual(self._rows(addon), [])
         self.assertEqual(
             self._log(addon),
             [
@@ -75,7 +72,8 @@ class QueueExactCountTest(QueueProfile):
 
         inventory = addon._state.player_data["inventory"]
         self.assertEqual((inventory["Arrow shafts"], inventory["Logs"], inventory["Iron ore"]), (15, 2, 5))
-        self.assertEqual(self._rows(addon), [("Fletching: Arrow shafts (Logs)", "done", 10), ("Mining: Iron", "done", 5)])
+        self.assertEqual(self._log(addon)[1], "Queue: Fletching: Arrow shafts (Logs) done")
+        self.assertEqual(self._rows(addon), [])
 
     def test_a_kill_entry_stops_inside_its_burst_and_the_smaller_of_its_and_a_slayer_tasks_counts_wins(self):
         with self.subTest("the entry's count ends the burst, and the rest of the card runs the next entry"):
@@ -83,7 +81,8 @@ class QueueExactCountTest(QueueProfile):
             with patch.object(addon.random, "random", lambda: 0.5):
                 self._answer(addon)
             self.assertEqual(addon._state.player_data["combat_kill_counts"], {"cow": 3})
-            self.assertEqual(self._rows(addon), [("Combat: Cow", "done", 3), ("Mining: Iron", "done", 5)])
+            self.assertEqual(addon._state.player_data["inventory"]["Iron ore"], 5)
+            self.assertEqual(self._rows(addon), [])
 
         with self.subTest("a Slayer task with fewer kills left ends the card first"):
             task = {"master_id": "turael_spria", "family_id": "cows", "initial_count": 15, "remaining": 2}
@@ -98,4 +97,5 @@ class QueueExactCountTest(QueueProfile):
             with patch.object(addon.random, "random", lambda: 0.5):
                 self._answer(addon)
             self.assertEqual(addon._state.player_data["combat_kill_counts"], {"cow": 3})
-            self.assertEqual(self._rows(addon), [("Combat: Cow", "done", 3), ("Mining: Iron", "done", 5)])
+            self.assertEqual(addon._state.player_data["inventory"]["Iron ore"], 5)
+            self.assertEqual(self._rows(addon), [])

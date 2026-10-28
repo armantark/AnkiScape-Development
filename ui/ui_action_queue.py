@@ -207,8 +207,8 @@ if HAS_QT:
             self._clear = QPushButton("Clear queue")
             self._clear.setObjectName("actionQueueClear")
             self._clear.setToolTip(
-                "Cancel the plan: remove every entry and stop the entry the queue is running."
-                " Resume on the study screen offers it back. An action you started yourself keeps running."
+                "Cancel the plan: remove every entry and stop what runs, also an action you started yourself."
+                " Resume on the study screen offers it back."
             )
             for button, command in ((self._resume, "resume"), (self._clear, "clear")):
                 # Slimmer than the Start-row buttons: the box's height comes out of the lists above it.
