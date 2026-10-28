@@ -16,6 +16,7 @@ from ankiscape.runtime.runtime_actions import handle_utility_answer
 from ankiscape.tools.native.player_data import migrated_player_data
 from tests import test_runtime_actions as runtime_helpers
 from tests.treasure_trails import SEARCH_ROWS, finite_draws
+from tests.treasure_trails.test_search_catalog import SEARCH_CASES
 
 
 # Integration baseline: nine original rows, six NPC clues and eight main additions.
@@ -158,9 +159,9 @@ def abandon_and_reopen(test, save):
 class SevenSearchesTest(unittest.TestCase):
     def test_registry_adds_exactly_seven_searches(self):
         expected = [expected_row(*row) for row in BASELINE_ROWS]
-        expected += [expected_row(step_id, "simple", text) for step_id, text in SEARCH_ROWS]
+        expected += [expected_row(step_id, "simple", text) for step_id, text in (*SEARCH_ROWS, *SEARCH_CASES)]
         registry = data.TREASURE_TRAILS_EASY_STEPS
-        self.assertEqual(len(registry), 30)
+        self.assertEqual(len(registry), 38)
         self.assertEqual(list(registry), [row["step_id"] for row in expected])
         self.assertEqual(list(registry.values()), expected)
         self.assertEqual(data.TREASURE_TRAILS_SOURCE, BASELINE_SOURCE)
@@ -169,7 +170,7 @@ class SevenSearchesTest(unittest.TestCase):
                           and getattr(node.target, "id", "") == "TREASURE_TRAILS_EASY_STEPS")
         calls = assignment.value.generators[0].iter.elts
         ids = [ast.literal_eval(call.args[0]) for call in calls]
-        self.assertEqual(len(ids), 30)
+        self.assertEqual(len(ids), 38)
         self.assertEqual(len(ids), len(set(ids)), "Duplicate _step hidden by dict construction")
         self.assertEqual(ids, list(registry))
 
