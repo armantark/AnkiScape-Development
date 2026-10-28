@@ -42,10 +42,12 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   queue, or a cleared one, ends at Bankstanding. Avoid: "loop", "task list".
 - **Bankstanding** — the neutral action every ended session lands on. An
   automatic switch to Bankstanding notifies the player; a manual Stop does not.
-- **Supply step** — one quest card in which the quest makes an item it needs
-  from supplies the player brought, as the player would during the 2012 quest
-  (asking Aggie for a dye, mixing it, dyeing goblin mail). A supply step whose
-  product the player already holds is skipped.
+- **Supply step** — one quest card in which the quest makes, picks up or buys
+  an item it needs, as the player would during the 2012 quest (asking Aggie for
+  a dye, mixing it, dyeing goblin mail). It pays the period price, gives the
+  period XP and never starts a fight. A supply step whose product the player
+  already holds is skipped; one the player lacks the coins, level or equipment
+  for stops the quest and names what is missing.
 - **Review HUD** — the compact box under each card in the reviewer that shows
   the current action, its progress and its buttons. Avoid: "activity widget".
 - **Encounter** — one fight against one enemy that persists between reviews:
