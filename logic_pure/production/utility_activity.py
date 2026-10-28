@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
-from ..logic_pure_state import _positive_int
+from ..logic_pure_state import _at_most, _positive_int
 
 
 def _max_batches_for_requirements(requirements, inventory, batch_size):
@@ -82,9 +82,9 @@ def _utility_outputs_from_spec(spec):
 
 
 def apply_utility_activity_pure(
-    activity_key, inventory, utility_activity_data, r_output=None
+    activity_key, inventory, utility_activity_data, r_output=None, batch_limit=None
 ):
-    """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
+    """Apply a no-XP Utility/Activity, at most ``batch_limit`` batches, and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)
     if not spec or not can_perform_utility_activity_pure(
         inventory,
@@ -97,7 +97,7 @@ def apply_utility_activity_pure(
     requirements = utility_activity_material_requirements_pure(
         activity_key, inventory, utility_activity_data
     )
-    batch_size = _positive_int(spec.get("batch_size", 1))
+    batch_size = _at_most(_positive_int(spec.get("batch_size", 1)), batch_limit)
     batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)
     if batch_count <= 0:
         return inventory, 0, False, 0

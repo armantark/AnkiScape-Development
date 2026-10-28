@@ -79,7 +79,7 @@ class ActionQueueReviewTest(QueueProfile):
         self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
         self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron platebody done."])
-        self.assertEqual(addon._state.player_data["inventory"]["Iron platebody"], 2)
+        self.assertEqual(addon._state.player_data["inventory"]["Iron platebody"], 1)
         self.assertEqual(
             self._log(addon),
             [
@@ -87,13 +87,13 @@ class ActionQueueReviewTest(QueueProfile):
                 "Queue: Mining: Iron done",
                 "+125 XP · Smithing · +10 Iron bar · −10 Iron ore",
                 "Queue: Smithing: Iron bar stopped · You need 1 Iron ore to make Iron bar.",
-                "+250 XP · Smithing · +2 Iron platebody · −10 Iron bar",
+                "+125 XP · Smithing · +1 Iron platebody · −5 Iron bar",
                 "Switched to Bankstanding · The queue is finished: Smithing: Iron platebody done.",
             ],
         )
         self.assertEqual(
             self._rows(addon),
-            [("Mining: Iron", "done", 10), ("Smithing: Iron bar", "stopped", 10), ("Smithing: Iron platebody", "done", 2)],
+            [("Mining: Iron", "done", 10), ("Smithing: Iron bar", "stopped", 10), ("Smithing: Iron platebody", "done", 1)],
         )
         # With the queue finished, Resume offers its last entry.
         view = resume_button_view_pure(addon._state.player_data, addon._state.current_skill)

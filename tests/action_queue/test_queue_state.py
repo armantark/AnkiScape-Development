@@ -44,6 +44,7 @@ class ActionQueueStateTest(unittest.TestCase):
 
         queue, full = advance_queue_pure(queue, 7)
         self.assertTrue(full)
+        self.assertEqual(queue["entries"][0]["done"], 10)
         self.assertEqual(current_queue_entry_pure(queue)["action"], _SMELT_IRON)
         self.assertEqual(queue["done"], 0)
 

@@ -117,6 +117,7 @@ from .logic_pure_quest import (
 )
 
 from .logic_pure_state import (
+    _at_most,
     _copy_player_data_with_nested,
     _positive_int,
     quest_completed_pure,
@@ -282,6 +283,11 @@ def _runecrafting_multiplier_info(target, level):
     return base, chance, max_base
 
 
+def _essence_for_runes(target, level, runes):
+    """The least essence that crafts ``runes`` runes; None when no count limits the trip."""
+    return None if runes is None else -(-runes // _runecrafting_multiplier_info(target, level)[0])
+
+
 def _standard_output_count(target, level, essence_used, rolls):
     base, chance, max_base = _runecrafting_multiplier_info(target, level)
     if base >= max_base or chance <= 0:
@@ -375,7 +381,8 @@ def can_runecraft_any_pure(player_data, runecrafting_data, pouch_data, quest_unl
     )
 
 
-def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, pouch_data, rolls=(), quest_unlock_rules=()):
+def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, pouch_data, rolls=(), quest_unlock_rules=(), rune_limit=None):
+    """Craft one trip of runes; ``rune_limit`` takes only the essence that many runes need."""
     target = runecrafting_data.get(target_id)
     if not target:
         return player_data, 0, False, "Unknown Runecrafting target"
@@ -401,7 +408,9 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         capacity = base_capacity + runecrafting_pouch_capacity_pure(data, pouch_data)
         essence_items = tuple(target.get("essence_items", ()))
         essence_item = next((item for item in essence_items if _positive_int(inventory.get(item, 0), 0) > 0), "")
-        essence_to_use = min(capacity, _positive_int(inventory.get(essence_item, 0), 0))
+        essence_to_use = _at_most(
+            min(capacity, _positive_int(inventory.get(essence_item, 0), 0)), _essence_for_runes(target, level, rune_limit)
+        )
         inventory[essence_item] = inventory.get(essence_item, 0) - essence_to_use
         used = essence_to_use
         if used <= 0:
@@ -419,7 +428,7 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         pure_count = _positive_int(inventory.get("Pure essence", 0), 0)
         component_rune = str(target.get("component_rune"))
         consumed_talisman = str(target.get("consumed_talisman"))
-        craft_count = min(capacity, pure_count, _positive_int(inventory.get(component_rune, 0), 0))
+        craft_count = _at_most(min(capacity, pure_count, _positive_int(inventory.get(component_rune, 0), 0)), rune_limit)
         imbued = bool(data.get("magic_imbue_active", False))
         if craft_count <= 0 or (not imbued and inventory.get(consumed_talisman, 0) <= 0):
             return player_data, 0, False, "Missing combination materials"

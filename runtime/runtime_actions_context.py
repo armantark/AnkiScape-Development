@@ -41,12 +41,24 @@ class CardBudget:
     ticks_remaining: int
     stop_reason: str = ""
     exhaustion_reason: str = ""
+    # Only a burst that the queue's kill count ended leaves ticks unspent; the
+    # queue's next entry spends them.
+    burst_ticks_left: int = 0
 
     def record_tick_stop(self, ticks_elapsed: int, reason: str) -> str:
         self.stop_reason = reason
         if not reason and ticks_elapsed >= self.ticks_remaining:
             self.stop_reason = self.exhaustion_reason
         return self.stop_reason
+
+    def charge_step(self, handler_key: str) -> None:
+        """Charge the step that ran: six ticks, a quest stage or room's whole card, or a burst's ticks."""
+        if handler_key == "combat":
+            self.ticks_remaining, self.burst_ticks_left = self.burst_ticks_left, 0
+        elif handler_key in ONE_PER_CARD_HANDLER_KEYS:
+            self.ticks_remaining = 0
+        else:
+            self.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
 
     def record_step_stop(self, handler_key: str = "") -> None:
         if handler_key != "combat" and self.ticks_remaining == 0 and not self.stop_reason:
@@ -87,6 +99,11 @@ class RuntimeActionContext:
     card: Optional[CardBudget] = None
     calendar_ticks_for_answer: Optional[int] = None
     familiar_ticks_before: Optional[int] = None
+    # The queue entry that counts this step: what it still needs in its unit
+    # (items made, inputs used or kills), and how many of its input one action
+    # uses when it counts uses. The remainder is None when no entry counts the step.
+    queue_remainder: Optional[int] = None
+    queue_use_size: int = 0
 
     def __post_init__(self) -> None:
         if self.card is None:
@@ -106,6 +123,17 @@ class RuntimeActionContext:
             available = min(available, self.familiar_ticks_before)
         spent = min(budget, available - self.card.ticks_remaining + STEP_TICKS)
         return now - self.calendar_ticks_for_answer + spent
+
+    def queue_action_limit(self) -> Optional[int]:
+        """The most actions a step that takes several may take before the queue entry counting it is full.
+
+        Each action counts as one item, or as the inputs it uses; an action that
+        makes a bigger lot passes the count, and the queue takes the extra back.
+        None when no entry counts the step.
+        """
+        if self.queue_remainder is None:
+            return None
+        return self.queue_remainder // self.queue_use_size if self.queue_use_size else self.queue_remainder
 
 
 def stop_card(ctx: RuntimeActionContext, reason: str) -> None:
@@ -220,11 +248,7 @@ def spend_card_budget(
             break
         before_session = dict(ctx.player_data.get("activity_session") or {})
         result = _step_with_danger_stop(ctx, step)
-        budget.ticks_remaining = (
-            0
-            if handler_key == "combat" or handler_key in ONE_PER_CARD_HANDLER_KEYS
-            else budget.ticks_remaining - LIVE_COMBAT_TICKS_PER_REVIEW
-        )
+        budget.charge_step(handler_key)
         if result is False:
             break
         progressed = True

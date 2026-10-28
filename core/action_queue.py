@@ -5,13 +5,20 @@ plans a chain such as mine, smelt, smith instead of restarting each step. An
 entry is an action in the last-action record shape and a count in that
 action's own unit: the product items it makes, the one item it uses when it
 makes nothing (bones buried), kills for a fight, reviews for any other action,
-and no count for a quest, which runs until it stops. After each review the
-runtime adds the review's progress, and a full entry starts the next one. When
-an entry's action stops for a missing material or requirement, the queue notes
-why and starts the next entry in place of the switch to Bankstanding; only a
-finished queue lets that switch happen, with its usual notice. A manual Stop
-pauses the queue; Resume continues its entry. Clear cancels the plan: it drops
-every entry and stops the entry the queue is running, which Resume offers back.
+and no count for a quest, which runs until it stops.
+
+An entry makes exactly its count (owner, Pass 18): the queue counts every step,
+the step that reaches the count makes only the remainder, and the rest of the
+card goes to the next entry when that is a skill or utility; a fight or quest
+starts on the next card, and a finished queue ends at Bankstanding. A review
+count goes up once per card.
+
+When an entry's action stops for a missing material or requirement, the queue
+notes why and starts the next entry in place of the switch to Bankstanding;
+only a finished queue lets that switch happen, with its usual notice. A manual
+Stop pauses the queue; Resume continues its entry. Clear cancels the plan: it
+drops every entry and stops the entry the queue is running, which Resume
+offers back.
 
 A new plan never replaces an action the player started by hand: at
 Bankstanding its first entry starts at once, otherwise the plan waits until
@@ -31,10 +38,11 @@ from typing import Any, Mapping
 from .action_products import (
     action_product_items_pure,
     action_target_spec_pure,
+    action_use_size_pure,
     action_used_input_pure,
     spec_field_pure,
 )
-from .action_registry import UTILITY_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action
+from .action_registry import UTILITY_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action, review_action_handler_key
 from .last_action import (
     LAST_ACTION_KEY,
     last_action_name_pure,
@@ -49,7 +57,7 @@ from .last_action import (
 )
 from .review_event_log import record_review_event_pure
 from ..logic.agility_logic import apply_agility_command_pure
-from ..logic.inventory_pure import review_item_changes_pure
+from ..logic.inventory_pure import discard_inventory_quantity_pure, review_item_changes_pure
 from ..logic_pure.logic_pure import quest_state_pure
 
 ACTION_QUEUE_KEY = "action_queue"
@@ -116,11 +124,11 @@ def pass_queue_entry_pure(queue: Mapping[str, Any], stop_reason: str = "") -> di
 
 
 def advance_queue_pure(queue: Mapping[str, Any], progress: int) -> tuple[dict[str, Any], bool]:
-    """Add a review's progress; True when that fills the entry and the next takes over."""
+    """Add progress up to the entry's count; True when that fills the entry and the next takes over."""
     entry = current_queue_entry_pure(queue)
     if entry is None or entry["count"] is None:
         return dict(queue), False
-    done = queue["done"] + progress
+    done = min(queue["done"] + progress, entry["count"])
     if done < entry["count"]:
         return {**queue, "done": done}, False
     return pass_queue_entry_pure({**queue, "done": done}), True
@@ -410,54 +418,107 @@ def resume_action(addon) -> bool:
     return resume_last_action(addon)
 
 
-def _with_stopped_entry_progress(
-    started: Mapping[str, Any], queue: dict[str, Any], before: Mapping[str, Any], after: Mapping[str, Any]
-) -> dict[str, Any]:
-    """The queue with a review's progress on the entry that ran it, which a stop in that review passed."""
-    entry = current_queue_entry_pure(started)
-    if entry is None or started["paused"] or started["waiting"]:
-        return queue
-    entries = list(queue["entries"])
-    stopped = entries[started["index"]]
-    progress = queue_entry_progress_pure(entry["action"], before, after)
-    entries[started["index"]] = {**stopped, "done": stopped.get("done", 0) + progress}
-    return {**queue, "entries": entries}
+class QueueCount:
+    """The queue's count of one card's steps on its running entry.
 
-
-def advance_action_queue(addon, before_player_data: Mapping[str, Any]) -> None:
-    """After a review: add its progress to the entry that ran it; a full entry starts the next.
-
-    A stop inside the review already passed that entry and started the next,
-    which ran none of it, so the progress goes to the passed entry. A review of
-    any other action pauses the queue, because the player started that action
-    himself; a plan that waits for such an action is left waiting.
+    Each step of an entry that counts items, uses or kills learns what the entry
+    still needs, and the queue takes back any product the step made past it.
+    A full entry stops the card's steps, and ``hand_over`` starts the next entry.
+    A queue whose running entry is not the selected action pauses, because the
+    player started that action himself; a plan that waits is left waiting.
     """
-    player_data = addon._state.player_data
-    queue = action_queue_pure(player_data)
-    started = action_queue_pure(before_player_data)
-    if (started["index"], started["waiting"]) != (queue["index"], queue["waiting"]):
-        player_data[ACTION_QUEUE_KEY] = _with_stopped_entry_progress(started, queue, before_player_data, player_data)
-        return
-    entry = current_queue_entry_pure(queue)
-    if entry is None or queue["paused"] or queue["waiting"]:
-        return
-    if not same_action_pure(last_action_record_pure(player_data, addon._state.current_skill), entry["action"]):
-        player_data[ACTION_QUEUE_KEY] = {**queue, "paused": True}
-        return
-    progress = queue_entry_progress_pure(entry["action"], before_player_data, player_data)
-    queue, full = advance_queue_pure(queue, progress)
-    player_data[ACTION_QUEUE_KEY] = queue
-    if not full:
-        return
-    done = f"{queue_entry_name_pure(entry['action'])} done"
-    if current_queue_entry_pure(queue) is not None:
-        updated, review_action = _run_current_entry(
-            addon, record_review_event_pure(player_data, "activity", f"Queue: {done}"), queue
-        )
-        _apply_in_transaction(addon, updated, review_action)
-        if review_action is not None:
-            return
-    addon._switch_to_bankstanding(f"The queue is finished: {done}.")
+
+    def __init__(self, addon) -> None:
+        self.addon = addon
+        self.full = self.stepped = False
+        player_data = addon._state.player_data
+        queue = action_queue_pure(player_data)
+        self.entry, self.position, self.unit = current_queue_entry_pure(queue), queue["index"], ""
+        if self.entry is None or queue["paused"] or queue["waiting"]:
+            self.entry = None
+        elif not same_action_pure(last_action_record_pure(player_data, addon._state.current_skill), self.entry["action"]):
+            player_data[ACTION_QUEUE_KEY] = {**queue, "paused": True}
+            self.entry = None
+        else:
+            self.unit = queue_entry_unit_pure(self.entry["action"])
+
+    def counted(self, step):
+        """``step``, counted on the running entry."""
+        def _counted(ctx):
+            self.stepped = True
+            return self._counted_step(ctx, step) if self.unit in ("items", "uses", "kills") else step(ctx)
+        return _counted
+
+    def _counted_step(self, ctx, step):
+        player_data = self.addon._state.player_data
+        action = self.entry["action"]
+        remainder = self.entry["count"] - action_queue_pure(player_data)["done"]
+        use_size = action_use_size_pure(action) if self.unit == "uses" else 0
+        if remainder < use_size:
+            used = action_used_input_pure(action)
+            self.addon._switch_to_bankstanding(f"One action uses {use_size} {used}, and the count has only {remainder} left.")
+            return False
+        before = {**player_data, "inventory": dict(player_data.get("inventory") or {})}
+        ctx.queue_remainder, ctx.queue_use_size = remainder, use_size
+        result = step(ctx)
+        ctx.queue_remainder, ctx.queue_use_size = None, 0
+        progress = queue_entry_progress_pure(action, before, player_data)
+        if self.unit == "items" and progress > remainder:
+            _discard_extra_products(player_data, action, before, progress - remainder)
+        self._credit(min(progress, remainder))
+        return result
+
+    def _credit(self, progress: int) -> None:
+        """Add progress to the entry; when a stop inside the step passed it, the passed entry takes it."""
+        player_data = self.addon._state.player_data
+        queue = action_queue_pure(player_data)
+        if queue["index"] == self.position:
+            queue, self.full = advance_queue_pure(queue, progress)
+        else:
+            entries = list(queue["entries"])
+            entries[self.position] = {**entries[self.position], "done": entries[self.position].get("done", 0) + progress}
+            queue = {**queue, "entries": entries}
+        player_data[ACTION_QUEUE_KEY] = queue
+
+    def hand_over(self) -> bool:
+        """After the card's steps: count a review entry's card, and start the next entry after a full one.
+
+        True when the next entry takes the rest of the card. A fight, quest or
+        Dungeoneering room starts on the next card, and a finished queue
+        switches to Bankstanding, which ends the card. The full entry's feedback shows first, so its lines
+        come before the queue's.
+        """
+        if self.unit == "reviews" and self.stepped:
+            self._credit(1)
+        if not self.full:
+            return False
+        addon = self.addon
+        addon._finish_review_feedback_context()
+        done = f"{queue_entry_name_pure(self.entry['action'])} done"
+        player_data = addon._state.player_data
+        queue = action_queue_pure(player_data)
+        review_action = None
+        if current_queue_entry_pure(queue) is not None:
+            logged = record_review_event_pure(player_data, "activity", f"Queue: {done}")
+            updated, review_action = _run_current_entry(addon, logged, queue)
+            _apply_in_transaction(addon, updated, review_action)
+        if review_action is None:
+            addon._switch_to_bankstanding(f"The queue is finished: {done}.")
+        addon._begin_review_feedback_context()
+        return review_action is not None and review_action_handler_key(review_action) not in {
+            "combat", *addon.runtime_actions.ONE_PER_CARD_HANDLER_KEYS
+        }
+
+
+def _discard_extra_products(player_data: dict[str, Any], action: Mapping[str, Any], before: Mapping[str, Any], extra: int) -> None:
+    """Take ``extra`` of the products a step made back out of the Bank, the last product first."""
+    changes = review_item_changes_pure(before, player_data)
+    inventory = player_data.get("inventory") or {}
+    for item in reversed(action_product_items_pure(action)):
+        take = min(extra, max(0, changes.get(item, 0)))
+        inventory, _ = discard_inventory_quantity_pure(inventory, item, take)
+        extra -= take
+    player_data["inventory"] = inventory
 
 
 def _queue_takes_over_stop(addon, stopped: Mapping[str, Any], reason: str, *, automatic: bool) -> bool:
