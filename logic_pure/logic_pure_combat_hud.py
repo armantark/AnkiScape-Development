@@ -264,7 +264,7 @@ def _combat_setup_max_hit_text(player_data, target_id, equipment_data):
     preview = combat_target_preview_pure(player_data, target_id, equipment_data=equipment_data)
     if preview.get("state") == "blocked":
         return f"Cannot fight yet: {', '.join(preview.get('reasons') or ('locked',))}"
-    return f"Max hit: {preview.get('player_max_hit', 0)} LP · accuracy {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
+    return f"Max hit: {preview.get('player_max_hit', 0)} LP · Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}"
 
 
 def _combat_setup_target_summary(player_data, target_id, pinned_preset):

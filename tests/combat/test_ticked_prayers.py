@@ -63,7 +63,7 @@ class TickedPrayersTests(unittest.TestCase):
         )
         self.assertEqual(
             combat_setup_panel_view_pure(player, EQUIPMENT_ITEM_DATA)["max_hit_text"],
-            "Max hit: 160 LP · accuracy 99%",
+            "Max hit: 160 LP · Accuracy: 99%",
         )
         prayed, _hits = _fight(player)
         self.assertLess(prayed["combat_prayer_points"], 430)

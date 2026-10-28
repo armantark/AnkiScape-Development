@@ -24948,7 +24948,7 @@ def show_main_menu(
             owned = max(0, int(inventory.get(pouch.pouch_name, 0) or 0))
             if owned > 0 or pouch.level <= level:
                 familiar_picker.addItem(
-                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} pouch(es)",
+                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} in Bank",
                     pouch.id,
                 )
         familiar_picker.blockSignals(False)
