@@ -114,7 +114,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   deleted code as `<sha>:path:line`, a form the audit treats as historical; it
   prints every row a person must rewrite. Neither tool reads the papercut logs.
 - Each `papercuts.md` entry is one line starting with `- `; the docs audit
-  rejects any other form. Move closed entries with
+  rejects any other form except `#` headings and `> ` header notes. Record a
+  recurrence with `python3 tools/memory_bank/move_papercuts.py append`. Move closed entries with
   `python3 tools/memory_bank/move_papercuts.py move <plan.json>` rather than
   by hand, and prove any edit of the papercut logs with
   `python3 tools/memory_bank/move_papercuts.py check <base-revision>`: it

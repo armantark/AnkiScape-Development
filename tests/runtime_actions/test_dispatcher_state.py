@@ -95,7 +95,7 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(self.state.player_data["firemaking_exp"], 40.0)
         self.assertEqual(
             [row["text"] for row in self.state.player_data["review_event_log"] if row["kind"] == "xp"],
-            ["+40 XP · Firemaking"],
+            ["+40 XP · Firemaking · +1 Ashes · −1 Logs"],
         )
         self.assertEqual(len(self.state.review_undo_stack), 1)
         self.assertFalse(self.state.card_turned)

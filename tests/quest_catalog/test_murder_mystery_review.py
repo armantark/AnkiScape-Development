@@ -21,7 +21,7 @@ PLAYER_KEY = 'ankiscape_player_data'
 
 
 @contextmanager
-def review_session():
+def review_session(*, activity_feedback=False):
     original_modules, original_random = dict(sys.modules), random.getstate()
     try:
         _install_runtime_fakes()
@@ -36,7 +36,8 @@ def review_session():
         errors = []
         addon.show_error_message = lambda title, message: errors.append((title, message))
         addon.ui.update_menu_visibility = lambda *_args: None
-        addon._show_activity_gain = lambda _text: None
+        if not activity_feedback:
+            addon._show_activity_gain = lambda _text: None
         addon._show_exp = lambda _amount: None
         addon.update_review_hud = lambda *_args: None
         constants = sys.modules[f'{addon.__name__}.core.constants']

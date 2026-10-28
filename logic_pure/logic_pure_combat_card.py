@@ -3,6 +3,7 @@ the next quest review resolves."""
 
 from ..logic.slayer_logic import slayer_assignment_progress_pure
 from .logic_pure_combat_engine import combat_hud_state_pure
+from .logic_pure_combat_supplies import combat_status_summary_pure
 from .logic_pure_quest import (
     _quest_combat_enemy_spec,
     _quest_combat_resumed_encounter,
@@ -13,22 +14,22 @@ from .logic_pure_quest import (
 from .logic_pure_state import sanitize_quest_combat_active_encounters_pure
 
 
-def _card_target_text(name, state):
-    return f"{name} • {state['status']}" if state["status"] else name
+def _card_target_text(name, status):
+    return f"{name} • {status}" if status else name
 
 
 def _trains_text(state):
     return f"Trains {' • '.join(state['trained_skills'])}"
 
 
-def combat_card_view_pure(player_data, equipment_data):
+def combat_card_view_pure(player_data, equipment_data, speed):
     """``chips_lead`` precedes the trained skills' icons; ``chips_text`` is the
     whole sentence, for the tooltip."""
     state = combat_hud_state_pure(player_data, equipment_data=equipment_data)
     kills = f"Kills: {state['kills_total']} · "
     return {
         **state,
-        "target_text": _card_target_text(state["enemy_name"], state),
+        "target_text": _card_target_text(state["enemy_name"], combat_status_summary_pure(player_data, speed)),
         "chips_lead": f"{kills}Trains ",
         "chips_text": kills + _trains_text(state),
         "slayer_text": slayer_assignment_progress_pure(player_data),
@@ -36,7 +37,7 @@ def combat_card_view_pure(player_data, equipment_data):
     }
 
 
-def quest_fight_card_view_pure(player_data, quest_data, equipment_data):
+def quest_fight_card_view_pure(player_data, quest_data, equipment_data, speed):
     """The Combat card for the current quest's next fight, or None when the next
     quest review does not fight.
 
@@ -71,7 +72,9 @@ def quest_fight_card_view_pure(player_data, quest_data, equipment_data):
     remaining = f" x{fight['remaining_quantity']}" if fight["total_quantity"] > 1 else ""
     return {
         **state,
-        "target_text": _card_target_text(f"{quest_name} · {boss_name}{remaining}", state),
+        "target_text": _card_target_text(
+            f"{quest_name} · {boss_name}{remaining}", combat_status_summary_pure(player_data, speed)
+        ),
         "chips_lead": "Trains ",
         "chips_text": _trains_text(state),
         "slayer_text": "",
@@ -80,12 +83,12 @@ def quest_fight_card_view_pure(player_data, quest_data, equipment_data):
     }
 
 
-def review_combat_card_view_pure(player_data, skill, quest_data, equipment_data):
+def review_combat_card_view_pure(player_data, skill, quest_data, equipment_data, speed):
     """The Combat card the review HUD shows for the active skill, or None.
 
     The equipped weapon decides which skills the attack style trains, so the
     card needs the same equipment table the combat review resolves with.
     """
     if skill == "Quests":
-        return quest_fight_card_view_pure(player_data, quest_data, equipment_data)
-    return combat_card_view_pure(player_data, equipment_data) if skill == "Combat" else None
+        return quest_fight_card_view_pure(player_data, quest_data, equipment_data, speed)
+    return combat_card_view_pure(player_data, equipment_data, speed) if skill == "Combat" else None

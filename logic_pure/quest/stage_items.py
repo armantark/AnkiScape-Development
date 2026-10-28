@@ -1,9 +1,18 @@
-"""Shared stage item parsing and tool custody for quest admission."""
+"""Shared stage item parsing, requirement text and tool custody for quest admission."""
 
 from typing import Iterable, Mapping
 
 from ...core.tool_belt import tool_on_belt
 from ..logic_pure_state import _positive_int
+
+
+def _quest_item_requirement_text(item_name, amount):
+    quantity = f" x{amount}" if amount > 1 else " x1"
+    return f"{item_name}{quantity}"
+
+
+def _quest_item_option_reason(options):
+    return "Needs " + " or ".join(_quest_item_requirement_text(item_name, amount) for item_name, amount in options)
 
 
 def _quest_stage_item_pairs(requirement, key):
@@ -70,7 +79,7 @@ _GENERIC_TOOL_SUFFIXES = {"pickaxe": ("pickaxe",), "hatchet": ("hatchet", " axe"
 def _has_quest_tool(player_data, tool_name, amount):
     inventory = player_data.get("inventory", {}) or {}
     # The belt holds one of each tool; a stage asking for several wants stock.
-    if inventory.get(tool_name, 0) >= amount or (amount == 1 and tool_on_belt(player_data, tool_name)):
+    if _positive_int(inventory.get(tool_name, 0), 0) >= amount or (amount == 1 and tool_on_belt(player_data, tool_name)):
         return True
     equipment = player_data.get("equipment", {}) or {}
     if isinstance(equipment, Mapping) and tool_name in {str(item_name) for item_name in equipment.values()}:

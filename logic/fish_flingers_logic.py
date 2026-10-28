@@ -23,7 +23,7 @@ from ..data.fish_flingers_data import (
     FISH_FLINGERS_TICKETS_PER_DAY,
     FISH_FLINGERS_TOKEN_CAP,
 )
-from .pace.short_timers import STEP_TICKS
+from .pace.short_timers import STEP_TICKS, cards_text_pure
 from .pace.world_clock import world_day_index_pure
 
 
@@ -652,7 +652,7 @@ def fishing_outfit_multiplier_pure(player_data: Mapping[str, Any]) -> float:
     return 1.0 + 0.01 * count + (0.01 if count == len(pieces) else 0.0)
 
 
-def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def fish_flingers_view_pure(player_data: Mapping[str, Any], speed: int = 1) -> dict[str, Any]:
     data = sync_fish_flingers_tickets_pure(player_data)
     state = sanitize_fish_flingers_state_pure(data)
     session = state["fish_flingers"]
@@ -668,6 +668,7 @@ def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "can_review": bool(session),
         "catches": catches,
         "catch_number": catches + 1 if session else 0,
+        "event_length_text": cards_text_pure(FISH_FLINGERS_EVENT_TICKS, speed),
         "fish_caught": int(session.get("fish_caught", 0)),
         "big_fish": int(session.get("big_fish", 0)),
         "assists": int(session.get("assists", 0)),

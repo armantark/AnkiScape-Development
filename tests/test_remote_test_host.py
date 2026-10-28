@@ -163,15 +163,13 @@ class RemoteTestHostTests(unittest.TestCase):
             with self.subTest(lane=lane):
                 focused = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors))
                 self.assertEqual(focused[-5:], ["run_tests.py", "--quiet", "--", *selectors])
-                inventory = shlex.split(
-                    run_remote_tests._remote_lane_command(
-                        lane, selectors=selectors, collect_only=True,
-                    )
-                )
+                inventory = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors, collect_only=True))
                 self.assertEqual(inventory[-5:], ["run_tests.py", "--count", "--", *selectors])
                 full = run_remote_tests._remote_lane_command(lane)
                 self.assertNotIn("--quiet", full)
                 self.assertEqual(shlex.split(full)[-3:], ["run_tests.py", "--processes", "8"])
+                # The plain lane proves the logic without aqt, so it must not move to the Qt interpreter.
+                self.assertEqual("ANKISCAPE_PLAIN_LANE=1" in shlex.split(full), lane == "plain")
 
     def setUp(self):
         temporary = self.enterContext(tempfile.TemporaryDirectory())

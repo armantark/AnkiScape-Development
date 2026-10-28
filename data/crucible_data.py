@@ -47,7 +47,7 @@ CRUCIBLE_MINIMUM_COMBAT_LEVEL = 60
 #
 # The same two revisions state that Protect Item prayers and curses were
 # disabled here, so unlike the Clan Wars red portal nothing is saved.
-CRUCIBLE_PROTECT_ITEM_ALLOWED = False
+CRUCIBLE_DISABLED_PRAYERS = ("protect_item", "curse_protect_item")
 
 # Four lessons, each awarding one Trophy bone, are the only bone route that does
 # not require defeating a target. Crucible oldid 6538845 and Trophy bones oldid

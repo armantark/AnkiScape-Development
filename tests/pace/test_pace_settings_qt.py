@@ -21,10 +21,13 @@ try:
         QColor,
         QLabel,
         QPalette,
+        QPoint,
+        QPointF,
         QPushButton,
         QSpinBox,
         Qt,
         QTimer,
+        QWheelEvent,
         QWidget,
     )
     from PyQt6.QtTest import QTest
@@ -191,6 +194,31 @@ def _apply_x15_fixed_400(dialog):
     dialog.findChild(QCheckBox, "settingsWorldDayFollowToggle").setChecked(False)
     dialog.findChild(QSpinBox, "settingsWorldDayCardsSpin").setValue(400)
     dialog.findChild(QPushButton, "paceDialogApplyButton").click()
+
+
+class PaceDialogWheelTests(PaceQtCase):
+    def test_the_wheel_over_the_speed_box_leaves_the_speed_alone(self):
+        from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
+        from ankiscape.ui.ui_pace_settings import PaceDialog
+
+        plan = pace_onboarding_plan_pure(
+            existing_player=False, speed=None, legacy_speed=None, follow_study_volume=None, world_day_cards=None, suggestion=300
+        )
+        speed = self.shown(PaceDialog(plan, 300)).findChild(QSpinBox, "settingsActionMultiplierSpin")
+        before = speed.value()
+        centre = speed.rect().center()
+        wheel = QWheelEvent(
+            QPointF(centre),
+            QPointF(speed.mapToGlobal(centre)),
+            QPoint(0, 0),
+            QPoint(0, 120),
+            Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier,
+            Qt.ScrollPhase.NoScrollPhase,
+            False,
+        )
+        QApplication.sendEvent(speed, wheel)
+        self.assertEqual(speed.value(), before)
 
 
 class OnboardingPathTests(PaceQtCase):

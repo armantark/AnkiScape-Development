@@ -364,7 +364,7 @@ def _fight_loar(
         return {}, "Defeated a Loar Shade · +2% sanctity", result
     after = data.get("combat_encounter")
     loop["encounter"] = copy.deepcopy(dict(after)) if isinstance(after, Mapping) else {}
-    return {}, "Fought a Loar Shade for six live ticks", result
+    return {}, "Fought a Loar Shade", result
 
 
 def _cremate(

@@ -445,7 +445,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     inventory = player_data.get("inventory", {})
 
     if player_level < spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fishing to {str(display_name).lower()}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Fishing to {str(display_name).lower()}.")
         return False
 
     if not has_fishing_bait_pure(inventory, spec):
@@ -457,11 +457,9 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
 
     eligible = eligible_fishing_fish_pure(spec, player_level, strength_level, agility_level)
     if not eligible:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Insufficient level",
-            f"You do not meet the side-level requirements for {display_name}, so Fishing has been switched off.",
-        )
+        # Only Barbarian leaping fish has side levels; its first fish is the entry bar.
+        first_fish = spec["fish"][0]
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {first_fish['strength_level']} Strength and {first_fish['agility_level']} Agility to {str(display_name).lower()}.")
         return False
     locked_reasons = fishing_method_locked_reasons_pure(player_data, target, FISHING_DATA, QUEST_UNLOCK_RULES)
     if locked_reasons:
@@ -581,7 +579,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if player_level < spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Hunter to {str(display_name).lower()}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Hunter to {str(display_name).lower()}.")
         return False
 
     if not has_hunter_materials_pure(target, inventory, HUNTER_DATA):
@@ -690,7 +688,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     )
 
     if player_level < spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
         return False
 
     locked_reasons = woodcutting_target_locked_reasons_pure(
@@ -923,7 +921,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
     )
 
     if player_level < ore_spec.get("level", 1):
-        ctx.show_error_message("Insufficient level", f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
+        _switch_material_failure_to_bankstanding(ctx, f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
         return False
 
     pickaxe_spec = best_mining_pickaxe_pure(

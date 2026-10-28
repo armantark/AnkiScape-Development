@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 from tests import test_integration_smoke as integration
-from tests.treasure_trails import SEARCH_ROWS, finite_draws
+from tests.treasure_trails.test_three_searches import SEARCH_ROWS, finite_draws
 
 
 @contextmanager

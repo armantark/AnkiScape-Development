@@ -147,7 +147,7 @@ def _add_wicked_hood(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> Non
     if item_name != WICKED_HOOD_ITEM:
         return
     hood = wicked_hood_view_pure(ctx.player_data)
-    essence = menu.addAction(f"Withdraw essence ({hood['essence_remaining']} left)")
+    essence = menu.addAction(f"Withdraw all essence to Bank ({hood['essence_remaining']} left)")
     rune_menu = menu.addMenu(f"Withdraw runes ({hood['rune_withdrawals_remaining']} left)")
     teleport_menu = menu.addMenu(f"Teleport ({hood['teleports_remaining']} left)")
     rune_menu.setToolTipsVisible(True)

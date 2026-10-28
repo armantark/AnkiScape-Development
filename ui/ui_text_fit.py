@@ -7,10 +7,16 @@ None of them uses heightForWidth: a vertical QBoxLayout treats such an item as
 rigid, which would stop the flexible list beside them from giving up height.
 Each remembers the width it was last given and sizes itself for that width, so
 a width change settles after one extra layout pass.
+
+guard_wheel keeps the mouse wheel from changing number boxes and drop-down
+lists in an AnkiScape window, so the wheel scrolls the page instead.
 """
 
 from aqt.qt import (  # type: ignore
+    QAbstractSpinBox,
+    QApplication,
     QCheckBox,
+    QComboBox,
     QEvent,
     QFrame,
     QHBoxLayout,
@@ -18,6 +24,7 @@ from aqt.qt import (  # type: ignore
     QLayout,
     QModelIndex,
     QObject,
+    QPointF,
     QRect,
     QScrollArea,
     QSize,
@@ -29,8 +36,8 @@ from aqt.qt import (  # type: ignore
     QStylePainter,
     Qt,
     QTimer,
-    QToolTip,
     QVBoxLayout,
+    QWheelEvent,
     QWidget,
 )
 
@@ -212,6 +219,18 @@ def stacked_pair(text, widget, label_style):
     return pair
 
 
+def lay_out_whole(check):
+    """Lay ``check`` out by its whole rect, and return it.
+
+    macOS trims a check box's layout rect to its native mark (2 px left, 3
+    top, 9 right, 4 bottom), so a row puts the next widget inside the box's
+    own rect; a box whose stylesheet draws a smaller indicator then runs its
+    text under that widget.
+    """
+    check.setAttribute(Qt.WidgetAttribute.WA_LayoutUsesWidgetRect)
+    return check
+
+
 def vertical_scroll(widget):
     """Scroll vertically without squeezing the widget below its minimum height."""
     scroll = QScrollArea()
@@ -350,14 +369,40 @@ class _CurrentRowScrollHook(QObject):
         scroll.ensureVisible(center.x(), center.y(), 0, row.height() // 2 + 1)
 
 
-class ElidedTipDelegate(QStyledItemDelegate):
-    """Shows a cell's whole text as its tooltip while the cell is too narrow for it and elides it."""
+class FittingLabel(QLabel):
+    """A one-line label given its texts longest first. It shows the longest
+    that fits its width, ending the last in an ellipsis when even that does
+    not, and whenever it shows less than the first it offers that as its
+    tooltip. It gives up width before its neighbours do."""
 
-    def helpEvent(self, event, view, option, index):
-        if event.type() == QEvent.Type.ToolTip and self.sizeHint(option, index).width() > option.rect.width():
-            QToolTip.showText(event.globalPos(), index.data(), view, option.rect)
-            return True
-        return super().helpEvent(event, view, option, index)
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._texts = [super().text()]
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+    def set_texts(self, texts):
+        self._texts = list(texts) or [""]
+        self._fit()
+
+    def sizeHint(self):
+        return QSize(self.fontMetrics().horizontalAdvance(self._texts[0]) + 2, super().sizeHint().height())
+
+    def minimumSizeHint(self):
+        return QSize(self.fontMetrics().horizontalAdvance("…"), super().minimumSizeHint().height())
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit()
+
+    def _fit(self):
+        width = self.contentsRect().width()
+        metrics = self.fontMetrics()
+        shown = next(
+            (text for text in self._texts if metrics.horizontalAdvance(text) <= width),
+            metrics.elidedText(self._texts[-1], Qt.TextElideMode.ElideRight, width),
+        )
+        super().setText(shown)
+        self.setToolTip("" if shown == self._texts[0] else self._texts[0])
 
 
 class _WrappedLastColumn(QStyledItemDelegate):
@@ -411,3 +456,64 @@ def wrap_last_column(tree, minimum_chars):
     tree.setWordWrap(True)
     tree.header().setStretchLastSection(False)
     tree.setItemDelegateForColumn(tree.columnCount() - 1, _WrappedLastColumn(tree, minimum_chars))
+
+
+_WHEEL_GUARDED = "ankiscapeWheelGuard"
+
+
+class _WheelGuard(QObject):
+    """Refuses the wheel on number boxes and drop-down lists inside windows marked by guard_wheel.
+
+    It is installed on the application because a wheel event reaches the box
+    itself, never its window. The mark keeps Anki's own windows untouched. Anki's
+    Fusion style lets the wheel change a drop-down list (only the native macOS
+    style does not), so lists are covered with the number boxes.
+    """
+
+    def eventFilter(self, watched, event):
+        if event.type() != QEvent.Type.Wheel or not isinstance(watched, (QAbstractSpinBox, QComboBox)):
+            return False
+        owner = watched
+        while owner is not None and not owner.property(_WHEEL_GUARDED):
+            owner = owner.parent()
+        if owner is None:
+            return False
+        # Qt does not offer a sent wheel event to the parent widgets once the
+        # box ignores it, so each ancestor gets a copy here until the scroll
+        # area's viewport takes it.
+        scrolled = False
+        page = watched.parentWidget()
+        while page is not None and not scrolled:
+            scrolled = _offer_wheel(page, event)
+            page = page.parentWidget()
+        event.setAccepted(scrolled)
+        return True
+
+
+def _offer_wheel(widget, event):
+    """Sends `widget` a copy of a wheel event, positioned in its own coordinates; True when it took it."""
+    copy = QWheelEvent(
+        QPointF(widget.mapFromGlobal(event.globalPosition().toPoint())),
+        event.globalPosition(),
+        event.pixelDelta(),
+        event.angleDelta(),
+        event.buttons(),
+        event.modifiers(),
+        event.phase(),
+        event.inverted(),
+    )
+    QApplication.sendEvent(widget, copy)
+    return copy.isAccepted()
+
+
+_wheel_guard = None
+
+
+def guard_wheel(window):
+    """Marks `window`, and every window and widget it owns, as a place where the wheel never edits a value."""
+    global _wheel_guard
+    if _wheel_guard is None:
+        _wheel_guard = _WheelGuard()
+    window.setProperty(_WHEEL_GUARDED, True)
+    QApplication.instance().installEventFilter(_wheel_guard)
+    return window

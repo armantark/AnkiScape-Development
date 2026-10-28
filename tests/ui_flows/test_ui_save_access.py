@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # Direct save reads per UI file on 2026-10-16. The allowance only shrinks.
 ALLOWED_SAVE_READS = {
     "ui/dominion_tower_panel.py": 1,
-    "ui/ui.py": 178,
+    "ui/ui.py": 147,
     "ui/ui_bank_menu.py": 8,
     "ui/ui_tab_quests.py": 3,
     "ui/ui_tab_shop.py": 5,

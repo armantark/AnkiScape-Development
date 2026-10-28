@@ -14,6 +14,7 @@ def loaded_player(**overrides):
     loadout = overrides.pop("combat_supply_loadout", {"food": {"Shrimps": 20}})
     return _player(
         combat_auto_flee=False,
+        combat_prayers_enabled=False,
         combat_supply_loadout=loadout,
         inventory={"Bones": 7},
         carried_inventory={"chicken": {"Bones": 7}},

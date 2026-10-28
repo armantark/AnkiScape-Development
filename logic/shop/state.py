@@ -14,8 +14,8 @@ from ...data.shop_data import (
     SHOP_SERVICES,
     SHOP_VENDOR_ACTIONS,
 )
-from ...data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 from ...core.constants import EXTRA_ITEM_DATA
+from ...core.legacy_item_names import renamed_item
 from ...logic_pure.shop_diary_transactions import (
     SHOP_DIARY_TRANSACTION_KEYS,
     shop_diary_transaction_counter_key_pure,
@@ -154,7 +154,7 @@ def _clean_optional_int(value: Any) -> int | None:
 def _canonical_saved_shop_item_name(item_name: str, row_id: str = "", temporary: bool = False) -> str:
     if not temporary and row_id in _CANONICAL_SHOP_ROW_NAMES:
         return _CANONICAL_SHOP_ROW_NAMES[row_id]
-    return LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
+    return renamed_item(item_name)
 
 
 def _migrate_item_delta_names(raw: Any) -> Any:

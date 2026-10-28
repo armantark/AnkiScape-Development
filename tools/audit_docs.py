@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import re
 import subprocess
 from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
-from pathlib import Path
-from urllib.parse import unquote
+from pathlib import Path, PurePosixPath
+from urllib.parse import unquote, urlsplit
 
 
 MARKDOWN_LINK_RE = re.compile(r"(?<![\w])!?\[[^\]]*\]\((<[^>]+>|[^\s)]+)(?:\s+['\"][^'\"]*['\"])?\)")
@@ -230,20 +231,29 @@ DATED_HEADING_RE = re.compile(r"^## .*\d{4}-\d{2}-\d{2}")
 STARTUP_LINE_BUDGET = 3000
 STARTUP_FILES = tuple(f"memory-bank/{name}.md" for name in (
     "activeContext", "progress", "future-work-kanban",
-    "goal-priority-matrix", "loop-queue", "papercuts",
+    "goal-priority-matrix", "loop-queue",
 ))
+PAPERCUTS = Path("memory-bank") / "papercuts.md"
+# Papercuts grow by one line per incident; a cap of their own keeps them from
+# competing with progress for the shared startup budget (owner, 2026-10-27).
+PAPERCUTS_LINE_CAP = 800
+
+
+def _line_count(path: Path) -> int:
+    return path.read_bytes().count(b"\n") if path.exists() else 0
 
 
 def _audit_startup_budget(root: Path, issues: list[DocIssue]) -> None:
-    counts: dict[str, int] = {}
-    for relative in STARTUP_FILES:
-        path = root / relative
-        counts[relative] = path.read_bytes().count(b"\n") if path.exists() else 0
+    counts = {relative: _line_count(root / relative) for relative in STARTUP_FILES}
     total = sum(counts.values())
     if total >= STARTUP_LINE_BUDGET:
         detail = f"{total} startup lines must stay under {STARTUP_LINE_BUDGET}: "
         detail += ", ".join(f"{path}={count}" for path, count in counts.items())
         issues.append(DocIssue("startup_line_budget_exceeded", ACTIVE_CONTEXT.as_posix(), 1, detail))
+    papercuts = _line_count(root / PAPERCUTS)
+    if papercuts >= PAPERCUTS_LINE_CAP:
+        detail = f"{papercuts} papercut lines must stay under {PAPERCUTS_LINE_CAP}"
+        issues.append(DocIssue("papercuts_line_cap_exceeded", PAPERCUTS.as_posix(), 1, detail))
 
 
 def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
@@ -253,13 +263,10 @@ def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIss
             issues.append(DocIssue("dated_entry_in_active_context", _relative(path, root), line_number, line))
 
 
-PAPERCUTS = Path("memory-bank") / "papercuts.md"
-
-
 def _audit_papercuts(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
     """Every papercut is one `- ` line, so moves and no-loss checks compare lines exactly."""
     for line_number, line in enumerate(text.splitlines(), 1):
-        if line and not line.startswith(("#", "- ")):
+        if line and not line.startswith(("#", "> ", "- ")):
             issues.append(DocIssue("papercut_without_bullet", _relative(path, root), line_number, line))
 
 
@@ -280,25 +287,153 @@ def _audit_repeated_sections(path: Path, root: Path, text: str, issues: list[Doc
         first_line.setdefault(section, line)
 
 
+def _capture_has_symlink(path: Path, root: Path) -> bool:
+    return any(parent.is_symlink() for parent in (path, *path.parents) if parent != root
+               and parent.is_relative_to(root))
+
+
+def _valid_capture_url(value: str) -> bool:
+    try:
+        parsed = urlsplit(value)
+        parsed.port  # Validate a supplied port as well as the host.
+        return (parsed.scheme in {"http", "https"} and bool(parsed.hostname)
+                and not any(char.isspace() for char in value))
+    except ValueError:
+        return False
+
+
+def _valid_capture_provenance(record: dict) -> bool:
+    values = [record[key] for key in ("url", "path") if key in record]
+    for value in values:
+        if not isinstance(value, str) or not value.strip() or value != value.strip():
+            return False
+        if any(ord(char) < 32 or ord(char) == 127 for char in value):
+            return False
+    return bool(values) and ("url" not in record or _valid_capture_url(record["url"]))
+
+
+def _valid_capture_record(record: dict) -> bool:
+    local = record.get("local")
+    if not isinstance(local, str) or "\\" in local or "\x00" in local:
+        return False
+    parts = PurePosixPath(local).parts
+    if (len(parts) < 2 or parts[0] != "sources" or ".." in parts
+            or PurePosixPath(local).as_posix() != local):
+        return False
+    digest = record.get("sha256")
+    size = record.get("saved_bytes")
+    return (isinstance(digest, str) and re.fullmatch(r"[0-9a-fA-F]{64}", digest) is not None
+            and type(size) is int and size >= 0 and _valid_capture_provenance(record))
+
+
+def _capture_records(index: Path, root: Path, issues: list[DocIssue]) -> list[dict]:
+    if _capture_has_symlink(index, root):
+        issues.append(DocIssue("capture_symlink", _relative(index, root), 1,
+                               "source index path must not contain symlinks"))
+        return []
+    try:
+        records = json.loads(index.read_bytes())
+        if not isinstance(records, list) or not all(isinstance(row, dict) for row in records):
+            raise ValueError("source index must be a list of records")
+    except (OSError, ValueError) as exc:
+        issues.append(DocIssue("invalid_capture_index", _relative(index, root), 1, str(exc)))
+        return []
+    return records
+
+
+def _capture_bytes_match(path: Path, record: dict, root: Path, issues: list[DocIssue]) -> bool:
+    relative = _relative(path, root)
+    if _capture_has_symlink(path, root):
+        issues.append(DocIssue("capture_symlink", relative, 1,
+                               "capture path must not contain symlinks"))
+        return False
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError:
+        issues.append(DocIssue("missing_capture", relative, 1, "indexed capture is missing"))
+        return False
+    except OSError as exc:
+        issues.append(DocIssue("unreadable_capture", relative, 1, str(exc)))
+        return False
+    matches = True
+    if len(raw) != record["saved_bytes"]:
+        issues.append(DocIssue("capture_size_mismatch", relative, 1,
+                               f"expected {record['saved_bytes']} bytes, found {len(raw)}"))
+        matches = False
+    if hashlib.sha256(raw).hexdigest() != record["sha256"].lower():
+        issues.append(DocIssue("capture_hash_mismatch", relative, 1,
+                               "saved bytes do not match indexed sha256"))
+        matches = False
+    return matches
+
+
+def _register_capture(
+    index: Path, root: Path, record: dict, number: int,
+    identities: dict[tuple[str, str], dict], issues: list[DocIssue],
+) -> bool:
+    if not _valid_capture_record(record):
+        issues.append(DocIssue("invalid_capture_record", _relative(index, root), 1,
+                               f"record {number}: canonical sources/ path, sha256, "
+                               "saved_bytes and url or path provenance required"))
+        return False
+    keys = [("local", record["local"])]
+    if "id" in record:
+        if not isinstance(record["id"], str) or not record["id"].strip():
+            issues.append(DocIssue("invalid_capture_record", _relative(index, root), 1,
+                                   f"record {number}: id must be a nonempty string"))
+            return False
+        keys.append(("id", record["id"]))
+    identity = dict(record, sha256=record["sha256"].lower())
+    if any(key in identities and identities[key] != identity for key in keys):
+        issues.append(DocIssue("conflicting_capture_identity", _relative(index, root), 1,
+                               f"record {number}: conflicting local path or id"))
+        return False
+    for key in keys:
+        identities[key] = identity
+    return True
+
+
+def _indexed_captures(root: Path, issues: list[DocIssue]) -> set[Path]:
+    captures: set[Path] = set()
+    for index in sorted((root / "data/quest/evidence").glob("*/source-index.json")):
+        identities: dict[tuple[str, str], dict] = {}
+        for number, record in enumerate(_capture_records(index, root, issues), 1):
+            if not _register_capture(index, root, record, number, identities, issues):
+                continue
+            path = index.parent / record["local"]
+            if _capture_bytes_match(path, record, root, issues):
+                captures.add(path)
+    return captures
+
+
+def _audit_markdown_document(
+    path: Path, root: Path, text: str, selectors: frozenset[str], issues: list[DocIssue]
+) -> None:
+    _audit_markdown(path, root, text, issues)
+    _audit_test_selectors(path, root, text, selectors, issues)
+    if path.resolve() == (root / ACTIVE_CONTEXT).resolve():
+        _audit_active_context(path, root, text, issues)
+    if path.resolve() == (root / PAPERCUTS).resolve():
+        _audit_papercuts(path, root, text, issues)
+    if PROGRESS_LOG_RE.fullmatch(_relative(path, root)):
+        _audit_repeated_sections(path, root, text, issues)
+
+
 def audit_docs(root: Path) -> DocAuditReport:
     issues: list[DocIssue] = []
     markdown_files = 0
     html_files = 0
     test_selectors = _defined_test_selectors(root)
+    captures = _indexed_captures(root, issues)
     for path in _tracked_docs(root):
+        if path in captures:
+            continue
         text = _read_text(path, root, issues)
         if text is None:
             continue
         if path.suffix == ".md":
             markdown_files += 1
-            _audit_markdown(path, root, text, issues)
-            _audit_test_selectors(path, root, text, test_selectors, issues)
-            if path.resolve() == (root / ACTIVE_CONTEXT).resolve():
-                _audit_active_context(path, root, text, issues)
-            if path.resolve() == (root / PAPERCUTS).resolve():
-                _audit_papercuts(path, root, text, issues)
-            if PROGRESS_LOG_RE.fullmatch(_relative(path, root)):
-                _audit_repeated_sections(path, root, text, issues)
+            _audit_markdown_document(path, root, text, test_selectors, issues)
         else:
             html_files += 1
             _audit_html(path, root, text, issues)

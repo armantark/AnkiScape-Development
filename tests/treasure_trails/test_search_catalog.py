@@ -29,7 +29,7 @@ EXPECTED_SOURCE = (
     "Darkan TreasureTrailsManager.java and data/npcs/drops/treasure_trails/easy_casket.json"
 )
 
-# Frozen ordered integration baseline at b6059099cd6efb4af9fe8188ef17324322f4a784.
+# Frozen ordered integration baseline: 33 rows, including the three Al Kharid/Varrock searches.
 # (ID, kind, exact text, equipment, bare)
 BASELINE = (
     ('simple_port_sarim_sailor', 'simple', 'One of the sailors in Port Sarim is your next destination.', (), False),
@@ -62,6 +62,9 @@ BASELINE = (
     ('simple_camelot_left_tower_chest', 'simple', 'Search the chest in the left-hand tower of Camelot castle.', (), False),
     ('simple_dwarven_mine_chests', 'simple', 'Search the chests in the Dwarven Mine.', (), False),
     ('simple_port_khazard_cart_crate', 'simple', 'Search the crate near a cart in Port Khazard.', (), False),
+    ('simple_al_kharid_palace_chests', 'simple', 'Search the chests upstairs in Al Kharid palace.', (), False),
+    ('simple_al_kharid_northernmost_house_crates', 'simple', 'Search the crates in the northernmost house in Al Kharid.', (), False),
+    ('simple_varrock_cart_crates', 'simple', 'Search the crates near a cart in Varrock.', (), False),
 )
 
 SEARCH_CASES = (
@@ -167,7 +170,7 @@ class SearchCatalogTest(unittest.TestCase):
     def test_registry_contains_exact_eight_additions(self):
         expected = [definition(*row) for row in BASELINE]
         expected.extend(definition(step_id, 'simple', text) for step_id, text in SEARCH_CASES)
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 38)
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 41)
         self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS.values()), expected)
         self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), [row['step_id'] for row in expected])
         self.assertEqual(TREASURE_TRAILS_SOURCE, EXPECTED_SOURCE)
@@ -177,8 +180,8 @@ class SearchCatalogTest(unittest.TestCase):
                         and getattr(node.target, 'id', '') == 'TREASURE_TRAILS_EASY_STEPS')
         calls = registry.value.generators[0].iter.elts
         ids = [ast.literal_eval(call.args[0]) for call in calls]
-        self.assertEqual(len(calls), 38)
-        self.assertEqual(len(set(ids)), 38, 'duplicate IDs can hide in a dict comprehension')
+        self.assertEqual(len(calls), 41)
+        self.assertEqual(len(set(ids)), 41, 'duplicate IDs can hide in a dict comprehension')
         self.assertEqual(ids, list(TREASURE_TRAILS_EASY_STEPS))
         self.assert_ast_additions(calls[-8:])
 

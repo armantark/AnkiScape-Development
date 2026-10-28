@@ -13,8 +13,11 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.agility_logic import agility_aura_rows_pure, apply_agility_command_pure
 from ankiscape.logic.evil_tree_logic import advance_evil_tree_world_clock_pure, apply_evil_tree_review_pure
 from ankiscape.logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
+from ankiscape.logic.fist_of_guthix_logic import fist_of_guthix_view_pure, start_fist_of_guthix_match_pure
 from ankiscape.logic.pace.more_planks import more_planks_reviews_left_pure
+from ankiscape.logic.pace.short_timers import cards_left_text_pure
 from ankiscape.logic.review_strip_logic import dnd_notification_rows_pure, world_event_rows_pure
+from ankiscape.logic.shooting_star_logic import shooting_star_view_pure
 from ankiscape.logic.summoning_logic import (
     default_summoning_state_pure,
     familiar_reviews_remaining_pure,
@@ -22,11 +25,15 @@ from ankiscape.logic.summoning_logic import (
     triple_charms_active_pure,
 )
 from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
+from ankiscape.logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 from tests.test_evil_tree import _player as _evil_tree_player
 from tests.pace.rates.rate_property import _FED, skilling
 from tests.pace.test_card_budget import _ReviewDispatcherCase
+from tests.pace.test_combat_danger_stops import ENEMY, answer_combat
 from tests.pace.test_short_timers import _HostCase, _summoned
+from tests.test_fist_of_guthix_logic import _player as _fog_player
 from tests.test_gnome_restaurant import _on_job, _rng
+from tests.test_combat_logic import _player as _combat_player
 from tests.test_integration_smoke import _DummyCol, _DummyMW
 
 
@@ -93,6 +100,35 @@ class CountersAtSpeedTests(unittest.TestCase):
         self.assertEqual(state_text({"surefooted_cooldown_reviews": 2_000}, 1), "Recharging · 2,000 reviews")
         self.assertEqual(state_text({"surefooted_reviews": 333}, 10), "Active · 34 reviews left")
         self.assertEqual(state_text({"surefooted_reviews": 333}, 1), "Active · 333 reviews left")
+
+
+class RemainingTimesReadInCardsTests(unittest.TestCase):
+    def test_a_remaining_time_rounds_up_to_whole_cards(self):
+        # A card buys 60 ticks at x10: an antipoison dose is 150, a super 600.
+        self.assertEqual(
+            [cards_left_text_pure(ticks, 10) for ticks in (150, 60, 600)],
+            ["3 cards left", "1 card left", "10 cards left"],
+        )
+
+    def test_a_real_antipoison_dose_shows_the_immunity_in_cards_on_the_combat_card(self):
+        player = _combat_player(
+            combat_auto_flee=False, combat_supply_loadout={"potions": {"Antipoison (4)": 1}}
+        )
+        ctx, _calls, ok = answer_combat(player, enemy={**ENEMY, "poison_damage": 10})
+        self.assertTrue(ok)
+        left = ctx.player_data["combat_status_effects"]["poison_immunity"]["ticks_left"]
+        card = review_combat_card_view_pure(ctx.player_data, "Combat", {}, {}, 10)
+        self.assertTrue(card["target_text"].endswith(f"Poison immune: {-(-left // 60)} cards left"), card["target_text"])
+
+    def test_the_mining_bonus_and_the_fist_of_guthix_round_read_cards_left(self):
+        # 1,500 bonus ticks and a 1,000-tick round: 25 and 17 cards at x10.
+        star = shooting_star_view_pure({"shooting_star": {"ore_bonus_ticks_remaining": 1_500}}, speed=10)
+        self.assertEqual(star["ore_bonus_left_text"], "25 cards left")
+        player = _fog_player()
+        player["fist_of_guthix"]["tutorial_complete"] = True
+        player, ok, _ = start_fist_of_guthix_match_pure(player, iter((0.4, 0.5, 0.2, 0.8, 0.1)).__next__)
+        self.assertTrue(ok)
+        self.assertEqual(fist_of_guthix_view_pure(player, speed=10)["match"]["round_left_text"], "17 cards left")
 
 
 class AnsweringTheShownCardsEndsTheWaitTests(_HostCase):

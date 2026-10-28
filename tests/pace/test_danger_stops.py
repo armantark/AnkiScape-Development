@@ -16,7 +16,7 @@ class StepDangerStopsTests(unittest.TestCase):
             ("low_lp_no_food", {"combat_lifepoints": 40}),
             ("stun", {"thieving_stunned": True}),
             ("poison_started", {"combat_status_effects": {"poison": {"damage": 10}}}),
-            ("prayer_empty", {"combat_prayer_points": 0, "combat_selected_prayers": []}),
+            ("prayer_empty", {"combat_prayer_points": 0}),
             ("bank_trip", {"skilling_bank_run": {"reviews_remaining": 1}}),
         )
         for reason, change in cases:
@@ -34,6 +34,19 @@ class StepDangerStopsTests(unittest.TestCase):
                 self.assertEqual(steps, [60])
                 self.assertEqual(ctx.card.stop_reason, reason)
                 self.assertEqual(ctx.card.ticks_remaining, 54)
+
+    def test_prayer_running_out_ends_the_card_whoever_chose_the_prayers(self):
+        cases = (("picked by the game", {}, "prayer_empty"), ("switched off", {"combat_prayers_enabled": False}, ""))
+        for name, settings, reason in cases:
+            with self.subTest(name):
+                ctx = _context(_player(prayer_level=43, combat_prayer_points=10, **settings), review_action_multiplier=10)
+
+                def step(step_ctx):
+                    step_ctx.player_data["combat_prayer_points"] = 0
+                    return True
+
+                self.assertTrue(spend_card_budget(ctx, "agility", step, can_continue=lambda: True))
+                self.assertEqual(ctx.card.stop_reason, reason)
 
     def test_loaded_food_and_existing_poison_do_not_end_a_card(self):
         player = _player(

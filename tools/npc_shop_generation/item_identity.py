@@ -17,6 +17,7 @@ class ItemMeta:
 
 # Storage-key normalizations where the items.yml cache name differs from the
 # storage key another AnkiScape system already registered for the same item.
+# 1947: items.yml keeps the 2011 name "Grain"; the 2012 cache and Cooking use "Wheat".
 # 4600: items.yml spells it "Willow-blackjack" but The Feud quest catalog
 # registers the identical weapon as "Willow blackjack"; without normalization
 # the two keys slug-collide and the shop item silently loses its registry
@@ -28,6 +29,7 @@ ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
     888: "Mithril arrows",
     890: "Adamant arrows",
     892: "Rune arrows",
+    1947: "Wheat",
     4160: "Broad arrows",
     4522: "Oil lamp (unlit)",
     4525: "Oil lamp (empty)",

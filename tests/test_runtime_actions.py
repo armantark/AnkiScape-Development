@@ -3717,7 +3717,7 @@ class TestRuntimeActions(unittest.TestCase):
         player_data = {
             "inventory": {"Magnet": 1},
             "current_quest": "witchs_house",
-            "quests": {"witchs_house": {"started": True, "progress": 4, "completed": False}},
+            "quests": {"witchs_house": {"started": True, "progress": 8, "completed": False}},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -3726,7 +3726,7 @@ class TestRuntimeActions(unittest.TestCase):
         ok = handle_quest_answer(_context(player_data, calls))
 
         self.assertFalse(ok)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 4)
+        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 8)
         self.assertFalse(player_data["quests"]["witchs_house"]["completed"])
         self.assertEqual(player_data["quest_points"], 0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
@@ -5149,7 +5149,7 @@ class TestRuntimeActions(unittest.TestCase):
             "current_cooking": "cook_shrimps",
         }
         self.assertFalse(handle_cooking_answer(_context(ordinary_data, ordinary_calls)))
-        self.assertEqual(ordinary_calls["errors"], [("Insufficient level", "You need level 1 Cooking to cook raw shrimps.")])
+        self.assertEqual(ordinary_calls["deactivation_reasons"], ["You need level 1 Cooking to cook raw shrimps."])
 
     def test_cheese_wheel_actions_report_real_outputs_and_do_not_charge_urns(self):
         churn_calls = {"xp": [], "saves": 0, "errors": []}

@@ -57,7 +57,7 @@ class PoisonPeriodTimingTest(unittest.TestCase):
                 })
                 self.assertNotIn("poison", player["combat_status_effects"])
                 self.assertEqual(player["combat_status_effects"]["poison_immunity"]["ticks_left"], duration)
-                self.assertEqual(combat_status_summary_pure(player), f"Poison immune: {duration} ticks")
+                self.assertEqual(combat_status_summary_pure(player, 1), f"Poison immune: {duration // 6} cards left")
                 self.assertEqual(player["combat_supply_loadout"]["potions"],
                                  {} if replacement == "Vial" else {replacement: 1})
                 self.assertEqual(player["inventory"], {"Vial": 1} if replacement == "Vial" else {})
@@ -81,7 +81,7 @@ class PoisonPeriodTimingTest(unittest.TestCase):
                 result = _combat_advance_status_effects(player, penultimate)
                 self.assertEqual(result["expired"], ())
                 self.assertEqual(player["combat_status_effects"]["poison_immunity"]["ticks_left"], 1)
-                self.assertEqual(combat_status_summary_pure(player), "Poison immune: 1 ticks")
+                self.assertEqual(combat_status_summary_pure(player, 1), "Poison immune: 1 card left")
                 protected = json.loads(json.dumps(player))
                 blocked, applied, reason = apply_combat_poison_effect_pure(player, 3)
                 self.assertFalse(applied)
@@ -93,7 +93,7 @@ class PoisonPeriodTimingTest(unittest.TestCase):
                 result = _combat_advance_status_effects(player, 1)
                 self.assertEqual(result["expired"], ("poison_immunity",))
                 self.assertNotIn("poison_immunity", player["combat_status_effects"])
-                self.assertEqual(combat_status_summary_pure(player), "")
+                self.assertEqual(combat_status_summary_pure(player, 1), "")
                 poisoned, applied, reason = apply_combat_poison_effect_pure(player, 3)
                 self.assertTrue(applied, reason)
                 self.assertEqual(poisoned["combat_status_effects"]["poison"]["ticks_left"], 10)
@@ -104,30 +104,30 @@ class PoisonPeriodTimingTest(unittest.TestCase):
         )
         self.assertTrue(applied, reason)
         self.assertEqual(player["combat_status_effects"]["poison"]["ticks_left"], 10)
-        self.assertEqual(combat_status_summary_pure(player), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(player, 1), "Poisoned: 30 LP in 5 cards")
         result = _combat_advance_status_effects(player, 29)
         self.assertEqual(result["damage"], {})
         self.assertEqual(player["combat_lifepoints"], 990)
-        self.assertEqual(combat_status_summary_pure(player), "Poisoned: 30 LP in 1 ticks")
+        self.assertEqual(combat_status_summary_pure(player, 1), "Poisoned: 30 LP in 1 card")
         result = _combat_advance_status_effects(player, 1)
         self.assertEqual(result["damage"], {"poison": 30})
         self.assertEqual(result["expired"], ())
-        self.assertEqual(combat_status_summary_pure(player), "Poisoned: 28 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(player, 1), "Poisoned: 28 LP in 5 cards")
         for damage, summary in (
-            (28, "Poisoned: 26 LP in 30 ticks"),
-            (26, "Poisoned: 24 LP in 30 ticks"),
-            (24, "Poisoned: 22 LP in 30 ticks"),
-            (22, "Poisoned: 20 LP in 30 ticks"),
-            (20, "Poisoned: 18 LP in 30 ticks"),
-            (18, "Poisoned: 16 LP in 30 ticks"),
-            (16, "Poisoned: 14 LP in 30 ticks"),
-            (14, "Poisoned: 12 LP in 30 ticks"),
+            (28, "Poisoned: 26 LP in 5 cards"),
+            (26, "Poisoned: 24 LP in 5 cards"),
+            (24, "Poisoned: 22 LP in 5 cards"),
+            (22, "Poisoned: 20 LP in 5 cards"),
+            (20, "Poisoned: 18 LP in 5 cards"),
+            (18, "Poisoned: 16 LP in 5 cards"),
+            (16, "Poisoned: 14 LP in 5 cards"),
+            (14, "Poisoned: 12 LP in 5 cards"),
             (12, ""),
         ):
             with self.subTest(damage=damage):
                 result = _combat_advance_status_effects(player, 30)
                 self.assertEqual(result["damage"], {"poison": damage})
-                self.assertEqual(combat_status_summary_pure(player), summary)
+                self.assertEqual(combat_status_summary_pure(player, 1), summary)
                 self.assertEqual(result["expired"], ("poison",) if damage == 12 else ())
         self.assertNotIn("poison", player["combat_status_effects"])
         self.assertEqual(player["combat_lifepoints"], 780)
@@ -180,7 +180,7 @@ class PoisonPeriodTimingTest(unittest.TestCase):
         player, applied, reason = apply_combat_poison_effect_pure(_player(), 2)
         self.assertTrue(applied, reason)
         self.assertEqual(player["combat_status_effects"]["poison"]["ticks_left"], 5)
-        self.assertEqual(combat_status_summary_pure(player), "Poisoned: 20 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(player, 1), "Poisoned: 20 LP in 5 cards")
 
     def test_saved_poison_keeps_countdowns_and_uses_new_damage(self):
         legacy_source = "/legacy/poison/Poison.kt"
@@ -193,21 +193,21 @@ class PoisonPeriodTimingTest(unittest.TestCase):
         self.assertEqual(loaded, original)
         self.assertEqual(sanitized["combat_status_effects"], original["combat_status_effects"])
         loaded.update(sanitized)
-        self.assertEqual(combat_status_summary_pure(loaded), "Poisoned: 32 LP in 1 ticks")
+        self.assertEqual(combat_status_summary_pure(loaded, 1), "Poisoned: 32 LP in 1 card")
         result = _combat_advance_status_effects(loaded, 1)
         self.assertEqual(result["damage"], {"poison": 32})
         self.assertEqual(loaded["combat_lifepoints"], 68)
         self.assertEqual(loaded["combat_status_effects"]["poison"], {
             "ticks_left": 10, "tick_progress": 0, "source": legacy_source,
         })
-        self.assertEqual(combat_status_summary_pure(loaded), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(loaded, 1), "Poisoned: 30 LP in 5 cards")
         saved["combat_status_effects"]["poison"] = {
             "ticks_left": 36, "tick_progress": 0, "source": legacy_source,
         }
         loaded = json.loads(json.dumps(saved))
         loaded.update(sanitize_combat_state_pure(loaded))
         self.assertEqual(loaded["combat_status_effects"], saved["combat_status_effects"])
-        self.assertEqual(combat_status_summary_pure(loaded), "Poisoned: 82 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(loaded, 1), "Poisoned: 82 LP in 5 cards")
         # Stronger saved poison is preserved, and applying new poison is pure too.
         for input_player, expected_applied in ((loaded, False), (_player(), True)):
             original = json.loads(json.dumps(input_player))

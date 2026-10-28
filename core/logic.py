@@ -8,13 +8,14 @@ from .constants import (
     exp_table_for_skill,
 )
 from ..ui.ui import show_level_up_dialog, show_achievement_dialog
-from ..logic.review_strip_logic import record_review_event_pure
+from .review_event_log import record_review_event_pure
 from .skill_registry import skill_level_exp_keys
 from ..logic_pure.logic_pure import calculate_new_level
 from ..logic_pure.logic_pure_combat_engine import player_combat_level_pure
 
 
-def _record_review_event(player_data, kind: str, text: str) -> None:
+def record_review_event(player_data, kind: str, text: str) -> None:
+    """Append one event to the save's review event log in place."""
     updated = record_review_event_pure(player_data, kind, text)
     player_data["review_event_log"] = updated["review_event_log"]
 
@@ -32,7 +33,7 @@ def level_up_check(skill, player_data):
         if new_level > old_level:
             player_data[level_key] = new_level
             for lvl in range(old_level + 1, new_level + 1):
-                _record_review_event(
+                record_review_event(
                     player_data,
                     "achievement",
                     f"{skill} advanced to level {lvl}",
@@ -172,7 +173,7 @@ def check_achievements(player_data):
     for title, data in notifications:
         description = str(data.get("description", "") or "").strip()
         message = f"{title} — {description}" if description else str(title)
-        _record_review_event(player_data, "achievement", message)
+        record_review_event(player_data, "achievement", message)
     if not _popups_enabled():
         return
     deferred_dialogs = _ACTIVE_ACHIEVEMENT_DIALOGS.get()

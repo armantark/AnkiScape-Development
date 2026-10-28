@@ -1,23 +1,40 @@
-"""A multi-column tree that looks and acts row-selected while selecting one cell per row.
+"""Trees that Qt 6.11's macOS accessibility bridge cannot crash.
 
-Qt 6.11's macOS accessibility bridge frees a table's cell interfaces while it
-builds the element for one selected cell, then reads the next selected cell of
-the same row. Any accessibility client that asked a multi-column tree for its
-selected children (computer-use tools, window managers, VoiceOver) crashed
-Anki that way. With only the first cell of a row in the selection model, that
-loop has one cell to read. The row keeps its look because every cell of a row
-whose first cell is selected is painted selected, and keyboard and mouse still
-move by whole rows.
+That bridge (QTBUG-149612, fixed upstream after 6.11) frees a tree's
+accessible interface, with every cell interface it caches, whenever it builds
+the element for a cell that a client resolved only through a row or column
+frame. Any accessibility client (computer-use tools, window managers,
+VoiceOver) reads those frames, so two Qt paths free a cell they still use:
+
+- Asking a multi-column tree for its selected children: the bridge reads the
+  next selected cell of a row after building the element for the first.
+  FirstCellSelectionTree keeps only the first cell of a row in the selection
+  model, so that loop has one cell to read. The row keeps its look because
+  every cell of a row whose first cell is selected is painted selected, and
+  keyboard and mouse still move by whole rows.
+- Laying out a tree a client has read: the layout resets the tree's cells,
+  and the bridge builds an element for each cell it deletes. A tree lays
+  itself out lazily, so a client that reads a tree just shown runs that layout
+  itself and the reset follows its read. show_settled runs the layout and its
+  reset before control returns to the event loop. A tree that leaves the
+  screen is emptied before it is detached, because detaching restyles it and
+  a restyle lays it out again; emptying resets the model, which invalidates
+  the cells first, and the bridge builds no element for an invalid cell. A
+  tree that reorders or hides rows on screen (a list search) takes every row
+  out first for the same reason, then puts them back and runs settle_tree.
 """
 
 try:
     from aqt.qt import (  # type: ignore
         QAbstractItemView,
+        QCoreApplication,
+        QEvent,
         QItemSelectionModel,
         QRect,
         QRegion,
         QStyle,
         QStyleOptionViewItem,
+        QTreeView,
         QTreeWidget,
         Qt,
     )
@@ -118,3 +135,16 @@ class FirstCellSelectionTree(QTreeWidget):
             cell = self.visualRect(index)
             region = region.united(QRect(0, cell.top(), width, cell.height()))
         return region
+
+
+def show_settled(widget) -> None:
+    """Show ``widget`` with every tree in it laid out and its accessibility reset already run."""
+    widget.show()
+    for tree in widget.findChildren(QTreeView):
+        settle_tree(tree)
+
+
+def settle_tree(tree) -> None:
+    """Lay out ``tree`` and run the accessibility reset that layout queues, before control returns to the event loop."""
+    tree.executeDelayedItemsLayout()
+    QCoreApplication.sendPostedEvents(tree, QEvent.Type.MetaCall)

@@ -7,7 +7,7 @@ from ankiscape.data.treasure_trails_data import TREASURE_TRAILS_EASY_STEPS
 from ankiscape.logic.treasure_trails_logic import apply_treasure_trails_command_pure
 from tests import test_main_menu_widget as widgets
 from tests.main_menu import fixtures
-from tests.treasure_trails import SEARCH_ROWS, finite_draws
+from tests.treasure_trails.test_three_searches import SEARCH_ROWS, finite_draws
 
 
 def process_events():

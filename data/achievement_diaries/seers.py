@@ -50,7 +50,7 @@ FAMILY = DiaryFamily(
                 'seers_easy_bunch_of_flours',
                 'A Bunch of Flours',
                 'Grind grain into five pots of flour, a bunch of flours for Sinclair.',
-                (DiaryCondition('ledger_action', 'utility:grind_grain_to_flour', 5, 'Grind grain to flour'),),
+                (DiaryCondition('ledger_action', 'utility:grind_grain_to_flour', 5, 'Grind wheat to flour'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 227,
                 0,

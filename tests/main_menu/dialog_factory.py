@@ -2,6 +2,18 @@ from __future__ import annotations
 from tests.test_main_menu_widget import patch
 
 
+def _applied_prayer_config(player_data, key, value):
+    """The save after one combat setup change, by the rules the add-on's handler applies."""
+    from ankiscape.core.combat_prayer_config import apply_combat_prayer_config_pure
+    from ankiscape.logic_pure.logic_pure import apply_combat_preset_pure, save_combat_preset_pure
+
+    if key == "apply_preset":
+        return apply_combat_preset_pure(player_data, str(value), player_data.get("current_combat_target"))[0]
+    if key == "save_preset":
+        return save_combat_preset_pure(player_data, str(value))[0]
+    return apply_combat_prayer_config_pure(player_data, key, value)
+
+
 class DialogFactory:
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
         from ankiscape.data.construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
@@ -10,17 +22,12 @@ class DialogFactory:
             apply_prayer_selection_pure,
             purchase_house_option_pure,
             purchase_house_pure,
-            sanitize_prayer_selection_pure,
             unload_combat_supply_loadout_pure,
         )
 
         def _set_prayer_config(key, value):
             self._prayer_config_calls.append((key, value))
-            if key not in {"apply_preset", "save_preset", "pin_target_preset", "target_override"}:
-                player_data[key] = value
-                player_data["combat_selected_prayers"] = list(
-                    sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
-                )
+            player_data.update(_applied_prayer_config(player_data, key, value))
             return True
 
         def _set_prayer_selection(material_id, ui_method_id):
@@ -488,7 +495,7 @@ class DialogFactory:
         stop_training_callback = extra.pop(
             "on_stop_training",
             lambda: player_data.__setitem__("current_utility", "bankstanding")
-            or True,
+            or "Utilities",
         )
         skilling_potion_callback = extra.pop(
             "on_set_skilling_potion_target", None
