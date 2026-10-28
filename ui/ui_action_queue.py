@@ -159,7 +159,7 @@ if HAS_QT:
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(2)
-            # Its own full-width line, so a long "to be mined by entry 1" never squeezes the count box.
+            # Its own full-width line, so a long "Iron ore: 37 in Bank, 28 from entry 1" never squeezes the count box.
             self.materials = QLabel()
             self.materials.setObjectName("queueMaterials")
             self.materials.setWordWrap(True)
