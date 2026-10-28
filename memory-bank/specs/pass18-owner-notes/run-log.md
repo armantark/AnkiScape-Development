@@ -22,3 +22,5 @@ Times are PDT, 2026-10-28.
 | 01:49 | Full offscreen Qt lane at `fcb8b0ce9` | — | 6,487 tests, OK (skipped=5) |
 | 01:53 | Ticket 01 landed (exact counts) | `428aba8fc` | Implementer: 4,815-run Monte Carlo sweep (4,751 exact, 62 stopped short with a reason, 2 dragon fights that land no kill at 1x without a queue either), 1,875-run Construction sweep; 1,089 neighbour tests OK. Orchestrator change: a whole lot (15 arrow shafts from one log) is kept instead of deleting products after their inputs were spent; new test red against the deleting version; 308 queue and runtime tests OK |
 | 02:13 | Ticket 02 landed (ended entries, Clear) | `ec171382d` | 44 queue tests plus 340 neighbour tests OK; three mutation proofs red; orchestrator rerun 61 OK |
+| 02:35 | Full plain lane at `e0e0874b6` (ticket 01 in) | — | 6,497 tests, OK (skipped=751) |
+| 02:43 | Full offscreen Qt lane, snapshot at 02:35 = `c0cbe0804` (tickets 01 and 02 in) | — | 6,502 tests, OK (skipped=5) |
