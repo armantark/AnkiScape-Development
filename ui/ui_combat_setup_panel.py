@@ -203,7 +203,7 @@ def _add_target_header(layout, player_data):
     max_hit_label.setObjectName("combatMaxHitLabel")
     max_hit_label.setWordWrap(True)
     max_hit_label.setStyleSheet("color: palette(text);")
-    max_hit_label.setToolTip("Counts your gear, attack style, loaded potions and the prayers below.")
+    max_hit_label.setToolTip("Counts your gear, attack style, potions and prayers. Prayers do not change Magic hits.")
     layout.addWidget(max_hit_label)
 
     def sync(view) -> None:
@@ -309,10 +309,7 @@ def _add_borrowed_power_row(layout, player_data, send_config):
     borrowed_button = QPushButton()
     borrowed_button.setObjectName("combatBorrowedPowerButton")
     borrowed_button.setCheckable(True)
-    borrowed_button.setToolTip(
-        "The next Combat review performs one manual Borrowed Power cast, "
-        "then returns to the selected autocast."
-    )
+    borrowed_button.setToolTip("Then returns to autocast.")
     borrowed_layout.addWidget(borrowed_button)
     layout.addWidget(borrowed_row)
     borrowed_spell_ref = {"id": ""}
@@ -330,7 +327,7 @@ def _add_borrowed_power_row(layout, player_data, send_config):
         spell_name = str(COMBAT_MAGIC_SPELL_DATA.get(spell_id, {}).get("display_name", spell_id))
         charges = int(current["charges"])
         borrowed_name.setText(f"Borrowed Power · {spell_name} · {charges:,} charges")
-        borrowed_name.setToolTip(f"{charges:,} Arcane capacitor charges remaining.")
+        borrowed_name.setToolTip("Arcane capacitor charges")
         visible = bool(current["equipped"] and spell_id in BORROWED_POWER_COMBAT_SPELLS and view["magic_mode"])
         armed = bool(visible and view["borrowed_power_spell"] == spell_id)
         _set_checked(borrowed_button, armed)
@@ -343,7 +340,7 @@ def _add_borrowed_power_row(layout, player_data, send_config):
 
 def _add_prayer_section(layout, player_data, send_config):
     _add_section_header(layout, "Prayer")
-    master = QCheckBox("Use prayers in fights")
+    master = QCheckBox("Use prayers")
     master.setObjectName("combatPrayerMasterCheck")
     book_combo = QComboBox()
     book_combo.setObjectName("combatPrayerBookCombo")
@@ -355,7 +352,7 @@ def _add_prayer_section(layout, player_data, send_config):
         time_combo.addItem(label, value)
     hide_lower = QCheckBox("Hide lower-tier prayers")
     hide_lower.setObjectName("combatPrayerHideLowerCheck")
-    auto_pick = QPushButton("Pick the best for me")
+    auto_pick = QPushButton("Auto-pick")
     auto_pick.setObjectName("combatPrayerAutoPickButton")
     choices = QWidget()
     choices_layout = QGridLayout(choices)
@@ -408,6 +405,7 @@ def _add_prayer_section(layout, player_data, send_config):
     def sync(view) -> None:
         _set_checked(master, view["prayers_enabled"])
         status.setText(view["prayer_status"])
+        status.setVisible(bool(view["prayer_status"]))
         book_combo.model().item(book_combo.findData("curses")).setEnabled(view["curses_unlocked"])
         _set_combo_data(book_combo, view["prayer_book"])
         _set_combo_data(time_combo, view["prayer_uptime"])
@@ -417,7 +415,7 @@ def _add_prayer_section(layout, player_data, send_config):
         auto_pick.setEnabled(send_config is not None and view["auto_pick_enabled"])
         auto_pick.setToolTip(view["auto_pick_tooltip"])
         sync_grid(view)
-        locked_toggle.setText(f"Unlocks later ({len(view['locked_prayers'])})")
+        locked_toggle.setText(f"Locked ({len(view['locked_prayers'])})")
         locked_toggle.setVisible(bool(view["locked_prayers"]))
         locked.setText(", ".join(view["locked_prayers"]))
         locked.setVisible(bool(view["locked_prayers"]) and locked_toggle.isChecked())
@@ -543,7 +541,6 @@ def _number_box(object_name, low, high, step) -> "QSpinBox":
     box.setObjectName(object_name)
     box.setRange(low, high)
     box.setSingleStep(step)
-    box.setToolTip(f"Type a number, or use the arrows to change it by {step}.")
     return box
 
 
@@ -551,8 +548,9 @@ def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_thresho
     _add_section_header(layout, "Food and loot")
     auto_eat = _number_box("combatAutoEatThresholdSpin", 1, 99, 1)
     _row(layout, _text_label("Auto-eat at"), auto_eat, _text_label("% of life points"), grow=None)
-    auto_bury = WrappingCheckBox("Auto-bury bones and scatter ashes (costs simulated ticks)")
+    auto_bury = WrappingCheckBox("Auto-bury bones and scatter ashes")
     auto_bury.setObjectName("combatAutoPrayerTrainingCheck")
+    auto_bury.setToolTip("Costs simulated ticks.")
     layout.addWidget(auto_bury)
     loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5)
     _row(layout, _text_label("Leave loot worth under"), loot_spin, _text_label("coins"), grow=None)
@@ -578,17 +576,11 @@ def _add_presets(layout, player_data, send_config):
     preset_combo = QComboBox()
     preset_combo.setObjectName("combatPresetCombo")
     _row(layout, _text_label("Preset"), preset_combo)
-    save_preset = QPushButton()
+    save_preset = QPushButton("Save preset…")
     save_preset.setObjectName("combatSavePresetButton")
-    _row(layout, save_preset, grow=None)
     # COMBAT_PRESET_FIELDS, in the words of this column and the carried pack.
-    saves = QLabel(
-        "A preset saves your prayers, prayer time, auto-eat, auto-bury, autocast, "
-        "Lunar spells and supply mode. Attack style and loot stay as they are."
-    )
-    saves.setWordWrap(True)
-    saves.setStyleSheet(f"color: {dim_text_css(saves, _NOTE_ALPHA)};")
-    layout.addWidget(saves)
+    save_preset.setToolTip("Saves prayers, prayer time, auto-eat, auto-bury, autocast, Lunar spells and supply mode.")
+    _row(layout, save_preset, grow=None)
     summary = QLabel()
     summary.setObjectName("combatTargetSummaryLabel")
     summary.setWordWrap(True)
@@ -616,12 +608,11 @@ def _add_presets(layout, player_data, send_config):
         preset_combo.setCurrentText(view["active_preset"])
         preset_combo.blockSignals(False)
         target = _target_name(player_data)
-        save_preset.setText(f"Save as a preset for {target}…")
         summary.setText(view["target_summary"])
         for check, text, checked in (
-            (pin_preset, f"Switch to preset “{view['pinned_preset'] or view['active_preset']}” whenever I fight {target}", bool(view["pinned_preset"])),
-            (remember_prayers, f"Keep the prayers ticked now for {target}, whatever I tick for other targets", view["prayers_overridden"]),
-            (remember_time, f"Keep this prayer time for {target}, whatever I choose for other targets", view["uptime_overridden"]),
+            (pin_preset, f"Use preset “{view['pinned_preset'] or view['active_preset']}” against {target}", bool(view["pinned_preset"])),
+            (remember_prayers, f"Keep these prayers for {target}", view["prayers_overridden"]),
+            (remember_time, f"Keep this prayer time for {target}", view["uptime_overridden"]),
         ):
             check.setText(text)
             _set_checked(check, checked)
@@ -641,7 +632,7 @@ def preset_save_dialog(parent, target):
     name = QLineEdit()
     name.setObjectName("combatPresetNameEdit")
     dialog_layout.addWidget(name)
-    switch = QCheckBox(f"Use it whenever I fight {target}")
+    switch = QCheckBox(f"Use against {target}")
     switch.setObjectName("combatPresetUseForTargetCheck")
     switch.setChecked(True)
     dialog_layout.addWidget(switch)
@@ -730,7 +721,7 @@ def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_
         if on_set_loot_override is not None:
             on_set_loot_override(item_name, mode)
 
-    keep_all_check = QCheckBox("Keep every drop from this enemy")
+    keep_all_check = QCheckBox("Keep all drops")
     keep_all_check.setObjectName("combatLootKeepAllCheck")
 
     def _sync_keep_all() -> None:
@@ -744,7 +735,7 @@ def _add_loot_overrides(layout, loot_override_rows, item_icon_path, on_set_loot_
     keep_all_check.toggled.connect(_on_keep_all)
     layout.addWidget(keep_all_check)
 
-    loot_adv_check = QCheckBox("Keep or drop specific drops")
+    loot_adv_check = QCheckBox("Choose per drop")
     loot_adv_check.setObjectName("combatLootAdvancedCheck")
     layout.addWidget(loot_adv_check)
 

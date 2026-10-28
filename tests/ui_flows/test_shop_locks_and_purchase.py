@@ -197,7 +197,7 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         use.click()
         QApplication.processEvents()
         self.assertTrue(chip.isVisibleTo(self.dialog))
-        self.assertTrue(chip.text().startswith("✓ Used "), chip.text())
+        self.assertEqual(chip.text(), f"✓ {SHOP_VENDOR_ACTIONS[action_id]['display_name']}.")
         self.assertIs(chip.parentWidget(), self.dialog.findChild(QWidget, "shopServicesPanel"))
 
     def test_wyson_sells_woad_leaves_one_offer_per_click(self) -> None:

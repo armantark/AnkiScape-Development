@@ -38,10 +38,10 @@ class QueueExactCountTest(QueueProfile):
                 "+3 Redberries",
                 "Queue: Pick redberries done",
                 "+28 Onion",
-                "Switched to Bankstanding · The queue is finished: Pick onions done.",
+                "Switched to Bankstanding · Queue finished after Pick onions.",
             ],
         )
-        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Pick onions done."])
+        self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Pick onions."])
 
     def test_one_platebody_makes_one_and_the_rest_of_the_card_runs_the_next_entry(self):
         addon = self._queue_addon("ankiscape_queue_exact_platebody", (_SMITH_PLATEBODY, 1), (_MINE_IRON, 5))
@@ -58,7 +58,7 @@ class QueueExactCountTest(QueueProfile):
                 "+125 XP · Smithing · +1 Iron platebody · −5 Iron bar",
                 "Queue: Smithing: Iron platebody done",
                 "+175 XP · Mining · +5 Iron ore",
-                "Switched to Bankstanding · The queue is finished: Mining: Iron done.",
+                "Switched to Bankstanding · Queue finished after Mining: Iron.",
             ],
         )
 

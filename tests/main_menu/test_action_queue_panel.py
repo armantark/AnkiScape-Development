@@ -106,10 +106,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         self.assertEqual((count.value(), count.suffix()), (37, " Iron bar"))
         self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron ore: 37 in Bank")
         self.assertFalse(panel.isVisible())
-        self.assertEqual(
-            _words(dialog.findChild(QLabel, "actionQueueEmptyLine")),
-            "Queue: empty. Add up to 5 actions or quests. Entries run once, top to bottom.",
-        )
+        self.assertEqual(_words(dialog.findChild(QLabel, "actionQueueEmptyLine")), "Queue: empty")
 
         count.setValue(100)
         self._visible(dialog, QPushButton, "queueAddButton").click()
@@ -126,7 +123,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         update_review_hud(pd, "Smithing")
         count = self._visible(dialog, QSpinBox, "queueCountBox")
         self.assertEqual((count.value(), count.suffix()), (0, " Iron platebody"))
-        self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron bar: 0 in Bank, 100 to be made by entry 1")
+        self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron bar: 0 in Bank, 100 from entry 1")
 
     def test_the_fifth_entry_fills_the_queue_and_clear_empties_it(self):
         _pd, dialog = self._smithing_menu(**{"Iron ore": 3})
@@ -136,9 +133,9 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         add = self._visible(dialog, QPushButton, "queueAddButton")
 
         self.assertEqual(len(self._rows(dialog)), 5)
-        self.assertEqual(dialog.findChild(QPushButton, "actionQueueTitle").text(), "▾ Queue: 5 of 5 entries")
+        self.assertEqual(dialog.findChild(QPushButton, "actionQueueTitle").text(), "▾ Queue: 5 of 5")
         self.assertFalse(add.isEnabled())
-        self.assertEqual(add.toolTip(), "The queue holds 5 entries. Clear it to plan again.")
+        self.assertEqual(add.toolTip(), "The queue is full.")
 
         dialog.findChild(QPushButton, "actionQueueClear").click()
         QApplication.processEvents()
@@ -187,7 +184,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
             for _ in range(3):
                 QApplication.processEvents()
 
-            self.assertEqual((title.text(), self._rows(dialog)), ("▸ Queue: 3 of 5 entries", []))
+            self.assertEqual((title.text(), self._rows(dialog)), ("▸ Queue: 3 of 5", []))
             self.assertLess(panel.height(), open_height)
             dialog.close()
 
@@ -257,10 +254,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         start_now = dialog.findChild(QPushButton, "actionQueueResume")
 
         self.assertEqual((start_now.text(), start_now.isVisible()), ("Start now", True))
-        self.assertEqual(
-            _words(dialog.findChild(QLabel, "actionQueueHint")),
-            "Starts when Mining stops. Start now begins it at once; Clear queue cancels it and stops Mining.",
-        )
+        self.assertEqual(_words(dialog.findChild(QLabel, "actionQueueHint")), "Starts when Mining stops.")
         start_now.click()
         self.assertEqual(self.commands[-1], ("resume", {}))
 
@@ -342,7 +336,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
         self.assertEqual(self.commands, [("add", {"action": {"kind": "quest", "quest_id": "rune_mysteries"}, "count": None})])
-        self.assertEqual(self._rows(dialog), ["Rune Mysteries · until the quest stops"])
+        self.assertEqual(self._rows(dialog), ["Rune Mysteries · until it stops"])
 
 
 if __name__ == "__main__":

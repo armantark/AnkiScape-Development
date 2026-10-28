@@ -123,13 +123,13 @@ def resume_button_view_pure(player_data: Mapping[str, Any], current_skill: Any) 
     if not record:
         return dict(_HIDDEN)
     name = last_action_name_pure(record)
-    tooltip = f"Restart {name}."
+    tooltip = ""
     if record["kind"] == "quest":
         state = quest_state_pure(player_data, record["quest_id"])
         if state.get("completed"):
             return dict(_HIDDEN)
         stages = QUEST_DATA[record["quest_id"]].get("stages", 1)
-        tooltip = f"Restart {name} at stage {int(state.get('progress', 0) or 0)}/{stages}."
+        tooltip = f"Stage {int(state.get('progress', 0) or 0)} of {stages}"
     reason = str(record.get("reason") or "")
     return {
         "visible": True,

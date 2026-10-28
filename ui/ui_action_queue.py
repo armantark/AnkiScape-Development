@@ -271,13 +271,12 @@ if HAS_QT:
             painter.drawRoundedRect(QRect(0, line.top(), self.width(), line.height()), 4, 4)
 
     class ActionQueuePanel(QFrame):
-        """The queue box: a title that folds it, what Stop and Clear do to it, and each entry's state and count.
+        """The queue box: a title that folds it, what a waiting plan waits for, and each entry's state and count.
 
         The box is as tall as its entries, so every entry shows and the tab
         page above gives up the height. An empty queue folds into
         ``empty_line``, which the menu lays in its footer row, so the box costs
-        the lists above no height until it holds an entry, yet the player
-        still reads what an empty queue means.
+        the lists above no height until it holds an entry.
         """
 
         def __init__(self, player_data: dict, queue, current_skill, parent=None):
@@ -299,7 +298,6 @@ if HAS_QT:
             self._title = QPushButton()
             self._title.setObjectName("actionQueueTitle")
             self._title.setCheckable(True)
-            self._title.setToolTip("Fold or unfold the queue.")
             self._title.setStyleSheet(
                 "QPushButton { font-weight: 700; color: palette(text); text-align: left;"
                 " border: none; padding: 0; background: transparent; }"
@@ -308,10 +306,7 @@ if HAS_QT:
             self._resume.setObjectName("actionQueueResume")
             self._clear = QPushButton("Clear queue")
             self._clear.setObjectName("actionQueueClear")
-            self._clear.setToolTip(
-                "Cancel the plan: remove every entry and stop what runs, also an action you started yourself."
-                " Resume on the study screen offers it back."
-            )
+            self._clear.setToolTip("Also stops an action you started yourself.")
             for button, command in ((self._resume, "resume"), (self._clear, "clear")):
                 # Slimmer than the Start-row buttons: the box's height comes out of the lists above it.
                 button.setStyleSheet(_BUTTON_STYLE.replace("padding: 4px 10px", "padding: 2px 10px"))
@@ -355,7 +350,7 @@ if HAS_QT:
             remove.setObjectName("actionQueueRemove")
             remove.setText("✕")
             remove.setAutoRaise(True)
-            remove.setToolTip(f"Remove entry {position + 1} from the queue.")
+            remove.setToolTip("Remove")
             remove.setAccessibleName(f"Remove entry {position + 1}")
             remove.setFixedSize(text.fontMetrics().lineSpacing(), text.fontMetrics().lineSpacing())
             remove.setEnabled(self._queue is not None)
@@ -377,7 +372,7 @@ if HAS_QT:
             view = queue_panel_view_pure(self._player_data, self._current_skill())
             self.setVisible(bool(view["rows"]))
             # The line keeps its footer slot while the box shows, so Help and Close stay put.
-            self.empty_line.setText("" if view["rows"] else _without_widow(f"{view['title']}. {view['hint']}"))
+            self.empty_line.setText("" if view["rows"] else view["title"])
             self._title.setText(f"{'▾' if self._title.isChecked() else '▸'} {view['title']}")
             self._hint.setText(_without_widow(view["hint"]))
             self._resume.setText(view["resume_text"])

@@ -77,7 +77,7 @@ class ActionQueueReviewTest(QueueProfile):
 
         self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
-        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron platebody done."])
+        self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Smithing: Iron platebody."])
         self.assertEqual(addon._state.player_data["inventory"]["Iron platebody"], 1)
         self.assertEqual(
             self._log(addon),
@@ -87,7 +87,7 @@ class ActionQueueReviewTest(QueueProfile):
                 "+125 XP · Smithing · +10 Iron bar · −10 Iron ore",
                 "Queue: Smithing: Iron bar stopped · You need 1 Iron ore to make Iron bar.",
                 "+125 XP · Smithing · +1 Iron platebody · −5 Iron bar",
-                "Switched to Bankstanding · The queue is finished: Smithing: Iron platebody done.",
+                "Switched to Bankstanding · Queue finished after Smithing: Iron platebody.",
             ],
         )
         self.assertEqual(self._rows(addon), [])
@@ -152,7 +152,7 @@ class ActionQueueReviewTest(QueueProfile):
             self._answer(addon)
         self.assertGreater(addon._state.player_data["agility_exp"], 0)
         self.assertEqual(self._rows(addon), [])
-        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Agility: Gnome Stronghold Course done."])
+        self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Agility: Gnome Stronghold Course."])
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
 
     def test_a_stopped_entry_keeps_the_reason_its_review_gave_after_the_stop(self):

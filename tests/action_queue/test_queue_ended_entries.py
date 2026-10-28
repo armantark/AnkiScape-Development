@@ -41,7 +41,7 @@ class QueueEndedEntriesTest(QueueProfile):
 
         # Four gathers ended in the card, and the rest of it went to Mining.
         self.assertEqual(self._rows(addon)[0][:2], ("Mining: Iron", "current"))
-        self.assertEqual(self._panel(addon)["title"], "Queue: 1 of 5 entries")
+        self.assertEqual(self._panel(addon)["title"], "Queue: 1 of 5")
         self.assertIn("Queue: Pick cabbages done", self._log(addon))
         for action in _GATHER[:4]:
             self.assertEqual(add_to_action_queue(addon, action, 1), "")
@@ -121,7 +121,7 @@ class QueueEndedEntriesTest(QueueProfile):
         self.assertEqual(
             self._rows(addon), [("Smithing: Iron platebody", "current", 0), ("Mining: Iron", "waiting", 0)]
         )
-        self.assertEqual(self._panel(addon)["title"], "Queue: 2 of 5 entries")
+        self.assertEqual(self._panel(addon)["title"], "Queue: 2 of 5")
         captured = {}
         addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
         addon._on_main_menu()

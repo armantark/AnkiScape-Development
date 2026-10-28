@@ -25,7 +25,6 @@ from .action_queue import (
     action_queue_view_pure,
     current_queue_entry_pure,
     queue_add_refusal_pure,
-    queue_entry_name_pure,
     queue_entry_unit_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
@@ -129,24 +128,19 @@ def action_bank_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, 
     ) * made
 
 
-# How each skill's entry turns into its product, for the materials line ("100 mined by entry 1").
-_MAKES_VERB = {"Mining": "mined", "Woodcutting": "cut", "Fishing": "caught", "Hunter": "caught", "Thieving": "stolen"}
-
-
 def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[str]:
-    """What the queue's entries will still make of ``items``: "100 to be mined by entry 1"."""
+    """What the queue's entries will still make of ``items``: "100 from entry 1"."""
     queue = action_queue_pure(player_data)
     parts = []
     for position, entry in enumerate(queue["entries"]):
         done = queue["done"] if position == 0 else 0
         if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
-            verb = _MAKES_VERB.get(entry["action"].get("skill"), "made")
-            parts.append(f"{max(0, entry['count'] - done):,} to be {verb} by entry {position + 1}")
+            parts.append(f"{max(0, entry['count'] - done):,} from entry {position + 1}")
     return parts
 
 
 def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
-    """Where an entry's inputs come from: "Iron ore: 0 in Bank, 100 to be mined by entry 1"; empty when none."""
+    """Where an entry's inputs come from: "Iron ore: 0 in Bank, 100 from entry 1"; empty when none."""
     alternatives, _needs, _made = _inputs_and_yield(player_data, action)
     return " · ".join(
         f"{need[:1].upper()}{need[1:]}: "
@@ -173,59 +167,41 @@ def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any
         if has_count
         else ""
     )
-    if refusal:
-        tooltip = refusal
-    elif has_count:
-        tooltip = f"Add {queue_entry_name_pure(action)} to the queue. It runs until the count is reached, then the next entry starts."
-    else:
-        tooltip = f"Add {queue_entry_name_pure(action)} to the queue. A quest runs until it stops, then the next entry starts."
-    if not has_count:
-        count_tooltip = ""
-    elif limit is None:
-        count_tooltip = "Nothing in your Bank limits this; type any count."
-    else:
-        count_tooltip = "Starts at the most your Bank allows now. Type more to use what an earlier entry makes."
     return {
         "enabled": not refusal,
         "has_count": has_count,
         "count": CARRIED_CAPACITY if limit is None else limit,
         "unit": unit,
         "materials": _materials_text(player_data, action) if has_count else "",
-        "count_tooltip": count_tooltip,
-        "tooltip": tooltip,
+        "count_tooltip": "Starts at the most your Bank allows." if limit is not None else "",
+        "tooltip": refusal,
     }
 
 
 def _row_text(row: Mapping[str, Any]) -> str:
     if row["count"] is None:
-        return f"{row['name']} · until the quest stops"
+        return f"{row['name']} · until it stops"
     return f"{row['name']} · {row['done']:,} / {row['count']:,} {_unit_text(row['unit'], row['products'], row['used'])}"
 
 
 def _panel_hint(view: Mapping[str, Any], running: str) -> str:
-    """One line on what the queue does next, and what Clear queue and Stop training do to it."""
-    if view["paused"]:
-        return "Paused by Stop training. Resume queue continues it; Clear queue cancels the plan."
-    if view["waiting"]:
-        running = running or "the current action"
-        return f"Starts when {running} stops. Start now begins it at once; Clear queue cancels it and stops {running}."
-    return "Clear queue cancels the plan and stops its running entry. Stop training pauses it."
-
-
-_EMPTY_HINT = "Add up to 5 actions or quests. Entries run once, top to bottom."
+    """The one thing the buttons and lines cannot show: what a waiting plan waits for."""
+    if view["waiting"] and not view["paused"]:
+        return f"Starts when {running or 'the current action'} stops."
+    return ""
 
 
 def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
     """The menu's queue box: a title, a hint line, one numbered line per entry, Resume or Start now, and Clear."""
     view = action_queue_view_pure(player_data)
     can_resume = view["paused"] or view["waiting"]
-    current = "Paused" if view["paused"] else "Waits" if view["waiting"] else "Now"
+    current = "Paused" if view["paused"] else "Waiting" if view["waiting"] else "Now"
     labels = {"current": current, "waiting": "Next"}
     count = len(view["entries"])
     running = last_action_name_pure(last_action_record_pure(player_data, current_skill))
     return {
-        "title": f"Queue: {count} of {MAX_QUEUE_ENTRIES} entries" if count else "Queue: empty",
-        "hint": _panel_hint(view, running) if count else _EMPTY_HINT,
+        "title": f"Queue: {count} of {MAX_QUEUE_ENTRIES}" if count else "Queue: empty",
+        "hint": _panel_hint(view, running),
         "rows": [
             {
                 "position": f"{position + 1}.",

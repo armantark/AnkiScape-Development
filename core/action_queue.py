@@ -67,7 +67,7 @@ from ..logic_pure.logic_pure import quest_locked_reasons_pure, quest_state_pure
 
 ACTION_QUEUE_KEY = "action_queue"
 MAX_QUEUE_ENTRIES = 5
-QUEUE_FULL_TEXT = f"The queue holds {MAX_QUEUE_ENTRIES} entries. Clear it to plan again."
+QUEUE_FULL_TEXT = "The queue is full."
 _COULD_NOT_START = "it could not start"
 
 
@@ -278,11 +278,11 @@ def add_starts_now_pure(player_data: Mapping[str, Any], current_skill: Any) -> b
 def queue_add_refusal_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
     """Why the queue refuses ``action`` now, one text per cause; empty when it takes it. The count is checked on add."""
     if not action:
-        return "Choose what to do first."
+        return "Nothing selected."
     if len(action_queue_pure(player_data)["entries"]) >= MAX_QUEUE_ENTRIES:
         return QUEUE_FULL_TEXT
     if not valid_action_record_pure(action):
-        return "This action can no longer be queued."
+        return "This action cannot be queued."
     if action["kind"] != "quest":
         return ""
     if quest_state_pure(player_data, action["quest_id"]).get("completed"):
@@ -466,7 +466,7 @@ class QueueCount:
         use_size = action_use_size_pure(action) if self.unit == "uses" else 0
         if remainder < use_size:
             used = action_used_input_pure(action)
-            self.addon._switch_to_bankstanding(f"One action uses {use_size} {used}, and the count has only {remainder} left.")
+            self.addon._switch_to_bankstanding(f"Only {remainder} {used} left to use; one action needs {use_size}.")
             return False
         before = {**player_data, "inventory": dict(player_data.get("inventory") or {})}
         ctx.queue_remainder, ctx.queue_use_size = remainder, use_size
@@ -504,16 +504,16 @@ class QueueCount:
             return False
         addon = self.addon
         addon._finish_review_feedback_context()
-        done = f"{queue_entry_name_pure(self.entry['action'])} done"
+        name = queue_entry_name_pure(self.entry["action"])
         player_data = addon._state.player_data
         queue = action_queue_pure(player_data)
         review_action = None
         if current_queue_entry_pure(queue) is not None:
-            logged = record_review_event_pure(player_data, "activity", f"Queue: {done}")
+            logged = record_review_event_pure(player_data, "activity", f"Queue: {name} done")
             updated, review_action = _run_current_entry(addon, logged, queue)
             _apply_in_transaction(addon, updated, review_action)
         if review_action is None:
-            addon._switch_to_bankstanding(f"The queue is finished: {done}.")
+            addon._switch_to_bankstanding(f"Queue finished after {name}.")
         addon._begin_review_feedback_context()
         return review_action is not None and review_action_handler_key(review_action) not in {
             "combat", *addon.runtime_actions.ONE_PER_CARD_HANDLER_KEYS

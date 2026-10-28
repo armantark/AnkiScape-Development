@@ -60,7 +60,7 @@ class QueueMenuCommandTest(QueueProfile):
 
         self.assertEqual(self._rows(addon), [])
         self.assertNotIn("Queue: Smithing: Iron bar stopped", " ".join(self._log(addon)))
-        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron bar done."])
+        self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Smithing: Iron bar."])
 
     def test_a_bury_entry_counts_the_bones_it_buries(self):
         bury = {"kind": "skill", "skill": "Prayer", "target": "bury_bones"}
@@ -87,7 +87,7 @@ class QueueMenuCommandTest(QueueProfile):
         refused = command("add", {"action": _SMELT_IRON, "count": 100})
         self.assertEqual(
             refused,
-            {"ok": False, "active": "Mining", "message": "The queue holds 5 entries. Clear it to plan again."},
+            {"ok": False, "active": "Mining", "message": "The queue is full."},
         )
         self.assertFalse(queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["enabled"])
 
@@ -107,8 +107,8 @@ class QueueMenuCommandTest(QueueProfile):
         command = self._menu(addon)
 
         for action, count, message in (
-            ({}, 1, "Choose what to do first."),
-            ({"kind": "skill", "skill": "Sailing", "target": "raft"}, 1, "This action can no longer be queued."),
+            ({}, 1, "Nothing selected."),
+            ({"kind": "skill", "skill": "Sailing", "target": "raft"}, 1, "This action cannot be queued."),
             ({"kind": "quest", "quest_id": "rune_mysteries"}, None, "This quest is complete."),
             ({"kind": "quest", "quest_id": "dragon_slayer"}, None, "Requires: 32 quest points"),
             (_MINE_IRON, 0, "Type a count of 1 or more."),
