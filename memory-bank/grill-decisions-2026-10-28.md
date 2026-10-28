@@ -214,3 +214,29 @@ the requirement keeps the content.
 - Precedents: death runes (Mourning's End Part II), blood runes (Legacy of
   Seergaze), monkfish (Swan Song); Ugthanki dung (The Feud) and the three Arctic
   pine targets (The Fremennik Isles) lock for new players.
+
+## Cards that arrived during the grill
+
+At 14:41 PDT the dashboard showed 35 cards: the first 23 and 12 new ones with 14
+questions. The rulings above settle 12 of the 14 (pending the owner's confirmation
+of the session summary):
+
+- 3830 Roving Elves: bring a lost Glarial's pebble; the quest supplies only the
+  amulet (ruling 6, "how a lost item comes back").
+- 3840 Rune Mechanics, 3850 Shades of Mort'ton, 3950 Wanted!, 3960 While Guthix
+  Sleeps Q2: supply steps release now (ruling 10).
+- 3910 The Fremennik Isles: Q1 keeps Crafting 30 and gives 25 Crafting XP per rope
+  (ruling 9; the ordinary recipe does not change); Q2 supplies only the eight
+  bridge ropes (ruling 6).
+- 3930 The Tale of the Muspah: supply steps now; the twelve-gem ending is a
+  separate correction that ruling 7 decides (ruling 10).
+- 3960 While Guthix Sleeps Q1: Thaerisk sells the seed once for the dated 20,171
+  coins (ruling 9, the period price).
+- 3990 Nature Spirit: the journal after the Mirror. The two sources tie on count,
+  so the wiki walkthrough decides (an extension of ruling 7's tie rule).
+- 4000 Hazeel Cult: the wardrobe search completes the quest, as the wiki and its
+  quick guide say against RuneHQ (ruling 7).
+- 4020 Underground Pass: the orb arrives on the successful disarm (ruling 7).
+
+Open for the owner: 1580 Oo'glog list keyboard and Bank refresh repair (an
+existing interface), and 4050 Demon Slayer key pictures.
