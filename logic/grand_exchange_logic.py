@@ -3,19 +3,25 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import math
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional
 
+from .grand_exchange.profiles import (
+    GE_MARKET_DAY_CARDS, _clean_int, _stable_unit_interval,
+    _move_toward_zero, _market_liquidity_pure,
+)
+from .grand_exchange.demand import (
+    migrate_sell_demand_items_pure, advance_sell_demand_pure,
+    sell_demand_remaining_pure, consume_sell_demand_pure,
+)
 
-GE_STATE_VERSION = 1
+GE_STATE_VERSION = 2
 GE_SLOT_COUNT = 6
 DEFAULT_HIGH_VALUE_CONFIRMATION = 1_000_000
 DEFAULT_LOW_PRICE_MULTIPLIER = 0.1
 DEFAULT_HIGH_PRICE_MULTIPLIER = 10.0
 GE_MARKET_HOUR_CARDS = 10
 GE_BUY_LIMIT_WINDOW_CARDS = 40
-GE_MARKET_DAY_CARDS = 240
 GE_MAX_PLAYER_IMPACT_BPS = 1_500
 GE_MIN_FILL_IMPACT_BPS = 25
 GE_MAX_FILL_IMPACT_BPS = 300
@@ -32,14 +38,6 @@ GE_SHOCK_MAX_TICKS = 40
 GE_MAX_ALCHEMY_PRESSURE_BPS = 1_500
 _ORDER_SIDES = frozenset({"buy", "sell"})
 _ORDER_STATUSES = frozenset({"open", "partial", "complete", "cancelled"})
-
-
-def _clean_int(value: object, default: int = 0, *, minimum: int = 0) -> int:
-    try:
-        cleaned = int(value)
-    except (TypeError, ValueError, OverflowError):
-        return default
-    return max(minimum, cleaned)
 
 
 def _clean_float(value: object, default: float, *, minimum: float) -> float:
@@ -263,12 +261,7 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
             raw_market.get("rotating_item_index"),
             0,
         )
-        raw_items = raw_market.get("items")
-        market["items"] = (
-            copy.deepcopy(dict(raw_items))
-            if isinstance(raw_items, Mapping)
-            else {}
-        )
+        market["items"] = migrate_sell_demand_items_pure(raw_market)
 
     orders = []
     seen_ids = set()
@@ -775,12 +768,6 @@ def collect_all_ge_offers_pure(
     }
 
 
-def _stable_unit_interval(*parts: object) -> float:
-    payload = "\x1f".join(str(part) for part in parts).encode("utf-8")
-    digest = hashlib.sha256(payload).digest()
-    return int.from_bytes(digest[:8], "big") / float(1 << 64)
-
-
 def _next_market_draw(
     market: Dict[str, Any],
     random_draw: Callable[[], float] | None,
@@ -799,65 +786,6 @@ def _next_market_draw(
     if not math.isfinite(draw):
         return 0.5
     return min(math.nextafter(1.0, 0.0), max(0.0, draw))
-
-
-def _move_toward_zero(value: int, amount: int) -> int:
-    if value > 0:
-        return max(0, value - amount)
-    if value < 0:
-        return min(0, value + amount)
-    return 0
-
-
-def _market_liquidity_pure(
-    *,
-    anchor_price: int,
-    item_seed: int,
-    market_tick: int,
-    item_spec: Mapping[str, Any],
-) -> float:
-    base = 1.0 - math.log(max(1, anchor_price)) / math.log(2_000_000_000)
-    base = min(1.0, max(0.18, base))
-    category_factor = {
-        "ore": 1.08,
-        "log": 1.08,
-        "fish": 1.05,
-        "runecrafting": 1.05,
-        "gem": 0.82,
-        "equipment": 0.80,
-        "hunter": 0.85,
-    }.get(str(item_spec.get("category", "")), 1.0)
-    role_factor = {
-        "raw_material": 1.08,
-        "processed_good": 0.92,
-        "rare_or_dependency": 0.80,
-    }.get(str(item_spec.get("source_role", "")), 1.0)
-    required_level = _clean_int(item_spec.get("required_level"), 1, minimum=1)
-    level_factor = 1.0 - min(0.30, (required_level - 1) / 326.0)
-    day_index = market_tick // GE_MARKET_DAY_CARDS
-    day_phase = (market_tick % GE_MARKET_DAY_CARDS) / GE_MARKET_DAY_CARDS
-    day_envelope = 1.0 - 0.25 * math.cos(2.0 * math.pi * day_phase)
-    weekend = 1.10 if day_index % 7 in {5, 6} else 1.0
-    item_jitter = 0.95 + 0.10 * _stable_unit_interval(item_seed, "item_liquidity")
-    day_jitter = 0.90 + 0.20 * _stable_unit_interval(
-        item_seed,
-        day_index,
-        "day_liquidity",
-    )
-    return min(
-        1.5,
-        max(
-            0.10,
-            base
-            * category_factor
-            * role_factor
-            * level_factor
-            * day_envelope
-            * weekend
-            * item_jitter
-            * day_jitter,
-        ),
-    )
 
 
 def _shock_bps_at_tick(item_state: Mapping[str, Any], market_tick: int) -> int:
@@ -885,6 +813,7 @@ def _market_item_state_pure(
 ) -> Dict[str, Any]:
     raw_items = market.get("items")
     items = copy.deepcopy(dict(raw_items)) if isinstance(raw_items, Mapping) else {}
+    new_item = item_name not in items
     raw_state = items.get(item_name)
     state = dict(raw_state) if isinstance(raw_state, Mapping) else {}
     catalog_price = _clean_int(item_spec.get("guide_price"), 1, minimum=1)
@@ -1009,6 +938,10 @@ def _market_item_state_pure(
             "item_seed": item_seed,
         }
     )
+    advance_sell_demand_pure(
+        state, item_name=item_name, item_spec=item_spec,
+        market_tick=market_tick, new_item=new_item,
+    )
     items[item_name] = state
     market["items"] = items
     return state
@@ -1079,46 +1012,23 @@ def _record_trade_pure(
     data["ge_trade_history"] = history_map
 
 
-def _fill_order_for_tick_pure(
-    data: Dict[str, Any],
-    order: Dict[str, Any],
-    *,
-    item_spec: Mapping[str, Any],
-    item_state: Dict[str, Any],
-    market_tick: int,
-    elapsed: int,
-    random_draw: Callable[[], float] | None,
-) -> Dict[str, Any] | None:
-    market = data["ge_market_state"]
-    true_price = _clean_int(item_state.get("true_price"), 1, minimum=1)
-    submitted = _clean_int(order.get("submitted_unit_price"), 1, minimum=1)
-    side = str(order["side"])
-    buy_limit_remaining = None
-    if side == "buy":
-        buy_limit = _clean_int(item_spec.get("buy_limit"), 0)
-        if buy_limit <= 0:
-            return None
-        buy_limit_remaining = _buy_limit_remaining_pure(
-            data,
-            item_name=str(order["item_name"]),
-            buy_limit=buy_limit,
-            market_tick=market_tick,
-        )
-        if buy_limit_remaining <= 0:
-            return None
-    generosity_bps = (
-        (true_price - submitted) / true_price * 10_000
-        if side == "sell"
-        else (submitted - true_price) / true_price * 10_000
+def _buy_fill_allowance_pure(data, order, item_spec, market_tick):
+    if order["side"] != "buy":
+        return None
+    buy_limit = _clean_int(item_spec.get("buy_limit"), 0)
+    if buy_limit <= 0:
+        return 0
+    return _buy_limit_remaining_pure(
+        data, item_name=str(order["item_name"]),
+        buy_limit=buy_limit, market_tick=market_tick,
     )
+
+
+def _prospective_fill_quantity_pure(
+    market, order, *, generosity_bps, liquidity, elapsed, random_draw,
+):
     logistic_x = max(-60.0, min(60.0, -0.006 * (generosity_bps - 40.0)))
     base_probability = 0.9 / (1.0 + math.exp(logistic_x))
-    liquidity = _market_liquidity_pure(
-        anchor_price=_clean_int(item_state.get("anchor_price"), 1, minimum=1),
-        item_seed=_clean_int(item_state.get("item_seed"), 1, minimum=1),
-        market_tick=market_tick,
-        item_spec=item_spec,
-    )
     probability_noise = 1.0 + (
         _next_market_draw(market, random_draw) * 2.0 - 1.0
     ) * 0.35
@@ -1133,7 +1043,7 @@ def _fill_order_for_tick_pure(
     )
     fill_probability = 1.0 - math.pow(1.0 - one_tick_probability, max(1, elapsed))
     if _next_market_draw(market, random_draw) >= fill_probability:
-        return None
+        return 0
 
     aggression = min(1.5, max(0.0, generosity_bps / 500.0))
     size_factor = 0.5 + _next_market_draw(market, random_draw)
@@ -1151,8 +1061,45 @@ def _fill_order_for_tick_pure(
         _clean_int(order.get("remaining_quantity"), 0),
         max(1, int(math.ceil(base_quantity))),
     )
+    return quantity
+
+
+def _fill_order_for_tick_pure(
+    data: Dict[str, Any],
+    order: Dict[str, Any],
+    *,
+    item_spec: Mapping[str, Any],
+    item_state: Dict[str, Any],
+    market_tick: int,
+    elapsed: int,
+    random_draw: Callable[[], float] | None,
+) -> Dict[str, Any] | None:
+    market = data["ge_market_state"]
+    true_price = _clean_int(item_state.get("true_price"), 1, minimum=1)
+    submitted = _clean_int(order.get("submitted_unit_price"), 1, minimum=1)
+    side = str(order["side"])
+    buy_limit_remaining = _buy_fill_allowance_pure(data, order, item_spec, market_tick)
+    if buy_limit_remaining == 0:
+        return None
+    generosity_bps = (
+        (true_price - submitted) / true_price * 10_000
+        if side == "sell"
+        else (submitted - true_price) / true_price * 10_000
+    )
+    liquidity = _market_liquidity_pure(
+        anchor_price=_clean_int(item_state.get("anchor_price"), 1, minimum=1),
+        item_seed=_clean_int(item_state.get("item_seed"), 1, minimum=1),
+        market_tick=market_tick,
+        item_spec=item_spec,
+    )
+    quantity = _prospective_fill_quantity_pure(
+        market, order, generosity_bps=generosity_bps, liquidity=liquidity,
+        elapsed=elapsed, random_draw=random_draw,
+    )
     if side == "buy":
         quantity = min(quantity, int(buy_limit_remaining or 0))
+    else:
+        quantity = min(quantity, sell_demand_remaining_pure(item_state))
     if quantity <= 0:
         return None
 
@@ -1181,6 +1128,7 @@ def _fill_order_for_tick_pure(
             market_tick=market_tick,
         )
     else:
+        consume_sell_demand_pure(item_state, quantity)
         order["escrow_items"] = max(
             0,
             _clean_int(order.get("escrow_items"), 0) - quantity,
@@ -1307,6 +1255,38 @@ def _update_guide_price_if_due_pure(
     data["ge_trade_history"] = history_map
 
 
+def _settle_item_offers_pure(
+    data, open_orders, *, item_name, item_spec, item_state,
+    market_tick, previous_tick, random_draw,
+):
+    fills = []
+    for order in sorted(
+        (candidate for candidate in open_orders if candidate["item_name"] == item_name),
+        key=lambda candidate: (
+            _clean_int(candidate.get("created_market_tick"), 0),
+            _clean_int(candidate.get("id"), 0),
+        ),
+    ):
+        order_elapsed = market_tick - max(
+            previous_tick,
+            _clean_int(order.get("created_market_tick"), previous_tick),
+        )
+        if order_elapsed <= 0:
+            continue
+        fill = _fill_order_for_tick_pure(
+            data,
+            order,
+            item_spec=item_spec,
+            item_state=item_state,
+            market_tick=market_tick,
+            elapsed=order_elapsed,
+            random_draw=random_draw,
+        )
+        if fill is not None:
+            fills.append(fill)
+    return fills
+
+
 def advance_ge_market_tick_pure(
     player_data: Mapping[str, Any],
     *,
@@ -1372,30 +1352,11 @@ def advance_ge_market_tick_pure(
             item_spec=item_spec,
             market_tick=market_tick,
         )
-        for order in sorted(
-            (candidate for candidate in open_orders if candidate["item_name"] == item_name),
-            key=lambda candidate: (
-                _clean_int(candidate.get("created_market_tick"), 0),
-                _clean_int(candidate.get("id"), 0),
-            ),
-        ):
-            order_elapsed = market_tick - max(
-                previous_tick,
-                _clean_int(order.get("created_market_tick"), previous_tick),
-            )
-            if order_elapsed <= 0:
-                continue
-            fill = _fill_order_for_tick_pure(
-                data,
-                order,
-                item_spec=item_spec,
-                item_state=item_states[item_name],
-                market_tick=market_tick,
-                elapsed=order_elapsed,
-                random_draw=random_draw,
-            )
-            if fill is not None:
-                fills.append(fill)
+        fills.extend(_settle_item_offers_pure(
+            data, open_orders, item_name=item_name, item_spec=item_spec,
+            item_state=item_states[item_name], market_tick=market_tick,
+            previous_tick=previous_tick, random_draw=random_draw,
+        ))
 
     market["last_processed_tick"] = market_tick
     market["rotating_item_index"] = _clean_int(
