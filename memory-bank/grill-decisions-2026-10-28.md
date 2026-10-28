@@ -157,7 +157,8 @@ it.
 
 - "Hide unable to start" also hides these quests.
 - A save that already started such a quest keeps its progress and sees the same
-  label until the quest can be finished.
+  label until the quest can be finished. Its Continue button is also disabled
+  (owner, 15:40 PDT: "That quest caveat is fine as you set it").
 - This is also the owner's interface approval for the label and the disabled
   Start button on the Quests tab.
 
