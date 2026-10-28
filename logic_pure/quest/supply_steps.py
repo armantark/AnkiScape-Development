@@ -31,27 +31,31 @@ def _run(recipe, inventory):
     return made
 
 
-def _plan_item(inventory, recipes, item, amount, step, plan, missing):
-    while _positive_int(inventory.get(item, 0), 0) < amount:
-        recipe = recipes.get(item)
-        if recipe is None:
-            missing.append((item, amount, step))
-            return {**inventory, item: amount}
-        for supply, quantity in recipe["utility"]["requirements"].items():
-            inventory = _plan_item(inventory, recipes, supply, quantity, recipe["step"], plan, missing)
-        inventory = _run(recipe, inventory)
-        plan.append(recipe)
-    return inventory
-
-
 def _plan_stage(player_data, recipes, blockers):
     """The recipes to run in order, and the missing supplies of each stage item the quest makes."""
     inventory = dict(player_data.get("inventory", {}) or {})
-    plan, missing = [], {}
-    for index, blocker in enumerate(blockers):
-        if _makes(blocker, recipes):
-            missing[index] = []
-            inventory = _plan_item(inventory, recipes, blocker["item_name"], blocker["quantity"], "", plan, missing[index])
+    plan = []
+
+    def plan_item(item, amount, step):
+        """Plan ``amount`` of ``item`` on the bank copy; the supplies it lacks that no recipe makes."""
+        nonlocal inventory
+        missing = []
+        while _positive_int(inventory.get(item, 0), 0) < amount:
+            recipe = recipes.get(item)
+            if recipe is None:
+                inventory = {**inventory, item: amount}
+                return [(item, amount, step)]
+            for supply, quantity in recipe["utility"]["requirements"].items():
+                missing += plan_item(supply, quantity, recipe["step"])
+            inventory = _run(recipe, inventory)
+            plan.append(recipe)
+        return missing
+
+    missing = {
+        index: plan_item(blocker["item_name"], blocker["quantity"], "")
+        for index, blocker in enumerate(blockers)
+        if _makes(blocker, recipes)
+    }
     return plan, missing
 
 

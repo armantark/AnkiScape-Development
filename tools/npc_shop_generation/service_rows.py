@@ -273,7 +273,7 @@ VENDOR_ACTIONS = [
     },
     {
         "id": "wyson_buy_two_woad_leaves",
-        "display_name": "Buy 2 woad leaves",
+        "display_name": "Pay 20 coins for 2 woad leaves",
         "provider": "Wyson the gardener",
         "location": "Falador Park",
         "currency_id": 995,
@@ -284,7 +284,7 @@ VENDOR_ACTIONS = [
     },
     {
         "id": "wyson_buy_one_woad_leaf",
-        "display_name": "Buy a woad leaf",
+        "display_name": "Pay 15 coins for 1 woad leaf",
         "provider": "Wyson the gardener",
         "location": "Falador Park",
         "currency_id": 995,
