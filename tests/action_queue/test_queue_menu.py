@@ -101,6 +101,22 @@ class QueueMenuCommandTest(QueueProfile):
         view = resume_button_view_pure(addon._state.player_data, addon._state.current_skill)
         self.assertEqual((view["text"], view["bank_status"]), ("Resume Mining", "stopped: The queue was cleared."))
 
+    def test_each_refused_add_names_its_own_cause(self):
+        addon = self._queue_addon("ankiscape_queue_menu_refusals")
+        addon._state.player_data["quests"] = {"rune_mysteries": {"completed": True}}
+        command = self._menu(addon)
+
+        for action, count, message in (
+            ({}, 1, "Choose what to do first."),
+            ({"kind": "skill", "skill": "Sailing", "target": "raft"}, 1, "This action can no longer be queued."),
+            ({"kind": "quest", "quest_id": "rune_mysteries"}, None, "This quest is complete."),
+            ({"kind": "quest", "quest_id": "dragon_slayer"}, None, "Requires: 32 quest points"),
+            (_MINE_IRON, 0, "Type a count of 1 or more."),
+        ):
+            with self.subTest(message=message):
+                self.assertEqual(command("add", {"action": action, "count": count}), {"ok": False, "active": "Utilities", "message": message})
+        self.assertEqual(self._rows(addon), [])
+
     def test_a_plan_waits_behind_a_hand_started_action_until_it_stops(self):
         addon = self._queue_addon("ankiscape_queue_menu_wait", woodcutting_level=40)
         addon.save_skill("Woodcutting", None)

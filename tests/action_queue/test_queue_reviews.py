@@ -31,7 +31,7 @@ class QueueProfile(fixtures.ReviewedProfile):
         addon._state.current_skill = "Utilities"
         addon._state.player_data["current_utility"] = "bankstanding"
         for action, count in entries:
-            self.assertTrue(add_to_action_queue(addon, action, count))
+            self.assertEqual(add_to_action_queue(addon, action, count), "")
         return addon
 
     def _rows(self, addon):

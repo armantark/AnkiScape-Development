@@ -29,12 +29,12 @@ class QueueEndedEntriesTest(QueueProfile):
         return view["text"], view["bank_status"]
 
     def test_each_ended_entry_frees_its_place_and_a_finished_plan_frees_all_five(self):
-        from ankiscape.core.action_queue import add_to_action_queue
+        from ankiscape.core.action_queue import QUEUE_FULL_TEXT, add_to_action_queue
 
         addon = self._queue_addon(
             "ankiscape_queue_ended_places", *[(action, 1) for action in _GATHER[:4]], (_MINE_IRON, 30)
         )
-        self.assertFalse(add_to_action_queue(addon, _GATHER[4], 1))
+        self.assertEqual(add_to_action_queue(addon, _GATHER[4], 1), QUEUE_FULL_TEXT)
 
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
@@ -44,8 +44,8 @@ class QueueEndedEntriesTest(QueueProfile):
         self.assertEqual(self._panel(addon)["title"], "Queue: 1 of 5 entries")
         self.assertIn("Queue: Pick cabbages done", self._log(addon))
         for action in _GATHER[:4]:
-            self.assertTrue(add_to_action_queue(addon, action, 1))
-        self.assertFalse(add_to_action_queue(addon, _GATHER[4], 1))
+            self.assertEqual(add_to_action_queue(addon, action, 1), "")
+        self.assertEqual(add_to_action_queue(addon, _GATHER[4], 1), QUEUE_FULL_TEXT)
 
         for _card in range(4):
             with patch.object(addon.random, "random", lambda: 0.5):
@@ -54,7 +54,7 @@ class QueueEndedEntriesTest(QueueProfile):
         self.assertEqual((self._rows(addon), self._panel(addon)["title"]), ([], "Queue: empty"))
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
         for action in _GATHER:
-            self.assertTrue(add_to_action_queue(addon, action, 1))
+            self.assertEqual(add_to_action_queue(addon, action, 1), "")
 
     def test_a_stopped_last_entry_leaves_with_its_reason_in_the_log_and_on_the_hud(self):
         addon = self._queue_addon("ankiscape_queue_ended_stop", (_SMELT_IRON, 20), inventory={"Iron ore": 10})

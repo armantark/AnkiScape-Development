@@ -236,8 +236,22 @@ def lay_out_whole(check):
     return check
 
 
+class ShrinkFirstPage(QWidget):
+    """A page that shrinks to its minimum before a vertical_scroll scrolls it.
+
+    A resizable QScrollArea sizes a height-for-width page to its preferred
+    height for the width, so a page with wrapping text would scroll while it
+    still had room to shrink.
+    """
+
+    def heightForWidth(self, width):
+        return self.layout().minimumHeightForWidth(width)
+
+
 def vertical_scroll(widget):
     """Scroll vertically without squeezing the widget below its minimum height."""
+    # Nothing scrolls sideways, so the widget takes the viewport's width rather than run off its edge.
+    widget.setSizePolicy(QSizePolicy.Policy.Ignored, widget.sizePolicy().verticalPolicy())
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setFrameShape(QFrame.Shape.NoFrame)

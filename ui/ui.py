@@ -1546,7 +1546,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, ShrinkFirstPage, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -4739,8 +4739,8 @@ def show_main_menu(
     # this single tab as category filter -> skill list -> target list. Normal
     # mode shows playable skills only; developer mode also surfaces the planned
     # 2011-era catalog so future skills can be inspected before they are coded.
-    skills_tab = QWidget()
-    s_layout = QVBoxLayout(skills_tab)
+    skills_tab = vertical_scroll(skills_body := ShrinkFirstPage())
+    s_layout = QVBoxLayout(skills_body)
     s_layout.setContentsMargins(12, 12, 12, 12)
     s_layout.setSpacing(8)
 

@@ -47,6 +47,7 @@ from .action_products import (
     spec_field_pure,
 )
 from .action_registry import UTILITY_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action, review_action_handler_key
+from .constants import QUEST_DATA
 from .last_action import (
     LAST_ACTION_KEY,
     last_action_name_pure,
@@ -62,7 +63,7 @@ from .last_action import (
 from .review_event_log import record_review_event_pure
 from ..logic.agility_logic import apply_agility_command_pure
 from ..logic.inventory_pure import review_item_changes_pure
-from ..logic_pure.logic_pure import quest_state_pure
+from ..logic_pure.logic_pure import quest_locked_reasons_pure, quest_state_pure
 
 ACTION_QUEUE_KEY = "action_queue"
 MAX_QUEUE_ENTRIES = 5
@@ -214,7 +215,6 @@ def action_queue_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "entries": rows,
         "paused": queue["paused"],
         "waiting": queue["waiting"],
-        "can_add": len(rows) < MAX_QUEUE_ENTRIES,
     }
 
 
@@ -275,19 +275,44 @@ def add_starts_now_pure(player_data: Mapping[str, Any], current_skill: Any) -> b
     )
 
 
-def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> bool:
-    """Add an entry; False when the queue refuses it. A new plan starts or waits as ``add_starts_now_pure`` says."""
+def queue_add_refusal_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
+    """Why the queue refuses ``action`` now, one text per cause; empty when it takes it. The count is checked on add."""
+    if not action:
+        return "Choose what to do first."
+    if len(action_queue_pure(player_data)["entries"]) >= MAX_QUEUE_ENTRIES:
+        return QUEUE_FULL_TEXT
+    if not valid_action_record_pure(action):
+        return "This action can no longer be queued."
+    if action["kind"] != "quest":
+        return ""
+    if quest_state_pure(player_data, action["quest_id"]).get("completed"):
+        return "This quest is complete."
+    locked = quest_locked_reasons_pure(player_data, action["quest_id"], QUEST_DATA)
+    return "Requires: " + ", ".join(map(str, locked)) if locked else ""
+
+
+def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> str:
+    """Add an entry; why the queue refused it, empty when it took it.
+
+    A new plan starts or waits as ``add_starts_now_pure`` says.
+    """
     player_data = addon._state.player_data
+    refusal = queue_add_refusal_pure(player_data, action)
+    if refusal:
+        return refusal
     starts_now = add_starts_now_pure(player_data, addon._state.current_skill)
     queue = action_queue_pure(player_data)
     idle = current_queue_entry_pure(queue) is None
     queue, ok = add_queue_entry_pure(queue, action, count)
     if not ok:
-        return False
+        # Every other cause was refused above.
+        return "Type a count of 1 or more."
     if starts_now:
-        return _commit_run(addon, queue)
-    queue = {**queue, "waiting": queue["waiting"] or idle}
-    return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+        committed = _commit_run(addon, queue)
+    else:
+        queue = {**queue, "waiting": queue["waiting"] or idle}
+        committed = addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+    return "" if committed else "Anki could not save the change. Try again."
 
 
 def clear_action_queue(addon) -> bool:
@@ -329,10 +354,8 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
     """Run a queue command from the main menu; the result names the review action running after it."""
     message = ""
     if command == "add":
-        ok = add_to_action_queue(addon, payload["action"], payload.get("count"))
-        if not ok:
-            full = not action_queue_view_pure(addon._state.player_data)["can_add"]
-            message = QUEUE_FULL_TEXT if full else "Type a count of 1 or more."
+        message = add_to_action_queue(addon, payload["action"], payload.get("count"))
+        ok = not message
     elif command == "clear":
         ok = clear_action_queue(addon)
     elif command == "resume":

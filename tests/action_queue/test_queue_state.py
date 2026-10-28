@@ -13,12 +13,14 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.action_products import action_product_items_pure
 from ankiscape.core.action_queue import (
     ACTION_QUEUE_KEY,
+    QUEUE_FULL_TEXT,
     action_queue_pure,
     action_queue_view_pure,
     add_queue_entry_pure,
     advance_queue_pure,
     current_queue_entry_pure,
     pass_queue_entry_pure,
+    queue_add_refusal_pure,
     queue_entry_progress_pure,
 )
 
@@ -53,7 +55,7 @@ class ActionQueueStateTest(unittest.TestCase):
 
         view = action_queue_view_pure({ACTION_QUEUE_KEY: queue})
         self.assertEqual([(row["name"], row["state"]) for row in view["entries"]][:2], [("Mining: Iron", "current"), ("Mining: Iron", "waiting")])
-        self.assertTrue(view["can_add"])
+        self.assertEqual(queue_add_refusal_pure({ACTION_QUEUE_KEY: queue}, _SMELT_IRON), "")
 
     def test_a_sixth_entry_is_refused(self):
         queue = _queue(*[(_MINE_IRON, 1)] * 5)
@@ -62,7 +64,7 @@ class ActionQueueStateTest(unittest.TestCase):
 
         self.assertFalse(ok)
         self.assertEqual(refused, queue)
-        self.assertFalse(action_queue_view_pure({ACTION_QUEUE_KEY: queue})["can_add"])
+        self.assertEqual(queue_add_refusal_pure({ACTION_QUEUE_KEY: queue}, _SMELT_IRON), QUEUE_FULL_TEXT)
 
     def test_a_finished_queue_never_repeats_and_gives_way_to_a_new_plan(self):
         queue, _full = advance_queue_pure(_queue((_MINE_IRON, 3)), 3)

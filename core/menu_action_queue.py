@@ -20,21 +20,21 @@ from .action_products import (
 )
 from .action_queue import (
     MAX_QUEUE_ENTRIES,
-    QUEUE_FULL_TEXT,
     action_queue_pure,
     add_starts_now_pure,
     action_queue_view_pure,
     current_queue_entry_pure,
+    queue_add_refusal_pure,
     queue_entry_name_pure,
     queue_entry_unit_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
-from .constants import QUEST_DATA, UTILITY_ACTIVITY_DATA
+from .constants import UTILITY_ACTIVITY_DATA
 from .last_action import last_action_name_pure, last_action_record_pure
 from .skill_registry import get_skill
 from ..logic.inventory_pure import CARRIED_CAPACITY
 from ..logic.summoning_logic import summoning_action_requirements_pure
-from ..logic_pure.logic_pure import _runecrafting_multiplier_info, quest_locked_reasons_pure, quest_state_pure
+from ..logic_pure.logic_pure import _runecrafting_multiplier_info
 
 
 def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked: Any = None) -> dict[str, Any]:
@@ -163,23 +163,9 @@ def _unit_text(unit: str, products: tuple[str, ...], used: str) -> str:
     return products[0] if len(products) == 1 else "items"
 
 
-def _add_refusal(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
-    """Why "Add to queue" cannot take ``action`` now; empty when it can."""
-    if not action:
-        return "Choose what to do first."
-    if not action_queue_view_pure(player_data)["can_add"]:
-        return QUEUE_FULL_TEXT
-    if action["kind"] != "quest":
-        return ""
-    if quest_state_pure(player_data, action["quest_id"]).get("completed"):
-        return "This quest is complete."
-    locked = quest_locked_reasons_pure(player_data, action["quest_id"], QUEST_DATA)
-    return "Requires: " + ", ".join(map(str, locked)) if locked else ""
-
-
 def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> dict[str, Any]:
     """What an "Add to queue" control shows for ``action``: whether it can add, and the count box."""
-    refusal = _add_refusal(player_data, action)
+    refusal = queue_add_refusal_pure(player_data, action)
     has_count = bool(action) and action["kind"] != "quest"
     limit = action_bank_limit_pure(player_data, action) if has_count else None
     unit = (
@@ -221,7 +207,8 @@ def _panel_hint(view: Mapping[str, Any], running: str) -> str:
     if view["paused"]:
         return "Paused by Stop training. Resume queue continues it; Clear queue cancels the plan."
     if view["waiting"]:
-        return f"Starts when {running or 'the current action'} stops. Start now begins it at once."
+        running = running or "the current action"
+        return f"Starts when {running} stops. Start now begins it at once; Clear queue cancels it and stops {running}."
     return "Clear queue cancels the plan and stops its running entry. Stop training pauses it."
 
 
