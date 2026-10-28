@@ -277,7 +277,7 @@ from .logic.cooking_gauntlets_logic import (
     set_cooking_equipment_choice_pure,
 )
 from .logic.brawling_gloves_logic import set_brawling_wilderness_target_pure
-from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
+from .core.menu_bank_items import convert_rogue_kit, mix_dye
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
     SHOOTING_STAR_NOTICE_CONTEXT_ID,
@@ -4283,6 +4283,7 @@ def _on_main_menu(
         on_open_item_pack=on_open_item_pack,
         on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
+        on_mix_dye=partial(mix_dye, sys.modules[__name__]),
         on_teleport_training_urn=teleport_training_urn,
         get_ge_projection=_get_ge_projection,
         on_ge_action=_apply_ge_action,
@@ -4914,31 +4915,7 @@ def on_open_impling_jar(item_name):
 
 
 def on_convert_rogue_kit(output_item):
-    """Convert one Rogue kit into its chosen tool as an undoable Bank action."""
-    before = {
-        "player_data": copy.deepcopy(_state.player_data),
-        "random_state": random.getstate(),
-    }
-    updated, ok, info = convert_rogue_kit_pure(_state.player_data, str(output_item))
-    if not ok:
-        return None
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return None
-    _state.direct_action_undo_stack.append(before)
-    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    _state.player_data.clear()
-    _state.player_data.update(updated)
-    save_player_data()
-    _refresh_skill_availability()
-    try:
-        update_review_hud(_state.player_data, _state.current_skill)
-        mw.update_undo_actions()
-    except AttributeError:
-        pass
-    return info
+    return convert_rogue_kit(sys.modules[__name__], output_item)
 
 
 def _can_start_current_action(review_ctx=None) -> bool:

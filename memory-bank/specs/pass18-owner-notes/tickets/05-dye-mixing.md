@@ -4,9 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by GPT-6.1 Sol implementer on goal/pass18-05-dye-mixing
+**Status:** built; native look waits for the orchestrator
 
-- [ ] Searching Utilities for "dye" shows Mix orange, Mix green and Mix purple, each with its two inputs.
-- [ ] Right-clicking Red dye with Yellow dye and Blue dye held shows "Mix with" entries for Yellow (Orange dye) and Blue (Purple dye); with no partner dye held, no "Mix with" entry shows.
-- [ ] One click turns one Red dye and one Yellow dye into one Orange dye; Edit > Undo restores both.
+- [x] Searching Utilities for "dye" shows Mix orange, Mix green and Mix purple, each with its two inputs.
+- [x] Right-clicking Red dye with Yellow dye and Blue dye held shows "Mix with" entries for Yellow (Orange dye) and Blue (Purple dye); with no partner dye held, no "Mix with" entry shows.
+- [x] One click turns one Red dye and one Yellow dye into one Orange dye; Edit > Undo restores both.
 - [ ] Offscreen screenshots of the menu, dark and light; the orchestrator's native look shows it in real Anki.
+
+Offscreen dark/light menu captures passed at the default size and 560 points tall; the native look remains with the orchestrator.

@@ -602,7 +602,6 @@ from ..logic.skilling_boost_logic import (
 )
 from ..logic.cooking_gauntlets_logic import (
     cooking_equipment_choice_pure,
-    family_gauntlet_conversion_state_pure,
     family_gauntlet_recovery_state_pure,
 )
 from ..data.brawling_gloves_data import BRAWLING_GLOVE_DATA
@@ -4710,6 +4709,7 @@ def show_main_menu(
     on_open_item_pack=None,
     on_open_impling_jar=None,
     on_convert_rogue_kit=None,
+    on_mix_dye=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
     on_ge_action=None,
@@ -24553,48 +24553,18 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
-    def _add_cooking_gauntlet_conversion_action(
-        menu: "QMenu",
-        item_name: str,
-        object_name: str,
-        warning_parent: QWidget,
-    ) -> None:
-        state = family_gauntlet_conversion_state_pure(player_data, item_name)
-        if not state["visible"]:
-            return
-        cost = int(state["cost"] or 0)
-        action = menu.addAction(
-            "Enchant for Cooking"
-            if cost == 0
-            else f"Re-enchant for Cooking ({cost:,} Coins)"
-        )
-        action.setObjectName(object_name)
-        action.setEnabled(
-            bool(state["enabled"])
-            and on_cooking_gauntlets_command is not None
-        )
-        action.setToolTip(str(state["reason"]))
-
-        def _convert(_checked: bool = False) -> None:
-            if on_cooking_gauntlets_command is None:
-                return
-            result = on_cooking_gauntlets_command(
-                "convert", {"item_name": item_name}
-            ) or {}
-            if result.get("ok"):
-                _refresh_equipment_views(refresh_visible_skill=True)
-            else:
-                QMessageBox.warning(
-                    warning_parent,
-                    "Cannot enchant gauntlets",
-                    str(result.get("message", "That conversion is unavailable.")),
-                )
-
-        action.triggered.connect(_convert)
-        menu.addSeparator()
-
     from functools import partial
-    from .ui_bank_menu import BankMenuContext, build_bank_item_menu, _add_wicked_hood
+    from .ui_bank_menu import (
+        BankMenuContext, build_bank_item_menu, _add_wicked_hood,
+        add_cooking_gauntlet_conversion_action,
+    )
+
+    _add_cooking_gauntlet_conversion_action = partial(
+        add_cooking_gauntlet_conversion_action,
+        player_data=player_data,
+        on_cooking_gauntlets_command=on_cooking_gauntlets_command,
+        refresh_equipment_views=_refresh_equipment_views,
+    )
 
     bank_menu_context = BankMenuContext(
         player_data=player_data,
@@ -24610,6 +24580,7 @@ def show_main_menu(
         on_open_item_pack=on_open_item_pack,
         on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
+        on_mix_dye=on_mix_dye,
         on_teleport_training_urn=on_teleport_training_urn,
         carried_mode_state=carried_mode_state,
         on_set_carried_layout_quantity=on_set_carried_layout_quantity,
