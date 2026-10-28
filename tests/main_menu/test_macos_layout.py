@@ -35,6 +35,7 @@ from tests.test_main_menu_widget import (
 if HAS_AQT:
     from aqt.qt import (
         QAbstractButton,
+        QAbstractItemView,
         QAbstractScrollArea,
         QAbstractSpinBox,
         QApplication,
@@ -130,6 +131,15 @@ def _each_skill_list(dialog, page) -> Iterator[str]:
             skills.setCurrentRow(row)
             _open_every_group(page)
             yield skills.item(row).text()
+
+
+def _target_lists(page) -> list:
+    """The visible target lists on a skill page; Farming's queue list holds no targets."""
+    return [
+        view
+        for view in page.findChildren(QAbstractItemView)
+        if view.isVisibleTo(page) and view.objectName().endswith(("TargetTree", "ActivityTree"))
+    ]
 
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
@@ -262,9 +272,15 @@ class MacLayoutTest(fixtures.MainMenuWidgetTest):
             for entries in (0, 5):
                 dialog = self._queued_menu(entries, size)
                 page = _find_main_tabs(dialog).widget(0).widget()
+                listed = set()
                 for name in _each_skill_list(dialog, page):
                     with self.subTest(size=size, entries=entries, list=name):
+                        for view in _target_lists(page):
+                            listed.add(name)
+                            self.assertGreater(view.model().rowCount(), 0, view.objectName())
                         self.assertEqual(item_view_defects(page), [])
+                # One skill from each category button, so a category that shows no list fails.
+                self.assertLessEqual({"Combat", "Mining", "Smithing", "Agility", "Utilities", "Minigames"}, listed)
                 dialog.close()
 
     def test_a_target_list_wraps_its_rows_again_when_the_menu_narrows(self):

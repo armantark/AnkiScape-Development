@@ -21,6 +21,8 @@ class DispatcherState:
     review_feedback_initial_xp: float = 0.0
     review_feedback_flushing: bool = False
     pending_bankstanding_notice: dict | None = None
+    # The Event log ref of the line the latest stop wrote for the queue entry it ended.
+    ended_entry_line: str = ""
     pending_review_dialogs: DeferredAchievementDialogs = field(
         default_factory=DeferredAchievementDialogs
     )

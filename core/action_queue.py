@@ -38,6 +38,7 @@ each tab's own setter would open a second undo step inside the running one.
 from __future__ import annotations
 
 from typing import Any, Mapping
+from uuid import uuid4
 
 from .action_products import (
     action_product_items_pure,
@@ -68,7 +69,6 @@ from ..logic_pure.logic_pure import quest_locked_reasons_pure, quest_state_pure
 ACTION_QUEUE_KEY = "action_queue"
 MAX_QUEUE_ENTRIES = 5
 QUEUE_FULL_TEXT = "The queue is full."
-_COULD_NOT_START = "it could not start"
 
 
 def _empty_queue() -> dict[str, Any]:
@@ -192,6 +192,12 @@ def queue_entry_name_pure(action: Mapping[str, Any]) -> str:
     return f"{name}: {target}" if target else name
 
 
+def _entry_line(action: Mapping[str, Any], reason: str | None = None) -> str:
+    """An ended entry's Event log line: done, or stopped and why."""
+    name = queue_entry_name_pure(action)
+    return f"Queue: {name} done" if reason is None else f"Queue: {name} stopped · {reason}"
+
+
 def _queue_entry_row(queue: Mapping[str, Any], position: int) -> dict[str, Any]:
     action = queue["entries"][position]["action"]
     current = position == 0
@@ -228,9 +234,7 @@ def _run_current_entry(addon, current: Mapping[str, Any], queue: dict[str, Any])
         started = start_values(addon, updated, entry["action"])
         if started is not None:
             return {**started[0], ACTION_QUEUE_KEY: queue}, started[1]
-        updated = record_review_event_pure(
-            updated, "activity", f"Queue: {queue_entry_name_pure(entry['action'])} stopped · {_COULD_NOT_START}"
-        )
+        updated = record_review_event_pure(updated, "activity", _entry_line(entry["action"], "it could not start"))
         queue = pass_queue_entry_pure(queue)
     return {**updated, ACTION_QUEUE_KEY: queue}, None
 
@@ -487,8 +491,8 @@ class QueueCount:
         self.done += progress
         if len(queue["entries"]) == self.left:
             player_data[ACTION_QUEUE_KEY], self.full = advance_queue_pure(queue, progress)
-        elif self.done >= self.entry["count"] and (row := _passed_entry_row(player_data, self.entry["action"])):
-            row["text"] = f"Queue: {queue_entry_name_pure(self.entry['action'])} done"
+        elif self.done >= self.entry["count"] and (row := _ended_entry_row(self.addon)):
+            row["text"] = _entry_line(self.entry["action"])
 
     def hand_over(self) -> bool:
         """After the card's steps: count a review entry's card, and start the next entry after a full one.
@@ -509,7 +513,7 @@ class QueueCount:
         queue = action_queue_pure(player_data)
         review_action = None
         if current_queue_entry_pure(queue) is not None:
-            logged = record_review_event_pure(player_data, "activity", f"Queue: {name} done")
+            logged = record_review_event_pure(player_data, "activity", _entry_line(self.entry["action"]))
             updated, review_action = _run_current_entry(addon, logged, queue)
             _apply_in_transaction(addon, updated, review_action)
         if review_action is None:
@@ -541,10 +545,11 @@ def _queue_takes_over_stop(addon, stopped: Mapping[str, Any], reason: str, *, au
         return False
     action = entry["action"]
     completed = action["kind"] == "quest" and quest_state_pure(player_data, action["quest_id"]).get("completed")
-    name = queue_entry_name_pure(action)
-    text = f"Queue: {name} done" if completed else f"Queue: {name} stopped · {reason}"
+    addon._state.ended_entry_line = uuid4().hex
     # The line is the ended entry's only trace, so the last entry logs it too.
-    player_data.update(record_review_event_pure(player_data, "activity", text))
+    player_data.update(record_review_event_pure(
+        player_data, "activity", _entry_line(action, None if completed else reason), ref=addon._state.ended_entry_line
+    ))
     queue = pass_queue_entry_pure(queue)
     player_data[ACTION_QUEUE_KEY] = queue
     if current_queue_entry_pure(queue) is None:
@@ -579,6 +584,7 @@ def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | No
     Otherwise the stopped action becomes the last action, which Resume restarts.
     """
     player_data = addon._state.player_data
+    addon._state.ended_entry_line = ""
     stopped = last_action_record_pure(player_data, addon._state.current_skill)
     reason_text = str(reason or "").strip() or generic_stop_reason_pure(player_data, addon._state.current_skill)
     if _queue_takes_over_stop(addon, stopped, reason_text, automatic=automatic):
@@ -624,7 +630,7 @@ def refine_stop_reason(addon, stop: Mapping[str, Any] | None, reason: str) -> No
     # before it, even one with equal words, belongs to an earlier stop.
     if record is not stop["last_action"] and isinstance(record, dict) and record.get("reason") == stop["reason"]:
         player_data[LAST_ACTION_KEY] = {**record, "reason": reason}
-    _refine_passed_entry(player_data, stop, reason)
+    _refine_ended_entry(addon, stop, reason)
 
 
 def _refine_bankstanding_notice(notice: dict[str, Any] | None, player_data: dict[str, Any], reason: str) -> None:
@@ -636,27 +642,23 @@ def _refine_bankstanding_notice(notice: dict[str, Any] | None, player_data: dict
         event_log[-1]["text"] = bankstanding_event_text(reason)[:500]
 
 
-def _refine_passed_entry(player_data: dict[str, Any], stop: Mapping[str, Any], reason: str) -> None:
+def _refine_ended_entry(addon, stop: Mapping[str, Any], reason: str) -> None:
     """The log line of the entry ``stop`` ended takes ``reason``; a stop that ended none changes no line.
 
     A line that already took the words of the review's first refusal keeps them.
     """
-    if stop["entry"] is None or len(action_queue_pure(player_data)["entries"]) >= stop["left"]:
+    if stop["entry"] is None or len(action_queue_pure(addon._state.player_data)["entries"]) >= stop["left"]:
         return
-    row = _passed_entry_row(player_data, stop["entry"]["action"])
-    line = f"Queue: {queue_entry_name_pure(stop['entry']['action'])} stopped · "
-    if row is not None and row["text"] == line + stop["reason"]:
-        row["text"] = (line + reason)[:500]
+    row = _ended_entry_row(addon)
+    action = stop["entry"]["action"]
+    if row is not None and row["text"] == _entry_line(action, stop["reason"]):
+        row["text"] = _entry_line(action, reason)[:500]
 
 
-def _passed_entry_row(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> dict[str, Any] | None:
-    """The log row of the entry a stop in this review ended, which ``_queue_takes_over_stop`` wrote.
-
-    After it, the review logs only the entries that could not start.
-    """
-    line = f"Queue: {queue_entry_name_pure(action)} stopped · "
-    for row in reversed(player_data.get("review_event_log") or ()):
-        text = str(row.get("text") or "") if isinstance(row, dict) else ""
-        if text.startswith(line) and text != line + _COULD_NOT_START:
-            return row
-    return None
+def _ended_entry_row(addon) -> dict[str, Any] | None:
+    """The Event log row of the queue entry the latest stop ended, which ``_queue_takes_over_stop`` wrote."""
+    ref = addon._state.ended_entry_line
+    if not ref:
+        return None
+    rows = addon._state.player_data.get("review_event_log") or ()
+    return next((row for row in reversed(rows) if isinstance(row, dict) and row.get("ref") == ref), None)

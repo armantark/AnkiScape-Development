@@ -127,9 +127,9 @@ class RuntimeActionContext:
     def queue_action_limit(self) -> Optional[int]:
         """The most actions a step that takes several may take before the queue entry counting it is full.
 
-        Each action counts as one item, or as the inputs it uses; an action that
-        makes a bigger lot passes the count, and the queue takes the extra back.
-        None when no entry counts the step.
+        Each action counts as one item, or as the inputs it uses. An action that
+        can only make a whole lot keeps the whole lot, and the entry still ends
+        at its count. None when no entry counts the step.
         """
         if self.queue_remainder is None:
             return None
