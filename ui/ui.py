@@ -1447,18 +1447,7 @@ if HAS_QT:
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
     from .review_hud_buttons import ReviewResumeButton
-
-    class _ResponsiveGridScrollArea(QScrollArea):
-        """Notify a grid when its viewport width changes."""
-
-        def __init__(self, parent=None):
-            super().__init__(parent)
-            self.on_viewport_resize = None
-
-        def resizeEvent(self, event):  # type: ignore[no-untyped-def]
-            super().resizeEvent(event)
-            if self.on_viewport_resize is not None:
-                self.on_viewport_resize()
+    from .ui_bank_grid import ResponsiveGridScrollArea
 
     class _BankDropButton(QToolButton):
         """Keyboard-focusable Bank cell with native Qt item drag/drop."""
@@ -23469,7 +23458,7 @@ def show_main_menu(
         bank_picker_layout.setAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
         )
-        bank_picker_scroll = _ResponsiveGridScrollArea()
+        bank_picker_scroll = ResponsiveGridScrollArea()
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
         bank_picker_scroll.setHorizontalScrollBarPolicy(
@@ -23862,7 +23851,7 @@ def show_main_menu(
     bank_tab_scroll.setWidget(bank_tab_host)
     bank_left_layout.addWidget(bank_tab_scroll)
 
-    bank_grid_scroll = _ResponsiveGridScrollArea()
+    bank_grid_scroll = ResponsiveGridScrollArea()
     bank_grid_scroll.setObjectName("bankGridScroll")
     bank_grid_scroll.setWidgetResizable(True)
     bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
