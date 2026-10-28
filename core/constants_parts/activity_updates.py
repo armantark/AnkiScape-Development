@@ -7,8 +7,6 @@ from ...data.quest_data import (
     GERTRUDES_CAT_WIKI_SOURCE,
     GOBLIN_DIPLOMACY_WIKI_SOURCE,
     GOBLIN_MAIL_WIKI_SOURCE,
-    GREEN_DYE_WIKI_SOURCE,
-    PURPLE_DYE_WIKI_SOURCE,
     ORANGE_DYE_WIKI_SOURCE,
     ORANGE_GOBLIN_MAIL_WIKI_SOURCE,
 )
@@ -23,6 +21,10 @@ from .utility_sources import *
 from .equipment_sources import *
 from .registry_sources import *
 from .paths import *
+
+# Dyes: "Two primary colours (red, blue or yellow) can be mixed with each other to produce a
+# secondary colour (orange, green or purple)." Green and purple are not quest items.
+_DYES_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/5953125"
 
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 UTILITY_ACTIVITY_DATA = {
@@ -322,7 +324,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 1,
         "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "green_dye.png"),
         "group": "material_processing",
-        "source": GREEN_DYE_WIKI_SOURCE,
+        "source": _DYES_WIKI_SOURCE,
     },
     "mix_purple_dye": {
         "display_name": "Mix purple dye",
@@ -332,7 +334,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 1,
         "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "purple_dye.png"),
         "group": "material_processing",
-        "source": PURPLE_DYE_WIKI_SOURCE,
+        "source": _DYES_WIKI_SOURCE,
     },
     "aggie_make_blue_dye": {
         "display_name": "Ask Aggie to make blue dye",
