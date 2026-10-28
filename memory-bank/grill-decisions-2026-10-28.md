@@ -2,7 +2,7 @@
 
 Date: `2026-10-28`
 
-Status: **owner-settled, eleven rulings and three interface approvals.**
+Status: **owner-settled, twelve rulings and four interface approvals; the owner confirmed the summary at 14:48 PDT.**
 
 These rulings continue the numbering of `grill-decisions-2026-10-25.md`. Each ruling
 settles a class of contract questions. A contract cites the ruling and quotes its
@@ -218,8 +218,8 @@ the requirement keeps the content.
 ## Cards that arrived during the grill
 
 At 14:41 PDT the dashboard showed 35 cards: the first 23 and 12 new ones with 14
-questions. The rulings above settle 12 of the 14 (pending the owner's confirmation
-of the session summary):
+questions. The rulings above settle 12 of the 14, and the owner confirmed them
+with the session summary:
 
 - 3830 Roving Elves: bring a lost Glarial's pebble; the quest supplies only the
   amulet (ruling 6, "how a lost item comes back").
@@ -238,5 +238,23 @@ of the session summary):
   quick guide say against RuneHQ (ruling 7).
 - 4020 Underground Pass: the orb arrives on the successful disarm (ruling 7).
 
-Open for the owner: 1580 Oo'glog list keyboard and Bank refresh repair (an
-existing interface), and 4050 Demon Slayer key pictures.
+## Round 5 and confirmation
+
+The owner answered at 14:48 PDT: "13. Yes", "14. Yes" and "Yes" to the session
+summary, which included the applied answers above and the extension of ruling 7's
+tie rule.
+
+## 18. Items with no authenticated picture keep the current one
+
+Ruling line: when no variant of an item has an authenticated 2012 picture, the
+picture the game already shows stays on every variant, marked provisional in the
+art register, until someone verifies the art.
+
+- Precedent: 4050 Demon Slayer's three named keys show today's key picture.
+
+## Interface approval: list keyboard and Bank refresh repair
+
+The owner approved repairing three faults in existing lists, found by item 1580:
+Enter and keypad Enter start the selected row, the arrow keys move the Bank
+selection, and Bank casket and rune counts refresh without reopening the menu.
+The repair adds no control, layout or screen.
