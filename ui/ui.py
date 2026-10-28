@@ -602,7 +602,6 @@ from ..logic.skilling_boost_logic import (
 )
 from ..logic.cooking_gauntlets_logic import (
     cooking_equipment_choice_pure,
-    family_gauntlet_conversion_state_pure,
     family_gauntlet_recovery_state_pure,
 )
 from ..data.brawling_gloves_data import BRAWLING_GLOVE_DATA
@@ -1448,18 +1447,7 @@ if HAS_QT:
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
     from .review_hud_buttons import ReviewResumeButton
-
-    class _ResponsiveGridScrollArea(QScrollArea):
-        """Notify a grid when its viewport width changes."""
-
-        def __init__(self, parent=None):
-            super().__init__(parent)
-            self.on_viewport_resize = None
-
-        def resizeEvent(self, event):  # type: ignore[no-untyped-def]
-            super().resizeEvent(event)
-            if self.on_viewport_resize is not None:
-                self.on_viewport_resize()
+    from .ui_bank_grid import ResponsiveGridScrollArea
 
     class _BankDropButton(QToolButton):
         """Keyboard-focusable Bank cell with native Qt item drag/drop."""
@@ -1558,7 +1546,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, WrappingCheckBox, guard_wheel, lay_out_whole, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, ShrinkFirstPage, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -4710,6 +4698,7 @@ def show_main_menu(
     on_open_item_pack=None,
     on_open_impling_jar=None,
     on_convert_rogue_kit=None,
+    on_mix_dye=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
     on_ge_action=None,
@@ -4738,12 +4727,7 @@ def show_main_menu(
     layout.setContentsMargins(16, 16, 16, 16)
     layout.setSpacing(12)
 
-    tabs = QTabWidget()
-    tabs.setDocumentMode(True)
-    tabs.setIconSize(QSize(18, 18))
-    tabs.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
-    tabs.tabBar().setExpanding(False)
-    tabs.setUsesScrollButtons(True)
+    tabs = main_menu_tabs()
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
         icon_path = os.path.join(current_dir, "icon", filename)
@@ -4755,8 +4739,8 @@ def show_main_menu(
     # this single tab as category filter -> skill list -> target list. Normal
     # mode shows playable skills only; developer mode also surfaces the planned
     # 2011-era catalog so future skills can be inspected before they are coded.
-    skills_tab = QWidget()
-    s_layout = QVBoxLayout(skills_tab)
+    skills_tab = vertical_scroll(skills_body := ShrinkFirstPage())
+    s_layout = QVBoxLayout(skills_body)
     s_layout.setContentsMargins(12, 12, 12, 12)
     s_layout.setSpacing(8)
 
@@ -5160,7 +5144,9 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
+    from .ui_target_search import (
+        build_searchable_target_selector, short_target_row_label, style_flat_target_list, style_grouped_target_tree,
+    )
     from .ui_utility_activity_list import UtilityActivityList
     from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
 
@@ -5255,21 +5241,7 @@ def show_main_menu(
         set_group_expanded=None,
     ) -> QTreeWidget:
         tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setAlternatingRowColors(True)
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 28px; padding: 1px; }"
-            " QTreeWidget::item:selected { color: palette(text); }"
-            " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
+        style_grouped_target_tree(tree)
 
         ordered_groups = list(group_order or [])
         groups: dict = {group: [] for group in ordered_groups}
@@ -23474,7 +23446,7 @@ def show_main_menu(
         bank_picker_layout.setAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
         )
-        bank_picker_scroll = _ResponsiveGridScrollArea()
+        bank_picker_scroll = ResponsiveGridScrollArea()
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
         bank_picker_scroll.setHorizontalScrollBarPolicy(
@@ -23867,7 +23839,7 @@ def show_main_menu(
     bank_tab_scroll.setWidget(bank_tab_host)
     bank_left_layout.addWidget(bank_tab_scroll)
 
-    bank_grid_scroll = _ResponsiveGridScrollArea()
+    bank_grid_scroll = ResponsiveGridScrollArea()
     bank_grid_scroll.setObjectName("bankGridScroll")
     bank_grid_scroll.setWidgetResizable(True)
     bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -24553,48 +24525,18 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
-    def _add_cooking_gauntlet_conversion_action(
-        menu: "QMenu",
-        item_name: str,
-        object_name: str,
-        warning_parent: QWidget,
-    ) -> None:
-        state = family_gauntlet_conversion_state_pure(player_data, item_name)
-        if not state["visible"]:
-            return
-        cost = int(state["cost"] or 0)
-        action = menu.addAction(
-            "Enchant for Cooking"
-            if cost == 0
-            else f"Re-enchant for Cooking ({cost:,} Coins)"
-        )
-        action.setObjectName(object_name)
-        action.setEnabled(
-            bool(state["enabled"])
-            and on_cooking_gauntlets_command is not None
-        )
-        action.setToolTip(str(state["reason"]))
-
-        def _convert(_checked: bool = False) -> None:
-            if on_cooking_gauntlets_command is None:
-                return
-            result = on_cooking_gauntlets_command(
-                "convert", {"item_name": item_name}
-            ) or {}
-            if result.get("ok"):
-                _refresh_equipment_views(refresh_visible_skill=True)
-            else:
-                QMessageBox.warning(
-                    warning_parent,
-                    "Cannot enchant gauntlets",
-                    str(result.get("message", "That conversion is unavailable.")),
-                )
-
-        action.triggered.connect(_convert)
-        menu.addSeparator()
-
     from functools import partial
-    from .ui_bank_menu import BankMenuContext, build_bank_item_menu, _add_wicked_hood
+    from .ui_bank_menu import (
+        BankMenuContext, build_bank_item_menu, _add_wicked_hood,
+        add_cooking_gauntlet_conversion_action,
+    )
+
+    _add_cooking_gauntlet_conversion_action = partial(
+        add_cooking_gauntlet_conversion_action,
+        player_data=player_data,
+        on_cooking_gauntlets_command=on_cooking_gauntlets_command,
+        refresh_equipment_views=_refresh_equipment_views,
+    )
 
     bank_menu_context = BankMenuContext(
         player_data=player_data,
@@ -24610,6 +24552,7 @@ def show_main_menu(
         on_open_item_pack=on_open_item_pack,
         on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
+        on_mix_dye=on_mix_dye,
         on_teleport_training_urn=on_teleport_training_urn,
         carried_mode_state=carried_mode_state,
         on_set_carried_layout_quantity=on_set_carried_layout_quantity,
@@ -25005,7 +24948,7 @@ def show_main_menu(
             owned = max(0, int(inventory.get(pouch.pouch_name, 0) or 0))
             if owned > 0 or pouch.level <= level:
                 familiar_picker.addItem(
-                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} pouch(es)",
+                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} in Bank",
                     pouch.id,
                 )
         familiar_picker.blockSignals(False)

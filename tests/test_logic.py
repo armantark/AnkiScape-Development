@@ -8175,10 +8175,10 @@ class TestLogic(unittest.TestCase):
     def test_early_darkan_quests_progress_through_source_backed_stage_gates(self):
         goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         goblin["quests"]["goblin_diplomacy"] = {"started": True, "progress": 1, "completed": False}
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA),
-            ("Needs Orange goblin mail x1",),
-        )
+        self.assertEqual(quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA), (
+            "Needs Redberries x3 for Aggie's red dye", "Needs Coins x5 for Aggie's red dye",
+            "Needs Onion x2 for Aggie's yellow dye", "Needs Coins x5 for Aggie's yellow dye",
+        ))
 
         goblin["inventory"].update({"Orange goblin mail": 1, "Blue goblin mail": 1, "Goblin mail": 1})
         goblin, ok, completed_now = apply_quest_progress_pure(goblin, "goblin_diplomacy", QUEST_DATA)

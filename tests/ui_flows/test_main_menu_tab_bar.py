@@ -1,4 +1,4 @@
-"""The main menu keeps every tab name whole and its scroll arrows reach every tab."""
+"""The main menu keeps every tab name whole, with one scroll arrow at each end of the bar that reaches every tab."""
 
 from __future__ import annotations
 
@@ -48,6 +48,15 @@ class MainMenuTabBarTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         test_main_menu_widget_behavior.MainMenuWidgetTest.setUpClass()
+        # The owner saw truncated names under Qt's macOS style, which elides tab
+        # text and hides the scroll arrows unless the menu asks otherwise. The
+        # menu builds its arrow style on the application style.
+        cls._style_name = QApplication.style().name()
+        QApplication.setStyle(QStyleFactory.create("macOS"))
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        QApplication.setStyle(QStyleFactory.create(cls._style_name))
 
     def setUp(self) -> None:
         self.menu = test_main_menu_widget_behavior.MainMenuWidgetTest(methodName="runTest")
@@ -56,9 +65,7 @@ class MainMenuTabBarTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.menu.tearDown()
 
-    def test_macos_style_keeps_tab_names_whole_and_scrolls_to_every_tab(self) -> None:
-        # The owner saw truncated names under Qt's macOS style, which elides tab
-        # text and hides the scroll arrows unless the menu asks otherwise.
+    def test_macos_style_keeps_tab_names_whole_with_an_arrow_at_each_end_that_reaches_every_tab(self) -> None:
         for width in (720, 980):
             with self.subTest(width=width):
                 dialog = self.menu._open(_main_menu._make_player_data(), current_skill="Mining")
@@ -66,10 +73,6 @@ class MainMenuTabBarTest(unittest.TestCase):
                 dialog.resize(width, 560)
                 tabs = _main_menu._find_main_tabs(dialog)
                 bar = tabs.tabBar()
-                style = QStyleFactory.create("macOS")
-                style.setParent(dialog)
-                tabs.setStyle(style)
-                bar.setStyle(style)
                 _pump()
 
                 cut = [bar.tabText(index) for index in range(bar.count()) if not _label_is_whole(bar, index)]
@@ -77,11 +80,25 @@ class MainMenuTabBarTest(unittest.TestCase):
 
                 arrows = {button.arrowType(): button for button in bar.findChildren(QToolButton)}
                 right, left = arrows[Qt.ArrowType.RightArrow], arrows[Qt.ArrowType.LeftArrow]
-                self.assertTrue(right.isVisible() and right.isEnabled())
+                self.assertTrue(left.isVisible() and right.isVisible())
+                self.assertEqual((left.x(), right.geometry().right()), (0, bar.width() - 1))
+                self.assertEqual((left.isEnabled(), right.isEnabled()), (False, True))
+
                 _scroll_to_end(right, bar.count())
-                self.assertLessEqual(bar.tabRect(bar.count() - 1).right(), bar.width())
+                self.assertEqual((left.isEnabled(), right.isEnabled()), (True, False))
+                self.assertLess(bar.tabRect(bar.count() - 1).right(), right.x())
                 _scroll_to_end(left, bar.count())
-                self.assertGreaterEqual(bar.tabRect(0).left(), 0)
+                self.assertEqual((left.isEnabled(), right.isEnabled()), (False, True))
+                self.assertGreater(bar.tabRect(0).left(), left.geometry().right())
+
+                hidden = []
+                for index in [*range(bar.count()), *reversed(range(bar.count()))]:
+                    tabs.setCurrentIndex(index)
+                    _pump()
+                    rect = bar.tabRect(index)
+                    if rect.left() <= left.geometry().right() or rect.right() >= right.x():
+                        hidden.append((bar.tabText(index), rect.left(), rect.right()))
+                self.assertEqual(hidden, [])
 
 
 if __name__ == "__main__":

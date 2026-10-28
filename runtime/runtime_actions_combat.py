@@ -467,6 +467,24 @@ def _log_finisher_hold(ctx, notice) -> None:
         ctx.show_activity_gain(notice)
 
 
+def _burst_kill_limit(ctx: RuntimeActionContext, slayer_limit):
+    """The kills a burst stops at: the smaller of the Slayer task's and the queue entry's remaining kills."""
+    return min((limit for limit in (slayer_limit, ctx.queue_action_limit()) if limit is not None), default=None)
+
+
+def _record_burst_stop(ctx: RuntimeActionContext, result, slayer_limit) -> str:
+    """Record why the burst ended the card.
+
+    When the queue entry's kill count, not the Slayer task, ended the burst,
+    nothing ended the card early: its unspent ticks go to the queue's next entry.
+    """
+    reason, elapsed = result.get("stop_reason", ""), result.get("ticks_elapsed", 0)
+    if reason == "slayer_task_complete" and _burst_kill_limit(ctx, slayer_limit) != slayer_limit:
+        reason = ""
+        ctx.card.burst_ticks_left = max(0, ctx.card.ticks_remaining - elapsed)
+    return ctx.card.record_tick_stop(elapsed, reason)
+
+
 def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -532,6 +550,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     )
 
     active_prayer_selection = tuple(active_prayer_selection_pure(player_data))
+    slayer_limit = slayer_kill_limit_pure(player_data, target_id)
     encounter_before = player_data.get("combat_encounter")
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
@@ -550,7 +569,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             rng=ctx.random_random,
             live_cadence=ctx.cadence_live_enabled,
             stop_on_danger=True,
-            stop_after_kills=slayer_kill_limit_pure(player_data, target_id),
+            stop_after_kills=_burst_kill_limit(ctx, slayer_limit),
             # A bank run ends the encounter, and an encounter-only enemy cannot
             # be fought again after it, so its fight uses the carried supplies.
             allow_bank_run=not enemy.get("encounter_only"),
@@ -578,7 +597,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    result["stop_reason"] = ctx.card.record_tick_stop(result.get("ticks_elapsed", 0), result.get("stop_reason", ""))
+    result["stop_reason"] = _record_burst_stop(ctx, result, slayer_limit)
     guild_result = {}
     if (
         target_id in {"cyclops", "cyclossus"}

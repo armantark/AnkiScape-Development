@@ -1,7 +1,8 @@
 """The queue's state machine: counts in each action's unit, passes, the cap, no repeat.
 
 The owner asked for a short planned chain, never a loop (2026-10-26): at most
-five entries, each worked through once, top to bottom.
+five entries, each worked through once, top to bottom. An entry that ends
+leaves the queue and frees its place (Pass 18).
 """
 
 from __future__ import annotations
@@ -12,12 +13,14 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.action_products import action_product_items_pure
 from ankiscape.core.action_queue import (
     ACTION_QUEUE_KEY,
+    QUEUE_FULL_TEXT,
     action_queue_pure,
     action_queue_view_pure,
     add_queue_entry_pure,
     advance_queue_pure,
     current_queue_entry_pure,
     pass_queue_entry_pure,
+    queue_add_refusal_pure,
     queue_entry_progress_pure,
 )
 
@@ -40,21 +43,19 @@ class ActionQueueStateTest(unittest.TestCase):
 
         queue, full = advance_queue_pure(queue, 6)
         self.assertFalse(full)
-        self.assertEqual((queue["index"], queue["done"]), (0, 6))
+        self.assertEqual((current_queue_entry_pure(queue)["action"], queue["done"]), (_MINE_IRON, 6))
 
         queue, full = advance_queue_pure(queue, 7)
         self.assertTrue(full)
-        self.assertEqual(current_queue_entry_pure(queue)["action"], _SMELT_IRON)
+        self.assertEqual(queue["entries"], [{"action": _SMELT_IRON, "count": 5}])
         self.assertEqual(queue["done"], 0)
 
-    def test_an_entry_that_runs_short_is_passed_with_its_reason(self):
-        queue = pass_queue_entry_pure(_queue((_SMELT_IRON, 20), (_MINE_IRON, 5)), "You need 1 Iron ore")
+    def test_a_passed_entry_leaves_and_frees_its_place(self):
+        queue = pass_queue_entry_pure(_queue((_SMELT_IRON, 20), *[(_MINE_IRON, 5)] * 4))
 
-        rows = action_queue_view_pure({ACTION_QUEUE_KEY: queue})["entries"]
-        self.assertEqual(
-            [(row["name"], row["state"], row["stopped"]) for row in rows],
-            [("Smithing: Iron bar", "stopped", "You need 1 Iron ore"), ("Mining: Iron", "current", "")],
-        )
+        view = action_queue_view_pure({ACTION_QUEUE_KEY: queue})
+        self.assertEqual([(row["name"], row["state"]) for row in view["entries"]][:2], [("Mining: Iron", "current"), ("Mining: Iron", "waiting")])
+        self.assertEqual(queue_add_refusal_pure({ACTION_QUEUE_KEY: queue}, _SMELT_IRON), "")
 
     def test_a_sixth_entry_is_refused(self):
         queue = _queue(*[(_MINE_IRON, 1)] * 5)
@@ -63,16 +64,14 @@ class ActionQueueStateTest(unittest.TestCase):
 
         self.assertFalse(ok)
         self.assertEqual(refused, queue)
-        self.assertFalse(action_queue_view_pure({ACTION_QUEUE_KEY: queue})["can_add"])
+        self.assertEqual(queue_add_refusal_pure({ACTION_QUEUE_KEY: queue}, _SMELT_IRON), QUEUE_FULL_TEXT)
 
     def test_a_finished_queue_never_repeats_and_gives_way_to_a_new_plan(self):
         queue, _full = advance_queue_pure(_queue((_MINE_IRON, 3)), 3)
 
         self.assertIsNone(current_queue_entry_pure(queue))
         self.assertEqual(advance_queue_pure(queue, 50), (queue, False))
-        view = action_queue_view_pure({ACTION_QUEUE_KEY: queue})
-        self.assertTrue(view["finished"])
-        self.assertEqual([row["state"] for row in view["entries"]], ["done"])
+        self.assertEqual(action_queue_view_pure({ACTION_QUEUE_KEY: queue})["entries"], [])
 
         queue, ok = add_queue_entry_pure(queue, _SMELT_IRON, 4)
         self.assertTrue(ok)

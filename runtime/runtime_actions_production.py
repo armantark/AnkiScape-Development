@@ -853,8 +853,7 @@ def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
             )
         return False
     updated, rewards, ok = apply_construction_action_pure(
-        player_data, target, CONSTRUCTION_DATA, SERVANT_DATA, NAIL_DATA,
-        ctx.random_random,
+        player_data, target, CONSTRUCTION_DATA, SERVANT_DATA, NAIL_DATA, ctx.random_random, ctx.queue_action_limit(),
     )
     if not ok:
         _switch_material_failure_to_bankstanding(
@@ -1148,6 +1147,7 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         RUNECRAFTING_POUCH_DATA,
         rolls=rolls,
         quest_unlock_rules=QUEST_UNLOCK_RULES,
+        rune_limit=ctx.queue_remainder,
     )
     if not ok:
         reasons = runecrafting_locked_reasons_pure(

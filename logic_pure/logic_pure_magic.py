@@ -114,6 +114,7 @@ from .logic_pure_landmarks import (
 )
 
 from .logic_pure_state import (
+    _at_most,
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,
@@ -384,6 +385,17 @@ _STRINGABLE_AMULETS = {
 }
 
 
+def _take_items(inventory, items, limit):
+    """Take ``items`` from ``inventory``, every one or at most ``limit`` in all; return how many it took."""
+    taken = 0
+    for item in items:
+        count = _non_negative_int(inventory.get(item, 0), 0)
+        take = _at_most(count, None if limit is None else limit - taken)
+        inventory[item] = count - take
+        taken += take
+    return taken
+
+
 def apply_magic_action_pure(
     player_data,
     target_id,
@@ -392,8 +404,12 @@ def apply_magic_action_pure(
     random_random=None,
     *,
     farming_patch_id=None,
+    item_limit=None,
 ):
-    """Apply one closed-contract noncombat cast as a single undoable mutation."""
+    """Apply one closed-contract noncombat cast as a single undoable mutation.
+
+    A cast that converts many items converts at most ``item_limit``.
+    """
     spec = magic_data.get(target_id)
     alch_values = alch_values or {}
     random_random = random_random or (lambda: 1.0)
@@ -451,12 +467,7 @@ def apply_magic_action_pure(
     elif action == "bones_conversion":
         eligible = ("Bones",) if effect_target_id == "bones_to_bananas" else ("Bones", "Big bones")
         output = next(iter((spec.get("outputs", {}) or {"Banana": 1})))
-        total = 0
-        for item in eligible:
-            count = _non_negative_int(inventory.get(item, 0), 0)
-            inventory[item] = 0
-            total += count
-        add(output, total)
+        add(output, _take_items(inventory, eligible, item_limit))
     elif action == "bake_pie":
         for raw, (cooked, xp) in _PIE_OUTPUTS.items():
             count = _non_negative_int(inventory.get(raw, 0), 0)
@@ -490,9 +501,7 @@ def apply_magic_action_pure(
                 if _non_negative_int(inventory.get(item, 0), 0) > 0
             )
         leather = str(spec.get("leather_output", "") or _LEATHER_OUTPUTS[hide])
-        count = min(5, _non_negative_int(inventory.get(hide, 0), 0))
-        inventory[hide] -= count
-        add(leather, count)
+        add(leather, _take_items(inventory, (hide,), _at_most(5, item_limit)))
     elif action == "string_jewellery":
         total = 0
         for item, strung_item in _STRINGABLE_AMULETS.items():

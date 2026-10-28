@@ -2,7 +2,8 @@
 
 The owner's case (Pass 17): the count box starts at the most the Bank allows,
 so a smelt entry with that count ends as done when the ore runs out, not as
-stopped short; the queue holds five entries and Clear drops the plan.
+stopped short; the queue holds five entries and Clear drops the plan and
+stops whatever runs.
 """
 
 from __future__ import annotations
@@ -57,8 +58,9 @@ class QueueMenuCommandTest(QueueProfile):
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
 
-        self.assertEqual(self._rows(addon), [("Smithing: Iron bar", "done", 10)])
-        self.assertEqual(self.bankstanding_dialogs, ["The queue is finished: Smithing: Iron bar done."])
+        self.assertEqual(self._rows(addon), [])
+        self.assertNotIn("Queue: Smithing: Iron bar stopped", " ".join(self._log(addon)))
+        self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Smithing: Iron bar."])
 
     def test_a_bury_entry_counts_the_bones_it_buries(self):
         bury = {"kind": "skill", "skill": "Prayer", "target": "bury_bones"}
@@ -85,7 +87,7 @@ class QueueMenuCommandTest(QueueProfile):
         refused = command("add", {"action": _SMELT_IRON, "count": 100})
         self.assertEqual(
             refused,
-            {"ok": False, "active": "Mining", "message": "The queue holds 5 entries. Clear it to plan again."},
+            {"ok": False, "active": "Mining", "message": "The queue is full."},
         )
         self.assertFalse(queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["enabled"])
 
@@ -99,6 +101,22 @@ class QueueMenuCommandTest(QueueProfile):
         view = resume_button_view_pure(addon._state.player_data, addon._state.current_skill)
         self.assertEqual((view["text"], view["bank_status"]), ("Resume Mining", "stopped: The queue was cleared."))
 
+    def test_each_refused_add_names_its_own_cause(self):
+        addon = self._queue_addon("ankiscape_queue_menu_refusals")
+        addon._state.player_data["quests"] = {"rune_mysteries": {"completed": True}}
+        command = self._menu(addon)
+
+        for action, count, message in (
+            ({}, 1, "Nothing selected."),
+            ({"kind": "skill", "skill": "Sailing", "target": "raft"}, 1, "This action cannot be queued."),
+            ({"kind": "quest", "quest_id": "rune_mysteries"}, None, "This quest is complete."),
+            ({"kind": "quest", "quest_id": "dragon_slayer"}, None, "Requires: 32 quest points"),
+            (_MINE_IRON, 0, "Type a count of 1 or more."),
+        ):
+            with self.subTest(message=message):
+                self.assertEqual(command("add", {"action": action, "count": count}), {"ok": False, "active": "Utilities", "message": message})
+        self.assertEqual(self._rows(addon), [])
+
     def test_a_plan_waits_behind_a_hand_started_action_until_it_stops(self):
         addon = self._queue_addon("ankiscape_queue_menu_wait", woodcutting_level=40)
         addon.save_skill("Woodcutting", None)
@@ -111,12 +129,7 @@ class QueueMenuCommandTest(QueueProfile):
         self.assertEqual(addon._state.current_skill, "Woodcutting")
         self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
 
-        # Clear drops a waiting plan and leaves the hand-started action running.
-        self.assertTrue(command("clear", {})["ok"])
-        self.assertEqual(addon._state.current_skill, "Woodcutting")
-
         # Stopping the hand-started action starts the plan, and the menu learns what runs now.
-        command("add", {"action": _MINE_IRON, "count": 30})
         captured = {}
         addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
         addon._on_main_menu()

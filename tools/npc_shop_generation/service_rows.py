@@ -1,4 +1,4 @@
-"""Source-backed NPC service catalog used by the shop generator."""
+"""Source-backed NPC service and vendor catalogs used by the shop generator."""
 
 from __future__ import annotations
 
@@ -223,3 +223,74 @@ def _bogrog_exchange_service_rows() -> list[dict[str, Any]]:
 
 
 SERVICE_ROWS.extend(_bogrog_exchange_service_rows())
+
+
+VENDOR_ACTIONS = [
+    {
+        "id": "bartender_buy_beer",
+        "display_name": "Buy a pint of beer",
+        "provider": "Bartender",
+        "location": "Common pubs",
+        "currency_id": 995,
+        "price": 2,
+        "outputs": [{"item_id": 1917, "quantity": 1}],
+        "source": "Darkan BartenderUtils.buyDrinkOrIngredients and pub dialogue literals",
+        "action_type": "direct_purchase",
+    },
+    {
+        "id": "bartender_sell_beer_glass",
+        "display_name": "Sell empty beer glass",
+        "provider": "Bartender",
+        "location": "Common pubs",
+        "currency_id": 995,
+        "price": 0,
+        "inputs": [{"item_id": 1919, "quantity": 1}],
+        "outputs": [{"item_id": 995, "quantity": 2}],
+        "source": "Darkan BartenderUtils.sellBeerGlass",
+        "action_type": "direct_sale",
+    },
+    {
+        "id": "benny_buy_varrock_herald",
+        "display_name": "Buy a Varrock Herald",
+        "provider": "Benny",
+        "location": "Varrock Square",
+        "currency_id": 995,
+        "price": 50,
+        "outputs": [{"item_id": 11169, "quantity": 1}],
+        "source": "Darkan world/areas/varrock/npcs/Benny.java",
+        "action_type": "direct_purchase",
+    },
+    {
+        "id": "karim_buy_kebab",
+        "display_name": "Buy a kebab",
+        "provider": "Karim",
+        "location": "Al Kharid",
+        "currency_id": 995,
+        "price": 1,
+        "outputs": [{"item_id": 1971, "quantity": 1}],
+        "source": "Darkan world/areas/al_kharid/npcs/Karim.kt",
+        "action_type": "direct_purchase",
+    },
+    {
+        "id": "wyson_buy_two_woad_leaves",
+        "display_name": "Pay 20 coins for 2 woad leaves",
+        "provider": "Wyson the gardener",
+        "location": "Falador Park",
+        "currency_id": 995,
+        "price": 20,
+        "outputs": [{"item_id": 1793, "quantity": 2}],
+        "source": "RuneScape Wiki Wyson the gardener oldid 6226377, 2012-09-09",
+        "action_type": "direct_purchase",
+    },
+    {
+        "id": "wyson_buy_one_woad_leaf",
+        "display_name": "Pay 15 coins for 1 woad leaf",
+        "provider": "Wyson the gardener",
+        "location": "Falador Park",
+        "currency_id": 995,
+        "price": 15,
+        "outputs": [{"item_id": 1793, "quantity": 1}],
+        "source": "RuneScape Wiki Wyson the gardener oldid 6226377, 2012-09-09",
+        "action_type": "direct_purchase",
+    },
+]

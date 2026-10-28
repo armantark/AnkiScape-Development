@@ -614,6 +614,7 @@ __all__ = (
     'QuestSkillRequirement',
     'QuestXpReward',
     'QuestLampReward',
+    'QuestSupplyRecipe',
     'QuestDefinition',
     'ClaimDefinition',
     'QuestReference',

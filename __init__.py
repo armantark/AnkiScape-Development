@@ -249,7 +249,7 @@ from .core.action_registry import (
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .core.action_queue import (
-    advance_action_queue, apply_action_queue_command, bankstanding_event_text, unexplained_stop_pure,
+    QueueCount, apply_action_queue_command, bankstanding_event_text, unexplained_stop_pure,
     record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, stop_action,
 )
 from .logic.shop_logic import advance_shop_market_clock_pure
@@ -277,7 +277,7 @@ from .logic.cooking_gauntlets_logic import (
     set_cooking_equipment_choice_pure,
 )
 from .logic.brawling_gloves_logic import set_brawling_wilderness_target_pure
-from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
+from .core.menu_bank_items import convert_rogue_kit, mix_dye
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
     SHOOTING_STAR_NOTICE_CONTEXT_ID,
@@ -4283,6 +4283,7 @@ def _on_main_menu(
         on_open_item_pack=on_open_item_pack,
         on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
+        on_mix_dye=partial(mix_dye, sys.modules[__name__]),
         on_teleport_training_urn=teleport_training_urn,
         get_ge_projection=_get_ge_projection,
         on_ge_action=_apply_ge_action,
@@ -4914,31 +4915,7 @@ def on_open_impling_jar(item_name):
 
 
 def on_convert_rogue_kit(output_item):
-    """Convert one Rogue kit into its chosen tool as an undoable Bank action."""
-    before = {
-        "player_data": copy.deepcopy(_state.player_data),
-        "random_state": random.getstate(),
-    }
-    updated, ok, info = convert_rogue_kit_pure(_state.player_data, str(output_item))
-    if not ok:
-        return None
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return None
-    _state.direct_action_undo_stack.append(before)
-    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    _state.player_data.clear()
-    _state.player_data.update(updated)
-    save_player_data()
-    _refresh_skill_availability()
-    try:
-        update_review_hud(_state.player_data, _state.current_skill)
-        mw.update_undo_actions()
-    except AttributeError:
-        pass
-    return info
+    return convert_rogue_kit(sys.modules[__name__], output_item)
 
 
 def _can_start_current_action(review_ctx=None) -> bool:
@@ -5011,22 +4988,23 @@ def _selected_review_action() -> tuple:
 
 
 def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
-    # The card's steps belong to the action selected when it began: switching
-    # to Bankstanding, or to any other action, ends the card.
+    # The card's steps belong to the action selected when it began, and a switch
+    # ends them; a full queue entry hands the rest of the card to the next entry.
     reviewed_action = _selected_review_action()
+    queue_count = QueueCount(sys.modules[__name__])
     # Combat carries no skilling pack: its engine owns supplies and bank trips.
     step = handler if handler_key == "combat" else (
         lambda ctx: runtime_actions.run_answer_with_carried_overlay(ctx, handler_key, handler)
     )
     progressed = runtime_actions.spend_card_budget(
-        review_ctx,
-        handler_key,
-        step,
-        can_continue=lambda: _selected_review_action() == reviewed_action
+        review_ctx, handler_key, queue_count.counted(step),
+        can_continue=lambda: not queue_count.full and _selected_review_action() == reviewed_action
         and _can_start_current_action(review_ctx),
     )
     if progressed and handler_key not in ("combat", "quest", "thieving", "agility"):
         _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
+    if queue_count.hand_over():
+        _spend_card_on_action(review_ctx, review_action_handler_key(_state.current_skill), _registered_answer_handler(_state.current_skill))
 
 
 def on_good_answer(before_state=None, *, defer_commit=False):
@@ -5149,7 +5127,6 @@ def _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, be
     if awards_review and (answers_farm_step or is_review_action(_state.current_skill)):
         _state.review_feedback_initial_xp = context_xp
         on_good_answer(before_state, defer_commit=True)
-        advance_action_queue(sys.modules[__name__], before_state["player_data"])
         _state.exp_awarded = True
     else:
         handler_key = review_action_handler_key(_state.current_skill)

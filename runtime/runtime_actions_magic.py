@@ -470,7 +470,7 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         if not admitted:
             return True
     new_data, magic_xp, secondary, outputs, ok, message = apply_magic_action_pure(
-        player_data, target, MAGIC_DATA, _magic_alch_values(), ctx.random_random
+        player_data, target, MAGIC_DATA, _magic_alch_values(), ctx.random_random, item_limit=ctx.queue_action_limit()
     )
     if not ok:
         reasons = magic_target_locked_reasons_pure(player_data, target, MAGIC_DATA, _magic_alch_values())

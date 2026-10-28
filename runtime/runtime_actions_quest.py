@@ -213,7 +213,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     opening_message = toktz_opening_message_pure(player_data, quest_id)
     cook_phase = another_cook_phase_pure(player_data, quest_id)
     repair_phase = (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
-                    or quest_review_phase_pure(player_data, quest_id))
+                    or quest_review_phase_pure(player_data, quest_id, stage_blockers, QUEST_DATA))
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(

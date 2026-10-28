@@ -1282,7 +1282,7 @@ def build_shop_tab(ctx) -> "QWidget":
             if row.get("batchable") and amount != 1
             else "."
         )
-        _refresh_after_shop_mutation(service_result_chip, f"Used {display_name}{suffix}")
+        _refresh_after_shop_mutation(service_result_chip, f"{display_name}{suffix}")
 
     def _run_agility_reward_command(action_id: str, payload: dict) -> None:
         on_agility_command = getattr(ctx, "on_agility_command", None)

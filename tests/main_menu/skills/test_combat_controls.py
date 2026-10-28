@@ -563,7 +563,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         max_hit = dialog.findChild(QLabel, "combatMaxHitLabel")
         burst = dialog.findChild(QCheckBox, "combatPrayerCheck::burst_of_strength")
         self.assertIn("Your max hit: 140 LP", _tree_row(_find_tree_with_user_role(dialog, "chicken"), "chicken").toolTip(0))
-        self.assertEqual(status.text(), "Off: no prayers run in fights.")
+        self.assertTrue(status.isHidden())
         self.assertFalse(burst.isEnabled())
 
         dialog.findChild(QCheckBox, "combatPrayerMasterCheck").click()
@@ -575,10 +575,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         ultimate = dialog.findChild(QCheckBox, "combatPrayerCheck::ultimate_strength")
         self.assertEqual(picked, {"steel_skin", "ultimate_strength", "incredible_reflexes"})
         self.assertTrue(ultimate.property("picked"))
-        self.assertTrue(status.text().startswith("Picked for you"))
         auto_pick = dialog.findChild(QPushButton, "combatPrayerAutoPickButton")
-        self.assertEqual((auto_pick.text(), auto_pick.isEnabled()), ("Using the best pick", False))
-        self.assertTrue(max_hit.text().startswith("Your max hit: 160 LP"))
+        self.assertEqual((auto_pick.text(), auto_pick.isEnabled()), ("Auto-picked", False))
+        self.assertTrue(max_hit.text().startswith("Max hit: 160 LP"))
 
         burst.click()
         QApplication.processEvents()
@@ -587,11 +586,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength", "incredible_reflexes", "steel_skin"])
         self.assertFalse(ultimate.isChecked())
         swap_note = dialog.findChild(QLabel, "combatPrayerSwapNote")
-        self.assertEqual(swap_note.text(), "Burst of Strength replaced Ultimate Strength: they cannot run together.")
+        self.assertEqual(swap_note.text(), "Burst of Strength replaced Ultimate Strength.")
         self.assertFalse(swap_note.isHidden())
         self.assertFalse(burst.property("picked"))
-        self.assertEqual(status.text(), "Next fight runs Burst of Strength, Incredible Reflexes and Steel Skin for the whole fight.")
-        self.assertTrue(max_hit.text().startswith("Your max hit: 150 LP with Burst of Strength"))
+        self.assertTrue(status.isHidden())
+        self.assertTrue(max_hit.text().startswith("Max hit: 150 LP"))
         self.assertIn("Your max hit: 150 LP", _tree_row(_find_tree_with_user_role(dialog, "chicken"), "chicken").toolTip(0))
 
         dialog.findChild(QPushButton, "combatPrayerAutoPickButton").click()
@@ -611,12 +610,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         auto_pick = dialog.findChild(QPushButton, "combatPrayerAutoPickButton")
         self.assertTrue(burst.isChecked())
         self.assertFalse(burst.isEnabled())
-        self.assertEqual(
-            dialog.findChild(QLabel, "combatPrayerStatusLabel").text(),
-            "Off: no prayers run in fights. The greyed ticks are saved for when prayers are on.",
-        )
+        self.assertTrue(dialog.findChild(QLabel, "combatPrayerStatusLabel").isHidden())
         self.assertFalse(auto_pick.isEnabled())
-        self.assertEqual(auto_pick.toolTip(), "Tick “Use prayers in fights” first.")
+        self.assertEqual(auto_pick.toolTip(), "Prayers are off.")
         self.assertEqual(pd["combat_selected_prayers"], ["burst_of_strength"])
 
     def test_saving_a_preset_for_the_target_switches_the_target_to_it(self) -> None:
@@ -626,13 +622,13 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd.update({"prayer_level": 43, "combat_prayer_points": 430, "current_combat_target": "chicken"})
         dialog = self._open(pd)
         save = dialog.findChild(QPushButton, "combatSavePresetButton")
-        self.assertEqual(save.text(), "Save as a preset for Chicken…")
+        self.assertEqual(save.text(), "Save preset…")
         build = panel.preset_save_dialog
 
         def named(parent, target):
             built, name, switch = build(parent, target)
             self.assertTrue(switch.isChecked())
-            self.assertEqual(switch.text(), "Use it whenever I fight Chicken")
+            self.assertEqual(switch.text(), "Use against Chicken")
             name.setText("Chickens")
             built.exec = lambda: panel.QDialog.DialogCode.Accepted
             return built, name, switch
@@ -643,10 +639,10 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertIn("Chickens", pd["combat_presets"])
         self.assertEqual(pd["combat_target_presets"], {"chicken": "Chickens"})
         self.assertTrue(
-            dialog.findChild(QLabel, "combatTargetSummaryLabel").text().startswith("Against Chicken: preset Chickens · ")
+            dialog.findChild(QLabel, "combatTargetSummaryLabel").text().startswith("Against Chicken: Chickens preset · ")
         )
 
-    def test_the_target_summary_names_the_source_that_wins(self) -> None:
+    def test_the_target_summary_shows_what_its_preset_and_kept_settings_give_fights(self) -> None:
         pd = _make_player_data()
         pd.update({
             "prayer_level": 43, "combat_prayer_points": 430, "current_combat_target": "chicken",
@@ -656,7 +652,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         summary = dialog.findChild(QLabel, "combatTargetSummaryLabel")
         self.assertEqual(
             summary.text(),
-            "Against Chicken: no preset · prayers picked for you (from above) · prayer time the whole fight (from above)",
+            "Against Chicken: auto-picked prayers for the whole fight",
         )
         dialog.findChild(QComboBox, "combatPresetCombo").setCurrentText("Slayer")
         dialog.findChild(QCheckBox, "combatPinPresetCheck").click()
@@ -664,9 +660,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
         self.assertEqual(
             summary.text(),
-            "Against Chicken: preset Slayer · prayers Steel Skin (from preset Slayer) · prayer time the whole fight (kept for this target)",
+            "Against Chicken: Slayer preset · Steel Skin for the whole fight",
         )
-        self.assertEqual(dialog.findChild(QCheckBox, "combatPinPresetCheck").text(), "Switch to preset “Slayer” whenever I fight Chicken")
+        self.assertEqual(dialog.findChild(QCheckBox, "combatPinPresetCheck").text(), "Use preset “Slayer” against Chicken")
 
     def test_choosing_a_preset_or_book_redraws_the_boxes_it_changed(self) -> None:
         pd = _make_player_data()
