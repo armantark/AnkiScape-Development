@@ -15,6 +15,7 @@ from . import stage_overrides as _stage_overrides
 from .reward_item_fragments import _BAR_CRAWL_FRAGMENT, _COINS_FRAGMENT, _LET_THEM_EAT_PIE_FRAGMENT, _EAGLES_PEAK_FRAGMENT, _RATCATCHERS_FRAGMENT
 from .cold_war import COLD_WAR_SUIT_ITEMS
 from .elemental_workshop_iii import RAGGED_BOOK_ITEMS
+from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_ITEM_FRAGMENT
 
 _QUEST_REWARD_ITEM_FRAGMENTS = (
     _BAR_CRAWL_FRAGMENT,
@@ -65,6 +66,7 @@ _QUEST_REWARD_ITEM_FRAGMENTS = (
     HAZEEL_OPENING_ITEMS,
     BLUNT_HATCHET_ITEMS,
     ENAKHRA_OPENING_ITEMS,
+    CREATURE_OF_FENKENSTRAIN_ITEM_FRAGMENT,
 )
 
 

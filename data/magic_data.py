@@ -407,6 +407,16 @@ _add({
 })
 
 
+_add({
+    **MAGIC_TARGETS["telegrab_wine_of_zamorak"],
+    "id": "telegrab_pickled_brain",
+    "display_name": "Telegrab Pickled brain",
+    "outputs": {"Pickled brain": 1},
+    "source": f"{TELEGRAB_WIKI}; RuneScape Wiki Pickled brain oldid=6174247; "
+              "Creature of Fenkenstrain oldid=6535792; retained existing Telegrab specification oldid=6587753",
+})
+
+
 # Lunar functional and pure-cast ledger. Authentic inventory-wide semantics are
 # represented by the named batch actions; their per-item secondary XP remains
 # separate from the single audited Magic XP award.

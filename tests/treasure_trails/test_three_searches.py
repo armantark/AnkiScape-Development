@@ -12,12 +12,13 @@ from ankiscape.core import constants
 from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
 from ankiscape.data import treasure_trails_data as catalog
 from ankiscape.logic import treasure_trails_logic as trails
+from tests.treasure_trails.test_search_catalog import SEARCH_CASES
 
 ROOT = Path(__file__).resolve().parents[2]
 CLUE = "Clue scroll (easy)"
 CASKET = "Casket (easy)"
 SAILOR = "simple_port_sarim_sailor"
-EXPECTED_TOTAL = 33
+EXPECTED_TOTAL = 41
 
 EXPECTED_SOURCE = 'RuneScape Wiki Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z); Clue scroll (easy) oldid=6333359 (2012-10-02T09:39:55Z); Treasure Trails/Guide/Simple clues oldid=6579176 (2012-11-18T16:48:49Z); Treasure Trails/Guide/Emotes oldid=6538968 (2012-11-06T15:34:10Z); Treasure Trails/Guide/Maps oldid=6362741 (2012-10-07T05:35:23Z); Darkan TreasureTrailsManager.java and data/npcs/drops/treasure_trails/easy_casket.json'
 
@@ -535,11 +536,11 @@ class ThreeSearchesTest(unittest.TestCase):
     def test_exact_registry_extension(self):
         expected = list(BASELINE) + [
             dict(step_id=step_id, kind='simple', text=text, equipment=(),
-                 bare=False, source=EXPECTED_SOURCE) for step_id, text in NEW_ROWS
+                 bare=False, source=EXPECTED_SOURCE) for step_id, text in (*NEW_ROWS, *SEARCH_CASES)
         ]
         registry = catalog.TREASURE_TRAILS_EASY_STEPS
         self.assertEqual(len(BASELINE), 30)
-        self.assertEqual(len(registry), 33)
+        self.assertEqual(len(registry), 41)
         self.assertEqual(list(registry), [row['step_id'] for row in expected])
         self.assertEqual(list(registry.values()), expected)
         module = ast.parse(Path(catalog.__file__).read_text())
@@ -547,7 +548,7 @@ class ThreeSearchesTest(unittest.TestCase):
                           and getattr(node.target, 'id', '') == 'TREASURE_TRAILS_EASY_STEPS')
         calls = assignment.value.generators[0].iter.elts
         raw_ids = [ast.literal_eval(call.args[0]) for call in calls]
-        self.assertEqual(len(raw_ids), 33)
+        self.assertEqual(len(raw_ids), 41)
         self.assertEqual(raw_ids, list(registry))
         self.assertEqual(len(raw_ids), len(set(raw_ids)))
         self.assertEqual(len(PRIOR_ASSIGNMENTS), 60)

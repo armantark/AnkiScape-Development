@@ -32,6 +32,7 @@ No native run crashed Anki in Pass 18.
 - Supply steps (ticket 04): a step runs one full batch of its Utility row; the planner reserves nothing for later stages; supplies are checked one stage at a time. The 47 loop briefs name these limits.
 - Layout (tickets 03, 08, 09): four pages that use `vertical_scroll` scroll before they need to; the Bank Claims block sits below the page edge at the default size; the Bank grid builds its cells twice on first open; under the macOS-like test style some labels clip (Combat "Current Slayer task only", Magic choosers, the Summoning and Smithing materials lines, "Daemonheim starter expedition"); Summoning and Thieving locked rows wrap their long "— Locked: …" text over several lines.
 - Combat panel (ticket 10): the prayer grid shows the general ticks while a pinned preset fights with its own prayers; in Fusion dark, "Book" and "Prayer time" look enabled while "Use prayers" is off.
+- Shop data (found in the merge with main): the loop's Roavar vendor action (Creature of Fenkenstrain, "Buy a pickled brain") exists only in the generated `data/shop_data.py` and its tests; the generator's vendor list in `tools/npc_shop_generation/service_rows.py` has no row for it, so a regeneration drops it. The merge kept it by hand beside Wyson's two offers.
 - From the first native look: Achievements rows draw each line in its own outlined box; the Utilities search box cuts the start of a long search.
 
 ## Retro candidates
