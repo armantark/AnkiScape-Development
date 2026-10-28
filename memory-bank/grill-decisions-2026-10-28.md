@@ -2,7 +2,7 @@
 
 Date: `2026-10-28`
 
-Status: **owner-settled, three rulings; the grill continues.**
+Status: **owner-settled, six rulings and one interface approval; the grill continues.**
 
 These rulings continue the numbering of `grill-decisions-2026-10-25.md`. Each ruling
 settles a class of contract questions. A contract cites the ruling and quotes its
@@ -65,3 +65,68 @@ step needs, the quest stops and names what is missing.
   - 3670 Legends' Quest: the quest buys missing charcoal at 45 coins each.
   - 3790 Rat Catchers: the quest buys Ali's music scroll and snake charm for 100
     coins; the ring of charos discount is later work.
+
+## Round 2
+
+The owner answered at 14:07 PDT: "1. Ok yes but why is monkey madness (and other
+incomplete quests) even available to play if it's not fully in yet lol. Breadth
+first development only makes sense if the breadth that you build can at least
+make a whole gameplay loop", "5. I'm thinking we need to rethink the free items,
+but yes I'd say. I'm not sure how to change it though but having a massive list
+of free pickups is indeed annoying. Come up with a few proposals", "6. Yes" and
+"7. Yes".
+
+## 10. Supply steps release before the rest of their quest
+
+Ruling line: a supply step releases when its own steps work. Blockers outside
+those steps stay with the quest's re-staging row, and the loop files missing
+fights as their own rows.
+
+- Precedents: 3530 Between a Rock (stout), 3580 Defender of Varrock (Blurite ore),
+  3660 Land of the Goblins, 3720 Monkey Madness (bananas), 3770 One Small Favour
+  (pigeon cages), 3810 Ritual of the Mahjarrat (pickaxe and spade), 3790 Rat
+  Catchers.
+- The owner's principle from the same answer, "Breadth first development only
+  makes sense if the breadth that you build can at least make a whole gameplay
+  loop", is still under grill for what a player sees of unfinished quests and for
+  the loop's priorities.
+
+## 11. Free quest pickups stay inside the quest
+
+Ruling line: a free pickup that a quest step uses stays inside the quest. It is
+also a repeatable Utilities action only when a period source shows the item
+available to players outside the quest.
+
+- Precedent: 3530 Between a Rock takes Khorvak's stout only on its quest card.
+- Pickups that already exist, such as the Goblin Village crate, do not change
+  under this ruling. The owner asked for proposals to rethink the existing free
+  pickups; that question is still under grill.
+
+## 12. Item variants without their own 2012 picture
+
+Ruling line: when authenticated 2012 art exists for only some variants of an
+item, the other variants use the nearest authenticated picture, and the name
+carries the difference.
+
+- Precedent: 3140 Underground Pass: the six other metals of wrapped and lit
+  arrows use the two bronze pictures, and each name gives the metal and whether
+  it is lit.
+
+## Interface approval: the activity detail box grows to fit its text
+
+The owner approved this change to an existing interface, as `AGENTS.md`
+requires: the activity detail box under the main menu's activity list grows to
+fit its wrapped text, for every activity. The trigger was item 1970, whose six
+Easy map clue texts were cut at the 720×540 menu size (56 pixels shown where 84
+were needed). The frontend-taste review and the native visual check still run.
+
+## Applied with earlier rulings, with no owner objection
+
+- 3500 As a First Resort catch rewards, by ruling 1's corroboration gate: each
+  kebbit catch gives 1 Diseased kebbit fur and 1 Bones, each bird catch gives 1
+  Raw bird meat and 1 Bones, matching RuneHQ's "4 Diseased kebbit furs, Wimpy
+  feathers, 5 Raw bird meats, 9 Bones". Darkan's 167 Hunter XP per bird stands
+  in as a placeholder, and ruling 2 sets the Wimpy feather count.
+- 3150 The Fremennik Trials: Manni's distraction lasts 121 ticks, marked as a
+  placeholder, the smallest value that lasts until the next card at every game
+  speed (ruling 2). Darkan's 25 ticks end before the next card can swap the beer.
