@@ -48,6 +48,8 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   period XP and never starts a fight. A supply step whose product the player
   already holds is skipped; one the player lacks the coins, level or equipment
   for stops the quest and names what is missing.
+- **Free pickup** — an action that gives an item and needs no input item and no
+  tool, such as picking bananas or searching the Goblin Village crates.
 - **Review HUD** — the compact box under each card in the reviewer that shows
   the current action, its progress and its buttons. Avoid: "activity widget".
 - **Encounter** — one fight against one enemy that persists between reviews:
