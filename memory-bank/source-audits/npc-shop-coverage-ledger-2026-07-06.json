@@ -33249,10 +33249,10 @@
     "locked_stock_row_count": 37,
     "player_sell_price_count": 6827,
     "runtime_shop_count": 273,
-    "service_count": 84,
+    "service_count": 85,
     "source_shop_count": 274,
     "stock_row_count": 2771,
-    "vendor_action_count": 4,
+    "vendor_action_count": 6,
     "visible_shop_count": 270
   },
   "vendor_actions": [
@@ -33357,6 +33357,54 @@
       "price": 1,
       "provider": "Karim",
       "source": "Darkan world/areas/al_kharid/npcs/Karim.kt",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "direct_purchase",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Pay 20 coins for 2 woad leaves",
+      "id": "wyson_buy_two_woad_leaves",
+      "inputs": [],
+      "location": "Falador Park",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 1793,
+          "item_name": "Woad leaf",
+          "quantity": 2,
+          "tradeable": true
+        }
+      ],
+      "price": 20,
+      "provider": "Wyson the gardener",
+      "source": "RuneScape Wiki Wyson the gardener oldid 6226377, 2012-09-09",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "direct_purchase",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Pay 15 coins for 1 woad leaf",
+      "id": "wyson_buy_one_woad_leaf",
+      "inputs": [],
+      "location": "Falador Park",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 1793,
+          "item_name": "Woad leaf",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 15,
+      "provider": "Wyson the gardener",
+      "source": "RuneScape Wiki Wyson the gardener oldid 6226377, 2012-09-09",
       "visibility": "visible"
     }
   ]

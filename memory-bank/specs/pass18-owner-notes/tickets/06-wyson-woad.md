@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by GPT-6.1 Sol implementer on goal/pass18-06-wyson-woad
+**Status:** done (finished by Opus 5.5)
 
-- [ ] The Shop tab lists both Wyson offers; each click with enough coins moves exactly its coins and leaves.
-- [ ] Without enough coins, the offer is refused with the shop's normal reason.
-- [ ] The generated shop data matches its generator, and the source citation appears where the other vendor actions cite theirs.
+- [x] The Shop tab lists both Wyson offers; each click with enough coins moves exactly its coins and leaves.
+- [x] Without enough coins, the offer is refused with the shop's normal reason.
+- [x] The generated shop data matches its generator, and the source citation appears where the other vendor actions cite theirs.
