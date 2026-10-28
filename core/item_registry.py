@@ -7,6 +7,8 @@ import re
 from dataclasses import dataclass, replace
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
+from ..data.ancient_effigies.catalog import ITEM_DEFINITION_ROWS as _ANCIENT_EFFIGY_ITEM_ROWS
+
 
 ItemCategory = Literal[
     "ore",
@@ -106,6 +108,41 @@ def _definition(
         equipment_type=str(spec["equipment_type"]) if isinstance(spec.get("equipment_type"), str) else None,
         equipment_tier=_level_value({"level": spec.get("tier", 0)}),
     )
+
+
+def _with_ancient_effigy_definitions(definitions: Tuple[ItemDefinition, ...]) -> Tuple[ItemDefinition, ...]:
+    """Overlay the four effigy stages and the Dragonkin lamp by storage key.
+
+    An item another catalog already registered keeps its ID, position and
+    unrelated fields; only a missing one is appended as a material.
+    """
+    items = list(definitions)
+    positions = {item.storage_key: index for index, item in enumerate(items)}
+    for row in _ANCIENT_EFFIGY_ITEM_ROWS:
+        name = str(row["name"])
+        attested = {
+            "source_item_id": row["source_item_id"],
+            "source": str(row["source"]),
+            "license_note": str(row["license_note"]),
+            "asset_path": str(row["asset_path"]),
+            "stackable": False,
+            "tradeable": False,
+            "equipment_slot": None,
+        }
+        if name in positions:
+            items[positions[name]] = replace(items[positions[name]], **attested)
+            continue
+        positions[name] = len(items)
+        items.append(
+            ItemDefinition(
+                id=slugify_item_id("material", name),
+                display_name=name,
+                storage_key=name,
+                category="material",
+                **attested,
+            )
+        )
+    return tuple(items)
 
 
 def build_item_definitions(
@@ -298,7 +335,7 @@ def build_item_definitions(
         for item_name, spec in extra_item_data.items():
             source = str(spec.get("source", "AnkiScape extra item"))
             add_definition(_definition(item_name, extra_item_category(spec), source, {item_name: spec}, image_map))
-    return tuple(definitions)
+    return _with_ancient_effigy_definitions(tuple(definitions))
 
 
 def item_definitions_by_storage_key(items: Iterable[ItemDefinition]) -> Dict[str, ItemDefinition]:
