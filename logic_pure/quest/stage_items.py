@@ -4,6 +4,11 @@ from typing import Iterable, Mapping
 
 from ...core.tool_belt import tool_on_belt
 from ..logic_pure_state import _positive_int
+from ..quest_action_proofs import record_quest_stage_action_proofs_pure
+from ...data.quest.stage_overrides.members.later.creature_of_fenkenstrain import (
+    CREATURE_OF_FENKENSTRAIN_STAGE_ADDITIONS,
+    CREATURE_OF_FENKENSTRAIN_STAGE_TWO_TRANSACTION,
+)
 
 
 def _quest_item_requirement_text(item_name, amount):
@@ -88,3 +93,40 @@ def _has_quest_tool(player_data, tool_name, amount):
     return bool(suffixes) and any(
         str(name).lower().endswith(suffixes) and count >= amount for name, count in inventory.items()
     )
+
+
+def apply_fenkenstrain_stage_two_items_pure(data):
+    """Validate every ordered step privately before installing inventory or deeds."""
+    inventory = dict(data["inventory"])
+    for step in CREATURE_OF_FENKENSTRAIN_STAGE_TWO_TRANSACTION:
+        needed = step["required_inventory"] + step["consumed_inventory"]
+        if any(_positive_int(inventory.get(name, 0), 0) < amount for name, amount in needed):
+            return False
+        for name, amount in step["consumed_inventory"]:
+            inventory[name] = _positive_int(inventory.get(name, 0), 0) - amount
+        for name, amount in step["produced_inventory"]:
+            inventory[name] = _positive_int(inventory.get(name, 0), 0) + amount
+    data["inventory"] = inventory
+    record_quest_stage_action_proofs_pure(
+        data, "creature_of_fenkenstrain", CREATURE_OF_FENKENSTRAIN_STAGE_ADDITIONS[0].auto_actions,
+    )
+    return True
+
+
+def consume_stage_rows_pure(data, quest_id, requirements, item_pairs, option_groups, stage_strings, positive_int):
+    """Commit ordinary rows with their existing option, repeatable and proof semantics."""
+    inventory = data["inventory"]
+    for requirement in requirements:
+        record_quest_stage_action_proofs_pure(data, quest_id, stage_strings(requirement, "auto_actions"))
+        for item_name, amount in item_pairs(requirement, "consumed_inventory"):
+            inventory[item_name] = max(0, positive_int(inventory.get(item_name, 0), 0) - amount)
+        for options in option_groups(requirement, "consumed_inventory_options"):
+            selected = next(filter(lambda pair: positive_int(inventory.get(pair[0], 0), 0) >= pair[1], options), None)
+            if selected is not None:
+                item_name, amount = selected
+                inventory[item_name] = max(0, positive_int(inventory.get(item_name, 0), 0) - amount)
+        if bool(requirement.get("repeatable_until_consumed")):
+            continue
+        for item_name, amount in item_pairs(requirement, "produced_inventory"):
+            inventory[item_name] = positive_int(inventory.get(item_name, 0), 0) + amount
+    return True

@@ -23,6 +23,7 @@ from .quest.review_steps import (
 )
 from .quest.stage_items import (  # noqa: F401 (re-export)
     _quest_stage_item_pairs, _quest_stage_item_option_groups, _quest_stage_strings, _has_quest_tool,
+    apply_fenkenstrain_stage_two_items_pure, consume_stage_rows_pure,
     _quest_item_requirement_text, _quest_item_option_reason,
 )
 from .quest.hazeel import hazeel_opening_choice_ready_pure, hazeel_opening_state_blockers_pure
@@ -112,7 +113,7 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest_action_proofs import quest_action_proof_completed_pure
 from .quest.progress_state import (
     _QUEST_ROUTE_INHERITANCE,  # noqa: F401 (re-export)
     _quest_route_completed,
@@ -929,26 +930,17 @@ def _produce_repeatable_quest_stage_items(data, quest_id, quest):
 
 
 def _consume_quest_current_stage_items(data, quest_id, quest):
-    inventory = data["inventory"]
     requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
     if blockers:
         return False
     if quest_id == "murder_mystery" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 1:
         return apply_murder_mystery_opening_items_pure(data)
-    for requirement in requirements:
-        record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
-        for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
-            inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
-        for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
-            selected = next(filter(lambda pair: _positive_int(inventory.get(pair[0], 0), 0) >= pair[1], options), None)
-            if selected is not None:
-                item_name, amount = selected
-                inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
-        if bool(requirement.get("repeatable_until_consumed")):
-            continue
-        for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
-            inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
-    return True
+    if quest_id == "creature_of_fenkenstrain" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 2:
+        return apply_fenkenstrain_stage_two_items_pure(data)
+    return consume_stage_rows_pure(
+        data, quest_id, requirements, _quest_stage_item_pairs,
+        _quest_stage_item_option_groups, _quest_stage_strings, _positive_int,
+    )
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):

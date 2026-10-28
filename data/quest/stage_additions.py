@@ -4,10 +4,12 @@ from .dependencies import *
 from .contract import *
 from .ids import *
 from .sources import *
+from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_STAGE_ADDITIONS
 from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_STAGE_ADDITIONS
 from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_STAGE_ADDITIONS
 
 QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    "creature_of_fenkenstrain": CREATURE_OF_FENKENSTRAIN_STAGE_ADDITIONS,
     "as_a_first_resort": AS_A_FIRST_RESORT_STAGE_ADDITIONS,
     "underground_pass": UNDERGROUND_PASS_STAGE_ADDITIONS,
     SWAN_SONG_ID: (
