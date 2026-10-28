@@ -17,6 +17,8 @@ their owning workstream requires deeper context.
 - [Completion Kanban](future-work-kanban.md): product-wide parity and depth backlog.
 - [Class rulings](grill-decisions-2026-10-25.md): owner rulings that settle whole classes of contract questions
   (Darkan where the period sources are silent, unsourced values, quest step reviews, text-only panel changes).
+- [Class rulings, 2026-10-28](grill-decisions-2026-10-28.md): quest details where sources disagree, the taught
+  quest route with no optional danger, and supply-step prices, XP and requirement stops.
 - [Roadmap](roadmap.md): dependency-ordered completion strategy.
 - [Gap backlog](gap-backlog.json): closed historical record of the existing-skill parity subledger; the Kanban owns its open rows.
 - [Public release lineage and license decision](public-release-lineage-and-license-2026-07-17.md):
