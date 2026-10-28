@@ -60,6 +60,11 @@ full test lanes on the remote test mirror, the final review and the promotion ga
   MacBook, so a test that imports it can fail on the base too; a failure that
   also fails on `goal/pass18-integration` is known, and you report it. Any
   other failure is yours.
+- A ticket that adds or removes a player action (a Utility row, a vendor
+  action, a quest step) moves the item-reachability census: run
+  `python3 run_tests.py test_report_baseline` and
+  `python3 tools/audit_item_reachability.py --check`, and update the pins
+  for exactly your change.
 - Use `~/fleet/skills/universal/implement/scripts/job.py` for any shell job
   longer than a few minutes; `--help` defines its operations.
 - A ticket that changes what the player sees: build the main menu or the
@@ -74,9 +79,12 @@ full test lanes on the remote test mirror, the final review and the promotion ga
 - slop-gate (the commit hook) refuses: growth of any code or test file already
   above 1000 lines, a touched function above cyclomatic or cognitive
   complexity 15 or Halstead difficulty 80, an import fan-out increase, and a
-  new code file in a directory that already holds 40 (`logic/`, `logic_pure/`,
-  `data/`, `tools/` and `tests/` are full; `ui/`, `core/` and test subpackages
-  such as `tests/ui_flows/` have room). Hold an oversized file such as
+  new code file in a directory that already holds 40. On 2026-10-28 00:25,
+  `logic/`, `logic_pure/`, `data/`, `tools/`, `tests/`, `tests/ui_flows/` and
+  `core/` were full, `ui/` had one place left, and test subpackages such as
+  `tests/main_menu/` and `tests/action_queue/` had room; count with
+  `ls <dir>/*.py | wc -l` before you add a file, because other tickets add
+  files too. Hold an oversized file such as
   `ui/ui.py` at net zero by moving a self-contained block you touch into a new
   module.
   `python3 tools/maintenance/function_metrics.py --output /tmp/pass18-<NN>-metrics.json <file> <functions...>`
