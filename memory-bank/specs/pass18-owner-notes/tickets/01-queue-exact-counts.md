@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by Opus 5.5 implementer on goal/pass18-01-queue-exact-counts
+**Status:** done
 
-- [ ] Queuing 3 Goblin mail, 3 Redberries and 28 Onion at 10x, as the owner did, gives 3, 3 and 28, and the three entries finish in fewer cards than before.
-- [ ] A queued 1 Iron platebody at 10x makes 1; the rest of that card runs the next entry.
-- [ ] A kill entry stops at its count, also inside one combat burst; with a Slayer task, the smaller cap wins.
-- [ ] A Monte Carlo sweep over every queueable skill target, utility and combat target the seeded bank can run, random counts from 1 to three batches, speeds 1x, 5x and 10x: every entry ends at exactly its count or stops short with a reason. Its table is saved under the evidence folder.
-- [ ] The tests that pinned the overshoot now pin the exact count.
+- [x] Queuing 3 Goblin mail, 3 Redberries and 28 Onion at 10x, as the owner did, gives 3, 3 and 28, and the three entries finish in fewer cards than before.
+- [x] A queued 1 Iron platebody at 10x makes 1; the rest of that card runs the next entry.
+- [x] A kill entry stops at its count, also inside one combat burst; with a Slayer task, the smaller cap wins.
+- [x] A Monte Carlo sweep over every queueable skill target, utility and combat target the seeded bank can run, random counts from 1 to three batches, speeds 1x, 5x and 10x: every entry ends at exactly its count or stops short with a reason. Its table is saved under the evidence folder.
+- [x] The tests that pinned the overshoot now pin the exact count.
