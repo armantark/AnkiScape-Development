@@ -84,6 +84,12 @@ def resolve(title, before):
         "rvdir": "older",
         "redirects": 1,
     })
+    for redirect in data.get("query", {}).get("redirects", []):
+        print(
+            f"WARNING: current redirects changed the requested subject: {redirect['from']} -> {redirect['to']}; "
+            "verify that this is the intended historical page.",
+            file=sys.stderr,
+        )
     pages = data.get("query", {}).get("pages", {})
     for page in pages.values():
         if "missing" in page:

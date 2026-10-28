@@ -1,0 +1,22 @@
+HTTP/2 200 
+date: Sat, 24 Oct 2026 11:07:25 GMT
+content-type: image/png
+content-length: 719
+content-language: en
+last-modified: Tue, 28 Feb 2023 05:15:56 GMT
+server-timing: upstream;dur=81.0
+cache-control: public, max-age=31536000, immutable
+access-control-allow-origin: *
+x-request-id: 1dc7a3a01f48c5c51ba3a1cb0d4a9f89
+x-server: nginx-77dfd7497c-t6zzt
+via: 1.1 google
+alt-svc: h3=":443"; ma=86400
+content-security-policy: default-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: 'self'; media-src data: 'self'; sandbox
+accept-ranges: bytes
+cf-cache-status: HIT
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+vary: accept-encoding
+server: cloudflare
+cf-ray: a4f884891ee39a6b-LAX
+

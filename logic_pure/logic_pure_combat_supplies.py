@@ -3,6 +3,7 @@
 from typing import Iterable, Mapping, Optional
 
 from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
+from ..logic.pace.short_timers import cards_left_text_pure, cards_text_pure
 
 try:
     from ..data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
@@ -11,8 +12,6 @@ except ImportError:  # values not generated in this checkout
     STACKABLE_ITEM_NAMES = frozenset()
 
 from ..data.potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
-from ..data.prayer_data import PRAYER_UPTIME_POLICIES
-
 from ..data.prayer_passive_data import (
     BONECRUSHER_ITEM_NAME,
     ECTOPLASMATOR_ITEM_NAME,
@@ -1520,7 +1519,7 @@ def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lif
     return result
 
 
-def combat_status_summary_pure(player_data):
+def combat_status_summary_pure(player_data, speed):
     effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
     poison = effects.get("poison")
     if poison:
@@ -1528,10 +1527,10 @@ def combat_status_summary_pure(player_data):
         tick_progress = _non_negative_int(poison.get("tick_progress", 0), 0)
         next_damage = combat_poison_damage_for_ticks_pure(ticks_left)
         ticks_until = max(1, COMBAT_POISON_TICK_DELAY - min(tick_progress, COMBAT_POISON_TICK_DELAY - 1))
-        return f"Poisoned: {next_damage} LP in {ticks_until} ticks"
+        return f"Poisoned: {next_damage} LP in {cards_text_pure(ticks_until, speed)}"
     immunity_ticks = combat_poison_immunity_ticks_pure({"combat_status_effects": effects})
     if immunity_ticks > 0:
-        return f"Poison immune: {immunity_ticks} ticks"
+        return f"Poison immune: {cards_left_text_pure(immunity_ticks, speed)}"
     return ""
 
 
@@ -1637,7 +1636,7 @@ def _combat_auto_drink_potions(data, combat_class):
         base = _combat_base_skill_level(data, skill_id, 1)
         if skill_id == "prayer":
             prayer_max = base * 10
-            prayer_operating = active_prayer_selection_pure(data) and PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0
+            prayer_operating = active_prayer_selection_pure(data)
             if not prayer_operating or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
                 continue
         elif _combat_effective_skill_level(data, skill_id, base) > base:

@@ -37,6 +37,18 @@ def cards_for_ticks_pure(ticks: int, speed: int) -> int:
     return math.ceil(max(0, ticks) / card_ticks_pure(speed))
 
 
+def cards_text_pure(ticks: int, speed: int) -> str:
+    """A duration the player reads in cards, rounded up like every counter."""
+    cards = cards_for_ticks_pure(ticks, speed)
+    return f"{cards} card" if cards == 1 else f"{cards} cards"
+
+
+def cards_left_text_pure(ticks: int, speed: int) -> str:
+    """The one wording of a remaining time: poison, bonuses and event clocks
+    all read "N cards left" at the speed being played."""
+    return f"{cards_text_pure(ticks, speed)} left"
+
+
 def minutes_for_ticks_pure(ticks: int) -> int:
     """Source minutes left, rounded up so a running timer never shows zero."""
     return math.ceil(max(0, ticks) / TICKS_PER_SOURCE_MINUTE)

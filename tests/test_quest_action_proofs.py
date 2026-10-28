@@ -22,10 +22,7 @@ from ankiscape.data.quest_action_proof_data import (
     THAKKRAD_CURED_YAK_HIDE_PROOF,
 )
 from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_service_pure, rollback_shop_event_pure
-from ankiscape.logic_pure.logic_pure_quest import (
-    apply_quest_progress_pure,
-    quest_current_stage_blockers_pure,
-)
+from ankiscape.logic_pure.logic_pure_quest import apply_quest_progress_pure, quest_current_stage_blockers_pure
 from ankiscape.logic_pure.quest_action_proofs import (
     quest_action_proof_completed_pure,
     quest_action_proofs_for_reachable_events_pure,
@@ -659,6 +656,8 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/quest/stage_items.py", "apply_fenkenstrain_stage_two_items_pure", "record_quest_stage_action_proofs_pure"),
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/one_small_favour.py", "_apply_opening_deed_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/another_cook.py", "_commit_commission_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/another_cook.py", "_prepare_dirty_blast_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/oronwen.py", "apply_oronwen_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/watchtower.py", "apply_watchtower_review_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/toktz_opening.py", "apply_toktz_opening_review_pure", "record_runtime_quest_action_proofs_pure"),
@@ -666,6 +665,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "read_ragged_book_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "apply_murder_mystery_opening_items_pure", "record_quest_stage_action_proofs_pure"),
+                ("logic_pure/quest/witchs_house.py", "apply_witchs_house_service_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/hazeel.py", "apply_hazeel_opening_action_pure", "record_quest_stage_action_proofs_pure"),
             },
         )
@@ -679,12 +679,14 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/quest/stage_items.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
                 "logic_pure/quest/one_small_favour.py": 3,
+                "logic_pure/quest/another_cook.py": 4,
                 "logic_pure/quest/oronwen.py": 3,
                 "logic_pure/quest/watchtower.py": 3,
                 "logic_pure/quest/toktz_opening.py": 3,
                 "logic_pure/quest/enakhra.py": 3,
                 "logic_pure/quest/elemental_workshop.py": 4,
                 "logic_pure/quest/murder_mystery.py": 1,
+                "logic_pure/quest/witchs_house.py": 1,
                 "logic_pure/quest/hazeel.py": 1,
                 "logic_pure/quest/hazeel_journal.py": 1,
                 "logic_pure/quest_action_proofs.py": 25,

@@ -750,7 +750,8 @@ class PapercutToolTests(unittest.TestCase):
                     (tests_dir / "test_probe.py").write_text(source, encoding="utf-8")
                     destination = checkout / "report.json" if serialization_fault else checkout / "missing" / "report.json"
                     completed = subprocess.run(
-                        [sys.executable, str(checkout / "run_tests.py"), "--quiet"],
+                        # The serial run keeps the json.dump fault inside the reporting step under test.
+                        [sys.executable, str(checkout / "run_tests.py"), "--quiet", "--processes", "1"],
                         env={**os.environ, "ANKISCAPE_TEST_SKIP_REPORT": str(destination)},
                         check=False, capture_output=True, text=True,
                     )

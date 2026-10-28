@@ -47,6 +47,7 @@ from ..logic_pure.logic_pure import (
 
 from ..logic_pure.logic_pure_combat_finishers import combat_finisher_supply_pure
 from .tool_belt import without_belt_tools
+from .utility_yield_text import bird_nest_run_text_pure, utility_run_text_pure
 from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
 from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
@@ -1688,6 +1689,8 @@ def utility_activity_rows(
     nest_open_tables: Mapping[str, Mapping[str, object]],
     default_activity: str,
     quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+    *,
+    speed: int = 1,
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     inv = player_data.get("inventory", {})
@@ -1764,7 +1767,7 @@ def utility_activity_rows(
         elif openable_items:
             have_nests = sum(inventory.get(nest, 0) for nest in openable_items)
             tooltip = (
-                f"Opens up to {batch_size} bird nests per successful card. No XP.\n"
+                f"{bird_nest_run_text_pure(batch_size, speed)}\n"
                 "Rolls source seed / ring / egg contents into your bank.\n"
                 f"Bird nests held: {have_nests} (drop while Woodcutting)"
             )
@@ -1838,11 +1841,7 @@ def utility_activity_rows(
                     f"{name} ({int(inventory.get(name, 0) or 0)})"
                     for name in names
                 )
-            run_text = (
-                "Runs once, then switches off. No skill XP."
-                if spec.get("deactivate_after_run")
-                else f"Processes up to {batch_size} per successful card. No skill XP."
-            )
+            run_text = utility_run_text_pure(spec, speed)
             tooltip = (
                 f"{run_text}\n"
                 f"{output_text}\nMaterials:\n{mat_text}"

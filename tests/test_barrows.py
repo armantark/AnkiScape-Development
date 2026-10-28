@@ -379,16 +379,21 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
         player = _active_brother(
             _player(combat_selected_prayers=["protect_from_melee"]), "verac"
         )
-        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure") as combat:
-            combat.side_effect = _combat_result(lifepoints=450)
+        prayers_during_fight = []
+
+        def _fight(data, *args, **kwargs):
+            prayers_during_fight.append(data["combat_prayers_enabled"])
+            return _combat_result(lifepoints=450)(data, *args, **kwargs)
+
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure", side_effect=_fight) as combat:
             advanced, ok, result = apply_barrows_review_pure(
                 player, lambda: 0.0, equipment_data=EQUIPMENT_DATA
             )
         self.assertTrue(ok, result)
-        combat_player = combat.call_args.args[0]
         combat_enemy = combat.call_args.args[1]["barrows"]
-        self.assertEqual(combat_player["combat_selected_prayers"], [])
+        self.assertEqual(prayers_during_fight, [False])
         self.assertEqual(combat_enemy["stats"]["attack"], 100_000)
+        self.assertTrue(advanced["combat_prayers_enabled"])
         self.assertEqual(advanced["combat_selected_prayers"], ["protect_from_melee"])
         self.assertIn("Defiler ignored armour and prayer", result["status"])
 

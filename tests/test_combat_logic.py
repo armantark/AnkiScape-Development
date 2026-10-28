@@ -81,7 +81,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_target_preview_pure,
     combat_wilderness_equipment_risk_pure,
     apply_consumable_pure,
-    derive_casual_combat_magic_pure,
+    active_prayer_selection_pure,
     reclaim_death_office_items_pure,
     reconcile_combat_method_pure,
     request_combat_bank_run_now_pure,
@@ -695,18 +695,18 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
         self.assertGreater(fought_with("protect_from_magic")["enemy_damage"], 0)
 
     def test_casual_max_safety_selects_melee_prayer_for_pyrefiend(self):
-        prepared = derive_casual_combat_magic_pure(
+        prepared = active_prayer_selection_pure(
             _player(
                 current_combat_target="pyrefiend",
                 combat_pack_mode="max_safety",
                 prayer_level=99,
-                combat_prayers_enabled=True,
+                combat_prayer_points=990,
             )
         )
 
         self.assertEqual(
-            prepared["combat_selected_prayers"],
-            ["protect_from_melee"],
+            prepared,
+            ("protect_from_melee",),
         )
 
     def test_casual_max_safety_tracks_killerwatt_distance_style(self):
@@ -716,18 +716,18 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
             ("magic_standard", "protect_from_missiles"),
         ):
             with self.subTest(attack_style=attack_style):
-                prepared = derive_casual_combat_magic_pure(
+                prepared = active_prayer_selection_pure(
                     _player(
                         current_combat_target="killerwatt",
                         combat_attack_style=attack_style,
                         combat_pack_mode="max_safety",
                         prayer_level=99,
-                        combat_prayers_enabled=True,
+                        combat_prayer_points=990,
                     )
                 )
                 self.assertEqual(
-                    prepared["combat_selected_prayers"],
-                    [expected_prayer],
+                    prepared,
+                    (expected_prayer,),
                 )
 
     def test_ranged_enemy_max_hit_uses_its_ranged_stat_not_melee_strength(self):
@@ -1680,7 +1680,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(main["slots"][10], {"item": "Steel arrows", "quantity": 5, "slots": 1})
         self.assertEqual(main["slots"][20], {"item": "Body talisman", "quantity": 1, "slots": 2})
         self.assertEqual(main["slots"][21], {"item": "Law talisman", "quantity": 1, "slots": 1})
-        self.assertEqual(main["slots"][22], {"item": "Grain", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][22], {"item": "Wheat", "quantity": 1, "slots": 1})
         self.assertIs(main["slots"][24]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
         self.assertEqual(main["slots"][24]["slots"], 18)
         self.assertEqual(tertiary["total"], 128)
@@ -4832,7 +4832,7 @@ class CombatLogicTest(unittest.TestCase):
             "tick_progress": 0,
             "source": "https://runescape.wiki/w/index.php?title=Poison_(historical)&oldid=5979526",
         })
-        self.assertEqual(combat_status_summary_pure(poisoned), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(poisoned, 1), "Poisoned: 30 LP in 5 cards")
 
     def test_safe_recovery_advances_poison_status_after_healing(self):
         player = _player(
@@ -4852,7 +4852,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_lifepoints"], 30)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 9)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 28 LP in 10 ticks")
+        self.assertEqual(combat_status_summary_pure(recovered, 1), "Poisoned: 28 LP in 2 cards")
 
     def test_combat_burst_advances_poison_status_by_review_ticks(self):
         player = _player(
@@ -4902,7 +4902,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("Antipoison oldid 5606640", recovered["combat_status_effects"]["poison_immunity"]["source"])
         self.assertEqual(recovered["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
         self.assertEqual(combat_poison_immunity_ticks_pure(recovered), 100)
-        self.assertEqual(combat_status_summary_pure(recovered), "Poison immune: 100 ticks")
+        self.assertEqual(combat_status_summary_pure(recovered, 1), "Poison immune: 17 cards left")
 
     def test_poison_enemy_applies_player_poison_on_source_chance(self):
         player = _player(
@@ -4925,7 +4925,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["status_damage"], {})
         self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
-        self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
+        self.assertEqual(combat_status_summary_pure(new_data, 1), "Poisoned: 30 LP in 5 cards")
 
     def test_source_poison_rows_reach_combat_state(self):
         cases = (

@@ -663,7 +663,7 @@ class TestLiveCombatContinuity(unittest.TestCase):
         whole = run([2])
         self.assertEqual(sliced, whole)
         self.assertEqual(sliced[0]["combat_prayer_points"], 0)
-        self.assertEqual(sliced[0]["combat_selected_prayers"], [])
+        self.assertEqual(sliced[0]["combat_selected_prayers"], ["redemption"])
 
     def test_live_combat_ages_charge_by_elapsed_ticks_only(self):
         player = _player(
@@ -904,7 +904,7 @@ class TestLiveCombatContinuity(unittest.TestCase):
         self.assertTrue(info["killed"])
         self.assertEqual(info["ticks_elapsed"], 36)
         self.assertEqual(result["combat_prayer_points"], 0)
-        self.assertEqual(result["combat_selected_prayers"], [])
+        self.assertEqual(result["combat_selected_prayers"], ["redemption"])
 
 
 class TestQuestCombatCadenceBoundary(unittest.TestCase):

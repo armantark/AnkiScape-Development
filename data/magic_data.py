@@ -640,7 +640,7 @@ DREAM_HEAL_OLD_HP_PER_REVIEW = 5
 
 
 CASUAL_MAGIC_DIAL = {
-    "balanced": {"prayer_uptime": "40", "vengeance": False, "dream": False},
-    "max_output": {"prayer_uptime": "70", "vengeance": True, "dream": False},
-    "max_safety": {"prayer_uptime": "40", "vengeance": False, "dream": True},
+    "balanced": {"vengeance": False, "dream": False},
+    "max_output": {"vengeance": True, "dream": False},
+    "max_safety": {"vengeance": False, "dream": True},
 }

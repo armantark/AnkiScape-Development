@@ -13,7 +13,7 @@ from ankiscape.runtime.runtime_actions_context import spend_card_budget
 
 class FamiliarDangerStopTests(_HostCase):
     def test_expiring_familiar_caps_combat_at_its_pre_drain_lifetime(self):
-        player = {**_player(combat_auto_flee=False), **_summoned("bunyip", "Bunyip pouch")}
+        player = {**_player(combat_auto_flee=False, combat_prayers_enabled=False), **_summoned("bunyip", "Bunyip pouch")}
         player["combat_lifepoints"] = 990
         player["summoning_state"]["active_follower"]["remaining_ticks"] = 17
         addon = self._addon(10, player)
@@ -36,7 +36,7 @@ class FamiliarDangerStopTests(_HostCase):
             self.assertEqual(addon._state.player_data["combat_last_result"]["ticks_elapsed"], 60)
 
     def test_expiry_at_the_card_boundary_does_not_forfeit_any_ticks(self):
-        player = {**_player(combat_auto_flee=False), **_summoned("bunyip", "Bunyip pouch")}
+        player = {**_player(combat_auto_flee=False, combat_prayers_enabled=False), **_summoned("bunyip", "Bunyip pouch")}
         player["combat_lifepoints"] = 990
         player["summoning_state"]["active_follower"]["remaining_ticks"] = 60
         addon = self._addon(10, player)

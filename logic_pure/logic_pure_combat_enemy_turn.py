@@ -313,5 +313,4 @@ def _combat_apply_redemption(
     )
     data["combat_prayer_points"] = 0
     data["combat_prayer_drain_counter"] = 0.0
-    data["combat_selected_prayers"] = []
     return player_lp, 0, 0.0

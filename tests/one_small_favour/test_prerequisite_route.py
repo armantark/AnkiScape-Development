@@ -14,7 +14,10 @@ from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.quest.one_small_favour import QUEST_ID, BLUNT_HATCHET, OPENING_PROOFS
 from ankiscape.data.shop_data import SHOP_DATA
 from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_sell_pure, preview_shop_buy_pure
-from ankiscape.logic_pure.logic_pure import equip_item_pure, can_equip_item_pure, set_combat_auto_eat_food_pure
+from ankiscape.logic_pure.logic_pure import (
+    apply_safe_combat_recovery_pure, combat_max_lifepoints_pure, equip_item_pure, can_equip_item_pure,
+    set_combat_auto_eat_food_pure,
+)
 from ankiscape.logic_pure.logic_pure_quest import (
     apply_quest_progress_pure, start_quest_pure, quest_locked_reasons_pure,
 )
@@ -154,9 +157,17 @@ class EarnedRoute:
         self.case.assertTrue(ok)
         self.data.update(inventory=inventory, equipment=equipment)
 
+    def rest(self):
+        # The reviewer heals after each skilling review (_spend_card_on_action);
+        # direct handler calls skip that hook, so earlier knocks would otherwise
+        # reach the chickens.
+        self.until(lambda: self.data['combat_lifepoints'] >= combat_max_lifepoints_pure(self.data),
+                   lambda: self.replace(apply_safe_combat_recovery_pure(self.data, c.EQUIPMENT_DATA)))
+
     def train_combat(self):
         self.buy('varrock_sword_shop', 'Bronze sword')
         self.equip('Bronze sword')
+        self.rest()
         self.ctx.random_random = lambda: 0.75
         self.until(lambda: self.data['inventory']['Raw chicken'] >= 400,
                    lambda: self.answer(actions.handle_combat_answer, 'current_combat_target', 'chicken'))

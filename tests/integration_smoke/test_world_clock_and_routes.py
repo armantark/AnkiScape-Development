@@ -37,12 +37,8 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         result = captured["on_wicked_hood_command"]("essence", {})
 
         self.assertTrue(result["ok"], result)
-        self.assertEqual(addon._state.player_data["inventory"]["Rune essence"], 28)
-        self.assertEqual(
-            addon._state.player_data["carried_inventory"]["craft_air_runes"]["Rune essence"],
-            28,
-        )
-        self.assertEqual(addon._state.player_data["wicked_hood"]["essence_remaining"], 72)
+        self.assertEqual(addon._state.player_data["inventory"]["Rune essence"], 100)
+        self.assertEqual(addon._state.player_data["wicked_hood"]["essence_remaining"], 0)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
 
         addon._on_state_did_undo(

@@ -29,8 +29,6 @@ from .ui_first_cell_tree import FirstCellSelectionTree
 
 
 _NODE_ROLE = Qt.ItemDataRole.UserRole if "Qt" in globals() else None
-# The family list's widest share of the page, which leaves the detail pane usable in a 720 px dialog.
-NAVIGATION_MAX_SHARE = 0.4
 
 
 def _navigation_content_width(navigation, items) -> int:
@@ -52,7 +50,7 @@ def _navigation_content_width(navigation, items) -> int:
 
 def build_collections_tab(ctx) -> "QWidget":
     """Build the settled left-family and right-detail Collections surface."""
-    from .ui_text_fit import ElidedTipDelegate, on_resize
+    from .ui_text_fit import wrap_last_column
 
     page = QWidget()
     page.setObjectName("collectionsPage")
@@ -83,7 +81,6 @@ def build_collections_tab(ctx) -> "QWidget":
     navigation.setHeaderHidden(True)
     navigation.setRootIsDecorated(True)
     navigation.setItemsExpandable(True)
-    navigation.setItemDelegateForColumn(0, ElidedTipDelegate(navigation))
     # Names take the room the counts leave; a stretched last section would split it in half.
     navigation.header().setStretchLastSection(False)
     navigation.header().setSectionResizeMode(
@@ -198,11 +195,9 @@ def build_collections_tab(ctx) -> "QWidget":
         navigation.blockSignals(False)
 
     def _fit_navigation_width() -> None:
-        # Measured from the names it lists, so no family or target name is cut short in any font,
-        # up to its share of the page; past that a name elides and its tooltip shows it whole.
+        # Measured from the names it lists, so no family or target name is cut short in any font.
         navigation.ensurePolished()
-        wanted = _navigation_content_width(navigation, nav_items.values())
-        navigation.setFixedWidth(min(wanted, int(page.width() * NAVIGATION_MAX_SHARE)))
+        navigation.setFixedWidth(_navigation_content_width(navigation, nav_items.values()))
 
     def _render_music(query: str) -> None:
         view = music_log_view_pure(ctx.player_data, search=query)
@@ -214,7 +209,8 @@ def build_collections_tab(ctx) -> "QWidget":
         tree.setHeaderHidden(True)
         tree.setRootIsDecorated(False)
         tree.setAlternatingRowColors(True)
-        tree.setUniformRowHeights(True)
+        # A long unlock hint wraps onto a second line instead of running past the pane.
+        wrap_last_column(tree, minimum_chars=30)
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px; "
             "background: palette(base); color: palette(text); }"
@@ -375,7 +371,6 @@ def build_collections_tab(ctx) -> "QWidget":
 
     navigation.currentItemChanged.connect(lambda *_args: _selection_changed())
     search.textChanged.connect(lambda _text: _render_right())
-    on_resize(page, _fit_navigation_width)
     _refresh_all()
     ctx.refreshers["collections"] = _refresh_all
     return page

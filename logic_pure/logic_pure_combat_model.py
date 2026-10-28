@@ -36,8 +36,8 @@ from ..logic.warriors_guild_logic import (
 )
 
 from ..data.prayer_data import (
-    COMBAT_PRAYERS_BY_ID,
     AUTO_PRAYER_TICKS_PER_ITEM,
+    DEFAULT_PRAYER_UPTIME,
     PRAYER_MATERIALS,
     PRAYER_UPTIME_POLICIES,
     SAP_SOURCE,
@@ -180,6 +180,10 @@ from .logic_pure_landmarks import (  # noqa: F401  (re-export)
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_ENEMY_ATTACK_STYLES,
+    _combat_enemy_attack_class,
+    _combat_enemy_attack_style,
+    _combat_enemy_protection_class,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     COMBAT_PVP_DEATH_KEPT_ITEMS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -210,7 +214,6 @@ from .logic_pure_urns import (
 )
 
 from .logic_pure_prayer import (
-    _highest_legal_prayer_candidate_pure,
     prayer_effect_state_pure,
     sanitize_prayer_selection_pure,
 )
@@ -447,65 +450,12 @@ def combat_magic_preset_locked_reasons_pure(player_data):
 
 
 def derive_casual_combat_magic_pure(player_data):
-    """Data-driven three-position dial layer atop the advanced preset fields."""
+    """The Supply mode's Lunar spells atop the advanced preset fields. Its
+    prayers are picked at fight time while none is chosen; see
+    ``best_combat_prayers_pure``."""
     data = _copy_player_data_with_nested(player_data)
     mode = _combat_coerce_pack_mode(data.get("combat_pack_mode", "balanced"))
     rule = CASUAL_MAGIC_DIAL.get(mode, CASUAL_MAGIC_DIAL["balanced"])
-    if bool(data.get("combat_prayers_enabled", True)):
-        data["combat_prayer_uptime"] = rule["prayer_uptime"]
-        prayer_level = _positive_int(data.get("prayer_level", 1), 1)
-        book = str(data.get("combat_prayer_book", "standard"))
-        target = COMBAT_ENEMY_DATA.get(str(data.get("current_combat_target", "")), {})
-        if mode == "max_safety":
-            configured_style = COMBAT_ATTACK_STYLE_DATA.get(
-                str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
-                COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
-            )
-            protection_class = (
-                _combat_enemy_protection_class(
-                    target,
-                    str(configured_style.get("combat_class", "melee")),
-                )
-                if target
-                else "melee"
-            )
-            protection_effect = {
-                "magic": "protect_magic",
-                "ranged": "protect_ranged",
-            }.get(protection_class, "protect_melee")
-            candidates = [
-                prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
-                if prayer.book == book and prayer.level <= prayer_level
-                and any(effect == protection_effect for effect, _value in prayer.effects)
-            ]
-            candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
-            selected = [candidate] if candidate else []
-        else:
-            equipment = data.get("equipment", {}) or {}
-            weapon = str(equipment.get("weapon", "") or "")
-            if weapon in COMBAT_MAGIC_STAFF_DATA:
-                wanted = ("magic_combat", "leech_magic", "sap_mage")
-            elif weapon in COMBAT_RANGED_WEAPON_DATA:
-                wanted = ("ranged_combat", "leech_ranged", "sap_ranger")
-            else:
-                wanted = ("melee_combat", "turmoil")
-            candidates = [
-                prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
-                if prayer.book == book and prayer.level <= prayer_level
-                and set(prayer.groups).intersection(wanted)
-            ]
-            candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
-            selected = [candidate] if candidate else []
-            if not selected and book == "standard":
-                for group in ("attack", "strength", "defence"):
-                    group_rows = [
-                        prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
-                        if prayer.book == book and prayer.level <= prayer_level and group in prayer.groups
-                    ]
-                    candidate = _highest_legal_prayer_candidate_pure(data, group_rows, book)
-                    if candidate:
-                        selected.append(candidate)
-        data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
     data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
     data["combat_dream_thrift"] = bool(
         (data.get("combat_dream_thrift") or rule["dream"])
@@ -596,7 +546,7 @@ def default_combat_state_pure():
         "death_office": {},
         "combat_prayer_book": "standard",
         "combat_selected_prayers": [],
-        "combat_prayer_uptime": "off",
+        "combat_prayer_uptime": DEFAULT_PRAYER_UPTIME,
         "combat_prayer_points": 10,
         "combat_prayer_drain_counter": 0.0,
         "combat_auto_prayer_training": False,
@@ -1140,9 +1090,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     if prayer_book == "curses" and not bool(temple_state.get("completed")):
         prayer_book = "standard"
     selected_prayers = list(sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()), prayer_book))
-    uptime_policy = str(player_data.get("combat_prayer_uptime", "off"))
+    uptime_policy = str(player_data.get("combat_prayer_uptime", DEFAULT_PRAYER_UPTIME))
     if uptime_policy not in PRAYER_UPTIME_POLICIES:
-        uptime_policy = "off"
+        uptime_policy = DEFAULT_PRAYER_UPTIME
     prayer_max = _positive_int(player_data.get("prayer_level", 1), 1) * 10
     presets = player_data.get("combat_presets")
     if not isinstance(presets, Mapping) or not presets:
@@ -1557,38 +1507,6 @@ def _combat_accuracy(attacker_roll, defender_roll):
 
 def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
     return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
-
-
-COMBAT_ENEMY_ATTACK_STYLES = ("melee", "ranged", "magic", "magic_melee")
-
-
-def _combat_enemy_attack_style(enemy, player_combat_class=None):
-    if not isinstance(enemy, Mapping):
-        return "melee"
-    by_player_class = enemy.get("attack_style_by_player_class")
-    if isinstance(by_player_class, Mapping):
-        resolved = by_player_class.get(player_combat_class)
-        if resolved in COMBAT_ENEMY_ATTACK_STYLES:
-            return resolved
-    style = enemy.get("attack_style", "melee")
-    return style if style in COMBAT_ENEMY_ATTACK_STYLES else "melee"
-
-
-def _combat_enemy_attack_class(enemy, player_combat_class=None):
-    """The style the ENEMY attacks with. Determines which of its attack bonuses
-    drives its accuracy and which of the player's defence bonuses resists it.
-    Magic-based melee rolls against Magic defence while retaining melee damage
-    and protection-prayer semantics. Unknown values fall back to melee."""
-    style = _combat_enemy_attack_style(enemy, player_combat_class)
-    if style == "magic_melee":
-        return "magic"
-    return style
-
-
-def _combat_enemy_protection_class(enemy, player_combat_class=None):
-    if _combat_enemy_attack_style(enemy, player_combat_class) == "magic_melee":
-        return "melee"
-    return _combat_enemy_attack_class(enemy, player_combat_class)
 
 
 def _combat_select_enemy_attack_pure(enemy, rng):

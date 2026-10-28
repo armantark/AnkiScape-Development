@@ -13,6 +13,21 @@ class WikiParityTest(unittest.TestCase):
                 wiki_parity.resolve("Jade|Red topaz", wiki_parity.EOC)
         get.assert_not_called()
 
+    def test_redirect_chain_warns_before_returning_a_different_subject(self):
+        payload = {"query": {
+            "redirects": [{"from": "Inventory", "to": "Backpack"}],
+            "pages": {"1": {"title": "Backpack", "revisions": [
+                {"revid": 123, "timestamp": "2012-11-19T00:00:00Z"}
+            ]}},
+        }}
+        stderr = io.StringIO()
+        with mock.patch("tools.wiki_parity._get", return_value=payload):
+            with mock.patch("sys.stderr", stderr):
+                result = wiki_parity.resolve("Inventory", wiki_parity.EOC)
+        self.assertEqual(result, (123, "2012-11-19T00:00:00Z", "Backpack"))
+        self.assertIn("Inventory -> Backpack", stderr.getvalue())
+        self.assertIn("current redirects", stderr.getvalue())
+
     def test_api_error_with_http_success_raises_instead_of_looking_absent(self):
         payload = {
             "error": {

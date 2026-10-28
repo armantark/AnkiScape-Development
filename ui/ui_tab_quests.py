@@ -16,6 +16,8 @@ try:
         QVBoxLayout,
         QWidget,
     )
+
+    from .ui_text_fit import lay_out_whole
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
@@ -47,6 +49,8 @@ def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
 
 def build_quests_tab(ctx) -> "QWidget":
     """Return the Quests page."""
+    from .ui_action_queue import QueueAddControl
+
     player_data = ctx.player_data
     state = ctx.selection
     warn = ctx.warn_label
@@ -104,9 +108,9 @@ def build_quests_tab(ctx) -> "QWidget":
     )
     quest_search = quest_filter_bar.search_input
 
-    hide_completed_cb = QCheckBox("Hide completed")
+    hide_completed_cb = lay_out_whole(QCheckBox("Hide completed"))
     hide_completed_cb.setObjectName("questHideCompletedCheck")
-    hide_locked_cb = QCheckBox("Hide unable to start")
+    hide_locked_cb = lay_out_whole(QCheckBox("Hide unable to start"))
     hide_locked_cb.setObjectName("questHideLockedCheck")
 
     access_filter_combo = QComboBox()
@@ -350,6 +354,9 @@ def build_quests_tab(ctx) -> "QWidget":
         header_layout.addWidget(title)
         header_layout.addWidget(status, 1)
         header_layout.addWidget(quest_btn)
+        header_layout.addWidget(
+            QueueAddControl(player_data, ctx.on_action_queue_command, lambda: {"kind": "quest", "quest_id": quest_id})
+        )
         card_layout.addWidget(header)
 
         body = QWidget()

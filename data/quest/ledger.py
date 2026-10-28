@@ -8,6 +8,7 @@ from .catalog import _quest_with_stage_requirements, _catalog_int, _quest_from_c
 from .catalog_overrides import *
 from .definitions import *
 
+from .another_cook import apply_another_cook_opening
 from . import definitions as _definitions
 
 QUEST_OVERRIDE_ORDER = (
@@ -53,12 +54,12 @@ MINIQUESTS = tuple(_definitions._QUESTS_BY_ID[quest_id] for quest_id in MINIQUES
 
 
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
-    _quest_with_stage_requirements(
+    apply_another_cook_opening(_quest_with_stage_requirements(
         replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
         if row_id in QUEST_OVERRIDES_BY_ID
         else _quest_from_catalog(row),
         row,
-    )
+    ))
     for row in PRE_EOC_QUEST_CATALOG
     for row_id in (_quest_catalog_row_id(row),)
 ) + tuple(

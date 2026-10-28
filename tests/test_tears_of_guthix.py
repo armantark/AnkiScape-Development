@@ -174,6 +174,13 @@ class TearsOfGuthixDataAndGatesTests(unittest.TestCase):
         self.assertEqual(original, frozen)
         self.assertIsNot(updated["tears_of_guthix"], original["tears_of_guthix"])
 
+    def test_juna_names_the_cavern_time_in_cards_at_the_played_speed(self):
+        # 44 Quest Points buy 44 ticks: 8 cards at x1, 1 card at x10.
+        for speed, cards in ((1, "8 cards"), (10, "1 card")):
+            _entered_data, ok, info = apply_tears_of_guthix_command_pure(_player(), "enter", speed=speed)
+            self.assertTrue(ok, info)
+            self.assertIn(f"cavern for {cards} (", info["message"])
+
 
 class TearsOfGuthixMechanicsTests(unittest.TestCase):
     def test_a_beat_spends_six_ticks_and_the_session_is_finite(self):

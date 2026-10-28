@@ -732,14 +732,13 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         data["combat_spellbook_swap"] = "vengeance"
         self.assertEqual(combat_magic_preset_locked_reasons_pure(data), ())
 
-    def test_casual_dial_derives_protection_and_dream(self):
+    def test_casual_dial_switches_on_dream_for_max_safety(self):
         data = default_combat_state_pure()
         data.update({"prayer_level": 99, "magic_level": 99, "quests": _quest_state("dream_mentor"), "current_combat_target": "chicken"})
         safe, ok, reason = set_combat_pack_mode_pure(data, "max_safety")
         self.assertTrue(ok, reason)
         self.assertEqual(safe["combat_pack_mode"], "max_safety")
         self.assertTrue(safe["combat_dream_thrift"])
-        self.assertIn("protect_from_melee", safe["combat_selected_prayers"])
 
     def test_casual_dial_preserves_an_eligible_manual_dream_toggle(self):
         data = default_combat_state_pure()

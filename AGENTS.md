@@ -30,7 +30,7 @@ open multiple dialogs, and serve stale code or assets.
 
 For native Anki checks, use a dedicated Codex task in `/Users/armantarkhanian/Documents/ankiscape-testing` on the connected MacBook, with the exact source revision, check requirements and isolation rules; never reuse an unrelated task. Use Screen Sharing only if that route is unavailable.
 
-Local tests: `python3 run_tests.py <selectors>`; selectors are positional, `--count` prints the selection count N. Remote: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain|qt --select <selectors> --expected-tests <N>`.
+Local tests: `python3 run_tests.py <selectors>`, which re-runs under `.venv-qt/bin/python` offscreen when present (`ANKISCAPE_PLAIN_LANE=1` keeps the calling interpreter); selectors are positional, `--count` prints the selection count N. Remote: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain|qt --select <selectors> --expected-tests <N>`.
 The commit hook is `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py`. `python3 tools/maintenance/function_metrics.py --output <path outside the worktrees> <file> <functions...>` measures functions with the hook's instruments. Run `python3 tools/audit_docs.py` only in a git checkout, never on the MacBook mirror. Scratch imports: `import pkg_alias`, then `ankiscape.*`. Bounded search: `python3 tools/repo_search.py`. Memory Bank index: `memory-bank/README.md`.
 A remote run that prints "Remote mirror busy; waiting" is queued behind other runs; let it wait.
 

@@ -2,10 +2,18 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..data.combat_data import (
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_ENEMY_DATA,
+    COMBAT_MAGIC_STAFF_DATA,
+    COMBAT_RANGED_WEAPON_DATA,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+)
 from ..data.prayer_data import (
     COMBAT_PRAYERS_BY_ID,
     AUTO_PRAYER_TICKS_PER_ITEM,
     DEFAULT_PRAYER_TARGET,
+    DEFAULT_PRAYER_UPTIME,
     ECTOFUNTUS_MULTIPLIER,
     PRAYER_MATERIALS,
     PRAYER_UPTIME_POLICIES,
@@ -61,6 +69,7 @@ from .logic_pure_construction import (
 )
 
 from .logic_pure_state import (
+    _combat_enemy_protection_class,
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,
@@ -277,23 +286,102 @@ def sanitize_prayer_selection_pure(player_data, selected, book=None):
     return tuple(clean)
 
 
+def _best_protection_prayer(data, book, prayer_level):
+    """Max safety's pick: the strongest protection from the target's attack,
+    read against the configured attack style."""
+    target = COMBAT_ENEMY_DATA.get(str(data.get("current_combat_target", "")), {})
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    protection_class = _combat_enemy_protection_class(target, str(style.get("combat_class", "melee"))) if target else "melee"
+    protection_effect = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(protection_class, "protect_melee")
+    candidates = [
+        prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
+        if prayer.book == book and prayer.level <= prayer_level
+        and any(effect == protection_effect for effect, _value in prayer.effects)
+    ]
+    candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
+    return [candidate] if candidate else []
+
+
+def _best_offence_prayers(data, book, prayer_level):
+    """The strongest prayer for the wielded weapon's class; below that tier, the
+    best standard Attack, Strength and Defence prayers."""
+    weapon = str((data.get("equipment", {}) or {}).get("weapon", "") or "")
+    if weapon in COMBAT_MAGIC_STAFF_DATA:
+        wanted = ("magic_combat", "leech_magic", "sap_mage")
+    elif weapon in COMBAT_RANGED_WEAPON_DATA:
+        wanted = ("ranged_combat", "leech_ranged", "sap_ranger")
+    else:
+        wanted = ("melee_combat", "turmoil")
+    groups = (wanted,) if book != "standard" else (wanted, ("attack",), ("strength",), ("defence",))
+    picks = []
+    for group in groups:
+        candidates = [
+            prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
+            if prayer.book == book and prayer.level <= prayer_level and set(prayer.groups).intersection(group)
+        ]
+        candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
+        if candidate:
+            picks.append(candidate)
+        if picks and group is wanted:
+            break
+    return picks
+
+
+def best_combat_prayers_pure(data):
+    """The prayers a fight runs while Prayers/Curses is ticked and none is
+    chosen, picked by the Supply mode: Max safety protects, the other modes
+    attack."""
+    book = str(data.get("combat_prayer_book", "standard"))
+    prayer_level = _positive_int(data.get("prayer_level", 1), 1)
+    pick = _best_protection_prayer if data.get("combat_pack_mode") == "max_safety" else _best_offence_prayers
+    return sanitize_prayer_selection_pure(data, pick(data, book, prayer_level), book)
+
+
+def _ticked_prayers(data):
+    """The chosen prayers, or the best ones while none is chosen and prayer
+    points remain to switch them on."""
+    if not bool(data.get("combat_prayers_enabled", True)):
+        return ()
+    chosen = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+    if chosen or _non_negative_int(data.get("combat_prayer_points", 0), 0) <= 0:
+        return chosen
+    return best_combat_prayers_pure(data)
+
+
+def fight_prayer_settings_pure(data, disabled):
+    """The prayer settings for a fight where some prayers are disabled: the
+    other chosen prayers run, or none rather than the game's pick when every
+    chosen one is disabled."""
+    chosen = list(data.get("combat_selected_prayers") or ())
+    kept = [prayer for prayer in chosen if prayer not in disabled]
+    return {
+        "combat_selected_prayers": kept,
+        "combat_prayers_enabled": bool(data.get("combat_prayers_enabled", True)) and (bool(kept) or not chosen),
+    }
+
+
 def active_prayer_selection_pure(data, *, automatic_protection_prayer=None):
-    enabled = bool(data.get("combat_prayers_enabled", True))
-    selected = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())) if enabled else ()
+    selected = _ticked_prayers(data)
     automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
     if not automatic:
         return selected
-    ordinary = selected if PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0 else ()
-    return sanitize_prayer_selection_pure(data, (automatic, *ordinary))
+    return sanitize_prayer_selection_pure(data, (automatic, *selected))
+
+
+def requested_prayer_uptime_pure(data):
+    """The share of a fight the ticked prayers stay on."""
+    if not bool(data.get("combat_prayers_enabled", True)):
+        return 0.0
+    return PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", DEFAULT_PRAYER_UPTIME)), 1.0)
 
 
 def prayer_uptime_fraction_pure(data):
-    if not bool(data.get("combat_prayers_enabled", True)):
-        return 0.0
-    policy = str(data.get("combat_prayer_uptime", "off"))
     if _non_negative_int(data.get("combat_prayer_points", 0), 0) <= 0:
         return 0.0
-    return float(PRAYER_UPTIME_POLICIES.get(policy, 0.0))
+    return requested_prayer_uptime_pure(data)
 
 
 def automatic_protection_prayer_pure(data, prayer_id):
@@ -309,7 +397,7 @@ def _prayer_effect_uptimes(data, uptime_override, automatic):
     uptime = prayer_uptime_fraction_pure(data) if uptime_override is None else max(0.0, min(1.0, float(uptime_override)))
     if not automatic:
         return uptime, uptime
-    ordinary = float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0)) if bool(data.get("combat_prayers_enabled", True)) else 0.0
+    ordinary = requested_prayer_uptime_pure(data)
     if ordinary:
         return uptime, min(1.0, uptime / ordinary)
     if uptime_override is None:

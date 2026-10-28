@@ -1,0 +1,32 @@
+HTTP/2 200 
+server: nginx
+date: Sat, 24 Oct 2026 11:07:25 GMT
+content-type: text/html; charset=UTF-8
+x-archive-orig-date: Mon, 19 Nov 2012 22:11:31 GMT
+x-archive-orig-server: Apache
+x-archive-orig-vary: Accept-Encoding
+x-archive-orig-connection: close
+cache-control: max-age=1800
+accept-ranges: bytes
+memento-datetime: Mon, 19 Nov 2012 22:11:31 GMT
+link: <http://www.tip.it:80/runescape/index.php?rs2quest_id=39>; rel="original", <https://web.archive.org/web/timemap/link/http://www.tip.it:80/runescape/index.php?rs2quest_id=39>; rel="timemap"; type="application/link-format", <https://web.archive.org/web/http://www.tip.it:80/runescape/index.php?rs2quest_id=39>; rel="timegate"
+content-security-policy: default-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: archive.org web.archive.org web-static.archive.org wayback-api.archive.org athena.archive.org analytics.archive.org pragma.archivelab.org wwwb-events.archive.org
+x-archive-src: alexa20121120-21/52_31_20121119221041_crawl103.arc.gz
+server-timing: captures_list;dur=0.402579, exclusion.robots;dur=0.040929, exclusion.robots.policy;dur=0.032469, esindex;dur=0.006031, cdx.remote;dur=15.922089, LoadShardBlock;dur=145.620453, PetaboxLoader3.datanode;dur=277.627038, PetaboxLoader3.resolve;dur=524.331602, load_resource;dur=686.309314
+x-app-server: wwwb-app219-dc8
+x-ts: 200
+x-tr: 861
+server-timing: TR;dur=0,Tw;dur=0,Tc;dur=1
+set-cookie: wb-p-SERVER=wwwb-app219; path=/
+cache-control: private
+x-location: All
+x-as: 20001
+x-rl: 0
+x-na: 0
+x-page-cache: MISS
+server-timing: MISS
+x-nid: TWC-20001-PACWEST
+referrer-policy: no-referrer-when-downgrade
+permissions-policy: interest-cohort=()
+x-sd: 0
+

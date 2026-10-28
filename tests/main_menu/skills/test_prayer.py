@@ -135,13 +135,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd["defense_level"] = 69
         pd["knight_waves"] = {"completed": True}
         dialog = self._open(pd)
-        piety = dialog.findChild(QCheckBox, "combatPrayerCheck::piety")
-        self.assertIsNotNone(piety)
-        self.assertIn("70 Defence", piety.text())
-        self.assertIn("70 Defence", piety.toolTip())
-        self.assertFalse(piety.isEnabled())
+        self.assertIsNone(dialog.findChild(QCheckBox, "combatPrayerCheck::piety"))
+        locked = dialog.findChild(QLabel, "combatLockedPrayersLabel")
+        self.assertIn("Piety (Lv 70, Def 70, Knight Waves)", locked.text())
 
         pd["defense_level"] = 70
         unlocked_dialog = self._open(pd)
         unlocked = unlocked_dialog.findChild(QCheckBox, "combatPrayerCheck::piety")
         self.assertTrue(unlocked.isEnabled())
+        self.assertIn("70 Defence", unlocked.toolTip())

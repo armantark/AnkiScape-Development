@@ -79,7 +79,7 @@ class SinclairSearchReviewUndoTest(unittest.TestCase):
         addon._on_main_menu()
         registry = sys.modules[f'{addon.__name__}.data.treasure_trails_data'].TREASURE_TRAILS_EASY_STEPS
         index = list(registry).index(step_id)
-        self.assertEqual(len(registry), 30)
+        self.assertEqual(len(registry), 33)
         with patch.object(random, 'random', contact_draws(index, length)):
             result = captured['on_treasure_trails_command']('start_from_bank', {'tier': 'easy'})
         self.assertTrue(result['ok'], result)

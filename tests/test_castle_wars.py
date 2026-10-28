@@ -162,7 +162,7 @@ class CastleWarsEntryTests(unittest.TestCase):
 
 class CastleWarsMatchTests(unittest.TestCase):
     def test_combat_kernel_applies_the_activity_damage_multiplier_to_real_damage(self):
-        player = _player(current_combat_target="target")
+        player = _player(current_combat_target="target", combat_prayers_enabled=False)
         enemy = {
             "target": {
                 "display_name": "Target",

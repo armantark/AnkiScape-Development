@@ -3,7 +3,6 @@ lifepoints and whether it still fights back, the prayers the player asked for
 and the prayer points they drain, and where a carried live fight resumes its
 attack clocks."""
 
-from ..data.prayer_data import PRAYER_UPTIME_POLICIES
 from .logic_pure_prayer import (
     _castle_wars_halo_drain_multipliers,
     active_prayer_selection_pure,
@@ -11,6 +10,7 @@ from .logic_pure_prayer import (
     prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
     prayer_uptime_fraction_pure,
+    requested_prayer_uptime_pure,
 )
 from .logic_pure_state import _non_negative_float, _non_negative_int, _positive_int
 
@@ -43,7 +43,7 @@ def _combat_prayer_request(data, live_cadence, automatic_protection_prayer=None)
     selected_prayers = tuple(active_prayer_selection_pure(data, automatic_protection_prayer=automatic_protection_prayer))
     halo_drain_multipliers = _castle_wars_halo_drain_multipliers(data, selected_prayers)
     requested_uptime = (
-        float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
+        requested_prayer_uptime_pure(data)
         if live_cadence and selected_prayers
         else prayer_uptime_fraction_pure(data)
     )
@@ -62,9 +62,10 @@ def _combat_start_prayer(
     automatic_protection_prayer=None,
 ):
     """Prayer at the start of a burst. An ordinary burst drains its whole tick
-    budget up front and switches spent prayers off; a live burst drains in each
-    tick instead, so it starts at the uptime asked for. Returns the points
-    before, the points and drain counter now, the uptime and prayer effects."""
+    budget up front; a live burst drains in each tick instead, so it starts at
+    the uptime asked for. Spent points leave the player's chosen prayers saved
+    for the next refill. Returns the points before, the points and drain
+    counter now, the uptime and prayer effects."""
     points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
     counter = data.get("combat_prayer_drain_counter", 0.0)
     points, counter, uptime = (
@@ -83,8 +84,6 @@ def _combat_start_prayer(
     data["combat_prayer_points"] = points
     data["combat_prayer_drain_counter"] = counter
     prayer_effects = prayer_effect_state_pure(data, uptime, automatic_protection_prayer=automatic_protection_prayer)
-    if not live_cadence:
-        _combat_switch_off_spent_prayers(data, points, selected_prayers)
     return points_before, points, counter, uptime, prayer_effects
 
 
@@ -112,11 +111,6 @@ def _combat_prayer_tick(
     return points, counter, tick_uptime, (
         tick_uptime / burst_uptime if burst_uptime > 0 else 1.0
     )
-
-
-def _combat_switch_off_spent_prayers(data, points, selected_prayers):
-    if points <= 0 and selected_prayers:
-        data["combat_selected_prayers"] = []
 
 
 def _combat_resume_attack_clocks(encounter, resumed, enemy_attack_speed):

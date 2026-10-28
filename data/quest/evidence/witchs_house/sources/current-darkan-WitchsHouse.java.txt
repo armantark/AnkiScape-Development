@@ -1,0 +1,402 @@
+package com.rs.game.content.quests.witchshouse;
+
+import com.rs.engine.dialogue.Conversation;
+import com.rs.engine.dialogue.Dialogue;
+import com.rs.engine.dialogue.HeadE;
+import com.rs.engine.quest.Quest;
+import com.rs.engine.quest.QuestHandler;
+import com.rs.engine.quest.QuestOutline;
+import com.rs.game.World;
+import com.rs.game.model.entity.Hit;
+import com.rs.game.model.entity.npc.NPC;
+import com.rs.game.model.entity.npc.OwnedNPC;
+import com.rs.game.model.entity.player.Player;
+import com.rs.game.model.gameobject.GameObject;
+import com.rs.game.tasks.Task;
+import com.rs.game.tasks.WorldTasks;
+import com.rs.lib.Constants;
+import com.rs.lib.game.Animation;
+import com.rs.lib.game.Item;
+import com.rs.lib.game.Tile;
+import com.rs.plugin.annotations.PluginEventHandler;
+import com.rs.plugin.handlers.*;
+import com.rs.utils.Ticks;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.rs.game.content.world.doors.Doors.handleDoor;
+import static com.rs.game.content.world.doors.Doors.handleDoubleDoor;
+
+@QuestHandler(
+		quest = Quest.WITCHS_HOUSE,
+		startText = "Talk to Harvey, the crying boy west of Falador.",
+		itemsText = "Cheese, leather gloves, some combat equipment and food.",
+		combatText = "You will need to defeat a shapeshifting enemy with forms up to level 53.",
+		rewardsText = "6,325 Constitution XP",
+		completedStage = 2
+)
+@PluginEventHandler
+public class WitchsHouse extends QuestOutline {
+	public final static int NOT_STARTED = 0;
+	public final static int FIND_BALL = 1;
+	public final static int QUEST_COMPLETE = 2;
+
+	//items
+	protected final static int DOOR_KEY = 2409;
+	protected final static int BACKROOM_KEY = 2411;
+	protected final static int MAGNET = 2410;
+	protected final static int WITCH_DIARY = 2408;
+	protected final static int BALL = 2407;
+
+	//NPCs
+	protected final static int BOY = 895;
+	protected final static int WITCH = 896;
+	protected final static int MOUSE = 901;
+	protected final static int EXPERIMENT1 = 897;
+	protected final static int EXPERIMENT2 = 898;
+	protected final static int EXPERIMENT3 = 899;
+	protected final static int EXPERIMENT4 = 900;
+
+	private static final String READ_DIARY = "READ_DIARY";
+	private static final String MOUSE_SOLVED = "MOUSE_SOLVED";
+	private static final String KILLED_EXPERIMENT = "KILLED_EXPERIMENT";
+	private static final String COLLECTED_BASEMENT_GLOVES = "COLLECTED_BASEMENT_GLOVES";
+	private static final int[] INSULATING_GLOVES = { 1059, 12629, 8842, 6110, 10553, 13660 };
+
+	@Override
+	public List<String> getJournalLines(Player player, int stage) {
+		ArrayList<String> lines = new ArrayList<>();
+		switch(stage) {
+		case NOT_STARTED:
+			lines.add("A young boy who lives in Taverley has kicked his ball into");
+			lines.add("the garden of a scary old lady. He asks you to get it back");
+			lines.add("for him. This proves more difficult than it first sounds.");
+			lines.add("");
+			break;
+		case FIND_BALL:
+			lines.add("I need to find this boy's ball. Perhaps the witch left");
+			lines.add("clues lying around her house?");
+			lines.add("");
+            lines.add("*Hint, you may need cheese");
+			break;
+		case QUEST_COMPLETE:
+			lines.add("");
+			lines.add("");
+			lines.add("QUEST COMPLETE!");
+			break;
+		default:
+			lines.add("Invalid quest stage. Report this to an administrator.");
+			break;
+		}
+		return lines;
+	}
+
+	public static ItemClickHandler handleClickOnWitchDiary = new ItemClickHandler(new Object[] { WITCH_DIARY }, new String[] { "Read" }, e -> {
+		e.getPlayer().getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(READ_DIARY, true);
+		e.getPlayer().openBook(new WitchsDiary());
+	});
+
+	public static ObjectClickHandler handlePottedPlant = new ObjectClickHandler(new Object[] { 2867 }, e -> {
+		Player p = e.getPlayer();
+		if(p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL) {
+			p.startConversation(new Conversation(e.getPlayer()) {
+				{
+					addSimple("I have no reason to look under there.");
+					create();
+				}
+			});
+			return;
+		}
+		if(!p.getInventory().containsItem(DOOR_KEY, 1)) {
+			if(!p.getInventory().hasFreeSlots()) {
+				p.sendMessage("You don't have room...");
+				return;
+			}
+			p.getInventory().addItem(new Item(DOOR_KEY, 1));
+			p.sendMessage("You found a key!");
+		}
+	});
+	
+	public static ObjectClickHandler handleFountain = new ObjectClickHandler(new Object[] { 2864 }, e -> {
+		Player p = e.getPlayer();
+		if (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL) {
+			p.sendMessage("You find nothing of interest.");
+			return;
+		}
+		if (!p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(READ_DIARY)) {
+			p.sendMessage("You find nothing. Perhaps there is a clue somewhere in the house.");
+			return;
+		}
+		if(!p.getInventory().containsItem(BACKROOM_KEY, 1)) {
+			if(!p.getInventory().hasFreeSlots()) {
+				p.sendMessage("You don't have room...");
+				return;
+			}
+			p.getInventory().addItem(new Item(BACKROOM_KEY, 1));
+			p.sendMessage("You found a key!");
+		}
+	});
+
+	public static ObjectClickHandler handleWitchHouseFrontDoor = new ObjectClickHandler(new Object[] { 2861 }, e -> {
+		Player p = e.getPlayer();
+		GameObject obj = e.getObj();
+		if(p.getInventory().containsItem(new Item(DOOR_KEY, 1)))
+			handleDoor(p, obj);
+		else
+			p.startConversation(new Conversation(e.getPlayer()) {
+				{
+					addSimple("It appears to need a key...");
+					create();
+				}
+			});
+	});
+
+	public static ObjectClickHandler handleWitchHouseBackRoomDoor = new ObjectClickHandler(new Object[] { 2863 }, e -> {
+		Player p = e.getPlayer();
+		GameObject obj = e.getObj();
+		if(p.getInventory().containsItem(new Item(BACKROOM_KEY, 1))
+				|| p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT)) {
+			handleDoor(p, obj);
+			if(!p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT)) {
+				for (NPC npc : World.getNPCsInChunkRange(e.getPlayer().getChunkId(), 1))
+					if (npc instanceof OwnedNPC experiment && experiment.getOwner() == p
+							&& (npc.getId() == EXPERIMENT1 || npc.getId() == EXPERIMENT2 || npc.getId() == EXPERIMENT3 || npc.getId() == EXPERIMENT4))
+						return;
+				new OwnedNPC(p, EXPERIMENT1, Tile.of(2927, 3359, 0), true);
+			}
+		} else
+			p.startConversation(new Conversation(e.getPlayer()) {
+				{
+					addSimple("It appears to need a key...");
+					create();
+				}
+			});
+	});
+
+	public static NPCDeathHandler handleExperiment1 = new NPCDeathHandler(EXPERIMENT1, e -> {
+		if (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {
+			NPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT2, Tile.of(2927, 3363, 0), true);
+			next.setCombatTarget(e.getKiller());
+		}
+	});
+
+	public static NPCDeathHandler handleExperiment2 = new NPCDeathHandler(EXPERIMENT2, e -> {
+		if (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {
+			NPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT3, Tile.of(2927, 3363, 0), true);
+			next.setCombatTarget(e.getKiller());
+		}
+	});
+
+	public static NPCDeathHandler handleExperiment3 = new NPCDeathHandler(EXPERIMENT3, e -> {
+		if (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {
+			NPC next = new OwnedNPC(experiment.getOwner(), EXPERIMENT4, Tile.of(2927, 3363, 0), true);
+			next.setCombatTarget(e.getKiller());
+		}
+	});
+
+	public static NPCDeathHandler handleExperiment4 = new NPCDeathHandler(EXPERIMENT4, e-> {
+		if (e.getNPC() instanceof OwnedNPC experiment && e.killedByPlayer() && experiment.getOwner() == e.getKiller()) {
+			Player p = (Player) e.getKiller();
+			if (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) == FIND_BALL)
+				p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(KILLED_EXPERIMENT, true);
+		}
+	});
+
+	public static PickupItemHandler handleBallPickup = new PickupItemHandler(new Object[] { BALL }, Tile.of(2927, 3360, 0), e -> {
+		Player p = e.getPlayer();
+		if(p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL) {
+			e.cancelPickup();
+			p.startConversation(new Dialogue().addSimple("I better not touch it..."));
+			return;
+		}
+		if(!p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT)) {
+			for(NPC npc : World.getNPCsInChunkRange(e.getPlayer().getChunkId(), 1))
+				if(npc instanceof OwnedNPC experiment && experiment.getOwner() == p
+						&& (npc.getId() == EXPERIMENT1 || npc.getId() == EXPERIMENT2 || npc.getId() == EXPERIMENT3 || npc.getId() == EXPERIMENT4))
+					npc.setCombatTarget(p);
+			e.cancelPickup();
+			p.sendMessage("The experiment won't let you pick up the ball");
+		}
+	});
+
+	public static PlayerStepHandler handleCheesePrompt = new PlayerStepHandler(Tile.of(2894, 3367, 0), e -> {
+		if (e.getPlayer().getQuestManager().getStage(Quest.WITCHS_HOUSE) == FIND_BALL && e.getPlayer().containsItem(1985))
+			if (!e.getPlayer().getTempAttribs().getB("MousePuzzleKnownWitchsHouse")) {
+				e.getPlayer().sendMessage("You hear a hungry mouse in this room, must be the cheese...");
+				e.getPlayer().getTempAttribs().setB("MousePuzzleKnownWitchsHouse", true);
+			}
+	});
+
+	public static ObjectClickHandler handleWitchHouseMouseDoor = new ObjectClickHandler(new Object[] { 2862 }, e -> {
+		Player p = e.getPlayer();
+		GameObject obj = e.getObj();
+		if(p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(MOUSE_SOLVED))
+			handleDoor(p, obj);
+		else
+			p.startConversation(new Conversation(e.getPlayer()) {
+				{
+					addPlayer(HeadE.CALM_TALK, "It appears to be locked by some mechanism, perhaps by the mouse hole?");
+					create();
+				}
+			});
+	});
+
+	public static ItemOnObjectHandler handleMouseHole = new ItemOnObjectHandler(new Object[] { 2870 }, null, e -> {
+		GameObject obj = e.getObject();
+		if(e.getPlayer().getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(MOUSE_SOLVED)) {
+			e.getPlayer().startConversation(new Conversation(e.getPlayer()) {
+				{
+					addPlayer(HeadE.CALM_TALK, "The door is already unlocked...");
+					create();
+				}
+			});
+			return;
+		}
+		if(e.getItem().getId() == 1985) {
+			for(NPC npc : World.getNPCsInChunkRange(e.getPlayer().getChunkId(), 1))
+				if(npc instanceof OwnedNPC mouse && mouse.getId() == MOUSE && mouse.getOwner() == e.getPlayer()) {
+					e.getPlayer().startConversation(new Conversation(e.getPlayer()) {
+						{
+							addPlayer(HeadE.CALM_TALK, "The mouse is right there...");
+							create();
+						}
+					});
+					return;
+				}
+			e.getPlayer().getInventory().removeItems(new Item(1985, 1));
+			e.getPlayer().startConversation(new Conversation(e.getPlayer()) {
+				{
+					addSimple("A mouse exits the hole...");
+					create();
+				}
+			});
+			WorldTasks.scheduleLooping(new Task() {
+				int tick;
+				NPC mouse;
+				@Override
+				public void run() {
+					if(tick == 0 )
+						mouse = new OwnedNPC(e.getPlayer(), MOUSE, Tile.of(obj.getX()-1, obj.getY(), obj.getPlane()), true);
+					if(tick == 30) {
+						if(!mouse.hasFinished())
+							mouse.finish();
+						stop();
+					}
+					tick++;
+				}
+			}, 0, 1);
+		}
+	});
+
+	public static ItemOnNPCHandler handleItemOnMouse = new ItemOnNPCHandler(MOUSE, e -> {
+		if(e.getItem().getId() == MAGNET && e.getNPC() instanceof OwnedNPC mouse && mouse.getOwner() == e.getPlayer()) {
+			e.getPlayer().startConversation(new Conversation(e.getPlayer()) {
+				{
+					addSimple("You attach the magnet to the mouse's harness. The mouse finishes the cheese and runs back into its hole. You hear some" +
+							" odd noises from inside the walls. There is a strange whirring noise from above the door frame.");
+					create();
+				}
+			});
+			e.getNPC().finish();
+			e.getPlayer().getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(MOUSE_SOLVED, true);
+		}
+	});
+
+	public static ObjectClickHandler handleWitchHouseLadderToBasement = new ObjectClickHandler(new Object[] { 24717, 24718 }, e -> {
+		if(e.getObjectId() == 24718)
+			e.getPlayer().useLadder(Tile.of(2774, 9759, 0));
+		else
+			e.getPlayer().useLadder(Tile.of(2898, 3376, 0));
+	});
+
+	public static ObjectClickHandler handleBasementBoxes = new ObjectClickHandler(new Object[] { 24692 }, e -> {
+		Player p = e.getPlayer();
+		if (p.getQuestManager().getStage(Quest.WITCHS_HOUSE) != FIND_BALL
+				|| !e.getObj().getTile().withinArea(2765, 9750, 2777, 9761))
+			return;
+		if (p.getInventory().containsItem(1059, 1) || p.getEquipment().containsOneItem(1059)) {
+			p.sendMessage("You search the boxes but find nothing of interest.");
+			return;
+		}
+		if (!p.getInventory().hasFreeSlots()) {
+			p.sendMessage("You find a pair of leather gloves, but you don't have room to take them.");
+			return;
+		}
+		p.getInventory().addItem(new Item(1059, 1));
+		p.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(COLLECTED_BASEMENT_GLOVES, true);
+		p.sendMessage("You find a pair of leather gloves.");
+	});
+
+	public static ObjectClickHandler handleWitchHouseElectricGate = new ObjectClickHandler(new Object[] { 2866, 2865 }, e -> {
+		Player p = e.getPlayer();
+		int gloves = p.getEquipment().getGlovesId();
+		if (contains(INSULATING_GLOVES, gloves))
+            handleDoubleDoor(e.getPlayer(), e.getObj());
+		else {
+			int damage = gloves == 1580 ? 190 : gloves == 9099 ? 150 : gloves == 6708 || gloves >= 7453 && gloves <= 7462 ? 120 : Math.max(1, p.getMaxHitpoints() / 5);
+            p.startConversation(new Conversation(e.getPlayer()) {
+                {
+					addSimple("As you touch the gate you feel a shock.", () -> p.applyHit(Hit.flat(p, damage)));
+					addPlayer(HeadE.SCARED, "I will need some insulating gloves to stop the electric current...");
+                    create();
+                }
+            });
+		}
+	});
+
+	private static boolean contains(int[] ids, int id) {
+		for (int check : ids)
+			if (check == id)
+				return true;
+		return false;
+	}
+
+	static void handleCaughtByWitch(Player player) {
+		boolean defeatedExperiment = player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(KILLED_EXPERIMENT);
+		player.getInventory().deleteItem(BALL, player.getInventory().getAmountOf(BALL));
+		player.getInventory().deleteItem(WITCH_DIARY, player.getInventory().getAmountOf(WITCH_DIARY));
+		player.getInventory().deleteItem(BACKROOM_KEY, player.getInventory().getAmountOf(BACKROOM_KEY));
+		if (player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).getB(COLLECTED_BASEMENT_GLOVES)) {
+			player.getInventory().deleteItem(1059, 1);
+			player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(COLLECTED_BASEMENT_GLOVES, false);
+		}
+		if (!defeatedExperiment) {
+			player.getInventory().deleteItem(MAGNET, player.getInventory().getAmountOf(MAGNET));
+			player.getQuestManager().getAttribs(Quest.WITCHS_HOUSE).setB(MOUSE_SOLVED, false);
+		}
+	}
+
+	public static ObjectClickHandler handleWitchsHouseCupboard = new ObjectClickHandler(new Object[] { 2868, 2869 }, e -> {
+		Player p = e.getPlayer();
+		GameObject obj = e.getObj();
+		if(e.getOption().equalsIgnoreCase("open")) {
+			p.setNextAnimation(new Animation(536));
+			p.lock(2);
+			GameObject openedChest = new GameObject(obj.getId() + 1, obj.getType(), obj.getRotation(), obj.getX(), obj.getY(), obj.getPlane());
+			p.faceObject(openedChest);
+			World.spawnObjectTemporary(openedChest, Ticks.fromMinutes(1));
+		}
+		if(e.getOption().equalsIgnoreCase("shut")) {
+			p.setNextAnimation(new Animation(536));
+			p.lock(2);
+			GameObject openedChest = new GameObject(obj.getId() - 1, obj.getType(), obj.getRotation(), obj.getX(), obj.getY(), obj.getPlane());
+			p.faceObject(openedChest);
+			World.spawnObjectTemporary(openedChest, Ticks.fromMinutes(1));
+		}
+		if(e.getOption().equalsIgnoreCase("search"))
+			if(p.getInventory().containsItem(MAGNET, 1))
+				p.sendMessage("The cupboard is empty.");
+			else if(p.getInventory().hasFreeSlots())
+				p.getInventory().addItem(new Item(MAGNET, 1));
+			else
+				p.sendMessage("You need more inventory space.");
+	});
+
+	@Override
+	public void complete(Player player) {
+		player.getSkills().addXpQuest(Constants.HITPOINTS, 6325);
+		sendQuestCompleteInterface(player, BALL);
+	}
+
+}

@@ -164,7 +164,7 @@ For every concrete value or gate:
 ## Dated OpenRS2 Cache Set
 
 The archives are read-only research inputs under
-`/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/`:
+`/Users/armantarkhanian/Library/Caches/codex/2012scape-openrs2/`:
 
 - rev 727 — 2012-07-24 — `runescape-727-2012-07-24-openrs2-309-disk.zip` — SHA-256 `ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8`
 - rev 728 — 2012-08-01 — `runescape-728-2012-08-01-openrs2-310-disk.zip` — SHA-256 `7cbddfea4df57307e6a427fd1a27922062d45896eaf1ce4c2080ece888b4e936`

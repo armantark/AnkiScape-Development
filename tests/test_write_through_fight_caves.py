@@ -269,8 +269,9 @@ class FightCavesWriteThroughTest(unittest.TestCase):
                 self.assertEqual(updated.get("attack_level"), 80)
 
     def test_review_never_writes_through(self):
-        plain = _entered()
-        frozen = _frozen_save(_entered())
+        # Unticked prayers keep one review short of finishing wave 1.
+        plain = _entered(combat_prayers_enabled=False)
+        frozen = _frozen_save(_entered(combat_prayers_enabled=False))
         updated, ok, result = fight_caves_logic.apply_fight_caves_review_pure(
             frozen, lambda: 0.5, equipment_data=EQUIPMENT_DATA
         )
