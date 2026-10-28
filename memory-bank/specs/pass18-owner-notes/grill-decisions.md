@@ -73,3 +73,48 @@ the Shop tab's one-click NPC purchases with two offers: "Pay 20 coins for 2
 woad leaves" and "Pay 15 coins for 1 woad leaf", one purchase per click.
 
 > 8. Yes
+
+## Round 2 (2026-10-27 23:33 and 23:40, answered 23:42)
+
+Facts before this round: a native look in real Anki at `d4f7164ac` (Terra,
+`/Users/armantarkhanian/Code/ankiscape-pass18/native/look-1/`) and a second one
+seeded with a copy of the owner's save from his 23:05 Anki backup
+(`look-2/`). The second look reproduced the Bank overlap; neither reproduced
+the GE squash.
+
+**Q9. One tab arrow at each end of the tab bar.** "<" at the left end, ">" at
+the right end; each click scrolls one tab; an arrow greys out at its end; the
+current tab always scrolls fully into view.
+
+> 9. Yes
+
+**Q10. The GE tab gets a full redesign through the hill-climb loop, and no
+control can shrink below its normal height.**
+
+> 10. Something landed since the last update that made it look terrible. I don't think you need to hill climb, just fix it. (Also the copy on the last hill climb was kinda cringe. I think you can probably rewrite it as opus. Menu text needs to be elegant and minimalistic.) But yes again native Anki is the most important to look at
+
+**Q11. Bank rows never overlap, at any menu size or bank size.** Fix the cause
+so each row and heading keeps its height and the grid scrolls; test with a
+Bank as big as the owner's at the default size, 560 points tall and full
+width; change nothing else on the Bank except the cut Bank Claims line.
+
+> 11. Yes
+
+### What the Q10 answer settles
+
+- No GE redesign and no hill-climb loop. Fix the squash; the native look is
+  the check that matters.
+- The owner's Anki on the Mac Studio started at 2026-10-27 09:45:07 and has run
+  `33163df1b` (pulled 08:30:37) since then; Anki loads add-on code only at
+  start. The squash he saw is the one `1e5d71015` ("Keep every main-menu tab
+  whole and unoverlapped as macOS lays it out", pulled 11:38:17) fixed by
+  putting the GE tab in a vertical scroll. The likely trigger is Pass 17's
+  queue box: when it shows, it takes height from every tab page, and his save
+  holds a two-entry queue. Pass 18 makes that box taller (Q4), so the check
+  is a native look of the GE offer panel with the queue box showing 2 and 5
+  entries, at the default size and 560 points tall.
+- Menu copy: Opus rewrites the copy of the Pass 17 hill-climb screens (the
+  Resume and stop lines of ticket 02, the queue box of ticket 04, the combat
+  setup panel of ticket 07) and writes all new Pass 18 menu text. The rule is
+  elegant and minimal. This is the owner's explicit choice of model for menu
+  text, so the `write-like-me` copy-model route does not apply to it.
