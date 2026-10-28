@@ -3,7 +3,7 @@
 Every Pass 18 implementer reads this file, then its ticket. The orchestrator
 seat (Opus 5.5, the T3 thread that grilled the owner) dispatches the tickets,
 lands them on the integration branch, runs the native looks in real Anki, the
-full test lanes on the Mac Studio, the final review and the promotion gate.
+full test lanes on the remote test mirror, the final review and the promotion gate.
 
 <context>
 - Spec: `memory-bank/specs/pass18-owner-notes/spec.md`. Every decision there is
@@ -24,7 +24,7 @@ full test lanes on the Mac Studio, the final review and the promotion gate.
   screenshot rules). This brief replaces the contract's section 6 lane
   commands and its `--expected-tests` collection for Pass 18: implementers run
   the focused tests named under <build>, and the orchestrator runs the full
-  plain and offscreen Qt lanes, with their collected counts, on the Mac Studio
+  plain and offscreen Qt lanes, with their collected counts, on the remote test mirror
   after each landing. The rest of section 6 still binds you, including that a
   proof that a test is load-bearing leaves no trace. Where this brief and the
   contract disagree in any other way, stop and report.
@@ -56,7 +56,7 @@ full test lanes on the Mac Studio, the final review and the promotion gate.
   focused tests and the test packages next to your change. Do not run the
   whole suite: the Sol loop shares this machine (load about 15 on 14 cores on
   2026-10-27), and the orchestrator runs the full plain and Qt lanes on the
-  Mac Studio after each landing. Homebrew `python3` has no Pillow on this
+  remote test mirror after each landing. Homebrew `python3` has no Pillow on this
   MacBook, so a test that imports it can fail on the base too; a failure that
   also fails on `goal/pass18-integration` is known, and you report it. Any
   other failure is yours.
