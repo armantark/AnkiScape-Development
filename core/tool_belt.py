@@ -99,7 +99,7 @@ QUEST_STAGES_NEEDING_HELD_TOOLS = {
     ("tai_bwo_wannai_trio", 4): ("Knife",),
     ("the_great_brain_robbery", 1): ("Hammer",),
     ("a_void_dance", 3): ("Spade",),  # oldid 6543386
-    ("creature_of_fenkenstrain", 1): ("Spade",),  # 6535792: "cannot be in the toolbelt"
+    ("creature_of_fenkenstrain", 2): ("Spade",),  # 6535792: "cannot be in the toolbelt"
     ("defender_of_varrock", 3): ("Spade",),  # 6542570
     ("do_no_evil", 5): ("Spade",),  # 6587790
     ("ghosts_ahoy", 1): ("Spade",),  # 6575527

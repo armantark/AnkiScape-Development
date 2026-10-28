@@ -338,6 +338,8 @@ MAGIC_SPELL_IMAGES = {
     )
 }
 
+MAGIC_SPELL_IMAGES["telegrab_pickled_brain"] = MAGIC_SPELL_IMAGES["telegrab_wine_of_zamorak"]
+
 CONSTRUCTION_EXTRA_ITEM_DATA = construction_extra_items_as_dict()
 CONSTRUCTION_ASSET_ITEM_DATA = construction_asset_items_as_dict()
 CONSTRUCTION_ITEM_IMAGES = {}
