@@ -6,8 +6,8 @@ Added by the orchestrator after the native check of ticket 03 (`/Users/armantark
 
 **Blocked by:** 03 (The queue box shows every entry, folds, and confirms each add)
 
-**Status:** built; native look waits for the orchestrator
+**Status:** done
 
 - [x] The macOS layout test runs the GE tab with the queue box at 2 and 5 entries at both sizes and finds no squeezed control.
 - [x] No skill target list row (Smithing and every other skill's target list) is cut or elided at 720 x 540 and 720 x 560, with an empty queue and with the queue box at 5 entries; a Qt test checks every skill's list with text_fit_defects.
-- [ ] The orchestrator's native look with a 5-entry queue shows the Woad leaf offer panel and the Smithing list whole in real Anki.
+- [x] The orchestrator's native look with a 5-entry queue shows the Woad leaf offer panel and the Smithing list whole in real Anki.
