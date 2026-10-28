@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native look waits for the orchestrator
+**Status:** done
 
 - [x] At menu widths 720 and 980, the left arrow is at the bar's left end and the right arrow at its right end; scrolled fully either way, no tab overlaps an arrow.
 - [x] At the first tab the left arrow is disabled; at the last, the right arrow is.
