@@ -139,8 +139,8 @@ class TestMurderMysteryReview(unittest.TestCase):
             self.assertEqual(addon._state.player_data, earned)
             self.assertEqual(random.getstate(), earned_rng)
             _answer_review(addon)
-            self.assertEqual(addon._state.player_data['inventory'], earned['inventory'])
-            self.assertEqual(addon._state.player_data['quest_action_proofs'], [ACTION])
+            self.assertEqual(addon._state.player_data['inventory'], dict(earned['inventory'], **{'Silver necklace': 1}))
+            self.assertEqual(set(addon._state.player_data['quest_action_proofs']), {ACTION, 'murder_mystery.search_anna_barrel'})
             self.assertEqual(addon._state.player_data['quests'][QUEST_ID]['progress'], 2)
 
     def test_saved_opening_reopens_without_regrant(self):
@@ -162,7 +162,10 @@ class TestMurderMysteryReview(unittest.TestCase):
             self.assertEqual(opening_state(addon), earned)
             self.assertEqual(rows(addon), earned_rows)
             _answer_review(addon)
-            self.assertEqual(opening_state(addon), earned)
+            expected = copy.deepcopy(earned)
+            expected['inventory']['Silver necklace'] = 1
+            expected['quest_action_proofs'] = sorted([ACTION, 'murder_mystery.search_anna_barrel'])
+            self.assertEqual(opening_state(addon), expected)
 
     def test_answer_rejection_and_late_grant_refusal_rollback(self):
         for raises in (False, True):

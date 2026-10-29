@@ -665,6 +665,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/quest/enakhra.py", "apply_enakhra_opening_action_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "read_ragged_book_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/murder_mystery.py", "search_murder_mystery_barrel_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "apply_murder_mystery_opening_items_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/witchs_house.py", "apply_witchs_house_service_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/hazeel.py", "apply_hazeel_opening_action_pure", "record_quest_stage_action_proofs_pure"),

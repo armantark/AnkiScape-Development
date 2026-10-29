@@ -199,7 +199,12 @@ OPENING_JOURNAL = (
 INVESTIGATION_JOURNAL = (
     "Talk to the guard at the smashed window, then search it for the Criminal's thread.",
     "Investigate the wooden gate.",
-    "Search the barrels in the suspects' bedrooms for Anna's Silver necklace, Bob's Silver cup, Carol's Silver bottle, David's Silver book, Elizabeth's Silver needle and Frank's Silver pot.",
+    "Search Anna's bedroom barrel for the Silver necklace.",
+    "Search Bob's bedroom barrel for the Silver cup.",
+    "Search Carol's bedroom barrel for the Silver bottle.",
+    "Search David's bedroom barrel for the Silver book.",
+    "Search Elizabeth's bedroom barrel for the Silver needle.",
+    "Search Frank's bedroom barrel for the Silver pot.",
 )
 LEGACY_OPENING_JOURNAL = (
     "The guards at Sinclair Mansion, north of Seers' Village, cannot identify Lord Sinclair's murderer and ask for help gathering information from the family.",

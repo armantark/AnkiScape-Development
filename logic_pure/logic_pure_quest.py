@@ -13,7 +13,7 @@ from .quest.toktz_opening import (
 from .quest.another_cook import (
     another_cook_requirement_pure, another_cook_review_ready_pure, apply_another_cook_review_pure,
 )
-from .quest.completion_rewards import apply_completion_rewards_pure
+from .quest.completion_rewards import apply_completion_rewards_pure, _apply_quest_xp_rewards
 from .quest.elemental_workshop import (
     opening_blockers_pure, opening_review_ready_pure, apply_opening_review_pure,
 )
@@ -34,7 +34,10 @@ from .quest.witchs_house import (
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-from .quest.murder_mystery import apply_murder_mystery_opening_items_pure
+from .quest.murder_mystery import (
+    apply_murder_mystery_opening_items_pure, murder_mystery_silver_review_phase_pure,
+    murder_mystery_silver_review_ready_pure, apply_murder_mystery_silver_review_pure,
+)
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ANTIPOISON_POTION_DATA,
@@ -851,6 +854,8 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
 def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     if toktz_opening_phase_pure(player_data, quest_id) == "toktz_invalid_opening":
         return False
+    if murder_mystery_silver_review_phase_pure(player_data, quest_id, quest_data):
+        return murder_mystery_silver_review_ready_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
@@ -1164,6 +1169,9 @@ def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
     empty_refusal = ("",) if include_clue_refusal else ()
+    if murder_mystery_silver_review_phase_pure(player_data, quest_id, quest_data):
+        candidate, ok = apply_murder_mystery_silver_review_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)
+        return (candidate, ok, False, *empty_refusal)
     data, state = _quest_progress_start_state(player_data, quest_id, quest_data)
     if state is None:
         return (player_data, False, False, *empty_refusal)
@@ -1211,38 +1219,13 @@ def apply_quest_progress_pure(
             data, player_data, quest_id, quest, _apply_quest_xp_rewards,
         )
     data.setdefault("quests", {})[quest_id] = state
+    return _quest_progress_result(data, completed_now, clue_reward_refusal_reason, include_clue_refusal)
+
+
+def _quest_progress_result(data, completed_now, clue_refusal, include_clue_refusal):
     if include_clue_refusal:
-        return data, True, completed_now, clue_reward_refusal_reason
+        return data, True, completed_now, clue_refusal
     return data, True, completed_now
-
-
-def _apply_quest_xp_rewards(data, quest):
-    trainable_exp_keys = _trainable_exp_keys()
-    pending = data.get("pending_skill_exp_rewards", {})
-    if not isinstance(pending, Mapping):
-        pending = {}
-    clean_pending = dict(pending)
-    for reward in quest.get("xp_rewards", ()) or ():
-        if not isinstance(reward, Mapping):
-            continue
-        skill_id = reward.get("skill_id")
-        if not isinstance(skill_id, str):
-            continue
-        skill = get_skill(skill_id)
-        exp_key = skill.exp_key if skill is not None else f"{skill_id}_exp"
-        try:
-            amount = float(reward.get("amount", 0))
-        except (TypeError, ValueError):
-            amount = 0.0
-        if amount <= 0:
-            continue
-        if exp_key in trainable_exp_keys and skill is not None and skill.trainable:
-            data[exp_key] = data.get(exp_key, 0) + amount
-        else:
-            clean_pending[exp_key] = float(clean_pending.get(exp_key, 0) or 0) + amount
-    data["pending_skill_exp_rewards"] = {
-        key: value for key, value in clean_pending.items() if value > 0
-    }
 
 
 def _apply_skill_xp_reward(data, skill_id, amount):

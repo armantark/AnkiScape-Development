@@ -11764,24 +11764,22 @@ class TestLogic(unittest.TestCase):
                 }
 
                 self.assertTrue(progressed)
-                self.assertTrue(completed)
+                self.assertEqual(completed, quest_id != "murder_mystery")  # Bedroom searches preserve active legacy progress.
                 self.assertTrue(
                     prohibited_reward_names.isdisjoint(granted),
                     f"{quest_id} granted non-item rewards: "
                     f"{sorted(prohibited_reward_names.intersection(granted))}",
                 )
-                if quest_id in expected_rewards:
-                    self.assertEqual(granted, expected_rewards[quest_id])
+                self.assertEqual(granted, expected_rewards.get(quest_id, granted))
                 if quest_id == "missing_my_mummy":
                     for skill_id, amount in expected_missing_mummy_xp.items():
                         self.assertEqual(
                             completed_data[f"{skill_id}_exp"] - xp_before[skill_id],
                             amount,
                         )
-                if quest_id == "nomads_requiem":
-                    # The 70 Zeal points are a Soul Wars currency, not an
-                    # inventory item; they land on the existing zeal wallet.
-                    self.assertEqual(completed_data["soul_wars_zeal"], 70)
+                # Nomad's 70 Zeal points land on the wallet; other quests preserve it.
+                self.assertEqual(completed_data["soul_wars_zeal"],
+                                 {"nomads_requiem": 70}.get(quest_id, player_data["soul_wars_zeal"]))
 
     def test_quest_replacement_guards_pin_all_replaced_items_lamps_and_unlocks(self):
         """Pin every item and lamp replacement, and only quests with unlock replacements."""

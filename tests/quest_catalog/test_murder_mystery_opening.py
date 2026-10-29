@@ -39,7 +39,12 @@ OPENING_LINES = (
 LATER_LINES = (
     "Talk to the guard at the smashed window, then search it for the Criminal's thread.",
     "Investigate the wooden gate.",
-    "Search the barrels in the suspects' bedrooms for Anna's Silver necklace, Bob's Silver cup, Carol's Silver bottle, David's Silver book, Elizabeth's Silver needle and Frank's Silver pot.",
+    "Search Anna's bedroom barrel for the Silver necklace. (Pending)",
+    "Search Bob's bedroom barrel for the Silver cup. (Pending)",
+    "Search Carol's bedroom barrel for the Silver bottle. (Pending)",
+    "Search David's bedroom barrel for the Silver book. (Pending)",
+    "Search Elizabeth's bedroom barrel for the Silver needle. (Pending)",
+    "Search Frank's bedroom barrel for the Silver pot. (Pending)",
 )
 NEUTRAL_LINES = (
     "The guards at Sinclair Mansion, north of Seers' Village, cannot identify Lord Sinclair's murderer and ask for help gathering information from the family.",
@@ -132,7 +137,7 @@ class TestMurderMysteryOpening(unittest.TestCase):
         self.assertEqual(row, expected)
         self.assertEqual(quest['stages'], max(GENERATED['stages'], max(r['stage'] for r in baseline) + 1))
         self.assertEqual(quest['journal_stages'][1], OPENING_LINES)
-        self.assertEqual(quest['journal_stages'][2], LATER_LINES)
+        self.assertEqual(quest['journal_stages'][2], tuple(line.removesuffix(' (Pending)') for line in LATER_LINES))
         self.assertEqual({n: lines for n, lines in quest['journal_stages'].items() if n >= 3},
                          {r['stage']: tuple(r['journal']) for r in GENERATED['journal_stages'] if r['stage'] >= 3})
         stages = tuple(QuestStage(r['stage'], tuple(r['journal'])) for r in GENERATED['journal_stages'])
@@ -285,9 +290,18 @@ class TestMurderMysteryOpening(unittest.TestCase):
                 data, _ = start_quest_pure(data, QUEST_ID, QUEST_DATA)
                 journal(data)
                 data, ok, done = advance(data)
-                self.assertFalse(ok)
+                self.assertEqual(ok, not completed)
                 self.assertFalse(done)
-            self.assertEqual(data, before)
+                self.assertNotIn(POT, data['inventory'])
+                self.assertNotIn(DAGGER, data['inventory'])
+                self.assertIn(ACTION, data['quest_action_proofs'])
+            if completed:
+                self.assertEqual(data, before)
+            else:
+                self.assertEqual(data['quests'][QUEST_ID], before['quests'][QUEST_ID])
+                self.assertEqual(data['inventory'], dict(before['inventory'], **{'Silver necklace': 1, 'Silver cup': 1}))
+                self.assertEqual(set(data['quest_action_proofs']) - set(before['quest_action_proofs']),
+                                 {'murder_mystery.search_anna_barrel', 'murder_mystery.search_bob_barrel'})
 
     def test_earned_journal_marks_only_opening_done(self):
         data, _, _ = advance(player())
