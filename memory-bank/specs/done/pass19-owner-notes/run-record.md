@@ -87,4 +87,15 @@ which then pauses the queue.
 
 ## Checks
 
-GATE RESULTS FILLED AT LANDING.
+- Promotion gate on 48c231acb: remote plain lane "Ran 6635 tests in 390.745s",
+  "OK (skipped=765)"; remote Qt lane "Ran 6635 tests in 490.031s", "OK
+  (skipped=5)". Log: `/Users/armantarkhanian/ankiscape_worktrees/gate-48c231acb.log`.
+- Landed 48c231acb on main on 2026-10-29 at 23:58. The Studio's
+  `mbp-main-pull` log reads "addons21/ankiscape_fork main: advanced
+  3ee4514764147d26a7c30a86feed4c390b8b7bd0..48c231acb0c086f1401f72c329f658a6b2d48df5"
+  at 23:59:01.
+- Visual checks: offscreen grabs of the Quests tab in light and dark mode at
+  900x760 and 900x560, in `/Users/armantarkhanian/Code/ankiscape-pass19/evidence/quests/`.
+  No native Anki look ran, because the Codex quota forecast was critical.
+- Results page: https://3oz18vs8f57p.postplan.dev, with four decisions whose
+  defaults are built.
