@@ -8969,16 +8969,16 @@
     "timestamp": "2012-05-03T12:11:55Z"
   },
   "constructionitems/adamant_armour.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Adamant_armour_%28heavy%29_equipped_%28female%29.png",
-    "file_title": "Adamant armour (heavy) equipped (female).png",
-    "image_url": "https://runescape.wiki/images/archive/20140514133810%21Adamant_armour_%28heavy%29_equipped_%28female%29.png?72066",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_armour_set_%28lg%29_equipped.png",
+    "file_title": "Adamant armour set (lg) equipped.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Adamant_armour_set_%28lg%29_equipped.png?43b64",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "0a3ece32c249a5360055300d0865bd3f296bf859",
-    "size": 440492,
-    "source_wiki": "rs3",
-    "timestamp": "2012-07-08T05:38:06Z"
+    "sha1": "201b989329a3b7a3ec1ac3b81f335f7ec29c4aab",
+    "size": 41488,
+    "source_wiki": "osrs",
+    "timestamp": "2017-01-22T15:30:48Z"
   },
   "constructionitems/adamant_full_helm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_full_helm.png",
@@ -44440,16 +44440,16 @@
     "timestamp": "2010-04-28T16:38:59Z"
   },
   "smithingitems/bullseye_lantern.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Bullseye_lantern_%28lit%29.png",
-    "file_title": "Bullseye lantern (lit).png",
-    "image_url": "https://runescape.wiki/images/archive/20160502020237%21Bullseye_lantern_%28lit%29.png?cd533",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bullseye_lantern.png",
+    "file_title": "Bullseye lantern.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bullseye_lantern.png?acbdf",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4043aef9dbe1af9c57f27f1bb54db41270281406",
-    "size": 1438,
-    "source_wiki": "rs3",
-    "timestamp": "2010-04-04T13:37:56Z"
+    "sha1": "d82d85c10ecb9241440e7191202d366221ab9049",
+    "size": 519,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:05Z"
   },
   "smithingitems/cannonball.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cannonball.png",
