@@ -44,14 +44,25 @@ from .ui import CatalogFilterBar, dim_text_css
 # Pass 19), as it keeps the queue box's fold.
 _VIEW_CONFIG_KEY = "ankiscape_quest_list_view"
 # The 2012 quest journal colours each name by its progress, and cyan marks the
-# quest that runs now (owner, Pass 19). A light theme takes darker shades of the
-# same hues, because yellow and cyan text vanish on white: (dark, light).
+# quest that runs now (owner, Pass 19). The hues are the game's, softened because
+# its pure colours glare in a menu (owner, Pass 19); a light theme takes darker
+# shades, because yellow and cyan text vanish on white: (dark, light).
 _PROGRESS_COLOURS = {
-    "current": ("#00FFFF", "#00838F"),
-    "completed": ("#00FF00", "#2E7D32"),
-    "started": ("#FFFF00", "#8D6E00"),
-    "not_started": ("#FF4040", "#C62828"),
+    "current": ("#66C0CC", "#1B737E"),
+    "completed": ("#6EC475", "#327638"),
+    "started": ("#DAC662", "#866913"),
+    "not_started": ("#E57676", "#B23434"),
 }
+# Only the card takes the frame, so its labels draw no box of their own; its
+# buttons take the frame of the "Add to queue" button beside them.
+_CARD_STYLE = (
+    "QWidget#questCard_{id} {{ border: 1px solid palette(mid); border-radius: 6px; background: palette(base); }}"
+    " QPushButton {{ padding: 4px 10px; border: 1px solid palette(mid); border-radius: 6px;"
+    " color: palette(text); background: palette(base); }}"
+    " QPushButton:hover {{ border-color: #4CAF50; }}"
+    " QPushButton:disabled {{ color: {dim}; }}"
+    " QPushButton#questToggle_{id} {{ padding: 4px 0; }}"
+)
 
 
 def _saved_view() -> dict:
@@ -364,7 +375,7 @@ def build_quests_tab(ctx) -> "QWidget":
 
         card = QWidget()
         card.setObjectName(f"questCard_{quest_id}")
-        card.setStyleSheet("border: 1px solid palette(mid); border-radius: 6px; background: palette(base);")
+        card.setStyleSheet(_CARD_STYLE.format(id=quest_id, dim=dim_text_css(card)))
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(10, 8, 10, 8)
         card_layout.setSpacing(6)
@@ -463,11 +474,6 @@ def build_quests_tab(ctx) -> "QWidget":
                     choice_btn.setObjectName(_quest_choice_button_name(quest_id, route_id))
                     choice_btn.setToolTip(str(option.get("description") or label))
                     choice_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-                    choice_btn.setStyleSheet(
-                        "QPushButton { padding: 4px 10px; border: 1px solid palette(mid);"
-                        " border-radius: 6px; color: palette(text); background: palette(base); }"
-                        " QPushButton:hover { border-color: #4CAF50; }"
-                    )
                     choice_btn.clicked.connect(
                         lambda _=False, qid=quest_id, rid=route_id: _set_quest_route_choice(qid, rid)
                     )

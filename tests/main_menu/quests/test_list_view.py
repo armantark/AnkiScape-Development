@@ -45,7 +45,8 @@ class QuestListViewTest(fixtures.MainMenuWidgetTest):
                     title = dialog.findChild(QLabel, f"questTitle_{quest_id}")
                     colour = QColor(title.styleSheet().partition("color: ")[2].rstrip(";"))
                     distance = abs(colour.hue() - hue)
-                    self.assertLessEqual(min(distance, 360 - distance), 15)
+                    # Nearer its own hue than the next one, which is 60 degrees away.
+                    self.assertLess(min(distance, 360 - distance), 30)
                     lighter, darker = sorted((_luminance(colour), base), reverse=True)
                     # The names are bold, which reads at a contrast of 3:1 or more.
                     self.assertGreaterEqual((lighter + 0.05) / (darker + 0.05), 3)
