@@ -21,15 +21,15 @@ from .action_products import (
 from .action_queue import (
     MAX_QUEUE_ENTRIES,
     action_queue_pure,
-    add_starts_now_pure,
     action_queue_view_pure,
     current_queue_entry_pure,
     queue_add_refusal_pure,
     queue_entry_unit_pure,
+    queue_runs_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
 from .constants import UTILITY_ACTIVITY_DATA
-from .last_action import last_action_name_pure, last_action_record_pure
+from .last_action import last_action_record_pure
 from .skill_registry import get_skill
 from ..logic.inventory_pure import CARRIED_CAPACITY
 from ..logic.summoning_logic import summoning_action_requirements_pure
@@ -73,12 +73,15 @@ def queue_runs_surface_pure(player_data: Mapping[str, Any], surface: str) -> boo
 def activity_started_by_add_pure(player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any]) -> str:
     """The activity an add starts at once, as Start would, so it first asks to leave a running session.
 
-    Empty when the add only waits in the queue, behind a plan or an action the
-    player started, or starts something else.
+    That is the queue's first entry, or the added one in an empty queue. Empty
+    when the queue already runs, so the add only waits its turn, or when the
+    entry that starts is not an activity.
     """
-    if action.get("kind") != "utility" or not add_starts_now_pure(player_data, current_skill):
+    if queue_runs_pure(player_data, current_skill):
         return ""
-    return str(action["utility_id"])
+    entry = current_queue_entry_pure(action_queue_pure(player_data))
+    starting = entry["action"] if entry is not None else action
+    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
 
 
 def utility_action_record_pure(utility_id: str) -> dict[str, Any]:
@@ -184,24 +187,13 @@ def _row_text(row: Mapping[str, Any]) -> str:
     return f"{row['name']} · {row['done']:,} / {row['count']:,} {_unit_text(row['unit'], row['products'], row['used'])}"
 
 
-def _panel_hint(view: Mapping[str, Any], running: str) -> str:
-    """The one thing the buttons and lines cannot show: what a waiting plan waits for."""
-    if view["waiting"] and not view["paused"]:
-        return f"Starts when {running or 'the current action'} stops."
-    return ""
-
-
-def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) -> dict[str, Any]:
-    """The menu's queue box: a title, a hint line, one numbered line per entry, Resume or Start now, and Clear."""
+def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """The menu's queue box: a title, one numbered line per entry, Resume for a paused queue, and Clear."""
     view = action_queue_view_pure(player_data)
-    can_resume = view["paused"] or view["waiting"]
-    current = "Paused" if view["paused"] else "Waiting" if view["waiting"] else "Now"
-    labels = {"current": current, "waiting": "Next"}
+    labels = {"current": "Paused" if view["paused"] else "Now", "waiting": "Next"}
     count = len(view["entries"])
-    running = last_action_name_pure(last_action_record_pure(player_data, current_skill))
     return {
         "title": f"Queue: {count} of {MAX_QUEUE_ENTRIES}" if count else "Queue: empty",
-        "hint": _panel_hint(view, running),
         "rows": [
             {
                 "position": f"{position + 1}.",
@@ -212,5 +204,5 @@ def queue_panel_view_pure(player_data: Mapping[str, Any], current_skill: Any) ->
             }
             for position, row in enumerate(view["entries"])
         ],
-        "resume_text": ("Start now" if view["waiting"] else "Resume queue") if can_resume else "",
+        "resume_text": "Resume queue" if view["paused"] else "",
     }

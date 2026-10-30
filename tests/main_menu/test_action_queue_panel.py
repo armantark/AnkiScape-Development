@@ -68,7 +68,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
                 if ok and idle:
                     active["skill"] = payload["action"].get("skill", "Activities")
             elif name == "clear":
-                queue = {"entries": [], "done": 0, "paused": False, "waiting": False}
+                queue = {"entries": [], "done": 0, "paused": False}
             player_data[ACTION_QUEUE_KEY] = queue
             notify_action_queue_changed()
             return {"ok": ok, "active": active["skill"], "message": ""}
@@ -246,18 +246,6 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         removes[1].click()
         self.assertEqual(self.commands[-1], ("remove", {"position": 1}))
 
-    def test_a_waiting_plan_offers_start_now(self):
-        from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
-
-        queue, _ok = add_queue_entry_pure(action_queue_pure({}), _SMELT_IRON, 50)
-        _pd, dialog = self._smithing_menu(queue={**queue, "waiting": True})
-        start_now = dialog.findChild(QPushButton, "actionQueueResume")
-
-        self.assertEqual((start_now.text(), start_now.isVisible()), ("Start now", True))
-        self.assertEqual(_words(dialog.findChild(QLabel, "actionQueueHint")), "Starts when Mining stops.")
-        start_now.click()
-        self.assertEqual(self.commands[-1], ("resume", {}))
-
     def test_a_target_picked_while_the_queue_runs_that_skill_is_held_for_the_queue(self):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
 
@@ -296,27 +284,21 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         self._open_activity_detail(dialog, "castle_wars")
         return self._visible(dialog, QPushButton, "queueAddButton")
 
-    def test_an_add_that_waits_for_the_running_session_leaves_it_alone(self):
-        add = self._castle_wars_add_in_flash_powder_factory("Activities", "flash_powder_factory")
-
-        with patch.object(QMessageBox, "question") as asked:
-            add.click()
-
-        asked.assert_not_called()
-        self.assertEqual(self.commands[-1][1]["action"], {"kind": "utility", "utility_id": "castle_wars"})
-
     def test_an_add_that_starts_an_activity_asks_to_leave_a_running_session(self):
-        add = self._castle_wars_add_in_flash_powder_factory("Utilities", "bankstanding")
+        # An add starts the queue also over the factory the player runs by hand (owner, Pass 19).
+        for current_skill, current_utility in (("Utilities", "bankstanding"), ("Activities", "flash_powder_factory")):
+            with self.subTest(current_utility=current_utility):
+                add = self._castle_wars_add_in_flash_powder_factory(current_skill, current_utility)
 
-        with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.No) as asked:
-            add.click()
-        self.assertEqual(asked.call_args.args[1], "Leave Flash Powder Factory?")
-        self.assertEqual(self.commands, [])
+                with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.No) as asked:
+                    add.click()
+                self.assertEqual(asked.call_args.args[1], "Leave Flash Powder Factory?")
+                self.assertEqual(self.commands, [])
 
-        with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.Yes):
-            add.click()
-        self.assertEqual(self._agility_command_calls[-1], ("leave_flash_powder_factory", {}))
-        self.assertEqual(self.commands[-1][1]["action"], {"kind": "utility", "utility_id": "castle_wars"})
+                with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.Yes):
+                    add.click()
+                self.assertEqual(self._agility_command_calls[-1], ("leave_flash_powder_factory", {}))
+                self.assertEqual(self.commands[-1][1]["action"], {"kind": "utility", "utility_id": "castle_wars"})
 
     def test_the_wheel_leaves_the_count_box_alone(self):
         _pd, dialog = self._smithing_menu(**{"Iron ore": 37})

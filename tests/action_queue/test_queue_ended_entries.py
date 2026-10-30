@@ -20,7 +20,7 @@ class QueueEndedEntriesTest(QueueProfile):
     def _panel(self, addon):
         from ankiscape.core.menu_action_queue import queue_panel_view_pure
 
-        return queue_panel_view_pure(addon._state.player_data, addon._state.current_skill)
+        return queue_panel_view_pure(addon._state.player_data)
 
     def _hud(self, addon):
         from ankiscape.core.last_action import resume_button_view_pure
@@ -83,15 +83,13 @@ class QueueEndedEntriesTest(QueueProfile):
         self.assertFalse([line for line in self._log(addon) if line.startswith("Queue: Thieving: Hero stopped")])
 
     def test_clear_stops_a_hand_started_action_and_resume_offers_it(self):
-        addon = self._queue_addon("ankiscape_queue_ended_clear", woodcutting_level=40)
+        addon = self._queue_addon("ankiscape_queue_ended_clear", (_MINE_IRON, 30), woodcutting_level=40)
+        # The player starts Woodcutting by hand while the queue holds its Mining entry.
         addon.save_skill("Woodcutting", None)
         captured = {}
         addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
         addon._on_main_menu()
         command = captured["on_action_queue_command"]
-
-        # A new plan still waits behind the hand-started action.
-        self.assertEqual(command("add", {"action": _MINE_IRON, "count": 30})["active"], "Woodcutting")
 
         self.assertEqual(command("clear", {}), {"ok": True, "active": "Utilities", "message": ""})
         self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
@@ -112,8 +110,7 @@ class QueueEndedEntriesTest(QueueProfile):
             ],
             "index": 2,
             "done": 0,
-            "paused": False,
-            "waiting": True,
+            "paused": True,
         }
         addon.save_player_data()
         addon.load_player_data()

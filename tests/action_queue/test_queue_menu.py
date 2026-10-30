@@ -117,34 +117,47 @@ class QueueMenuCommandTest(QueueProfile):
                 self.assertEqual(command("add", {"action": action, "count": count}), {"ok": False, "active": "Utilities", "message": message})
         self.assertEqual(self._rows(addon), [])
 
-    def test_a_plan_waits_behind_a_hand_started_action_until_it_stops(self):
-        addon = self._queue_addon("ankiscape_queue_menu_wait", woodcutting_level=40)
-        addon.save_skill("Woodcutting", None)
-        command = self._menu(addon)
+    def test_an_add_starts_the_queue_in_place_of_the_selected_pickup(self):
+        # The owner's cases (Pass 19): with the pickup already selected, a queued
+        # Doogle leaf waited behind it while 140 leaves came in, and so did nettles.
+        for utility_id, item in (("gather_doogle_leaves", "Doogle leaves"), ("pick_nettles", "Nettles")):
+            with self.subTest(utility_id=utility_id):
+                addon = self._queue_addon(f"ankiscape_queue_menu_{utility_id}")
+                addon._state.player_data["current_utility"] = utility_id
+                pickup = {"kind": "utility", "utility_id": utility_id}
 
-        self.assertEqual(command("add", {"action": _MINE_IRON, "count": 30}), {"ok": True, "active": "Woodcutting", "message": ""})
+                self.assertEqual(self._menu(addon)("add", {"action": pickup, "count": 1})["ok"], True)
+                self._answer(addon)
+
+                self.assertEqual(addon._state.player_data["inventory"].get(item), 1)
+                self.assertEqual(self._rows(addon), [])
+                self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
+
+    def test_an_add_starts_the_queue_in_place_of_a_hand_started_skill(self):
+        addon = self._queue_addon("ankiscape_queue_menu_hand_started", woodcutting_level=40)
+        addon.save_skill("Woodcutting", None)
+
+        self.assertEqual(self._menu(addon)("add", {"action": _MINE_IRON, "count": 30}), {"ok": True, "active": "Mining", "message": ""})
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
-        # Woodcutting's review neither pauses nor counts toward the waiting plan.
-        self.assertEqual(addon._state.current_skill, "Woodcutting")
-        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
+        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 10)])
 
-        # Stopping the hand-started action starts the plan, and the menu learns what runs now.
-        captured = {}
-        addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
-        addon._on_main_menu()
-        self.assertEqual(captured["on_stop_training"](), "Mining")
-        self.assertEqual(addon._state.player_data["current_ore"], "iron")
-        self.assertEqual(self._log(addon)[-1], "Queue: Woodcutting stopped, so the plan starts")
+    def test_an_add_restarts_a_queue_that_does_not_run_its_entry(self):
+        for name, step_off in (
+            ("stopped", lambda addon, menu: menu["on_stop_training"]()),
+            ("hand_started", lambda addon, _menu: addon.save_skill("Woodcutting", None)),
+        ):
+            with self.subTest(name=name):
+                addon = self._queue_addon(f"ankiscape_queue_menu_restart_{name}", (_MINE_IRON, 30), woodcutting_level=40)
+                captured = {}
+                addon.ui.show_main_menu = lambda *_args, **kwargs: captured.update(kwargs)
+                addon._on_main_menu()
+                step_off(addon, captured)
 
-    def test_start_now_starts_a_waiting_plan_at_once(self):
-        addon = self._queue_addon("ankiscape_queue_menu_start_now", woodcutting_level=40)
-        addon.save_skill("Woodcutting", None)
-        command = self._menu(addon)
-        command("add", {"action": _MINE_IRON, "count": 30})
-
-        self.assertEqual(command("resume", {}), {"ok": True, "active": "Mining", "message": ""})
-        self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0)])
+                result = captured["on_action_queue_command"]("add", {"action": _SMELT_IRON, "count": 10})
+                self.assertEqual(result, {"ok": True, "active": "Mining", "message": ""})
+                self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 0), ("Smithing: Iron bar", "waiting", 0)])
+                self.assertFalse(addon._state.player_data["action_queue"]["paused"])
 
     def test_a_hud_that_cannot_draw_leaves_each_committed_command_in_place(self):
         addon = self._queue_addon("ankiscape_queue_menu_hud")

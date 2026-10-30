@@ -65,7 +65,7 @@ def _record_key(record) -> tuple:
 
 
 def _without_widow(text: str) -> str:
-    """Glue the last two words, so a wrapped hint never ends on one word alone."""
+    """Glue the last two words, so a wrapped line never ends on one word alone."""
     head, _space, tail = text.rpartition(" ")
     return f"{head}\u00a0{tail}" if head else text
 
@@ -271,7 +271,7 @@ if HAS_QT:
             painter.drawRoundedRect(QRect(0, line.top(), self.width(), line.height()), 4, 4)
 
     class ActionQueuePanel(QFrame):
-        """The queue box: a title that folds it, what a waiting plan waits for, and each entry's state and count.
+        """The queue box: a title that folds it, and each entry's state and count.
 
         The box is as tall as its entries, so every entry shows and the tab
         page above gives up the height. An empty queue folds into
@@ -279,7 +279,7 @@ if HAS_QT:
         the lists above no height until it holds an entry.
         """
 
-        def __init__(self, player_data: dict, queue, current_skill, parent=None):
+        def __init__(self, player_data: dict, queue, parent=None):
             super().__init__(parent)
             self.setObjectName("actionQueuePanel")
             self.setStyleSheet(
@@ -287,7 +287,6 @@ if HAS_QT:
                 " border-radius: 8px; background: palette(base); }"
             )
             self._player_data = player_data
-            self._current_skill = current_skill
             self._queue = queue
             layout = QVBoxLayout(self)
             layout.setContentsMargins(10 - _BAND_PAD, 3, 10 - _BAND_PAD, 3)
@@ -312,12 +311,8 @@ if HAS_QT:
                 button.setStyleSheet(_BUTTON_STYLE.replace("padding: 4px 10px", "padding: 2px 10px"))
                 button.setEnabled(queue is not None)
                 button.clicked.connect(lambda _=False, c=command: queue(c, {}))
-            self._hint = QLabel()
-            self._hint.setObjectName("actionQueueHint")
-            self._hint.setWordWrap(True)
-            self._hint.setStyleSheet(f"color: {dim_text_css(self._hint)}; font-size: 12px;")
             header.addWidget(self._title)
-            header.addWidget(self._hint, 1)
+            header.addStretch(1)
             header.addWidget(self._resume)
             header.addWidget(self._clear)
             layout.addLayout(header)
@@ -369,12 +364,11 @@ if HAS_QT:
             self.refresh()
 
         def refresh(self) -> None:
-            view = queue_panel_view_pure(self._player_data, self._current_skill())
+            view = queue_panel_view_pure(self._player_data)
             self.setVisible(bool(view["rows"]))
             # The line keeps its footer slot while the box shows, so Help and Close stay put.
             self.empty_line.setText("" if view["rows"] else view["title"])
             self._title.setText(f"{'▾' if self._title.isChecked() else '▸'} {view['title']}")
-            self._hint.setText(_without_widow(view["hint"]))
             self._resume.setText(view["resume_text"])
             self._resume.setVisible(bool(view["resume_text"]))
             self._lines.setVisible(self._title.isChecked())

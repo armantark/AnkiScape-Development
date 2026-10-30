@@ -26001,7 +26001,7 @@ def show_main_menu(
     content_layout.addWidget(tabs, 1)
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
-    queue_panel = ActionQueuePanel(player_data, queue_command, lambda: state["active"])
+    queue_panel = ActionQueuePanel(player_data, queue_command)
     layout.addWidget(queue_panel)
 
     # Footer controls stay outside the tab strip so Help remains at the
