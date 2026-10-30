@@ -4872,7 +4872,7 @@ def show_main_menu(
 
     def _after_queue_command(result: dict) -> None:
         warn.setText(result["message"])
-        # Adding to an idle queue starts its entry at once, as Start would.
+        # An add that starts the queue switches what runs, as Start would.
         if result["active"] in _active_choices and result["active"] != state["active"]:
             state["active"] = result["active"]
             _refresh_active_label()
