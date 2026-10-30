@@ -13,7 +13,7 @@ from tests.test_main_menu_widget import HAS_AQT, _make_player_data, _open_quests
 if HAS_AQT:
     from aqt.qt import QColor, QPalette
 
-    from tests.test_main_menu_widget import QApplication, QCheckBox, QComboBox, QLabel, QWidget
+    from tests.test_main_menu_widget import QApplication, QCheckBox, QComboBox, QLabel, QPushButton, QWidget
     from tests.ui_flows.test_first_cell_selection import _dark_palette
 
 
@@ -51,6 +51,28 @@ class QuestListViewTest(fixtures.MainMenuWidgetTest):
                     # The names are bold, which reads at a contrast of 3:1 or more.
                     self.assertGreaterEqual((lighter + 0.05) / (darker + 0.05), 3)
             dialog.close()
+
+    def test_a_quest_the_queue_starts_over_another_turns_cyan(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "cooks_assistant"
+
+        def command(_name, payload):
+            pd["current_quest"] = payload["action"]["quest_id"]
+            return {"ok": True, "active": "Quests", "message": ""}
+
+        dialog = self._open(pd, current_skill="Quests", on_action_queue_command=command)
+        _open_quests_tab(dialog)
+        dialog.findChild(QWidget, "questCard_the_restless_ghost").findChild(QPushButton, "queueAddButton").click()
+        QApplication.processEvents()
+
+        hues = {
+            quest_id: QColor(dialog.findChild(QLabel, f"questTitle_{quest_id}").styleSheet().partition("color: ")[2].rstrip(";")).hue()
+            for quest_id in ("cooks_assistant", "the_restless_ghost")
+        }
+        # Cyan sits at a hue of 180 degrees.
+        self.assertLess(abs(hues["the_restless_ghost"] - 180), 30)
+        self.assertGreaterEqual(abs(hues["cooks_assistant"] - 180), 30)
+        dialog.close()
 
     def test_the_sort_and_filters_outlast_the_menu(self) -> None:
         from ankiscape.ui import ui_tab_quests

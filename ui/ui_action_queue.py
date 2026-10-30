@@ -64,6 +64,15 @@ def _record_key(record) -> tuple:
     return tuple(sorted(record.items()))
 
 
+def queue_changed_what_runs(active, shown) -> bool:
+    """Whether a queue command left another action running than the menu shows.
+
+    A running quest always counts: the queue can start one quest over another,
+    and both run as "Quests".
+    """
+    return active != shown or active == "Quests"
+
+
 def _without_widow(text: str) -> str:
     """Glue the last two words, so a wrapped line never ends on one word alone."""
     head, _space, tail = text.rpartition(" ")
@@ -109,7 +118,9 @@ if HAS_QT:
 
         def __call__(self, command: str, payload: dict) -> None:
             if command == "add":
-                activity = activity_started_by_add_pure(self._player_data, self._current_skill(), payload["action"])
+                activity = activity_started_by_add_pure(
+                    self._player_data, self._current_skill(), payload["action"], payload["count"]
+                )
                 if activity and not self._leave_running_activity(activity):
                     return
                 if payload["count"] is not None:

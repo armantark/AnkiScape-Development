@@ -4866,14 +4866,14 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
-    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, surface_queue_control
+    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, queue_changed_what_runs, surface_queue_control
     from .ui_dnd_favourite import DndFavouriteControls
     from .ui_activity_leave import LeaveRule, leave_running_activity
 
     def _after_queue_command(result: dict) -> None:
         warn.setText(result["message"])
         # An add that starts the queue switches what runs, as Start would.
-        if result["active"] in _active_choices and result["active"] != state["active"]:
+        if result["active"] in _active_choices and queue_changed_what_runs(result["active"], state["active"]):
             state["active"] = result["active"]
             _refresh_active_label()
             ctx.refresh("quests")
@@ -5136,7 +5136,7 @@ def show_main_menu(
             warn.setText("Could not switch to Bankstanding.")
             return
         warn.setText("")
-        # The add-on names what runs now: Bankstanding, or a queue plan that waited for the stop.
+        # The add-on names what runs now, which is Bankstanding.
         state["active"] = stopped
         _refresh_active_label()
         _render_panel()

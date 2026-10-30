@@ -288,8 +288,14 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         # An add starts the queue also over the factory the player runs by hand (owner, Pass 19).
         for current_skill, current_utility in (("Utilities", "bankstanding"), ("Activities", "flash_powder_factory")):
             with self.subTest(current_utility=current_utility):
+                # An add the queue refuses ends no session.
                 add = self._castle_wars_add_in_flash_powder_factory(current_skill, current_utility)
+                add.parent().findChild(QSpinBox, "queueCountBox").setValue(0)
+                with patch.object(QMessageBox, "question") as asked:
+                    add.click()
+                asked.assert_not_called()
 
+                add = self._castle_wars_add_in_flash_powder_factory(current_skill, current_utility)
                 with patch.object(QMessageBox, "question", return_value=QMessageBox.StandardButton.No) as asked:
                     add.click()
                 self.assertEqual(asked.call_args.args[1], "Leave Flash Powder Factory?")

@@ -21,6 +21,7 @@ from .action_products import (
 from .action_queue import (
     MAX_QUEUE_ENTRIES,
     action_queue_pure,
+    add_queue_entry_pure,
     action_queue_view_pure,
     current_queue_entry_pure,
     queue_add_refusal_pure,
@@ -70,16 +71,22 @@ def queue_runs_surface_pure(player_data: Mapping[str, Any], surface: str) -> boo
     return action.get("skill") == surface
 
 
-def activity_started_by_add_pure(player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any]) -> str:
+def activity_started_by_add_pure(
+    player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any], count: Any
+) -> str:
     """The activity an add starts at once, as Start would, so it first asks to leave a running session.
 
     That is the queue's first entry, or the added one in an empty queue. Empty
-    when the queue already runs, so the add only waits its turn, or when the
-    entry that starts is not an activity.
+    when the queue refuses the add, so no session ends for nothing; when the
+    queue already runs, so the add only waits its turn; or when the entry that
+    starts is not an activity.
     """
+    queue = action_queue_pure(player_data)
+    if queue_add_refusal_pure(player_data, action) or not add_queue_entry_pure(queue, action, count)[1]:
+        return ""
     if queue_runs_pure(player_data, current_skill):
         return ""
-    entry = current_queue_entry_pure(action_queue_pure(player_data))
+    entry = current_queue_entry_pure(queue)
     starting = entry["action"] if entry is not None else action
     return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
 

@@ -317,6 +317,9 @@ def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> str:
         committed = addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
     else:
         committed = _commit_run(addon, {**queue, "paused": False})
+        # The run passed every entry that could not start, the new one too, so the player's action runs on.
+        if committed and current_queue_entry_pure(action_queue_pure(addon._state.player_data)) is None:
+            return f"{queue_entry_name_pure(action)} could not start."
     return "" if committed else "Anki could not save the change. Try again."
 
 

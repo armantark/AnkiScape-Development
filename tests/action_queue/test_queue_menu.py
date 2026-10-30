@@ -142,6 +142,15 @@ class QueueMenuCommandTest(QueueProfile):
             self._answer(addon)
         self.assertEqual(self._rows(addon), [("Mining: Iron", "current", 10)])
 
+    def test_an_add_that_cannot_start_says_so_and_leaves_the_running_action(self):
+        addon = self._queue_addon("ankiscape_queue_menu_no_star", woodcutting_level=40)
+        addon.save_skill("Woodcutting", None)
+        stars = {"kind": "utility", "utility_id": "shooting_stars"}
+
+        result = self._menu(addon)("add", {"action": stars, "count": 1})
+        self.assertEqual(result, {"ok": False, "active": "Woodcutting", "message": "Shooting Stars could not start."})
+        self.assertEqual(self._rows(addon), [])
+
     def test_an_add_restarts_a_queue_that_does_not_run_its_entry(self):
         for name, step_off in (
             ("stopped", lambda addon, menu: menu["on_stop_training"]()),
