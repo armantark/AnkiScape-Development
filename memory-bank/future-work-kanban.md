@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: reconciled 2026-07-16. This is the product-wide parity and depth backlog; selection is in [the goal priority matrix](goal-priority-matrix.md). The 2026-07-10 completion audit is archived baseline evidence; `memory-bank/gap-backlog.json` is the closed historical record of the shipped-skill subledger; the parity ledger below owns its open rows.
+This is the product-wide parity and depth backlog; selection is in [the goal priority matrix](goal-priority-matrix.md). The 2026-07-10 completion audit is archived baseline evidence; `memory-bank/gap-backlog.json` is the closed historical record of the shipped-skill subledger; the parity ledger below owns its open rows.
 
 Shipped cards older than 30 days rotate monthly into [the shipped-card archive](archive/kanban-shipped-2026.md).
 
@@ -17,7 +17,7 @@ Shipped cards older than 30 days rotate monthly into [the shipped-card archive](
 ## Now — audit-backed implementation and source work
 
 Current goal selection, next action and branch disposition:
-`memory-bank/goal-priority-matrix.md`. Existing UI changes are excluded by this goal.
+`memory-bank/goal-priority-matrix.md`. Existing UI changes require recorded authority, except text/number-only changes within an existing panel under the 2026-10-25 ruling. The 2026-10-28 rulings prioritize whole finishable quests; Coming soon locks and the Gather row remain approved loop work, separate from landed Pass 19.
 
 ### Upstream ideas from AnkiScape 3.0 — 2026-09-19
 
@@ -48,8 +48,7 @@ Take, in value order:
 - Export and restore of the game save. Upstream has Settings -> Export/Restore
   Game Backup. This fork has none (`grep -rn "def export\|def restore\|def
   backup"` over runtime code finds only unrelated helpers).
-- Redo restores what undo retracted. This fork undoes review rewards and
-  does not restore them on redo (`grep -rli redo` returns 0 files).
+- Redo restores what undo retracted. This fork undoes review rewards but has no game-state redo handler; `specs/review-redo.md` owns the unanswered decisions.
 
 Specs (2026-09-25): [review-log catch-up](specs/review-log-catch-up.md),
 [export and restore](specs/save-export-restore.md), and
@@ -93,7 +92,7 @@ Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope
 
 - `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
   one card "should drag it out". Bulk work such as burying stays on targets.
-- `PARKED` Pass 17 (2026-10-26): the Bloom spell for Mort Myre fungus, pears and stems.
+- `PARKED` The Bloom spell for Mort Myre fungus, pears and stems; this was not delivered by the landed Pass 17 tickets.
 - `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
   the catalog parser drops choice XP not worded as a lamp.
 - `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.
@@ -121,9 +120,7 @@ Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
 - Quest combat stats: run `python3 tools/audit_quest_combat_stat_gaps.py`
   for the live encounter list. The audit identifies encounters without
   resolver-ready stats; the Pass 13 notes retain the historical census.
-- Tradeable defaults: 106 items are `tradeable=False` while the 2011 cache
-  flags them exchangeable (69 summoning pouches, 37 shop clothing and misc);
-  root cause `MiningBonusItem.tradeable` default at `data/mining_data.py:98`.
+- Tradeable defaults: the matrix owns remaining metadata/source work. Pouches, Archery ticket, Crayfish, Spotted cape, Spottier cape, Jade, Red topaz and Oyster already have landed corrections; the old 106-item cohort is not a live census.
 - Icon second sweep: RS-wiki entries whose title is a dated historical image
   (Iron scimitar "(September 2009)") or whose revision is not the newest before
   2012-11-20; `tools/fetch_2012_icons.py` is the tool.
@@ -209,7 +206,7 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   See
   `memory-bank/source-audits/evil-tree-implementation-harvest-2026-07-19.md`.
 - Big Chinchompa is implemented as the settled review-native communal Hunter
-  D&D: two windows per 240-review day, exact moth tiers and reward shop,
+  D&D: two world-day-relative windows, exact moth tiers and reward shop,
   grouped fifteen-moth jars, seeded aggregate crowd profiles, capped event and
   Competence points, complete undo, and successful-catch-only private-ground
   ticket consumption. Four tickets have executable ordinary Hunter targets.
@@ -340,10 +337,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   completion is conservative until Darkan exports the sourced stage-40 cavern
   permission. Ordinary Turoth adds its Slayer-55 and exact effective-damage
   routes, source-backed Broad ammunition support, poison immunity, exact
-  ordinary/charm/clue selectors, and generated rare equipment. The sole
-  remaining blocker derived by `tools/audit_slayer_readiness.py` is Mogres.
-  Continue from that generated ledger; do not expose or renormalize the
-  partial master. See
+  ordinary/charm/clue selectors, and generated rare equipment. `tools/audit_slayer_readiness.py` certifies Vannaka at 35/35 with no blockers. Continue from that generated ledger for the other masters; do not reopen Vannaka or renormalize a partial pool. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
   `source-audits/slayer-jelly-combat-2026-07-18.md`, plus
   `source-audits/slayer-bloodveld-combat-2026-07-18.md` and
@@ -627,8 +621,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   and the spawned defender-gated Cyclossus are executable. See
   `source-audits/warriors-guild-live-implementation-2026-07-18.md` and
   `status-updates/warriors-guild-results-2026-07-18.html`
-  (<https://vsx8a7pxsimj.postplan.dev>). Full core and real offscreen Qt
-  discovery each pass all 1,592 tests.
+  (<https://vsx8a7pxsimj.postplan.dev>). That dated closure records full core and real offscreen Qt discovery at 1,592 tests; it is not a current suite count.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
@@ -657,12 +650,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   reachable without bypass flags. Diamond in the Rough's two optional level-80
   hidden-reward actions are separate one-time claims rather than automatic
   quest-completion XP.
-- Shilo Village is now source-backed and playable. Continue the transitive
-  Slayer-helmet route in dependency order: replace Jungle Potion's remaining
-  generated objective buttons; build Big Chompy Bird Hunting, Zogre Flesh
-  Eaters, Rum Deal, and Cabin Fever; then activate Mos Le'Harmless, Cave horrors,
-  the 1/512 Black mask drop, Slayer reward purchases, the 400-point helmet
-  unlock, and Crafting 55 assembly. Preserve every period quest and skill
+- Shilo Village is now source-backed and playable. Jungle Potion, Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal and Cabin Fever have executable quest routes. Continue the remaining Slayer-helmet earning/purchase/assembly dependencies from live readiness and the owner decision queue, preserving the existing Cave-horror target and Black-mask drop. Preserve every period quest and skill
   prerequisite rather than adding Slayer-local waivers.
 - Keep cutoff-live assignment families in the completeness ledger but do not
   render implementation-missing families as locked or coming-soon rows. Derive
@@ -811,8 +799,7 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 - Ordinary training is source/app-pattern resolved under
   `source-audits/summoning-training-2026-07-16.md`: searchable pouch-infusion and scroll-
   creation families process one exact source unit per successful review; Wolf Whistle is
-  optional; Dungeoneering rows stay out of the surface-world catalog. Exact row,
-  acquisition, and route-cost harvesting remains before implementation.
+  optional; Dungeoneering rows stay out of the surface-world catalog. The ordinary catalog is shipped; remaining acquisition and route-cost gaps retain their per-consumer source gates.
 - The old universal `park outside` idea is rejected. Restricted targets need a per-area
   consequence (`block_until_dismissed`, `auto_dismiss`, `summon_only_forbidden`, or
   `spirit_plane_hide`). Starting a target that must dismiss a live familiar opens a
@@ -832,7 +819,7 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
   includes it. Spirit graahk's sourced 60-second Nature circuit replaces the slower route;
   ordinary familiar teleports use the live familiar without consuming another pouch. Void
   shifter reuses Combat retreat only when damage leaves the player alive below 10% LP, with
-  no invented cooldown. Call to Arms remains tied to the future Pest Control activity.
+  no invented cooldown. Call to Arms retains its per-consumer source gate; Pest Control itself is implemented.
 - Magic teleports and charged jewellery share the target-local route-profile substrate.
   Magic's pure training casts remain, while a route cast consumes exact runes and awards
   exact XP once and jewellery consumes one source charge. Bank ownership alone is inert.
@@ -912,13 +899,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
   Death to the Dorgeshuun, and Mourning's End Part I for major methods.
 - Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
   its reachable chain because the quest gates Sumona and the entire reward-point
-  economy. That direct chain is now playable; the next Slayer-raised quest work
-  is Jungle Potion fidelity, followed by the remaining transitive black-mask /
-  Slayer-helmet route.
-- Shilo Village is now source-backed and playable. The remaining route stays at
-  the front of this quest program in dependency order: Jungle Potion fidelity,
-  Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal, and Cabin Fever before
-  Mos Le'Harmless, Cave horrors, the black-mask drop, and helmet assembly. The
+  economy. That direct chain and Jungle Potion are playable; continue the remaining Slayer-helmet reward dependencies rather than rebuilding their landed quest routes.
+- Shilo Village is now source-backed and playable. Jungle Potion, Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal and Cabin Fever also have executable routes. Select remaining quest work by the 2026-10-28 whole-quest priority rule; preserve the existing Cave-horror and black-mask routes while their reward dependencies expand. The
   period quest tree is transitive, not limited to a manually named subset;
   already-playable prerequisites are reused and generated placeholders are
   replaced through the canonical runtime.
@@ -937,7 +919,7 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Remaining waits include Runespan; Bonfires/fire spirits; Artisan's Workshop; Blast Furnace/Goldsmith; and unrecovered pyre/beacon, Hunter tracking/pitfall/snaring and Habitat/Jadinko depth. Living rock remains, Gnome Restaurant and live Hunter tracking/Habitat sub-slices are implemented; select a missing consumer or source value rather than rebuilding the whole family.
 - Great Orb Project is mechanic-complete as an Activities-only eight-round
   Runecrafting match. It ships the level-50 gate, bounded team score, distinct
   orb/barrier participation, round essence, ordinary rune multipliers, double
@@ -960,7 +942,7 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped
-  hood, fed access, real pack space, one non-stacking 240-answer allowance
+  hood, fed access, real pack space, one non-stacking world-day allowance
   pool, persistent loss/reclaim state, and direct/review undo. Elemental and
   Omni feeds are reachable through Great Orb Project. Runespan outfit
   acquisition and session mechanics remain source-blocked; only the hood's
@@ -1129,53 +1111,14 @@ decodes are pinned. The next step is to re-walk only client-side
 `source_blocked` rows. None of this reaches server-side mechanics, which is most
 of what sits `source_blocked`.
 
-Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
-
-We hold seven OpenRS2 builds at `~/Library/Caches/codex/2012scape-openrs2/`,
-including rev 741 (2012-11-04), sixteen days before cutoff. We read almost none
-of it: `tools/query_openrs2_cache.sh` and its definition sibling cover item and
-object definitions only. This paragraph is the historical pre-tool state:
-enums, structs, params, and interface definitions are now readable. See
-`source-audits/ge-offer-price-controls-2026-07-24.md`.
-
-**Why this is cheap.** The deobfuscated client at
-`~/Documents/2012scape with bots/darkan-client/src/main/java/com/rs/jagex/`
-already contains the decoder: `CS2Instruction.java` is a complete named opcode
-enum for this revision (1,042 lines), and `CS2Script.java`, `CS2Interpreter`,
-`CS2Executor` and `ScriptRunner` load and run the scripts. A **disassembler** —
-linear named-opcode listing per script id — reuses that decoder and needs only a
-printer. Full control-flow decompilation into `if`/`while` is a bigger job and is
-usually unnecessary: reading arithmetic off a linear listing is enough.
-
-**Why it will answer real questions.** `STORE_VARP` is opcode 929, so client
-scripts write varps directly. Any interface behaviour the client computes locally
-is therefore recoverable as genuine Jagex data rather than reconstruction: offer
-price arithmetic, display formatting and rounding, requirement text, tooltip
-thresholds, client-side gating.
-
-**Be honest about the ceiling.** This unblocks *client-side* facts only. XP
-rates, drop tables, success chances, timers, loot weights and every hidden roll
-lived on a server that was never released, and that is most of what sits
-`source_blocked` in the parity ledger. Do not sell this as a general parity
-oracle, and do not let it reopen items that are blocked for server-side reasons.
-
-Suggested order, highest aggregate value first:
-
-1. ~~Extend cache search to **enums, structs and params**.~~ Shipped
-   2026-08-03 as `tools/query_openrs2_cache_configs.sh`.
-2. **Interface definitions**: component ids, text, hidden flags. Cheap, and it
-   makes every future UI-parity question answerable.
-3. The **CS2 disassembler**, then harvest the GE offer interface out of rev 741
-   and settle the price-button arithmetic as the first real test.
-4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
-   and clear the ones this now reaches. Leave server-side blocks alone.
+The cache/config/interface readers and CS2 disassembler are shipped. Their historical implementation proposal is in [the shipped-card archive](archive/kanban-shipped-2026.md#cs2-reader-proposal--historical). Re-walk only client-side source gaps; do not schedule these tools again from the old proposal.
 
 ### In-product help and mechanics reference
 
 Labels: `SHIPPED: HELP CENTER`, `SHIPPED: DETAILS`, `QA: FABLE BLOCKED`.
 
 - The single-source Help Center from `help-system-contract-2026-07-16.md` is
-  shipped: 18 offline versioned topics, contextual `?` entry from all nine
+  shipped: the offline versioned topics in `help_topics/`, contextual `?` entry from all nine
   primary pages, shared search, All topics, related links, and history.
 - `CatalogFilterBar` remains the shared Qt search seam; Help owns only its
   corpus adapter and does not duplicate contextual copy or maintain an
@@ -1191,7 +1134,7 @@ Labels: `SHIPPED: HELP CENTER`, `SHIPPED: DETAILS`, `QA: FABLE BLOCKED`.
 
 ### Activities, minigames, D&Ds, and reward shops
 
-Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
+Labels: `DESIGN CLOSED`, `BREADTH SHIPPED`, `SOURCE AUDIT`.
 
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
@@ -1214,8 +1157,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   than unimplemented mechanics.
 - Soul Wars now owns the complete twelve-beat objective match, participation,
   safe-death Combat, exact Zeal, representative charm shop, persistence,
-  arbitration, cadence, undo, UI, and normalized assets. Continue with the
-  already-harvested Shades of Mort'ton shared integration.
+  arbitration, cadence, undo, UI, and normalized assets. Shades of Mort'ton activity mechanics are also integrated; its generated quest-stage objectives remain separate quest-fidelity work.
 - Barbarian Assault owns the complete tutorial → ten-wave → persistent
   eight-egg Queen → four-wallet settlement loop, Runner-boots purchase,
   persistence, arbitration, cadence, undo, UI, and normalized assets. Its
@@ -1262,77 +1204,10 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,549
-  actions, 2,413 reachable items, and 117 orphan inputs
-  across planned skills, activities, Combat/world acquisition, Farming, and
-  potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
-  vial/flask conversions make potion dose variants known-producer cascades;
-  live Farming sapling, harvest, and
-  tree-root routes prevent ordinary produce from appearing as false root gaps;
-  the level-23 Goat now closes the Desert-goat-horn -> dust -> Combat-potion
-  chain; the ordinary Stronghold gathering route now closes Swamp toad ->
-  Toad's legs -> Agility potion; Cooking's singular byproduct shape now
-  correctly exposes the already-live Fish-offcuts route; the player-grown
-  Willow route closes Willow branch; live Thieving loot now exposes the
-  Master Farmer seed routes instead of false root gaps. See the dated audits
-  for method and `activeContext.md` for the live count.
-- **Closed 2026-08-09:** the seven ordinary Taverley blue-dragon-scale spawns
-  now run through the established zero-XP Utility gathering route. Exact item
-  identities and normalized period sprites activate the existing scale → dust
-  → Weapon poison/Antifire chain without a placeholder. Reachability is now
-  1,548 actions, 2,377 reachable items, 137 orphan inputs, and 148 blocked
-  actions. See
-  `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
-- **Tooling 2026-08-09:** use
-  `python3 tools/audit_item_reachability.py --rank-roots N` to rank the
-  remaining authentic root-acquisition candidates by simulated transitive
-  item/action recovery. The score is prioritization evidence, never period
-  source evidence. See
-  `audits/item-reachability-leverage-ranking-2026-08-09.md`.
-- **Closed 2026-08-09:** the three ordinary first-level Kalphite-Hive Potato
-  cactus spawns now run through the established zero-XP Utility gathering
-  route. Exact item identity and normalized period art activate 20 downstream
-  item paths and 19 actions, including the complete Magic-potion chain.
-  Reachability is now 1,549 actions, 2,397 reachable items, 124 orphan inputs,
-  and 129 blocked actions. See
-  `source-audits/potato-cactus-acquisition-2026-08-09.md`.
-- **Closed 2026-08-09:** Tokkul is now a live inventory currency across the
-  three cutoff TzHaar shops. All 23 stock rows use their period tables, the
-  shops are player-buy only, and one Uncut onyx costs exactly 2,700,000 Tokkul.
-  This activates 16 downstream item paths and 11 actions without a placeholder
-  or new UI pattern. Reachability is now 1,549 actions, 2,413 reachable items,
-  117 orphan inputs, and 118 blocked actions. See
-  `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.
-- **Closed 2026-07-20:** the period player-grown Willow route now exposes
-  post-health-check branches every five era-minutes to a six-branch cap,
-  accepts either Secateurs variant, awards zero pruning XP, and preserves Chop
-  as the primary tree action. The live graph is now 1,344 actions, 1,999
-  reachable items, 237 orphan inputs, and 249 blocked actions; see
-  `source-audits/farming-willow-branch-acquisition-2026-07-20.md`.
+- Run `python3 tools/audit_item_reachability.py --json` for the live action, item, orphan and completable-quest census. Pins live in `tests/reachability/test_report_baseline.py`. The report measures declared routes and runtime-gated acquisition, not full historical fidelity. Bob Barter/Teplin dose routes, Farming products, goat horn, swamp toad, fish offcuts, Willow branch and Master Farmer seeds are already modeled; do not redispatch them from an old count.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
-- **Closed 2026-07-20:** canonical registry metadata now marks empty vial/flask
-  containers and every vial/flask potion dose unstackable, matching the
-  cache-derived runtime set and the established carried-slot model. See
-  `source-audits/potion-container-stackability-correction-2026-07-20.md`.
-- **Closed 2026-07-20:** Teplin Macagan now fills new six-dose flasks and
-  reverses eligible partial flasks after the authentic quest gate, with exact
-  dose/container conservation, direct undo, complete registered potion art,
-  and native-Anki UI proof. See
-  `source-audits/teplin-potion-flask-decanting-2026-07-20.md`.
-- **Closed 2026-07-20:** the complete empty Potion flask chain is live:
-  quest-gated level-81 Red sandstone mining with a 50-success review-day cap,
-  free no-XP Robust glass conversion under Utilities, and level-89/100-XP
-  Potion flask glassblowing with a held pipe. Utilities and Activities are
-  distinct navigation surfaces over the shared no-XP runtime. See
-  `source-audits/potion-flask-acquisition-2026-07-20.md`.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
-- **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct
-  Hunter 95 action with its exact Hunter and Agility XP awards and no captured
-  item. The prior XP/hour-audit gap remains useful evidence that missing method
-  variants must be checked separately from item identity; see
-  `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
-
 ### Achievement diaries, clues, collections, and one-time content
 
 Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidden.
@@ -1349,14 +1224,14 @@ Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidde
   replaces the percentage-grant stub with the cutoff-faithful eight-family
   diary structure, Burthorpe/Taverley and Miscellaneous sets, Taskmaster
   translation, cape ladder, Completionist contract, and passive Music Log.
-  Implementation remains blocked on the source catalogs listed in that file.
+  Diary catalogs, curation wiring, task text, Taskmaster and Music Log are implemented. Remaining planned-system deed dependencies and reward effects belong to the curation ledger and live consumers, not a whole-diary implementation blocker.
 - **Blocked on this card:** the Ardougne cloak's Thieving bonus (Darkan gives +0.1 to the blackjack knock-out roll). Switch it on when diaries land rather than rediscovering it.
 
 ### Random events and timed world content
 
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
-- Use the global 240-reviews-per-day clock for world/economy cadence only.
+- Use the configured or adaptive answered-card world day for world/economy cadence only; `logic/pace/world_clock.py` owns the boundary and length.
 - Decide visibility, opt-in/interrupt behavior, expiry, missed events, rewards, persistence, and undo without adding a world map.
 
 ### Item examine texts
@@ -1378,27 +1253,8 @@ Labels: `DESIGN AUDIT`, `MODERN LEAD ONLY`, `NO PARITY CLAIM`.
 
 ### Grand Exchange
 
-Labels: `COMPLETE`, `DESIGN LOCKED`.
-
-- Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
-- NPC shops are already live. Owner decision 2026-07-19: the item-breadth
-  sequencing gate is removed — GE implementation may proceed now, alongside
-  the ongoing item-universe work, rather than waiting for it. Prices and
-  limits for not-yet-obtainable items simply stay dormant until their items
-  exist.
-- **Full closure shipped 2026-07-19:** cache `exchangeable` extraction,
-  the registered-item catalog intersection, period-six-slot offer/escrow
-  lifecycle, confirmation gates, Ironman lockout, and save migration are
-  implemented.
-  The period price/buy-limit harvest now supplies 1,330 direct prices and 1,640
-  limits across 1,659 registered items, with 19 ambiguous identities
-  fail-closed. The bounded hidden-price
-  market, stochastic fills, impact/shocks, live review ticks, and deterministic
-  review undo are implemented. The top-level period interface, offer editing,
-  configurable safety controls, persistent completion notice, and no-XP
-  Bankstanding fallback are live. `grand-exchange-slot-count-supersession-2026-07-19.md`
-  supersedes the older eight-slot/±20% clauses. See
-  `source-audits/grand-exchange-interface-bankstanding-2026-07-19.md`.
+The shipped card is in [the shipped-card archive](archive/kanban-shipped-2026.md#grand-exchange).
+Preserve the live market, Ironman restriction, offers/escrow, pricing and undo; broader item metadata and registered source-depth gaps remain with their owning cards.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant
 

@@ -20,7 +20,7 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 - Use the configured or adaptive world-day length for background, world, and economy cadence. Change the length only at a day boundary.
 - Use target-local inventory, equipment, risk, and options rather than global player location.
 - Do not build a world map or standalone transportation network.
-- Do not expose inert “coming soon” targets or rewards; content is visible only when it works end to end, except authentic player-state locks on working content.
+- Expose playable loops and authentic progression locks. The owner-approved exception for unfinished quests is “Coming soon” with disabled Start/Continue and corresponding dependent-content locks (`memory-bank/grill-decisions-2026-10-28.md`, rulings 13 and 17); its implementation remains queued.
 
 ## Foundation
 
