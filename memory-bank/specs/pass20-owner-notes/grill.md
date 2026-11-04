@@ -25,6 +25,10 @@ Each question lists the recommendation the owner answered.
 17. The Wilderness confirmation appears when the entry is added. At a queue change, an entry that cannot start is skipped with a log and Review HUD line and no popup. A popup appears only when the queue has nothing to continue with. Owner: "17. Yes"
 
 Later on 12: "12. Should a bank run really be only 12 ticks though? Shouldn't we scale it based on a rough guesstimate from how long it would realistically take to bank? And then we can have agility play into it, as we had been"
+18. A Combat bank run takes 100 ticks (60 seconds) for every target, a Placeholder with no period source. Remaining card ticks pay first and the fight continues. Agility takes 7% off at level 99, and light gear takes a little more. Owner: "18 ok"
+19. Rest takes 180 ticks and grave recovery 300 ticks at every speed. Owner: "19. Ok"
+20. Automatic item steps go into the 67 quests that do not stop at a required action: 23 clear stops, and each of 47 others after one check against the period guide under rulings 8 and 9. The 131 others go to the Sol loop as briefs. Owner: "20. Ok"
+21. The physical switch applies to the 2 steps that stop a quest: Witch's House gloves and Demon Slayer's Silverlight. Owner: "21. Ok"
 
 Decided without a question: a double click in any of the 27 search boxes selects the whole phrase.
 
