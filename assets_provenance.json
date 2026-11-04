@@ -7574,6 +7574,26 @@
     "source_wiki": "rs3",
     "timestamp": "2010-08-04T12:18:52Z"
   },
+  "combatitems/abyssal_whip.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Abyssal_whip.png",
+    "file_title": "Abyssal whip.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082524%21Abyssal_whip.png?23ffe",
+    "mime": "image/png",
+    "sha1": "995ecc4a8be3acdd25b1e06cafc460ef4338801c",
+    "size": 602,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-02T03:16:58Z"
+  },
+  "combatitems/adamant_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Adamant_armoured_boots.png",
+    "file_title": "Adamant armoured boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502003513%21Adamant_armoured_boots.png?fa2f8",
+    "mime": "image/png",
+    "sha1": "61baf643e6ad209d6107c639fbd23df73b0a6be1",
+    "size": 799,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-09T17:42:04Z"
+  },
   "combatitems/adamant_defender.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_defender.png",
     "file_title": "Adamant defender.png",
@@ -7585,6 +7605,18 @@
     "size": 271,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T20:15:47Z"
+  },
+  "combatitems/adamant_spear.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Adamant_spear.png",
+    "file_title": "Adamant spear.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502003803%21Adamant_spear.png?fbca5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c84aeca86e54be116b9ba3f07240cb59dfc1f469",
+    "size": 299,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-19T22:38:33Z"
   },
   "combatitems/ahrim_s_staff.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ahrim%27s_staff.png",
@@ -7684,6 +7716,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-11-19T22:38:41Z"
   },
+  "combatitems/black_knife.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_knife.png",
+    "file_title": "Black knife.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013517%21Black_knife.png?04cc6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "668fb9ec4506260f8b0c9665f33080b4de14a325",
+    "size": 273,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-19T22:38:46Z"
+  },
   "combatitems/black_mace.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_mace.png",
     "file_title": "Black mace.png",
@@ -7695,6 +7739,28 @@
     "size": 372,
     "source_wiki": "rs3",
     "timestamp": "2012-11-19T22:38:49Z"
+  },
+  "combatitems/black_mask_10.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_mask.png",
+    "file_title": "Black mask.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072342%21Black_mask.png?8cb1e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b28ed87832b4a701170a12b2c9f53f26859dbb49",
+    "size": 450,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T02:53:25Z"
+  },
+  "combatitems/black_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_wizard_robe_top.png",
+    "file_title": "Black wizard robe top.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013702%21Black_wizard_robe_top.png?f61e1",
+    "mime": "image/png",
+    "sha1": "c184dcb22a4c5a2202befd45a2cefafedc373bfe",
+    "size": 697,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-01T03:22:04Z"
   },
   "combatitems/black_scimitar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_scimitar.png",
@@ -7767,6 +7833,16 @@
     "size": 352,
     "source_wiki": "rs3",
     "timestamp": "2010-10-03T20:34:39Z"
+  },
+  "combatitems/bronze_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_armoured_boots.png",
+    "file_title": "Bronze armoured boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20130718202732%21Bronze_armoured_boots.png?c1661",
+    "mime": "image/png",
+    "sha1": "1961556d363df477fac46c848a7505c4fb1c7438",
+    "size": 637,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-21T02:52:11Z"
   },
   "combatitems/bronze_defender.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_defender.png",
@@ -8020,6 +8096,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-03-17T16:12:26Z"
   },
+  "combatitems/dragon_chainbody.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_chainbody.png",
+    "file_title": "Dragon chainbody.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502030608%21Dragon_chainbody.png?e0962",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d63951c0f4792f4efec35765fac316a8aad6afa0",
+    "size": 1480,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-19T20:42:32Z"
+  },
   "combatitems/dragon_defender.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragon_defender.png",
     "file_title": "Dragon defender.png",
@@ -8031,6 +8119,40 @@
     "size": 1404,
     "source_wiki": "rs3",
     "timestamp": "2012-10-22T08:21:48Z"
+  },
+  "combatitems/dragon_med_helm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_helm.png",
+    "file_title": "Dragon helm.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502030648%21Dragon_helm.png?75c87",
+    "mime": "image/png",
+    "sha1": "a16fe255f18a6f0b8ec931ccfddce757be9c63c4",
+    "size": 2047,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-06T19:04:47Z"
+  },
+  "combatitems/dragon_platelegs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_platelegs.png",
+    "file_title": "Dragon platelegs.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502030731%21Dragon_platelegs.png?de52e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3185050cefa918e18be3d5490d4009767df00d91",
+    "size": 2035,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-06T19:18:48Z"
+  },
+  "combatitems/dragon_plateskirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_plateskirt.png",
+    "file_title": "Dragon plateskirt.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502030742%21Dragon_plateskirt.png?cc47f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "555fbfca02c95d7dad2f6b34ef1fc45c224f6fc1",
+    "size": 1613,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-08T04:55:39Z"
   },
   "combatitems/dragon_spear.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_spear.png",
@@ -8127,6 +8249,18 @@
     "size": 1166,
     "source_wiki": "rs3",
     "timestamp": "2012-08-30T00:07:51Z"
+  },
+  "combatitems/granite_maul.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Granite_maul.png",
+    "file_title": "Granite maul.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511074801%21Granite_maul.png?fc675",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b0b3d7b637c18ee10377049bc4da290954b8d2fd",
+    "size": 417,
+    "source_wiki": "rs3",
+    "timestamp": "2010-08-06T15:51:14Z"
   },
   "combatitems/green_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Green_charm.png",
@@ -8271,6 +8405,18 @@
     "size": 375,
     "source_wiki": "rs3",
     "timestamp": "2011-11-22T23:32:18Z"
+  },
+  "combatitems/iron_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Iron_armoured_boots.png",
+    "file_title": "Iron armoured boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20120730203654%21Iron_armoured_boots.png?c3b7b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "88ca23e08d24a125c5f30c29b9b2794d28d7ee0b",
+    "size": 908,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-21T02:52:40Z"
   },
   "combatitems/iron_defender.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_defender.png",
@@ -8440,6 +8586,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-03-19T20:42:34Z"
   },
+  "combatitems/mystic_fire_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Staff_of_fire.png",
+    "file_title": "Staff of fire.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121204736%21Staff_of_fire.png?de0c1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0b60d0a83bbf56115df2349a7739690640c57ab0",
+    "size": 350,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-03T05:23:56Z"
+  },
   "combatitems/mystic_hat_dark.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dark_mystic_hat.png",
     "file_title": "Dark mystic hat.png",
@@ -8524,6 +8682,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-08-06T02:08:34Z"
   },
+  "combatitems/ogre_arrows.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ogre_arrow_1.png",
+    "file_title": "Ogre arrow 1.png",
+    "image_url": "https://runescape.wiki/images/archive/20160503054115%21Ogre_arrow_1.png?a3588",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "54b10cdc28be6c1bcf59c596357465ce33280fc6",
+    "size": 195,
+    "source_wiki": "rs3",
+    "timestamp": "2010-08-08T06:51:01Z"
+  },
   "combatitems/oyster.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Oyster.png",
     "file_title": "Oyster.png",
@@ -8559,6 +8729,40 @@
     "size": 445,
     "source_wiki": "rs3",
     "timestamp": "2012-05-22T14:32:06Z"
+  },
+  "combatitems/rune_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rune_armoured_boots.png",
+    "file_title": "Rune armoured boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071049%21Rune_armoured_boots.png?8be83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ca7658f324a87a81d6ed2f70179d1514ace757f7",
+    "size": 1591,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-25T01:12:22Z"
+  },
+  "combatitems/rune_dart.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rune_dart.png",
+    "file_title": "Rune dart.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070512%21Rune_dart.png?0927d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d1d06ada5c0bc82b4151e18fd7b35bef9b0cfd18",
+    "size": 356,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T23:44:49Z"
+  },
+  "combatitems/rune_dart_p.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rune_dart_%28p%29.png",
+    "file_title": "Rune dart (p).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075846%21Rune_dart_%28p%29.png?1bbed",
+    "mime": "image/png",
+    "sha1": "2d61c2cfe1ece31295c9d1fdcbc76153c7b4bdd1",
+    "size": 426,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T23:42:39Z"
   },
   "combatitems/rune_defender.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_defender.png",
@@ -8619,6 +8823,16 @@
     "size": 356,
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T06:07:09Z"
+  },
+  "combatitems/shade_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shade_robe_top.png",
+    "file_title": "Shade robe top.png",
+    "image_url": "https://runescape.wiki/images/archive/20140708074242%21Shade_robe_top.png?81d24",
+    "mime": "image/png",
+    "sha1": "4cb2d1957dc981b44f51b105949d24e259e1e7dd",
+    "size": 1170,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T12:48:02Z"
   },
   "combatitems/shears.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Shears.png",

@@ -79,26 +79,29 @@ def _add_plural_aliases(
             exchangeable.add(alias)
 
 
+# Rev-742 item 581 uses Black robe top; drops retain its older Black robe name.
+_CACHE_NAME_ALIASES = {
+    "Black robe": "Black robe top",
+    "Mystic hat (dark)": "Mystic hat",
+    "Mystic hat (light)": "Mystic hat",
+}
+
+
 def _add_cache_name_aliases(values: Dict[str, int], exchangeable: set) -> None:
-    for pouch in _SUMMONING_POUCHES:
-        cache_name = _POUCH_CACHE_NAMES_BY_ID.get(pouch.pouch_item_id)
-        if (
-            cache_name is not None
-            and cache_name in ITEM_VALUES_GENERATED
-            and pouch.pouch_name not in ITEM_VALUES_GENERATED
-        ):
-            values[pouch.pouch_name] = ITEM_VALUES_GENERATED[cache_name]
+    aliases = {
+        pouch.pouch_name: _POUCH_CACHE_NAMES_BY_ID[pouch.pouch_item_id]
+        for pouch in _SUMMONING_POUCHES
+        if pouch.pouch_item_id in _POUCH_CACHE_NAMES_BY_ID
+    }
+    aliases.update(_CACHE_NAME_ALIASES)
+    for name, cache_name in aliases.items():
+        if cache_name in ITEM_VALUES_GENERATED and name not in ITEM_VALUES_GENERATED:
+            values[name] = ITEM_VALUES_GENERATED[cache_name]
             if cache_name in exchangeable:
-                exchangeable.add(pouch.pouch_name)
+                exchangeable.add(name)
     # Rev-727/742 item 5014 uses this state-qualified storage key.
     if "Mining helmet" in exchangeable:
         exchangeable.add("Mining helmet (unlit)")
-    # Rev-727/742 worn variants share their cache name and value with the blue hat.
-    for name in ("Mystic hat (dark)", "Mystic hat (light)"):
-        if "Mystic hat" in ITEM_VALUES_GENERATED and name not in ITEM_VALUES_GENERATED:
-            values[name] = ITEM_VALUES_GENERATED["Mystic hat"]
-            if "Mystic hat" in exchangeable:
-                exchangeable.add(name)
 
 
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str]]":

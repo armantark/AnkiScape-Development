@@ -110,6 +110,8 @@ you are in the game, with the date the change reached main.
 
 ## Bank, shops and items
 
+- [ ] In Bank and Grand Exchange, with Auto-categories on, check Adamant boots in light and dark mode at the default size and 560 points tall: its icon shows, the Bank hover says "Requires level 30 Defense", and the GE row has guide value 1,920 Coins and buy limit 100; buy, wear, remove and sell one pair. (Pass 20 ticket 11, after promotion)
+
 - [ ] In Grand Exchange, buy and sell Mystic hat (dark) and Mystic hat (light), answer cards for fills, cancel an offer and collect its remainder, then reload; each variant keeps its identity, each buy limit is 100, and Edit > Undo (Cmd+Z) restores the complete prior state. (after promotion)
 - [ ] Buy an unattached hatchet from Bob and attach it in the Bank: My Axe Is My Buddy completes once; Edit > Undo (Cmd+Z) restores the hatchet and removes the deed, replay restores it, and reopening keeps it. A refused attachment gives no credit. (2026-10-17)
 - [ ] After Family Crest, discard your only gauntlet pair in Bank, open Cooking > Shark Target Details and recover the pair from Dimintheis: the remembered gauntlets return free and Varrock Hard's Hand-Me-Downs completes once; Edit > Undo (Cmd+Z) removes both, replay restores both, and reopening keeps the deed. (after native acceptance)
