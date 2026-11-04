@@ -29,9 +29,11 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    successful card buys `6 × M` game ticks (owner decision 4, 2026-10-15): Combat
    spends them in one engine call, and every other handler takes one six-tick
    kernel step per call until the card is spent or a boundary stops it; ratios are
-   preserved. Quests and Dungeoneering keep one stage or room per card at every
-   speed, a deliberate divergence because they already outpace 2012 at `M = 1`
-   (owner-accepted assumption, 2026-10-15). A stun ends the card and owes its
+   preserved. Quest non-fight steps and Dungeoneering rooms keep one per card
+   at every speed, because they already outpace 2012 at `M = 1`
+   (owner-accepted assumption, 2026-10-15). Consecutive quest fights share the
+   card's remaining ticks; a fight-only stage advances inside the card
+   (Pass 20, owner answer 15). A stun ends the card and owes its
    ticks to the running budget, which the next card pays first, so no tick is
    forfeited (owner decision 5, ruling F4). The speed is a game-speed override
    and is explicitly **not** part of source parity.
@@ -92,8 +94,10 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
   takes 180 ticks and a chosen grave walk takes 300 ticks at every speed. A departing familiar caps the card
   at its remaining lifetime. Step actions check danger after each step, including
   a new stun and a skilling bank trip. Unspent ticks lapse, except that stun and
-  partial-step debt follow the running budget. Activities and quest combat keep
-  their explicit kill and terminal boundaries.
+  partial-step debt follow the running budget. Activities keep their explicit
+  kill and terminal boundaries. A quest kill passes remaining ticks only to
+  another fight, advancing a fight-only stage inside the card when needed.
+  Quest non-fight steps keep their own card, and every danger stop ends it.
 
 ## 4. The kernel
 
@@ -223,7 +227,7 @@ has no classification.
 | Source-compatible Cooking/Firemaking | `embedded_probability`: one authentic attempt and roll, no second gate |
 | Exact deterministic artisan rows | `rate_limited` when the runtime conditions match the cited row |
 | Source-incompatible or unsourced routes | Approved passthrough behavior with `source_blocked` evidence status |
-| Quests | Finite stage progression; one collapsed stage per card at every speed |
+| Quests | One non-fight step per card; consecutive fights share the remaining tick budget and fight-only stages advance inside the card |
 | Utility/Activities | One six-tick step per call; a kill, death, flee, wave, round or finished performance ends the card, and a grouped activity never starts a second run in it |
 | Farming | Queued steps take the card's first six-tick steps and the selected action the rest; the growth clock stays on the world clock |
 

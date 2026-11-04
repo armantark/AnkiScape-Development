@@ -1,5 +1,4 @@
-"""Quest reviews, split out of runtime_actions_production.py: one quest stage or
-battle per review, and the notice when the quest completes."""
+"""Quest stages and consecutive battles, and the notice when a quest completes."""
 
 from __future__ import annotations
 
@@ -11,6 +10,7 @@ from ..core.last_action import quest_blocked_message
 from ..core.equipment_change import prepare_quest_equipment_pure, release_quest_equipment_pure
 from ..logic.bar_crawl_logic import apply_bar_crawl_drink_effects_pure
 from ..logic_pure.logic_pure import (
+    _quest_current_stage_selected_requirements,
     apply_quest_combat_encounter_pure,
     apply_quest_progress_pure,
     can_start_quest_pure,
@@ -36,7 +36,7 @@ from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, to
 from ..logic_pure.quest.another_cook import (
     another_cook_phase_pure, another_cook_progress_message_pure,
 )
-from .runtime_actions_context import RuntimeActionContext
+from .runtime_actions_context import RuntimeActionContext, _step_with_danger_stop
 from .runtime_actions_shared import (
     _combat_review_ticks,
     _record_action,
@@ -53,7 +53,7 @@ def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reason
     ctx.show_error_message("Quest blocked", quest_blocked_message(quest_name, reasons))
 
 
-def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], encounter_id: Any) -> bool:
+def _answer_quest_fight(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], encounter_id: Any) -> dict[str, Any] | None:
     player_data = ctx.player_data
     new_data, ok, result = apply_quest_combat_encounter_pure(
         player_data,
@@ -72,7 +72,7 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
             "Quest combat blocked",
             f"{quest.get('display_name', quest_id)} cannot resolve this battle yet.",
         )
-        return False
+        return None
     player_data.update(release_quest_equipment_pure(new_data, quest_id, QUEST_DATA))
     _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
@@ -88,7 +88,7 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
     if xp_total > 0:
         ctx.show_exp(xp_total)
     _announce_quest_combat(ctx, result)
-    return True
+    return result
 
 
 def _announce_quest_combat(ctx: RuntimeActionContext, result: dict[str, Any]) -> None:
@@ -106,6 +106,45 @@ def _announce_quest_combat(ctx: RuntimeActionContext, result: dict[str, Any]) ->
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
         )
+
+
+def _next_quest_fight(ctx: RuntimeActionContext, quest_id: str) -> str | None:
+    fights = quest_current_stage_resolvable_combat_blockers_pure(ctx.player_data, quest_id, QUEST_DATA)
+    if fights:
+        return fights[0]["encounter_id"]
+    rows, blockers = _quest_current_stage_selected_requirements(ctx.player_data, quest_id, QUEST_DATA)
+    # Item work and automatic deeds keep their own card, even when their
+    # prerequisites are already held. Only a fight-only stage can collapse.
+    deeds = ("consumed_inventory", "consumed_inventory_options", "produced_inventory", "auto_actions", "repeatable_until_consumed")
+    if blockers or not any(row.get("combat_encounters") for row in rows):
+        return None
+    if any(row.get(key) for row in rows for key in deeds):
+        return None
+    candidate, ok, completed = apply_quest_progress_pure(ctx.player_data, quest_id, QUEST_DATA)
+    fights = quest_current_stage_resolvable_combat_blockers_pure(candidate, quest_id, QUEST_DATA)
+    if not ok or completed or not fights:
+        return None
+    ctx.player_data.update(candidate)
+    return fights[0]["encounter_id"]
+
+
+def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], encounter_id: Any) -> bool:
+    while encounter_id:
+        result = _step_with_danger_stop(ctx, lambda scoped: _answer_quest_fight(scoped, quest_id, quest, encounter_id))
+        if result is None:
+            return False
+        if not ctx.cadence_live_enabled:
+            break
+        elapsed = int(result.get("ticks_elapsed", 0))
+        ctx.card.combat_ticks_spent += elapsed
+        ctx.card.record_tick_stop(elapsed, ctx.card.stop_reason or result.get("stop_reason", ""))
+        ctx.card.ticks_remaining = max(0, ctx.card.ticks_remaining - elapsed)
+        if ctx.card.stop_reason or not result.get("killed"):
+            break
+        encounter_id = _next_quest_fight(ctx, quest_id)
+        if not ctx.card.ticks_remaining:
+            break
+    return True
 
 
 def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], clue_reward_refusal_reason: Any) -> None:
