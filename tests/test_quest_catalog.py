@@ -2399,7 +2399,6 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertNotIn("Slayer 33", quest["requirements"])
         self.assertEqual(tuple(by_stage), tuple(range(1, 6)))
         self.assertTrue(all(not row["required_actions"] for row in by_stage.values()))
-
         herb_rows = (
             (1, "Grimy snake weed", "Clean snake weed", 1525, 1526),
             (2, "Grimy ardrigal", "Clean ardrigal", 1527, 1528),
@@ -2409,9 +2408,10 @@ class TestQuestCatalog(unittest.TestCase):
         )
         item_by_name = {item.storage_key: item for item in ITEM_DEFINITIONS}
         for stage, grimy_name, clean_name, grimy_id, clean_id in herb_rows:
-            self.assertEqual(by_stage[stage]["produced_inventory"], {grimy_name: 1})
+            search = quest["supply_recipes"][(stage - 1) * 2]["action"]
+            self.assertEqual((by_stage[stage]["produced_inventory"], search["output_item"]), ({}, grimy_name))
             self.assertEqual(by_stage[stage]["consumed_inventory"], {clean_name: 1})
-            self.assertTrue(by_stage[stage]["repeatable_until_consumed"])
+            self.assertFalse(by_stage[stage]["repeatable_until_consumed"])
             self.assertEqual(item_by_name[grimy_name].source_item_id, grimy_id)
             self.assertEqual(item_by_name[clean_name].source_item_id, clean_id)
 
