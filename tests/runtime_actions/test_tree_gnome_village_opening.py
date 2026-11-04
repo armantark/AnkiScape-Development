@@ -1,4 +1,4 @@
-"""Tree Gnome opening reviews stop at Montai's six-log handoff."""
+"""Tree Gnome opening reviews gather missing logs before Montai's atomic handoff."""
 
 import copy
 import random
@@ -83,13 +83,12 @@ class TreeGnomeVillageOpeningTest(unittest.TestCase):
         self.assertTrue(handle_quest_answer(_context(player)))
         before = copy.deepcopy(player)
         calls = {"xp": [], "saves": 0, "errors": []}
-        self.assertFalse(handle_quest_answer(_context(player, calls)))
-        self.assertEqual(player, before)
-        self.assertEqual(calls["saves"], 0)
-        self.assertEqual(calls["errors"], [("Quest blocked", "Tree Gnome Village is blocked:\n• Needs Logs x6\n\nQuesting has been switched off until this is resolved.")])
-        self.assertTrue(handle_woodcutting_answer(_context(player, random_values=(0.0,) + (0.99,) * 20)))
-        self.assertEqual(player["inventory"]["Logs"], 6)
-        self.assertEqual(player["woodcutting_exp"], 150.0)
+        self.assertTrue(handle_quest_answer(_context(player, calls)))
+        self.assertEqual(player["inventory"], {**before["inventory"], "Logs": 6})
+        self.assertEqual(player["quests"][QUEST_ID], before["quests"][QUEST_ID])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(player["woodcutting_exp"], 125.0)
         inventory = copy.deepcopy(player["inventory"])
         experience = {key: value for key, value in player.items() if key.endswith("_exp")}
         self.assertTrue(handle_quest_answer(_context(player)))
