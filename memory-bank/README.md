@@ -13,7 +13,7 @@ their owning workstream requires deeper context.
 - [Technical Context](techContext.md): runtime, tooling, evidence, and test environment.
 - [Progress](progress.md): chronological completion ledger.
 - [Goal priority matrix](goal-priority-matrix.md): selection authority for the implementation goal.
-- The newest `pickup-*.md` (currently [pickup-2026-10-03.md](pickup-2026-10-03.md)): latest handoff and preserved work.
+- [October goal pickup](pickup-2026-10-03.md): resume and acceptance boundaries; [Active Context](activeContext.md) and [Progress](progress.md) own later work.
 - [Completion Kanban](future-work-kanban.md): product-wide parity and depth backlog.
 - [Class rulings](grill-decisions-2026-10-25.md): owner rulings that settle whole classes of contract questions
   (Darkan where the period sources are silent, unsourced values, quest step reviews, text-only panel changes).

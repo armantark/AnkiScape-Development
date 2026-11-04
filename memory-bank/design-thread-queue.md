@@ -118,7 +118,7 @@ restating the beat counts.
 Raised 2026-08-22 while applying the one-clue ownership rule to quest rewards.
 This is an owner-only decision; the current behaviour is unchanged.
 
-At `logic_pure/logic_pure_quest.py:1363`, `apply_quest_progress_pure`
+At `data/quest/evidence/witchs_house/sources/ankiscape-logic_pure__logic_pure_quest.py.txt:1352`, `apply_quest_progress_pure`
 filters Do No Evil's rewards against the post-stage player data. Reproduction:
 put the player at Do No Evil stage 9 with its required action complete and
 `{"Clue scroll (easy)": 1}` in the inventory, then call
@@ -626,9 +626,9 @@ hide inside the audit.
   `['Deliver the strange talisman to Sedridor']`.
 - **Direct downstream blocks:** the Wicked hood claim inherits
   `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
-  `data/quest/contract.py:136` because its row at `data/quest/ledger.py:321-327`
+  `data/quest/contract.py:148` because its row at `data/quest/ledger.py:322-328`
   does not override the field; the `rune_essence` Mining target is gated by the
-  quest at `data/quest/ledger.py:77`; and Lunar Diplomacy requires Rune Mysteries
+  quest at `data/quest/ledger.py:78`; and Lunar Diplomacy requires Rune Mysteries
   at `data/quest/definitions/members/lunar_diplomacy.py:53`, which in turn withholds its Lunar Spellbook and
   Astral Altar unlocks, including the `craft_astral_runes` target.
 
@@ -700,7 +700,7 @@ queue for quest slices, not a reason to relax the reachability gate.
     same search-and-read steps with Beaten book id `9717`, while Slashed book
     remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
     item table preserve the same two identities. The cleanup row at
-    `data/quest/stage_cleanups.py:105` instead invents slashing the Beaten Book in the
+    `data/quest/stage_cleanups.py:115` instead invents slashing the Beaten Book in the
     workshop and produces `Slashed book`. This needs a source-correction slice,
     not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
@@ -791,7 +791,7 @@ an open design fork; it does not choose or implement a repair.
   `logic_pure/logic_pure_quest.py:427-459` is the only production writer of
   route values in `quest_route_states`. It accepts a route only when a
   registered `QuestChoice` for the current stage offers the same `route_id`;
-  otherwise `logic_pure/logic_pure_quest.py:357-365` returns
+  otherwise `logic_pure/logic_pure_quest.py:246-254` returns
   `(player_data, False)`. The Quests tab likewise creates a route button only
   inside the loop over a `QuestChoice` option at
   `ui/ui_tab_quests.py:395-408`. A stage can therefore require a route that the
@@ -1180,7 +1180,7 @@ What the code does:
 - The game reads the save from collection config key `ankiscape_player_data`
   into memory once, on the legacy `profileLoaded` hook (`__init__.py:456-459`,
   registered at `47139de7:__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
-  game write puts the memory copy back (`__init__.py:448-450`,
+  game write puts the memory copy back (`__init__.py:404-406`,
   `core/storage.py:51-54`). The add-on registers no sync or collection hook;
   its only other Anki hooks are reviewer, overview, undo and
   `profile_will_close` (HUD hide).
@@ -1769,7 +1769,7 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 ### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
-- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:661` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1055` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:661` for Herblore, `runtime/runtime_actions_gathering.py:659` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1052` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
 - **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:313`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
 
 ### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
@@ -1903,8 +1903,8 @@ is **not scheduled work** and is not a quest-by-quest task list.
   The catalog also self-registers raw quest reward strings:
   `13b3edde:data/quest_data.py:10468-10480` emits each raw `item_name`,
   `13b3edde:core/constants.py:1413` loads that output,
-  `core/constants.py:338-350` merges it into extra item data, and
-  `core/constants.py:472` builds the final registry. The final registry is
+  `core/constants.py:344-356` merges it into extra item data, and
+  `core/constants.py:478` builds the final registry. The final registry is
   therefore not an independent validator of quest reward semantics.
 - **Semantic shape of the `275`-name candidate pool:** this is a manual,
   one-bucket-per-name classification of all final reward names on this base. It
@@ -1932,7 +1932,7 @@ is **not scheduled work** and is not a quest-by-quest task list.
   - **`2` prose fragments:** `A box trap.` and
     `20 noted Pure/Rune essence and the other items (from chasing Solus)`.
     These require a sourced replacement or removal, not an item definition.
-- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1361-1368` obtains
+- **Runtime consequence:** `data/quest/evidence/witchs_house/sources/ankiscape-logic_pure__logic_pure_quest.py.txt:1350-1357` obtains
   the completion reward mapping and grants every row with the bare assignment
   `inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)`.
   It performs no
@@ -2385,7 +2385,7 @@ block their drops.
 
 Commit `660fb870316643ac136692425e7133694c81ee3f` landed the generic path.
 `QuestCombatEncounter.guaranteed_drops` is serialized by
-`data/quest/contract.py:24` and `data/quest/serializers.py:56`; `_quest_combat_enemy_spec` passes those drops to
+`data/quest/contract.py:24` and `data/quest/serializers.py:60`; `_quest_combat_enemy_spec` passes those drops to
 the ordinary combat contract at `logic_pure/logic_pure_quest.py:572-603`; and
 `tests/test_logic.py:8367-8417` proves that a real quest-combat kill places the
 guaranteed item in inventory.
@@ -2403,7 +2403,7 @@ Recorded as an open sourcing gap, not as work to schedule.
   normal maximum hit of 312. This project's evidence order puts Darkan first, so
   the executable value must be 260. Registering the disagreement documents it;
   it does not authorise the wiki number.
-- The Dominion Tower fallback at memory-bank/placeholder-values.md:199 covers
+- The Dominion Tower fallback at memory-bank/placeholder-values.md:208 covers
   Dominion Tower content and four stats. It does not extend to Glacor, and it
   must not be stretched to Ranged.
 - Applying that fallback gave a level-475 Glacor 99 in every stat, below the
@@ -2770,7 +2770,7 @@ brief lands.
    never refused while an enemy is alive. A change applies from the next
    review. The refusal seam at `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`
    and the pin `test_live_encounter_rejects_every_combat_method_mutation`
-   (`tests/test_integration_smoke.py:4066-4124`) both go.
+   (`66be9ee8:tests/test_integration_smoke.py:4066-4124`) both go.
 2. **Encounter lifetime.** Owner: "a bank run would in fact reset the encounter
    to a new monster ... Anything where you have to leave at least one 'screen'
    away will reset the monster." An encounter survives only between reviews of

@@ -55,9 +55,9 @@ The readable cleanup specifications live in `data/chompy_hunting_data.py` and al
 - `UTILITY_ITEM_IMAGES` explicitly maps `Raw chompy` to `cookingitems/raw_chompy.png`, so the existing Utilities row renders its cooking asset.
 - `UTILITY_ITEM_IMAGES` maps the consumed `Ogre arrow` to the existing `shopitems/ogre_arrow.png` before utility inputs are registered, so its canonical item definition and visible shop row retain an asset.
 
-The consumable requirement also keeps the existing player-facing contracts honest. `core/target_metadata.py:1831-1833` now lists the Ogre arrow in the tooltip, and `runtime/runtime_actions_utility.py:790-799` can name the missing arrow in the out-of-materials message instead of showing an empty-material tooltip and a generic activity failure.
+The consumable requirement also keeps the existing player-facing contracts honest. `core/target_metadata.py:1834-1836` now lists the Ogre arrow in the tooltip, and `runtime/runtime_actions_utility.py:790-799` can name the missing arrow in the out-of-materials message instead of showing an empty-material tooltip and a generic activity failure.
 
-A generic combat-target row was not used. The live item registry and `data/quest/item_names.py:61` use the canonical singular `Ogre arrow`, while `EQUIPMENT_DATA` contains the incompatible plural key `Ogre arrows`; `Ogre bow` has no equipment row. A player therefore cannot equip either required hunting identity through the combat equipment system. Closing the missing bow metadata and singular/plural ammunition mismatch is a separate follow-on slice, not a reason to invent combat equipment values here.
+A generic combat-target row was not used. The live item registry and `data/quest/item_names.py:63` use the canonical singular `Ogre arrow`, while `EQUIPMENT_DATA` contains the incompatible plural key `Ogre arrows`; `Ogre bow` has no equipment row. A player therefore cannot equip either required hunting identity through the combat equipment system. Closing the missing bow metadata and singular/plural ammunition mismatch is a separate follow-on slice, not a reason to invent combat equipment values here.
 
 ## Reachability instrument output
 

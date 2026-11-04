@@ -133,13 +133,13 @@ post-acceptance transition seam with a true-transition guard. Call sites:
 `aa30c6f2:__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
 `__init__.py:1019-1083`; manual Stop `__init__.py:4482-4505` stays silent.
 Automatic switches show a modal (achievement-popup style,
-`ui/ui.py:4488-4520` precedent) naming the reason; the modal fires after the
+`ui/ui.py:4387-4419` precedent) naming the reason; the modal fires after the
 review answer completes, never before the XP feedback flush
 (`__init__.py:5300-5307`). One event-log entry per switch; repeated switch
 while already Bankstanding is silent; guard the redundant call at
 `__init__.py:2404-2408` against double-fire.
 Tests: `tests/test_runtime_actions.py`, `tests/test_direct_action_undo_seam.py`,
-`tests/test_integration_smoke.py:2550-2592`, `tests/test_review_strip.py`.
+`aa30c6f2:tests/test_integration_smoke.py:2550-2592`, `tests/test_review_strip.py`.
 
 ### S3 `carried-grid` (after S8)
 
@@ -151,10 +151,10 @@ Move the read-only Current-inventory grid below both `auto_view` and
 for display; Bank and Equipment copies inherit from the shared builder.
 Never subtract carried quantities from Bank totals; never create a second
 ledger. Pin: death routes retained loot to the grave
-(`runtime_actions_combat.py:655-679`), coins stay excluded, the 28-slot bank
+(`runtime_actions_combat.py:664-688`), coins stay excluded, the 28-slot bank
 run clears the view, mode switches mutate nothing.
 Tests: `tests/test_runtime_actions.py:2620-2728`,
-`tests/test_main_menu_widget.py:3537-3809`, `tests/test_inventory_pure.py`.
+`aa30c6f2:tests/test_main_menu_widget.py:3537-3809`, `tests/test_inventory_pure.py`.
 
 ### S4 `druidic-2012`
 
@@ -181,14 +181,14 @@ Two stable Stronghold claim IDs delivered to Bank Claims on chest claim
 derive remaining lamps from the claim records and retire `lamps_remaining`
 as a competing source of truth; migrate old counts 2/1/0 deterministically.
 Shared chooser `_choose_xp_lamp_skill(parent, title, eligible_skill_ids)`
-beside `_exec_selection_dialog` (`ui/ui.py:27297-27300`), icon grid via
-`skill_icon_path_for` (`ui/ui.py:773-810`), explicit Claim/Cancel, returns
+beside `_exec_selection_dialog` (`ui/ui.py:26026-26029`), icon grid via
+`skill_icon_path_for` (`ui/ui.py:758-795`), explicit Claim/Cancel, returns
 the stable skill id; both callers (`ui/ui.py:18060-18077`, 26506-26520)
 keep their own eligibility computation. Completion per ruling 5; fix the
 header clipping (`ui/ui.py:17913-17923`) and the 188px dialog title elision.
 A terminal notice says the chest is ready; chest claim announces the lamps.
 Tests: `tests/test_stronghold_player_safety.py`,
-`tests/test_main_menu_widget.py:19370-19451,10285-10308`,
+`aa30c6f2:tests/test_main_menu_widget.py:19370-19451,10285-10308`,
 `tests/test_dialog_lifecycle.py:82-113`, `tests/test_storage_pure.py`.
 
 ### S6 `bigtop-visibility` + Evil Tree icon
@@ -201,7 +201,7 @@ requirements. Evil Tree: set
 `icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"]` on the
 manual row (`ui/ui.py:20037-20046`); assert the icon is non-null.
 Tests: `tests/test_circus.py:37-115`,
-`tests/test_main_menu_widget.py:17596-17763,12425-12513`;
+`aa30c6f2:tests/test_main_menu_widget.py:17596-17763,12425-12513`;
 neighbour `tests/test_undo_seam_circus.py`.
 
 ### S7 `hazeel-stage0`
@@ -211,7 +211,7 @@ Unstarted quests expose stage 0 and no choices
 `apply_quest_route_choice_pure()` refuses without mutating. Correct the
 tests that enshrine the pre-start choice
 (`tests/test_logic.py:5782-5806,5867-5885`,
-`tests/test_main_menu_widget.py:9236-9253`). Single-valued auto-step routes
+`aa30c6f2:tests/test_main_menu_widget.py:9236-9253`). Single-valued auto-step routes
 stay unchanged; Shield of Arrav branch tests are the neighbour guard.
 
 ### S8 `rune-stale-repair` (before S3)
@@ -223,8 +223,8 @@ exact quantities to the bank, and refill for the effective method. With an
 active saved encounter, leave the loadout untouched and reconcile on
 encounter end. Class-gate the summary projection as defense in depth.
 Convert the test that asserts the stale phrase
-(`tests/test_main_menu_widget.py:6904-6940`) into a repair regression.
-Repair site: `core/storage_pure.py:2440-2448`.
+(`aa30c6f2:tests/test_main_menu_widget.py:6904-6940`) into a repair regression.
+Repair site: `aa30c6f2:core/storage_pure.py:2440-2448`.
 Tests: fresh melee shows no runes; stale melee migration returns 5+5 to bank
 once; magic staff + Wind Strike still loads; Vengeance stays magic-only.
 

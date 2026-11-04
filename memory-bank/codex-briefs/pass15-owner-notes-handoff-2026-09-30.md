@@ -89,7 +89,7 @@ The target picker keeps its combined rows. Data, from pinned 2012 revisions
 Caves rod and bait catches slimy eel and cave eel; Lumbridge Swamp Caves small
 net catches frog spawn; Mort Myre rod and bait catches slimy eel and cave eel
 behind Priest in Peril. Keep target ids `catch_slimy_eel` and
-`catch_cave_eel` (`data/quest/ledger.py:129`,
+`catch_cave_eel` (`data/quest/ledger.py:130`,
 `data/achievement_diaries/lumbridge.py:532`). Pins: `tests/test_fishing_data.py`,
 `tests/test_skill_guide_logic.py`, `tests/test_target_metadata.py:1928`.
 
@@ -114,7 +114,7 @@ behind Priest in Peril. Keep target ids `catch_slimy_eel` and
    Silverlight in the bank no longer satisfies that step. Update
    `tests/test_combat_quest_gate.py:304`.
 4. During a quest fight the review HUD names the boss, not the quest
-   (`ui/ui.py:1485-1489`); this closes the Pass 13 kanban follow-up.
+   (`ui/ui.py:1414-1418`); this closes the Pass 13 kanban follow-up.
 
 ### S5 `barcrawl-steps` (note 5)
 
@@ -132,7 +132,7 @@ regenerate `data/shop_data.py`) and their proof rules
 and `tests/bar_crawl/test_quest_ui.py`. The owner's save sits at progress 2
 with one proof; no migration. The "is blocked" dialog lists one reason per
 line from one shared helper that replaces the two copies at
-`runtime/runtime_actions_production.py:1293,1319`.
+`3feb597b:runtime/runtime_actions_production.py:1293,1319`.
 
 ### S6 `belt-tools` (notes 6 and 9)
 
@@ -149,10 +149,10 @@ oiled rod, spade steps that dig bare ground). Farming spade, seed dibber and
 secateurs checks (`logic/farming_logic.py:1307,1346,1362-1371,2732`) and
 Vinesweeper (`logic/vinesweeper_logic.py:121-131`) use the predicate too, and
 the tooltip "Carry a spade or add one to the tool belt before entering."
-(`ui/ui.py:10591`) goes. The Bank "Toolbelt" panel (`ui/ui.py:27161-27225`,
+(`ui/ui.py:10591`) goes. The Bank "Toolbelt" panel (`3feb597b:ui/ui.py:27161-27225`,
 rows from `bank_gear_rows_pure`) lists the belt tools by group, read-only,
 tooltip "Always on your tool belt." Pins: `3feb597b:tests/test_logic.py:8242-8255,8395,10947,7442,12401-12498`,
-`tests/test_quest_catalog.py:1875,2115`, `tests/test_main_menu_widget.py:430-433,1431-1487`.
+`tests/test_quest_catalog.py:1829,2069`, `787415cc:tests/test_main_menu_widget.py:430-433,1431-1487`.
 
 ### S7 `shop-locks-and-purchase` (notes 7 and 8)
 
@@ -160,7 +160,7 @@ tooltip "Always on your tool belt." Pins: `3feb597b:tests/test_logic.py:8242-825
    skill total, quest points) sorts after every open shop in the list and in
    search, dims, and names its reason, for example "Canifis General Store ·
    Requires Priest in Peril". Search sorts before the 80-row cut
-   (`logic/shop_logic.py:238,209-227`); the list uses the computed
+   (`logic/shop_logic.py:240,211-229`); the list uses the computed
    `selector_views` (`ui/ui_tab_shop.py:660-665,1611-1650`). A dimmed shop
    still opens read-only.
 2. The purchase result shows as a chip directly under the Buy controls in the
@@ -173,7 +173,7 @@ tooltip "Always on your tool belt." Pins: `3feb597b:tests/test_logic.py:8242-825
 
 Every Skills-tab target list gets the Combat search bar. Move the body of
 `_render_combat_targets` (`ui/ui.py:8591-8670`) into one shared helper beside
-`_build_target_selector` (`ui/ui.py:5458`); Combat keeps its Slayer filter as
+`_build_target_selector` (`ui/ui.py:5362`); Combat keeps its Slayer filter as
 an extra filter. The search matches the row name and its group, opens the
 groups that hold a match, shows "Showing N/M", never selects a hidden row, and
 Escape clears it. Measure the Crafting rebuild (233 rows) per keystroke; add

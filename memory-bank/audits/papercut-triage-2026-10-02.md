@@ -16,7 +16,7 @@ The final open log contains seven entries. All 55 closed occurrences remain verb
 
 ### Entry 001 — Quest cleanup actions lack emitters
 
-tests/test_quest_action_proofs.py:876 retains seven un-emitted cleanup actions. The round-shield action is repaired, but the other seven causes remain. The acceptance test preserves the source-blocked set rather than proving closure.
+tests/quest_action_proofs/test_writer_ownership.py:240 retains seven un-emitted cleanup actions. The round-shield action is repaired, but the other seven causes remain. The acceptance test preserves the source-blocked set rather than proving closure.
 
 ### Entry 002 — Slayer quick-finisher purchases are unavailable
 
@@ -28,7 +28,7 @@ Equipment drift is fixed by 06324e44: the non-writing generation probe produced 
 
 ### Entry 048 — HUD projection failures silently retain stale content
 
-ui/ui.py:4091 still wraps ReviewHUD.set_data() in an outer except Exception: pass at lines 4183-4184. No error is surfaced or logged in that path; stale content can conceal the failing projection.
+ui/ui.py:3982 still wraps ReviewHUD.set_data() in an outer except Exception: pass at lines 4077-4078. No error is surfaced or logged in that path; stale content can conceal the failing projection.
 
 ### Entry 055 — The Crafting repair awaits integration
 
@@ -36,7 +36,7 @@ tools/fetch_crafting_assets.py:175 still constructs HttpWikiClient() without bef
 
 ### Entry 030 — The reported expanded quest card lacks exact proof
 
-Commit 7fd60fee repairs general quest width behavior. `tests/ui_flows/test_bank_quest_fit.py:91` covers four other quest cards at 720 × 560.
+Commit 7fd60fee repairs general quest width behavior. `tests/ui_flows/test_bank_quest_fit.py:92` covers four other quest cards at 720 × 560.
 It never opens The Fremennik Isles card and does not cover 720 × 540. The reported horizontal maximum was 84 at both heights.
 Return the original occurrence to the open log. The repair is present, but this exact case remains unverified.
 
@@ -71,10 +71,10 @@ Metadata and handoff paths are repo-relative. Host paths remain only where the p
 
 | Finding | Decision | Checked evidence and result |
 | --- | --- | --- |
-| A1: entry 050 probe repair | Applied | `ad5bbdfd` adds the rich-text `sizeHint()` branch after word wrap; `tests/ui_flows/qt_text_fit.py:66` retains it. Entry 050 is fixed. Its merge trap also has guidance. |
+| A1: entry 050 probe repair | Applied | `ad5bbdfd` adds the rich-text `sizeHint()` branch after word wrap; `tests/ui_flows/qt_text_fit.py:68` retains it. Entry 050 is fixed. Its merge trap also has guidance. |
 | A2 / B9: checkout-specific cache guidance | Applied | Removed “and absent from this worktree”. Dated host observations and added check-before-relying language for the archive, jq, cache and pyflakes shim. |
 | B1: entries 004/018 and current ugrep wrapper | Applied documentation; rejected current-host assertion | Both entries are documented. A fresh `zsh -ic` reports `/usr/bin/grep`, BSD grep 2.6.0-FreeBSD, prints `aaa` for the reported regex, and finds no ugrep command. Guidance records the historical ugrep trap conditionally. `review-resolution-probes.json` retains the output. |
-| B2: entry 023 | Applied | `8f70a917` landed on 2026-09-27, before the 2026-10-01 discrepancy. Reclassified as documented at `memory-bank/techContext.md:410`. Current counts agree; the historical wrong-checkout cause remains a hypothesis. |
+| B2: entry 023 | Applied | `8f70a917` landed on 2026-09-27, before the 2026-10-01 discrepancy. Reclassified as documented at `memory-bank/techContext.md:412`. Current counts agree; the historical wrong-checkout cause remains a hypothesis. |
 | B3: entries 007/021/044/050 | Applied with A1 | `tools/worktree_guard.py:448` defaults to `main`. Added explicit `--start-point <family-branch>` or plain-merge guidance. Entries 007/021/044 are documented; entry 050 is fixed for the probe and also cites the guidance. |
 | B4: disposable worktree paths | Applied | Removed this worktree prefix from archive metadata and this audit. Exact original incidents retain their paths. Promotion evidence paths remain absolute. |
 | B5: entry 030 | Applied | The cited test opens four other cards at 720 × 560. Returned the occurrence to open because the exact Fremennik Isles case at both reported heights lacks proof. |

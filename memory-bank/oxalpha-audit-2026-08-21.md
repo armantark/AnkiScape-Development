@@ -108,7 +108,7 @@ inside the fixit pipeline, so the orchestrator kept ox-alpha out of it.
   blob SHA (`ffcf60fe...` vs main's `9750675d...`) and re-measured the merged
   reachability `1598/2369/38/34/4/37/1123` — identical numbers to the
   independent Opus reviewer's measurement and to the test pin at
-  `tests/test_item_reachability_audit.py:560-566`.
+  `87bf57a2:tests/test_item_reachability_audit.py:560-566`.
 
 ## Question 2 — orchestration quality: competent, with one open gap
 

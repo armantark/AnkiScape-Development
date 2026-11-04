@@ -21,9 +21,9 @@ AST and Git reads establish these exact moved public bindings:
 
 | Surface | Binding | Original definition | Candidate definition |
 | --- | --- | --- | --- |
-| Engine | `combat_magic_preset_locked_reasons_pure` | `logic_pure_combat_model.py:408` | `logic_pure_combat_magic.py:32` |
-| Engine | `combat_staff_covered_runes_pure` | `logic_pure_combat_model.py:2252` | `logic_pure_combat_magic.py:107` |
-| Root, through the pure facade | `combat_dream_thrift_locked_reasons_pure` | `logic_pure_combat_model.py:398` | `logic_pure_combat_magic.py:22` |
+| Engine | `combat_magic_preset_locked_reasons_pure` | `logic_pure_combat_model.py:411` | `logic_pure_combat_magic.py:32` |
+| Engine | `combat_staff_covered_runes_pure` | `logic_pure_combat_model.py:2170` | `logic_pure_combat_magic.py:107` |
+| Root, through the pure facade | `combat_dream_thrift_locked_reasons_pure` | `logic_pure_combat_model.py:401` | `logic_pure_combat_magic.py:22` |
 
 Engine imports the first two through model at lines 117 and 383. The facade imports all three through model at line 438; root imports Dream through the facade at line 44. The model re-exports them from magic at line 9. The magic module assigns no replacement `__module__` or `__qualname__`. All three argument ASTs, absent return annotations, and undecorated status are unchanged. Dream and staff whole-function ASTs are identical; the preset validator's already-reviewed two-helper refactor is not whole-function-identical, and the surface instrument does not serialize its body.
 

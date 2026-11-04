@@ -68,7 +68,7 @@ Darkan does not confirm the upper endpoint of `3`.
 ## Zogre Prayer XP correction
 
 Canonical `main` shipped a player-visible Zogre bones defect.
-`data/prayer_data.py:63` gave Zogre bones `12.5` Prayer XP at base commit `1cf43931`.
+`data/prayer_data.py:66` gave Zogre bones `12.5` Prayer XP at base commit `1cf43931`.
 This branch corrects the value to `22.5` Prayer XP.
 The corrected Ectofuntus reward is `90` Prayer XP.
 
@@ -149,7 +149,7 @@ Frost dragon (Dungeoneering) oldid `5794845`, lines 19, 27, and 37, also names t
 Neither old revision gives an item ID.
 
 The live normal Frost dragon always drops exchangeable item `18832`.
-`data/bone_sources_data.py:88-90,116` and `generated/grand_exchange_period_generated.py:3792` record this implementation.
+`data/bone_sources_data.py:88-90,116` and `generated/grand_exchange_period_generated.py:3794` record this implementation.
 Item `18830` has no live route.
 
 No recovered period source maps either ID to the Asgarnian Ice Dungeon or Daemonheim route.

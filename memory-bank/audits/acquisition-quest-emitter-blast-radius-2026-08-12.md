@@ -35,7 +35,7 @@ are exactly Blood talisman, Jade vine seed, and Magic secateurs.
 This is strictly better than 2,509, but it is not a corrected acquisition count.
 It can be too high and too low at the same time. Goblin Diplomacy is in the globally-completed set even though stages 1 and 2
 consume Orange and Blue goblin mail that are unavailable from currently modeled
-acquisition routes (`data/quest/definitions/free/goblin_diplomacy.py:38-56`), because required and consumed inventory,
+acquisition routes (`data/quest/definitions/free/goblin_diplomacy.py:49-67`), because required and consumed inventory,
 tools, item alternatives, and routes are outside this model. Shield of Arrav is
 a concrete route example: stage 4 requires joining one gang, but route state is
 not evaluated, so a route-gated stage can still leave later products and rewards
@@ -248,7 +248,7 @@ The repository's independent coverage audit reports 196 quests, 1,146 stage
 rows, 994 rows with action blockers, and 185 quests with action blockers. The
 runtime reads quest-scoped action flags in
 `logic_pure/logic_pure_quest.py:263-311`, records `auto_actions` only after a
-blocker-free stage in `logic_pure/logic_pure_quest.py:1239-1255`, and rejects
+blocker-free stage in `9eb91701:logic_pure/logic_pure_quest.py:1239-1255`, and rejects
 progress while any blocker remains in `9eb91701:logic_pure/logic_pure_quest.py:1436-1461`.
 The catalog builder creates the placeholder action form at
 `tools/build_pre_eoc_quest_catalog.py:1825-1860`.
