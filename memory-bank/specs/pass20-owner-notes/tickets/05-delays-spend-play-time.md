@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-05
 
 - [ ] `tests/pace/rates/rate_property.py` runs Combat with banking on, and it passes at 1x and 10x.
 - [ ] A played fight at 1x, 10x and 20x: a 10x card spends 60 ticks across a bank run when no danger stop occurs; a 1x bank run costs 17 cards.

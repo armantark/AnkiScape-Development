@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-13
 
 - [ ] A real panel flow claims the middle of three offers; the two others do not move; a new offer fills the gap.
 - [ ] An old save loads with its offers in the same positions.

@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-01
 
 - [ ] Played through the review handler: a hand-started Mining ahead of a two-entry queue runs out of supplies, and the next card runs the top entry.
 - [ ] A hand-run quest that completes leaves the queue in that review, with all its entries, and the queue continues or stays paused by its earlier state.

@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-08
 
 - [ ] Jungle Potion finishes from a new save with its prerequisites in exactly 15 cards at 1x and 10x, with no action switch and no dialog except quest complete.
 - [ ] Held grimy or clean herbs skip their steps; a save mid-quest continues.
