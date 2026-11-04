@@ -8,6 +8,7 @@ import dataclasses
 
 from typing import Any
 
+from ..core.equipment_change import restore_quest_equipment_pure
 from ..logic.summoning_logic import restore_summoning_points_pure
 from ..logic.wicked_hood_logic import (
     consume_wicked_hood_route_teleport_pure,
@@ -35,6 +36,7 @@ def _settle_bank_run_requests(
     if skilling_bank_run_requested and event.get("active"):
         player_data.pop("skilling_bank_run_requested", None)
     if event.get("completed"):
+        player_data.update(restore_quest_equipment_pure(player_data))
         player_data.update(restore_summoning_points_pure(player_data)[0])
         record_bank_run_diary_event_pure(player_data, True, view)
 

@@ -206,6 +206,8 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
                 auto_actions=_catalog_strings(raw.get("auto_actions", ())),
+                wear_slot=str(raw.get("wear_slot", "")),
+                wear_items=_catalog_strings(raw.get("wear_items", ())),
                 required_routes=_catalog_strings(raw.get("required_routes", ())),
                 combat_encounters=_catalog_combat_encounters(raw.get("combat_encounters", ())),
                 source=str(raw.get("source", "")),

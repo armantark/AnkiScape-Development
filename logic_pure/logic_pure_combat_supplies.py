@@ -294,7 +294,7 @@ from .logic_pure_prayer import (
 )
 
 from .logic_pure_equipment import (
-    _equipment_bonus_value,
+    restore_quest_equipment_pure, _equipment_bonus_value,
 )
 
 from .logic_pure_state import (
@@ -675,8 +675,7 @@ def _combat_deposit_loot(data, target_id):
 
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
-    # Owner-settled AnkiScape rule: every completed bank run includes a free
-    # altar stop, restoring the internal level*10 Prayer point pool.
+    # Every completed bank run includes a free altar stop (owner ruling).
     data["combat_prayer_points"] = _positive_int(data.get("prayer_level", 1), 1) * 10
     data["combat_prayer_drain_counter"] = 0.0
     summoning_state = dict(data.get("summoning_state", {}) or {})
@@ -934,6 +933,7 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
     spent = min(ticks, bank_run["ticks_remaining"])
     remaining = bank_run["ticks_remaining"] - spent
     if remaining <= 0:
+        data.update(restore_quest_equipment_pure(data, equipment_data))
         data["combat_bank_run"] = {}
         _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data)
         return _combat_bank_run_result(data, target_id, started=started, completed=True, spent=spent)

@@ -97,6 +97,8 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
         "auto_actions": requirement.auto_actions,
+        "wear_slot": requirement.wear_slot,
+        "wear_items": requirement.wear_items,
         "required_routes": requirement.required_routes,
         "combat_encounters": tuple(_combat_encounter_dict(encounter) for encounter in requirement.combat_encounters),
         "source": requirement.source,

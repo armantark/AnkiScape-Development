@@ -8,7 +8,7 @@ from ...contract import *
 from ...choices import *
 from ...witchs_house import (
     DIARY, TAKE_DIARY, READ_DIARY, ENTER_BASEMENT, TAKE_GLOVES, PASS_GATE,
-    TAKE_MAGNET, TAKE_KEY, TAKE_BALL, ROUTE_SOURCE, DIARY_SOURCE, HANDLER_SOURCE,
+    TAKE_MAGNET, TAKE_KEY, TAKE_BALL, ROUTE_SOURCE, DIARY_SOURCE, HANDLER_SOURCE, INSULATING_GLOVES,
 )
 
 WITCHS_HOUSE_STAGES: Tuple[QuestStage, ...] = (
@@ -101,6 +101,7 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
             f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}; {ROUTE_SOURCE}; {HANDLER_SOURCE}",
             required_actions=(READ_DIARY,),
             auto_actions=(PASS_GATE,),
+            wear_slot="hands", wear_items=tuple(INSULATING_GLOVES),
         ),
         _stage_req(
             7,

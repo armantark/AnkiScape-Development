@@ -5,6 +5,7 @@ from typing import Iterable, Mapping, Optional
 from ..logic.cold_war_greeting_logic import ensure_cold_war_greeting_pure
 from .quest.eligibility import quest_locked_reasons_pure, quest_eligibility_reasons_pure  # noqa: F401 (re-export)
 from .quest.skill_requirements import _skill_requirement_reason
+from .quest.wear import quest_wear_view_pure, _quest_current_stage_rows
 from .quest.journal import quest_current_stage_pure, quest_journal_rows_pure  # noqa: F401 (re-export)
 from .quest.toktz_opening import (
     toktz_opening_phase_pure, toktz_opening_review_ready_pure,
@@ -464,16 +465,6 @@ def _quest_stage_requirement_variant(requirement):
     return str(requirement.get("variant") or "").strip()
 
 
-def _quest_current_stage_rows(quest, current_stage):
-    rows = []
-    for requirement in quest.get("stage_requirements", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        if _positive_int(requirement.get("stage", 0), 0) == current_stage:
-            rows.append(requirement)
-    return tuple(rows)
-
-
 def _dedupe_quest_blockers(blockers):
     seen = set()
     rows = []
@@ -632,6 +623,7 @@ def _quest_requirement_combat_blockers(player_data, quest_id, requirement, stage
 def _quest_requirement_blockers(player_data, quest_id, requirement):
     requirement = quest_review_requirement_pure(player_data, quest_id, requirement)
     requirement = another_cook_requirement_pure(player_data, quest_id, requirement)
+    player_data = quest_wear_view_pure(player_data, requirement)
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
     return tuple((

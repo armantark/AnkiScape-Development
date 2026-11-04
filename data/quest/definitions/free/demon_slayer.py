@@ -124,6 +124,7 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
                 f"{DARKAN_DEMON_SLAYER_SOURCE}; {DARKAN_DEMON_SLAYER_DELRITH_CONTROLLER_SOURCE}; "
                 f"{DARKAN_DEMON_SLAYER_DELRITH_SOURCE}; {DARKAN_DEMON_SLAYER_DELRITH_NPC_SOURCE}"
             ),
+            wear_slot="weapon", wear_items=("Silverlight",),
             combat_encounters=(
                 _combat(
                     DEMON_SLAYER_ID,

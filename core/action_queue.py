@@ -788,3 +788,19 @@ def _ended_entry_row(addon) -> dict[str, Any] | None:
         return None
     rows = addon._state.player_data.get("review_event_log") or ()
     return next((row for row in reversed(rows) if isinstance(row, dict) and row.get("ref") == ref), None)
+
+
+def select_review_action(addon, skill, *, keep_encounter=False):
+    selected_skill = addon._normalize_legacy_utility_skill(skill)
+    changed = selected_skill != addon._state.current_skill
+    if changed:
+        addon._state.player_data.update(addon._restore_quest_equipment_pure(addon._state.player_data, force=True))
+    if not keep_encounter and (changed or not addon.is_combat_review_action(selected_skill)):
+        addon._state.player_data["combat_encounter"] = {}
+    addon._state.current_skill = selected_skill
+    set_aside_action_queue(addon)
+    try:
+        addon.mw.col.set_config("ankiscape_current_skill", addon._state.current_skill)
+    except AttributeError:
+        pass
+    return changed

@@ -235,7 +235,7 @@ from .core.activity_feedback import (
     lines_with_stop_reason as _lines_with_stop_reason,
 )
 from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
-from .core.equipment_change import equip_item_save_pure as _equip_item_save_pure
+from .core.equipment_change import equip_item_save_pure as _equip_item_save_pure, restore_quest_equipment_pure as _restore_quest_equipment_pure
 from .core.equipment_change import unequip_slot_save_pure as _unequip_slot_save_pure
 from .core.skill_availability import skill_availability_fingerprint as _skill_availability_fingerprint
 from .core.storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
@@ -250,7 +250,7 @@ from .core.action_registry import (
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .core.action_queue import (
     QueueCount, apply_action_queue_command, bankstanding_event_text,
-    record_bankstanding_stop, runtime_notice_callbacks, resume_action, select_utility_target, set_aside_action_queue, stop_action,
+    record_bankstanding_stop, runtime_notice_callbacks, resume_action, select_utility_target, select_review_action, stop_action,
 )
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
@@ -732,17 +732,7 @@ def _update_review_context_surface() -> None:
 
 
 def _select_review_action(skill, *, keep_encounter=False):
-    selected_skill = _normalize_legacy_utility_skill(skill)
-    changed = selected_skill != _state.current_skill
-    if not keep_encounter and (changed or not is_combat_review_action(selected_skill)):
-        _state.player_data["combat_encounter"] = {}
-    _state.current_skill = selected_skill
-    set_aside_action_queue(sys.modules[__name__])
-    try:
-        mw.col.set_config("ankiscape_current_skill", _state.current_skill)
-    except AttributeError:
-        pass
-    return changed
+    return select_review_action(sys.modules[__name__], skill, keep_encounter=keep_encounter)
 
 
 def commit_direct_action(
@@ -1274,6 +1264,7 @@ def _switch_to_bankstanding(
     fallback so the ordinary review-paced market clock keeps moving.
     """
 
+    _state.player_data.update(_restore_quest_equipment_pure(_state.player_data, force=True))
     # Clear before the idempotence guard to end stale Encounters in idle saves.
     _state.player_data["combat_encounter"] = {}
     if (
@@ -4507,6 +4498,8 @@ def on_set_quest(quest_id):
     if not ok:
         show_error_message("Cannot start quest", "You do not meet this quest's requirements.")
         return False
+    if quest_id != _state.player_data.get("current_quest"):
+        new_data = _restore_quest_equipment_pure(new_data, force=True)
     new_data = runtime_actions.drop_superseded_bank_run_requests_pure(_state.player_data, new_data)
     _state.player_data.clear()
     _state.player_data.update(new_data)

@@ -129,13 +129,14 @@ class WitchsHouseControlsTest(unittest.TestCase):
         self.assertGreater(action.width(), 0)
         return dialog, action
 
-    def test_missing_diary_and_carried_gloves_block_existing_controls(self):
+    def test_diary_blocks_but_held_quest_gloves_enable_existing_controls(self):
         for stage, reason in ((4, "Needs Diary (Witch's House) x1"), (6, 'Wear insulating gloves to pass the electric gate')):
             player = player_at(stage, (READ_DIARY,) if stage == 6 else ())
             player['inventory'][LEATHER_GLOVES] = 1
             dialog, action = self.open_quest(player)
-            self.assertFalse(action.isEnabled())
-            self.assertIn(reason, action.toolTip())
+            self.assertEqual(action.isEnabled(), stage == 6)
+            if stage == 4:
+                self.assertIn(reason, action.toolTip())
             self.assertEqual(self.fixture._quest_calls, [])
             dialog.close()
 

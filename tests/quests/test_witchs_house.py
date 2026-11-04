@@ -117,7 +117,6 @@ class WitchsHouseRouteTest(unittest.TestCase):
         seen = []
         for stage in range(1, 12):
             if stage == 6:
-                self.assert_refused(player)
                 wear_leather(player)
             prior = set(player['quest_action_proofs'])
             player, ok, complete = progress(player)
@@ -250,7 +249,7 @@ class WitchsHouseRouteTest(unittest.TestCase):
             self.assertTrue(witchs_house_worn_insulation_pure(player))
             self.assertEqual(blockers(player), ())
             self.assertTrue(progress(player)[1])
-        for location, name in (('inventory', LEATHER_GLOVES), ('carried_inventory', LEATHER_GLOVES),
+        for location, name in (('carried_inventory', LEATHER_GLOVES),
                 ('toolbelt', LEATHER_GLOVES), ('feet', LEATHER_GLOVES), ('hands', 'Ice gloves'), ('hands', 'Bronze gloves')):
             player = player_at(6, (READ_DIARY,))
             if location in ('hands', 'feet'):

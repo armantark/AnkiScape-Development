@@ -41,6 +41,8 @@ class QuestStageRequirement:
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
     auto_actions: Tuple[str, ...] = ()
+    wear_slot: str = ""
+    wear_items: Tuple[str, ...] = ()
     required_routes: Tuple[str, ...] = ()
     combat_encounters: Tuple[QuestCombatEncounter, ...] = ()
     source: str = ""
@@ -233,6 +235,8 @@ def _stage_req(
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
     auto_actions: Tuple[str, ...] = (),
+    wear_slot: str = "",
+    wear_items: Tuple[str, ...] = (),
     required_routes: Tuple[str, ...] = (),
     combat_encounters: Tuple[QuestCombatEncounter, ...] = (),
 ) -> QuestStageRequirement:
@@ -250,6 +254,8 @@ def _stage_req(
         required_tools=required_tools,
         required_actions=required_actions,
         auto_actions=auto_actions,
+        wear_slot=wear_slot,
+        wear_items=wear_items,
         required_routes=required_routes,
         combat_encounters=combat_encounters,
         source=source,

@@ -1,6 +1,9 @@
 """logic_pure_equipment.py - split out of logic_pure.py; see that module's header."""
 
 from typing import Iterable, Mapping, Optional
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from ..logic.equipment_instance_logic import sync_equipment_instances_pure
+from .quest.wear import quest_wear_requirement_pure, quest_wear_item_pure
 
 from ..core.tool_belt import (
     ADDABLE_TOOL_BELT_TOOLS,
@@ -475,3 +478,77 @@ def equipment_stat_totals_pure(
         for field in EQUIPMENT_BONUS_FIELDS:
             totals[field] += _equipment_bonus_value(bonuses, field)
     return EquipmentBonuses(**totals)
+
+
+def save_equipment_move_pure(current, move, equipment_data):
+    new_inventory, new_equipment, moved = move
+    if not moved:
+        return dict(current), False
+    before_equipment = dict(current.get("equipment", {}) or {})
+    updated = dict(current)
+    updated["inventory"] = new_inventory
+    updated["equipment"] = new_equipment
+    swap = current.get("quest_equipment_swap", {})
+    if swap and any(before_equipment.get(slot) != new_equipment.get(slot) for slot in swap["displaced"]):
+        updated["quest_equipment_swap"] = {}
+    updated.update(
+        sync_equipment_instances_pure(updated, before_equipment, EQUIPMENT_CONDITION_DATA)
+    )
+    if before_equipment.get("weapon") != new_equipment.get("weapon"):
+        from .logic_pure_combat_engine import reconcile_combat_method_pure
+
+        updated, _ok, _reason = reconcile_combat_method_pure(current, updated, equipment_data)
+    return updated, moved
+
+
+def prepare_quest_equipment_pure(player_data, quest_id, quest_data, equipment_data):
+    data = player_data
+    swap = data.get("quest_equipment_swap", {})
+    if swap and swap["quest_id"] != quest_id:
+        data = restore_quest_equipment_pure(data, equipment_data, force=True)
+    requirement = quest_wear_requirement_pure(data, quest_id, quest_data)
+    item = quest_wear_item_pure(data, requirement)
+    if not item or (data.get("equipment", {}) or {}).get(requirement["wear_slot"]) == item:
+        return data
+    before = dict(data.get("equipment", {}) or {})
+    wear_data = {**equipment_data, item: equipment_data.get(item, {"slot": requirement["wear_slot"]})}
+    data, moved = save_equipment_move_pure(data, equip_item_pure(
+        item, data.get("inventory", {}), data.get("equipment", {}), wear_data,
+    ), equipment_data)
+    if not moved:
+        raise ValueError(f"Quest wear could not equip {item}")
+    displaced = {slot: before.get(slot, "") for slot in before.keys() | data["equipment"].keys()
+                 if before.get(slot) != data["equipment"].get(slot)}
+    data["quest_equipment_swap"] = {
+        "quest_id": quest_id, "slot": requirement["wear_slot"], "item": item,
+        "displaced": displaced, "needed": True,
+    }
+    return data
+
+
+def release_quest_equipment_pure(player_data, quest_id, quest_data):
+    swap = player_data.get("quest_equipment_swap", {})
+    if not swap:
+        return player_data
+    requirement = quest_wear_requirement_pure(player_data, quest_id, quest_data)
+    return {**player_data, "quest_equipment_swap": {
+        **swap, "needed": requirement.get("wear_slot") == swap["slot"],
+    }}
+
+
+def restore_quest_equipment_pure(player_data, equipment_data=None, *, force=False):
+    swap = player_data.get("quest_equipment_swap", {})
+    if not swap or (swap["needed"] and not force):
+        return player_data
+    data = {**player_data, "quest_equipment_swap": {}}
+    if (data.get("equipment", {}) or {}).get(swap["slot"]) != swap["item"]:
+        return data
+    inventory, equipment, _ = unequip_item_pure(
+        swap["slot"], data.get("inventory", {}), data.get("equipment", {}),
+    )
+    for slot, item in swap["displaced"].items():
+        if item and inventory.get(item, 0) > 0:
+            inventory[item] -= 1
+            equipment[slot] = item
+    # Return the previously worn slots, including held gear outside the catalog.
+    return save_equipment_move_pure(data, (inventory, equipment, True), equipment_data)[0]

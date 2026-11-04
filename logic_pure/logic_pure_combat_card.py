@@ -37,6 +37,13 @@ def combat_card_view_pure(player_data, equipment_data, speed):
     }
 
 
+def _quest_wear_lead(player_data):
+    swap = player_data.get("quest_equipment_swap", {})
+    item = swap.get("item", "")
+    worn = (player_data.get("equipment", {}) or {}).get(swap.get("slot"))
+    return f"{item} · " if item and worn == item else ""
+
+
 def quest_fight_card_view_pure(player_data, quest_data, equipment_data, speed):
     """The Combat card for the current quest's next fight, or None when the next
     quest review does not fight.
@@ -69,14 +76,15 @@ def quest_fight_card_view_pure(player_data, quest_data, equipment_data, speed):
     # Some quest-only NPCs carry their quest in parentheses ("Bandit (Diamond in
     # the Rough)"); the label already names the quest once.
     boss_name = state["enemy_name"].removesuffix(f" ({quest_name})")
+    wear_lead = _quest_wear_lead(player_data)
     remaining = f" x{fight['remaining_quantity']}" if fight["total_quantity"] > 1 else ""
     return {
         **state,
         "target_text": _card_target_text(
             f"{quest_name} · {boss_name}{remaining}", combat_status_summary_pure(player_data, speed)
         ),
-        "chips_lead": "Trains ",
-        "chips_text": _trains_text(state),
+        "chips_lead": wear_lead + "Trains ",
+        "chips_text": wear_lead + _trains_text(state),
         "slayer_text": "",
         # The longest quest and boss names need a second line.
         "target_wraps": True,

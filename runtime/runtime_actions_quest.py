@@ -8,6 +8,7 @@ from typing import Any
 
 from ..core.constants import CLAIM_DATA, EQUIPMENT_DATA, QUEST_DATA
 from ..core.last_action import quest_blocked_message
+from ..core.equipment_change import prepare_quest_equipment_pure, release_quest_equipment_pure
 from ..logic.bar_crawl_logic import apply_bar_crawl_drink_effects_pure
 from ..logic_pure.logic_pure import (
     apply_quest_combat_encounter_pure,
@@ -72,7 +73,7 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
             f"{quest.get('display_name', quest_id)} cannot resolve this battle yet.",
         )
         return False
-    player_data.update(new_data)
+    player_data.update(release_quest_equipment_pure(new_data, quest_id, QUEST_DATA))
     _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
     ctx.check_achievements(player_data)
@@ -225,6 +226,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         _switch_material_failure_to_bankstanding(ctx)
         return False
     quest = QUEST_DATA[quest_id]
+    if can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA):
+        player_data.update(prepare_quest_equipment_pure(player_data, quest_id, QUEST_DATA))
     silver_phase = murder_mystery_silver_review_phase_pure(player_data, quest_id, QUEST_DATA)
     combat_blockers, stage_blockers = _quest_review_blockers(player_data, quest_id, silver_phase)
     if combat_blockers:
@@ -268,7 +271,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             quest_current_stage_pure(player_data, quest_id, QUEST_DATA),
             rng=ctx.random_random,
         )
-    player_data.update(new_data)
+    player_data.update(release_quest_equipment_pure(new_data, quest_id, QUEST_DATA))
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
     _show_quest_review_exp(ctx, exp_before, completed_now, cook_phase, repair_phase)
     if completed_now:
