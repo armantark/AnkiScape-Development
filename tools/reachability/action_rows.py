@@ -3,6 +3,7 @@
 from typing import Any, Mapping
 
 from ...data.mining_data import MINING_PICKAXES
+from ...data.woodcutting_data import WOODCUTTING_AXES
 
 
 def requirements(spec: Mapping[str, Any], _names) -> tuple[set[str], tuple[set[str], ...]]:
@@ -37,7 +38,10 @@ def quest_supply_actions(quest_data):
     return {
         f"{quest_id}:{index}": dict(
             recipe["action"], quest_gate=quest_id, quest_gate_state="started",
-            material_options={"Pickaxe": tuple(tool.display_name for tool in MINING_PICKAXES)},
+            material_options={
+                "Pickaxe": tuple(tool.display_name for tool in MINING_PICKAXES),
+                "Hatchet": tuple(axe.display_name for axe in WOODCUTTING_AXES),
+            },
         )
         for quest_id, quest in quest_data.items()
         for index, recipe in enumerate(quest.get("supply_recipes", ()))

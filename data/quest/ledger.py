@@ -85,6 +85,8 @@ QUEST_SUPPLY_RECIPES_BY_ID = {
                           source="https://runescape.wiki/w/Fishing_Contest?oldid=6326002"),
     ),
     GERTRUDES_CAT_ID: (
+        QuestSupplyRecipe(step="milk the Lumbridge cow", product="Bucket of milk", inputs=(("Bucket", 1),),
+                          source="https://runescape.wiki/w/Gertrude's_Cat?oldid=6326014"),
         QuestSupplyRecipe(step="pick doogle leaves behind Gertrude's house", product="Doogle leaves",
                           source="https://runescape.wiki/w/Gertrude's_Cat?oldid=6326014"),
     ),
@@ -96,6 +98,8 @@ QUEST_SUPPLY_RECIPES_BY_ID = {
     ),
     PIRATES_TREASURE_ID: (
         QuestSupplyRecipe(step="buy rum from Zambo", product="Karamjan rum", coins=30,
+                          source="https://runescape.wiki/w/Pirate's_Treasure?oldid=6514086"),
+        QuestSupplyRecipe(step="take the spade in Falador's Estate Agent building", product="Spade",
                           source="https://runescape.wiki/w/Pirate's_Treasure?oldid=6514086"),
     ),
     PLAGUE_CITY_ID: (
@@ -140,6 +144,74 @@ QUEST_SUPPLY_RECIPES_BY_ID = {
                           source="https://runescape.wiki/w/Bucket_of_milk?oldid=6288698"),
         QuestSupplyRecipe(step="pick snape grass on the peninsula", product="Snape grass",
                           source="https://runescape.wiki/w/Snape_grass?oldid=6269500"),
+    ),
+    DRAGON_SLAYER_ID: (
+        QuestSupplyRecipe(step="take a plank on Entrana", product="Plank",
+                          source="https://runescape.wiki/w/Dragon_Slayer?oldid=6461164"),
+        QuestSupplyRecipe(step="smith steel nails", product="Steel nails", quantity=15, inputs=(("Steel bar", 1),),
+                          required_skills=(QuestSkillRequirement("smithing", "Smithing", 34),),
+                          required_tools=(("Hammer", 1),), xp_rewards=(QuestXpReward("smithing", 37.5),),
+                          source="https://runescape.wiki/w/Steel_nails?oldid=6446028"),
+    ),
+    HEROES_QUEST_ID: (
+        QuestSupplyRecipe(step="buy a fishing rod from Gerrant", product="Fishing rod", coins=5,
+                          source="https://runescape.wiki/w/Heroes'_Quest?oldid=6534275; "
+                                 "https://runescape.wiki/w/Fishing_rod?oldid=6438198"),
+        QuestSupplyRecipe(step="buy fishing bait from Gerrant", product="Fishing bait", coins=3,
+                          source="https://runescape.wiki/w/Heroes'_Quest?oldid=6534275; "
+                                 "https://runescape.wiki/w/Fishing_bait?oldid=6319816"),
+    ),
+    MONKS_FRIEND_ID: (
+        QuestSupplyRecipe(step="buy a jug at Aemad's Adventuring Supplies", product="Jug", coins=1,
+                          source="https://runescape.wiki/w/Monk's_Friend?oldid=6514084; "
+                                 "https://wiki.darkan.org/index.php?title=Aemad%27s_Adventuring_Supplies&oldid=40707"),
+        QuestSupplyRecipe(step="fill the jug at Cedric's well", product="Jug of water", inputs=(("Jug", 1),),
+                          source="https://runescape.wiki/w/Monk's_Friend?oldid=6514084"),
+        QuestSupplyRecipe(step="cut a tree near Cedric", product="Logs", required_tools=(("Hatchet", 1),),
+                          required_skills=(QuestSkillRequirement("woodcutting", "Woodcutting", 1),),
+                          xp_rewards=(QuestXpReward("woodcutting", 25),),
+                          source="https://runescape.wiki/w/Monk's_Friend?oldid=6514084; "
+                                 "https://wiki.darkan.org/index.php?title=Logs&oldid=31356"),
+    ),
+    CLOCK_TOWER_ID: (
+        QuestSupplyRecipe(step="take the water bucket by the zoo well", product="Bucket of water",
+                          source="https://runescape.wiki/w/Clock_Tower?oldid=6565072"),
+    ),
+    TREE_GNOME_VILLAGE_ID: (
+        QuestSupplyRecipe(step="cut a tree for Commander Montai", product="Logs", required_tools=(("Hatchet", 1),),
+                          required_skills=(QuestSkillRequirement("woodcutting", "Woodcutting", 1),),
+                          xp_rewards=(QuestXpReward("woodcutting", 25),),
+                          source="https://runescape.wiki/w/Tree_Gnome_Village?oldid=6541699; "
+                                 "https://wiki.darkan.org/index.php?title=Logs&oldid=31356"),
+    ),
+    SHILO_VILLAGE_ID: (
+        QuestSupplyRecipe(step="buy a chisel from Jiminua", product="Chisel", coins=14,
+                          source="https://runescape.wiki/w/Shilo_Village?oldid=6389566; "
+                                 "https://runescape.wiki/w/Chisel?oldid=6133640"),
+    ),
+    TAI_BWO_WANNAI_TRIO_ID: (
+        QuestSupplyRecipe(step="net karambwanji south of Tai Bwo Wannai", product="Raw karambwanji",
+                          required_tools=(("Small fishing net", 1),),
+                          required_skills=(QuestSkillRequirement("fishing", "Fishing", 5),),
+                          xp_rewards=(QuestXpReward("fishing", 5),),
+                          source="https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797; "
+                                 "https://wiki.darkan.org/index.php?title=Raw_karambwanji&oldid=44929"),
+        QuestSupplyRecipe(step="catch karambwan north of the shipyard", product="Raw karambwan",
+                          inputs=(("Raw karambwanji", 1),), required_tools=(("Karambwan vessel", 1),),
+                          required_skills=(QuestSkillRequirement("fishing", "Fishing", 65),),
+                          xp_rewards=(QuestXpReward("fishing", 105),),
+                          source="https://runescape.wiki/w/Raw_karambwan?oldid=6096116"),
+    ),
+    THE_FREMENNIK_TRIALS_ID: (
+        QuestSupplyRecipe(step="buy beer at the Seers' Village bar", product="Beer", coins=2,
+                          source="https://runescape.wiki/w/The_Fremennik_Trials?oldid=6548589; "
+                                 "https://runescape.wiki/w/Strange_object?oldid=5163331"),
+    ),
+    "the_tale_of_the_muspah": (
+        QuestSupplyRecipe(step="mine and cut a cave sapphire", product="Sapphire",
+                          required_tools=(("Pickaxe", 1), ("Chisel", 1)),
+                          required_skills=(QuestSkillRequirement("mining", "Mining", 8),),
+                          source="https://runescape.wiki/w/The_Tale_of_the_Muspah?oldid=6539749"),
     ),
     THE_KNIGHTS_SWORD_ID: (
         QuestSupplyRecipe(step="mine blurite in the ice dungeon", product="Blurite ore",

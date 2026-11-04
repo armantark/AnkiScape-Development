@@ -102,7 +102,7 @@ def supply_step_blockers_pure(player_data, quest_id, quest_data, blockers):
         )
     for recipe in plan:
         rewritten.extend(_recipe_blockers(player_data, recipe, blockers[0]["stage"]))
-    return tuple(rewritten)
+    return tuple({row["reason"]: row for row in rewritten}.values())
 
 
 def supply_step_pure(player_data, quest_id, quest_data, blockers):
