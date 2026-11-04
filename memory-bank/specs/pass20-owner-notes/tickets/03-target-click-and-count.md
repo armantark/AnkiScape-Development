@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** open
+**Status:** claimed by claude-opus-5-5 on goal/pass20-03
 
 - [ ] A real widget flow reproduces the owner's Jungle Potion herb case: click, add and train each do what they show, with no typed count needed.
 - [ ] A held row click leaves training unchanged; the header button then starts the pick, and the queue returns after it (ticket 01).

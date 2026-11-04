@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-04
 
 - [ ] Played: Pirate's Treasure completes with a next entry; no dialog appears, and the line reads "Pirate's Treasure complete. Next: <entry>." plus lamp text when lamps wait.
 - [ ] Played: the same quest with nothing next shows the popup with its old text.

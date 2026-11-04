@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** open
+**Status:** claimed by claude-opus-5-5 on goal/pass20-02
 
 - [ ] A real widget flow moves entries; the first Up and last Down are disabled.
 - [ ] A move to the top changes what the next card runs, and the moved-down entry keeps its remaining count.
