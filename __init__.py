@@ -4942,7 +4942,7 @@ def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
     # ends them; a full queue entry hands the rest of the card to the next entry.
     reviewed_action = _selected_review_action()
     queue_count = QueueCount(sys.modules[__name__])
-    stepped_recovery = handler_key == "utility" and reviewed_action[1] != DEFAULT_UTILITY_ACTIVITY
+    stepped_recovery = handler_key == "utility" and reviewed_action[1] != "bankstanding"
 
     # Combat carries no skilling pack: its engine owns supplies and bank trips.
     def step(ctx):
