@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-13
+**Status:** built; native Grand Exchange check waits for the orchestrator
 
-- [ ] A real panel flow claims the middle of three offers; the two others do not move; a new offer fills the gap.
-- [ ] An old save loads with its offers in the same positions.
-- [ ] Offscreen PNG before and after a claim, dark and light.
+- [x] A real panel flow claims the middle of three offers; the two others do not move; a new offer fills the gap.
+- [x] An old save loads with its offers in the same positions.
+- [x] Offscreen PNG before and after a claim, dark and light.

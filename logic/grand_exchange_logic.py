@@ -14,9 +14,12 @@ from .grand_exchange.demand import (
     migrate_sell_demand_items_pure, advance_sell_demand_pure,
     sell_demand_remaining_pure, consume_sell_demand_pure,
 )
+from .grand_exchange.orders import (
+    GE_SLOT_COUNT, GE_MAX_TRADE_PRICE, GE_MAX_OFFER_QUANTITY,
+    _ORDER_SIDES, sanitize_orders_pure,
+)
 
 GE_STATE_VERSION = 2
-GE_SLOT_COUNT = 6
 DEFAULT_HIGH_VALUE_CONFIRMATION = 1_000_000
 DEFAULT_LOW_PRICE_MULTIPLIER = 0.1
 DEFAULT_HIGH_PRICE_MULTIPLIER = 10.0
@@ -27,8 +30,6 @@ GE_MIN_FILL_IMPACT_BPS = 25
 GE_MAX_FILL_IMPACT_BPS = 300
 GE_IMPACT_DECAY_BPS_PER_HOUR = 30
 GE_IMPACT_LIQUIDITY_GP = 50_000
-GE_MAX_TRADE_PRICE = 2_147_483_647
-GE_MAX_OFFER_QUANTITY = 2_147_483_647
 GE_SHOCK_ROLL_ONE_IN = 240
 GE_SHOCK_MIN_BPS = 500
 GE_SHOCK_MAX_BPS = 4_000
@@ -36,8 +37,6 @@ GE_FILL_LOG_LIMIT = 40
 GE_SHOCK_MIN_TICKS = 5
 GE_SHOCK_MAX_TICKS = 40
 GE_MAX_ALCHEMY_PRESSURE_BPS = 1_500
-_ORDER_SIDES = frozenset({"buy", "sell"})
-_ORDER_STATUSES = frozenset({"open", "partial", "complete", "cancelled"})
 
 
 def _clean_float(value: object, default: float, *, minimum: float) -> float:
@@ -104,125 +103,16 @@ def _sanitize_fill_log_entry(raw: Mapping[str, Any]) -> Optional[Dict[str, Any]]
     }
 
 
-def _sanitize_order(raw: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
-    side = str(raw.get("side", ""))
-    item_name = str(raw.get("item_name", "")).strip()
-    status = str(raw.get("status", "open"))
-    if side not in _ORDER_SIDES or not item_name or status not in _ORDER_STATUSES:
-        return None
-
-    original_quantity = _clean_int(raw.get("original_quantity"), 0)
-    if original_quantity <= 0:
-        return None
-    remaining_quantity = min(
-        original_quantity,
-        _clean_int(raw.get("remaining_quantity"), 0),
-    )
-    completed_quantity = min(
-        original_quantity - remaining_quantity,
-        _clean_int(raw.get("completed_quantity"), 0),
-    )
-    if status in {"complete", "cancelled"}:
-        remaining_quantity = 0
-
-    order_id = _clean_int(raw.get("id"), 0)
-    if order_id <= 0:
-        return None
-    submitted_unit_price = _clean_int(
-        raw.get("submitted_unit_price"),
-        0,
-        minimum=0,
-    )
-    if submitted_unit_price <= 0:
-        return None
-    if (
-        original_quantity > GE_MAX_OFFER_QUANTITY
-        or submitted_unit_price > GE_MAX_TRADE_PRICE
-    ):
-        return None
-
-    if status in {"open", "partial"}:
-        if remaining_quantity <= 0:
-            status = "complete"
-        elif completed_quantity > 0:
-            status = "partial"
-        else:
-            status = "open"
-
-    if side == "buy":
-        escrow_coins = min(
-            _clean_int(raw.get("escrow_coins"), 0),
-            remaining_quantity * submitted_unit_price,
-        )
-        escrow_items = 0
-        collectible_coins = min(
-            _clean_int(raw.get("collectible_coins"), 0),
-            (
-                original_quantity * submitted_unit_price
-                if status == "cancelled"
-                else completed_quantity * submitted_unit_price
-            ),
-        )
-        collectible_items = min(
-            _clean_int(raw.get("collectible_items"), 0),
-            completed_quantity,
-        )
-    else:
-        escrow_coins = 0
-        escrow_items = min(
-            _clean_int(raw.get("escrow_items"), 0),
-            remaining_quantity,
-        )
-        collectible_coins = min(
-            _clean_int(raw.get("collectible_coins"), 0),
-            completed_quantity * GE_MAX_TRADE_PRICE,
-        )
-        collectible_items = min(
-            _clean_int(raw.get("collectible_items"), 0),
-            original_quantity if status == "cancelled" else 0,
-        )
-
-    if status in {"open", "partial"}:
-        backing_is_complete = (
-            escrow_coins == remaining_quantity * submitted_unit_price
-            if side == "buy"
-            else escrow_items == remaining_quantity
-        )
-        if not backing_is_complete:
-            if side == "buy":
-                collectible_coins += escrow_coins
-                escrow_coins = 0
-            else:
-                collectible_items += escrow_items
-                escrow_items = 0
-            remaining_quantity = 0
-            status = "cancelled"
-    if (
-        status in {"complete", "cancelled"}
-        and collectible_coins <= 0
-        and collectible_items <= 0
-    ):
-        return None
-
-    return {
-        "id": order_id,
-        "side": side,
-        "item_name": item_name,
-        "original_quantity": original_quantity,
-        "remaining_quantity": remaining_quantity,
-        "completed_quantity": completed_quantity,
-        "submitted_unit_price": submitted_unit_price,
-        "escrow_coins": escrow_coins,
-        "escrow_items": escrow_items,
-        "collectible_coins": collectible_coins,
-        "collectible_items": collectible_items,
-        "status": status,
-        "created_market_tick": _clean_int(raw.get("created_market_tick"), 0),
-        "last_updated_market_tick": _clean_int(
-            raw.get("last_updated_market_tick"),
-            0,
-        ),
-    }
+def _sanitize_fill_log(raw_fill_log: object) -> list[Dict[str, Any]]:
+    fill_log = []
+    if isinstance(raw_fill_log, (list, tuple)):
+        for raw_entry in raw_fill_log:
+            if not isinstance(raw_entry, Mapping):
+                continue
+            entry = _sanitize_fill_log_entry(raw_entry)
+            if entry is not None:
+                fill_log.append(entry)
+    return fill_log[-GE_FILL_LOG_LIMIT:]
 
 
 def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
@@ -263,24 +153,10 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         )
         market["items"] = migrate_sell_demand_items_pure(raw_market)
 
-    orders = []
-    seen_ids = set()
-    raw_orders = data.get("ge_player_orders")
-    if isinstance(raw_orders, (list, tuple)):
-        for raw_order in raw_orders:
-            if not isinstance(raw_order, Mapping):
-                continue
-            order = _sanitize_order(raw_order)
-            if order is None or order["id"] in seen_ids:
-                continue
-            seen_ids.add(order["id"])
-            orders.append(order)
-            if len(orders) == GE_SLOT_COUNT:
-                break
-
+    orders = sanitize_orders_pure(data.get("ge_player_orders"))
     next_order_id = max(
         _clean_int(data.get("ge_next_order_id"), 1, minimum=1),
-        max(seen_ids, default=0) + 1,
+        max((order["id"] for order in orders), default=0) + 1,
     )
     raw_buy_usage = data.get("ge_buy_limit_usage")
     buy_usage = (
@@ -294,15 +170,7 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         if isinstance(raw_history, Mapping)
         else {}
     )
-    raw_fill_log = data.get("ge_fill_log")
-    fill_log = []
-    if isinstance(raw_fill_log, (list, tuple)):
-        for raw_entry in raw_fill_log:
-            if not isinstance(raw_entry, Mapping):
-                continue
-            entry = _sanitize_fill_log_entry(raw_entry)
-            if entry is not None:
-                fill_log.append(entry)
+    fill_log = _sanitize_fill_log(data.get("ge_fill_log"))
 
     ironman_mode = bool(data.get("ironman_mode", False))
     raw_account_type = data.get("ironman_account_type")
@@ -323,7 +191,7 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         "ge_next_order_id": next_order_id,
         "ge_buy_limit_usage": buy_usage,
         "ge_trade_history": trade_history,
-        "ge_fill_log": fill_log[-GE_FILL_LOG_LIMIT:],
+        "ge_fill_log": fill_log,
     }
 
 
@@ -539,6 +407,7 @@ def place_ge_offer_pure(
     )
     order = {
         "id": order_id,
+        "slot": min(set(range(GE_SLOT_COUNT)) - {entry["slot"] for entry in data["ge_player_orders"]}),
         "side": side,
         "item_name": item_name,
         "original_quantity": quantity,
@@ -1466,10 +1335,9 @@ def ge_frontend_projection_pure(
         or _clean_int(order.get("collectible_items"), 0) > 0
         for order in orders
     )
-    slots = tuple(
-        orders[index] if index < len(orders) else None
-        for index in range(GE_SLOT_COUNT)
-    )
+    slots = [None] * GE_SLOT_COUNT
+    for order in orders:
+        slots[order["slot"]] = order
     clock = data.get("shop_market_clock")
     return {
         "ironman_mode": bool(data["ironman_mode"]),
@@ -1478,7 +1346,7 @@ def ge_frontend_projection_pure(
         "coins": _clean_int(data["inventory"].get("Coins"), 0),
         "settings": copy.deepcopy(data["ge_settings"]),
         "has_collectible": has_collectible,
-        "slots": slots,
+        "slots": tuple(slots),
         "items": tuple(item_rows),
         # Newest first: reverse-chronological order is decided here so every
         # frontend renders the same way.

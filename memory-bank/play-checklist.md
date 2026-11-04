@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- [ ] Main menu > Grand Exchange, light and dark, with Offer safety collapsed: collect the middle of three offers; the outside offers stay in slots 1 and 3, and a new offer fills slot 2. Reopen the menu and repeat after reload; hover Sell all to see its existing quantity hint. No game-speed setting changes this behavior. (Pass 20 ticket 13, after promotion)
+
 - [ ] In Crafting and Runecrafting, search "tara" and see tiaras without changing the active target; in Quests, search "Stolen Hearts" and see it first while Sort orders the following matches; search "the" and "mogre" and see one Quests heading followed by one Miniquests heading; try the same typo in Bank, Grand Exchange and Shop. (Pass 16 ticket 02, after promotion) (2026-10-16)
 - [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, further correct reviews stay held at Kayle without fighting Caitlin or Reese, and Edit > Undo (Cmd+Z) restores the unstarted opening. (after native acceptance)
 - In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Edit > Undo (Cmd+Z) restores the blanket and earlier stage. (after native acceptance)

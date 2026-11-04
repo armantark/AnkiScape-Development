@@ -15,6 +15,102 @@ from tests.main_menu import fixtures
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
+    def _open_ge_slot_offers(self, saved=None):
+        import json
+        from ankiscape.core.storage_pure import migrate_loaded_data
+        from ankiscape.logic.grand_exchange_logic import (
+            apply_ge_frontend_action_pure,
+            ge_frontend_projection_pure,
+            place_ge_offer_pure,
+        )
+
+        catalog = {
+            name: {"guide_price": 100, "buy_limit": 25_000, "tradeable": True, "exchangeable": True}
+            for name in ("Logs", "Coal", "Iron ore")
+        }
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 10_000}
+        if saved is None:
+            for name in catalog:
+                player, info = place_ge_offer_pure(
+                    player, side="buy", item_name=name, quantity=3,
+                    unit_price=100, item_spec=catalog[name],
+                )
+                self.assertTrue(info["ok"], info)
+            middle = player["ge_player_orders"][1]
+            middle.update(
+                remaining_quantity=0, completed_quantity=3, escrow_coins=0,
+                collectible_items=3, status="complete",
+            )
+            # Old saves stored only the compact list, with no slot numbers.
+            for order in player["ge_player_orders"]:
+                order.pop("slot", None)
+        else:
+            player = saved
+        player = migrate_loaded_data(json.loads(json.dumps(player)), {})
+        calls = []
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=catalog)
+
+        def action(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            updated, info = apply_ge_frontend_action_pure(
+                player, action_id, payload, item_catalog=catalog,
+            )
+            if info.get("ok") and action_id != "preview_offer":
+                player.clear()
+                player.update(updated)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(player, get_ge_projection=projection, on_ge_action=action)
+        _open_ge_tab(dialog)
+        return dialog, player, calls
+
+    def test_grand_exchange_old_save_keeps_offer_positions(self) -> None:
+        dialog, player, _calls = self._open_ge_slot_offers()
+        for index, name in enumerate(("Logs", "Coal", "Iron ore"), 1):
+            slot = dialog.findChild(QToolButton, f"geOfferSlot{index}")
+            self.assertIn(f"BUY · {name}", slot.text())
+            self.assertEqual(slot.property("geOrderId"), index)
+        self.assertEqual(player["inventory"]["Coins"], 9_100)
+        dialog.deleteLater()
+
+    def test_grand_exchange_claim_keeps_slots_and_new_offer_fills_gap(self) -> None:
+        dialog, player, calls = self._open_ge_slot_offers()
+        slots = [dialog.findChild(QToolButton, f"geOfferSlot{i}") for i in range(1, 4)]
+        before = [slot.text() for slot in slots]
+        QTest.mouseClick(slots[1], Qt.MouseButton.LeftButton)
+        QTest.mouseClick(
+            dialog.findChild(QPushButton, "geCollectOfferButton"), Qt.MouseButton.LeftButton,
+        )
+        QApplication.processEvents()
+        self.assertEqual(calls[-1], ("collect_offer", {"order_id": 2}))
+        self.assertEqual(player["inventory"]["Coal"], 3)
+        self.assertEqual(slots[0].text(), before[0])
+        self.assertIn("Empty offer", slots[1].text())
+        self.assertEqual(slots[2].text(), before[2])
+
+        dialog.deleteLater()
+        dialog, player, calls = self._open_ge_slot_offers(player)
+        slots = [dialog.findChild(QToolButton, f"geOfferSlot{i}") for i in range(1, 4)]
+        self.assertIn("Empty offer", slots[1].text())
+        self.assertEqual(slots[2].property("geOrderId"), 3)
+        items = dialog.findChild(QListWidget, "geItemList")
+        row = next(i for i in range(items.count()) if
+                   items.item(i).data(Qt.ItemDataRole.UserRole)["item_name"] == "Logs")
+        items.setCurrentRow(row)
+        items.itemClicked.emit(items.item(row))
+        QTest.mouseClick(
+            dialog.findChild(QPushButton, "geSubmitOfferButton"), Qt.MouseButton.LeftButton,
+        )
+        QApplication.processEvents()
+        self.assertEqual(calls[-1][0], "place_offer")
+        self.assertEqual([slot.property("geOrderId") for slot in slots], [1, 4, 3])
+        self.assertEqual(slots[0].text(), before[0])
+        self.assertEqual(slots[2].text(), before[2])
+        dialog.deleteLater()
+
     def test_initial_global_tab_can_focus_the_grand_exchange(self) -> None:
         dialog = self._open(
             _make_player_data(),
