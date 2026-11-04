@@ -41,9 +41,10 @@ class CardBudget:
     ticks_remaining: int
     stop_reason: str = ""
     exhaustion_reason: str = ""
-    # Only a burst that the queue's kill count ended leaves ticks unspent; the
-    # queue's next entry spends them.
+    # A kill can leave ticks for a bank trip or the queue's next entry.
+    # Record elapsed Combat time across those bursts for pace verification.
     burst_ticks_left: int = 0
+    combat_ticks_spent: int = 0
 
     def record_tick_stop(self, ticks_elapsed: int, reason: str) -> str:
         self.stop_reason = reason

@@ -84,8 +84,12 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
   effects and Curse ramp; the player's weapon cooldown continues. Unfinished
   fights carry to the next card. Danger stops end the card at the danger tick:
   low LP without food, new poison that remains after auto-antipoison, empty
-  prayer, exhausted ammunition or runes, death, flee, a bank trip due after a
-  kill, or the final assigned Slayer kill. A departing familiar caps the card
+  prayer, exhausted ammunition or runes, death, flee, or the final assigned Slayer kill. Combat banking spends
+  100 base ticks at every speed, shortened by Agility, carried weight and run
+  energy credit; it always completes the transaction. Ordinary combat ends
+  the encounter, while quest combat keeps enemy LP. Remaining card ticks pay
+  travel first, then resume the fight or pass to the next queue entry. Rest
+  takes 180 ticks and a chosen grave walk takes 300 ticks at every speed. A departing familiar caps the card
   at its remaining lifetime. Step actions check danger after each step, including
   a new stun and a skilling bank trip. Unspent ticks lapse, except that stun and
   partial-step debt follow the running budget. Activities and quest combat keep

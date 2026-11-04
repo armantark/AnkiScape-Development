@@ -750,7 +750,10 @@ def advance_shared_review_state_for_review(ctx: RuntimeActionContext) -> None:
     grave = ctx.player_data.get("combat_grave", {}) or {}
     if not isinstance(grave, dict) or not grave.get("items"):
         return
-    updated = advance_combat_grave_review_pure(ctx.player_data)
+    walking = grave.get("walk_ticks_remaining", 0)
+    updated = advance_combat_grave_review_pure(ctx.player_data, ctx.card.ticks_remaining)
+    if walking:
+        updated["card_tick_debt"] = int(updated.get("card_tick_debt", 0)) + min(walking, ctx.card.ticks_remaining)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
 

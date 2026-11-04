@@ -718,7 +718,7 @@ from .logic_pure_landmarks import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_BANK_RUN_TICKS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,

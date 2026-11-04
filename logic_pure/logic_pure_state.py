@@ -2,6 +2,10 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..logic.pace.combat_delays import (
+    COMBAT_BANK_RUN_TICKS, COMBAT_REST_TICKS, COMBAT_GRAVE_WALK_TICKS,
+    combat_bank_trip_ticks_pure, advance_combat_rest_pure,
+)
 from .quest_action_proofs import sanitize_quest_action_proofs_pure
 
 from ..data.potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
@@ -162,10 +166,9 @@ def _sanitize_combat_supply_loadout(raw_loadout):
 def _sanitize_combat_bank_run(raw_bank_run):
     if not isinstance(raw_bank_run, Mapping):
         return {}
-    reviews_remaining = _non_negative_int(raw_bank_run.get("reviews_remaining", 0), 0)
-    if reviews_remaining <= 0:
+    if "ticks_remaining" not in raw_bank_run and not raw_bank_run.get("reviews_remaining"):
         return {}
-    state = {"reviews_remaining": min(reviews_remaining, COMBAT_BANK_RUN_REVIEWS)}
+    state = {"ticks_remaining": min(COMBAT_BANK_RUN_TICKS, _non_negative_int(raw_bank_run.get("ticks_remaining", 0), 0))}
     target_id = raw_bank_run.get("target_id")
     if isinstance(target_id, str) and target_id:
         state["target_id"] = target_id
@@ -216,8 +219,10 @@ def _sanitize_combat_grave_state(raw_grave):
     walk_reviews = _positive_int(raw_grave.get("walk_reviews_remaining", 0), 0)
     if travel_reviews:
         state["travel_reviews"] = travel_reviews
-    if walk_reviews:
-        state["walk_reviews_remaining"] = walk_reviews
+    if "walk_ticks_remaining" in raw_grave:
+        state["walk_ticks_remaining"] = _non_negative_int(raw_grave["walk_ticks_remaining"], 0)
+    elif walk_reviews:
+        state["walk_ticks_remaining"] = 0
     target_id = raw_grave.get("target_id")
     if isinstance(target_id, str) and target_id:
         state["target_id"] = target_id
@@ -433,3 +438,33 @@ def _combat_enemy_protection_class(enemy, player_combat_class=None):
     if _combat_enemy_attack_style(enemy, player_combat_class) == "magic_melee":
         return "melee"
     return _combat_enemy_attack_class(enemy, player_combat_class)
+
+
+def _combat_bank_run_result(data, target_id, started=False, completed=False, spent=0):
+    bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
+    return {
+        "reason": "combat_bank_run",
+        "target_id": target_id,
+        "display_name": COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
+        if isinstance(target_id, str)
+        else "",
+        "bank_run_started": bool(started),
+        "bank_run_completed": bool(completed),
+        "bank_run_ticks_remaining": _non_negative_int(bank_run.get("ticks_remaining", 0), 0),
+        "ticks": spent,
+        "ticks_elapsed": spent,
+        "player_damage": 0,
+        "enemy_damage": 0,
+        "killed": False,
+        "died": False,
+        "stop_reason": "",
+        "food_used": tuple(),
+        "potions_used": tuple(),
+        "ammo_used": {},
+        "runes_used": {},
+        "status_damage": {},
+        "status_applied": {},
+        "status_expired": tuple(),
+        "drops": {},
+        "xp_rewards": {},
+    }

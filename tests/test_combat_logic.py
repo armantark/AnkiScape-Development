@@ -403,7 +403,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             "combat_auto_eat_food": ["Shark"], "combat_pack_mode": "max_safety",
         }
         fights = 0
-        for _ in range(6):
+        for _ in range(24):
             player, _ok, result = apply_combat_burst_pure(
                 player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=5, rng=_rng([0.5] * 40))
             if result.get("reason") != "combat_bank_run":
@@ -543,14 +543,14 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(loaded("balanced"), (14, 4))
         self.assertEqual(loaded("max_output"), (8, 6))
 
-    def test_manual_combat_bank_run_request_starts_the_existing_two_review_route(self):
+    def test_manual_combat_bank_run_request_starts_the_100_tick_route(self):
         requested, ok, reason = request_combat_bank_run_now_pure(
             self._melee(combat_encounter={})
         )
         self.assertTrue(ok, reason)
         self.assertEqual(
             requested["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
 
     def test_repeated_bank_request_does_not_restart_active_route(self):
@@ -564,7 +564,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(
             requested["combat_bank_run"],
-            {"reviews_remaining": 1, "target_id": "chicken"},
+            {"ticks_remaining": 0, "target_id": "chicken"},
         )
 
     def test_switching_pack_mode_immediately_rebalances_a_stale_loadout(self):
@@ -4722,8 +4722,8 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(new_data["inventory"]["Shrimps"], 1)
         self.assertEqual(new_data["combat_supply_loadout"]["food"], {})
-        self.assertEqual(new_data["combat_bank_run"], {"reviews_remaining": 1, "target_id": "giant_rat"})
-        self.assertEqual(result["stop_reason"], "bank_run")
+        self.assertEqual(new_data["combat_bank_run"], {"ticks_remaining": 95, "target_id": "giant_rat"})
+        self.assertEqual(result["stop_reason"], "")
         self.assertEqual(result["food_used"], ())
         self.assertEqual(new_data["combat_lifepoints"], 20)
 
@@ -4785,7 +4785,7 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(result["reason"], "combat_bank_run")
-        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "poison_dummy"})
+        self.assertEqual(traveling["combat_bank_run"], {"ticks_remaining": 95, "target_id": "poison_dummy"})
         self.assertEqual(traveling["inventory"]["Antipoison (1)"], 1)
         self.assertEqual(traveling["combat_supply_loadout"]["potions"], {})
 
@@ -4793,7 +4793,7 @@ class CombatLogicTest(unittest.TestCase):
             traveling,
             enemy_data,
             EQUIPMENT_DATA,
-            ticks=5,
+            ticks=95,
             rng=_rng([0.0]),
         )
 
@@ -4845,11 +4845,11 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
-        recovered = apply_safe_combat_recovery_pure(player)
+        recovered = apply_safe_combat_recovery_pure(player, ticks=50)
 
-        # Leave-combat rest heals a third of the missing 60 LP (40 -> 60), then the
-        # poison tick subtracts 30 -> 30.
-        self.assertEqual(recovered["combat_lifepoints"], 30)
+        # Leave-combat rest heals 50/180 of the missing 60 LP (40 -> 57), then the
+        # poison tick subtracts 30 -> 27.
+        self.assertEqual(recovered["combat_lifepoints"], 27)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 9)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
         self.assertEqual(combat_status_summary_pure(recovered, 1), "Poisoned: 28 LP in 2 cards")
@@ -4892,11 +4892,11 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
-        recovered = apply_safe_combat_recovery_pure(player)
+        recovered = apply_safe_combat_recovery_pure(player, ticks=50)
 
         # Antipoison cures before the tick, so no poison damage; the leave-combat
-        # rest heals a third of the missing 50 LP (50 -> 67).
-        self.assertEqual(recovered["combat_lifepoints"], 67)
+        # rest heals 50/180 of the missing 50 LP (50 -> 64).
+        self.assertEqual(recovered["combat_lifepoints"], 64)
         self.assertNotIn("poison", recovered["combat_status_effects"])
         self.assertEqual(recovered["combat_status_effects"]["poison_immunity"]["ticks_left"], 100)
         self.assertIn("Antipoison oldid 5606640", recovered["combat_status_effects"]["poison_immunity"]["source"])
@@ -5027,7 +5027,7 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
-        recovered = apply_safe_combat_recovery_pure(player)
+        recovered = apply_safe_combat_recovery_pure(player, ticks=50)
 
         self.assertEqual(recovered["combat_lifepoints"], 100)
         self.assertEqual(recovered["equipment"], {})
@@ -5046,10 +5046,10 @@ class CombatLogicTest(unittest.TestCase):
             combat_pack_mode="max_safety",  # fill the 28-slot budget with food
         )
 
-        recovered = apply_safe_combat_recovery_pure(player)
+        recovered = apply_safe_combat_recovery_pure(player, ticks=50)
 
-        # Leave-combat rest heals a third of the missing 80 LP (20 -> 47).
-        self.assertEqual(recovered["combat_lifepoints"], 47)
+        # Leave-combat rest heals 50/180 of the missing 80 LP (20 -> 43).
+        self.assertEqual(recovered["combat_lifepoints"], 43)
         self.assertEqual(recovered["combat_special_attack_energy"], 45)
         # One recovery step (100 ticks): each current moves 1 toward base 99;
         # strength reaches base and drops, attack goes 97 -> 98.
@@ -5057,7 +5057,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_recovery_progress"], {})
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {})
         self.assertEqual(recovered["inventory"]["Shark"], 30)
-        self.assertEqual(recovered["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(recovered["combat_bank_run"], {"ticks_remaining": 50, "target_id": "chicken"})
 
         refilled = apply_safe_combat_recovery_pure(recovered)
 
@@ -5077,7 +5077,7 @@ class CombatLogicTest(unittest.TestCase):
 
         recovered = apply_safe_combat_recovery_pure(player)
 
-        self.assertEqual(recovered["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(recovered["combat_bank_run"], {"ticks_remaining": 40, "target_id": "chicken"})
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {})
         self.assertEqual(recovered["inventory"]["Shark"], 5)
 
@@ -5107,7 +5107,7 @@ class CombatLogicTest(unittest.TestCase):
         traveling = apply_safe_combat_recovery_pure(player, EQUIPMENT_DATA)
         refilled = apply_safe_combat_recovery_pure(traveling, EQUIPMENT_DATA)
 
-        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(traveling["combat_bank_run"], {"ticks_remaining": 40, "target_id": "chicken"})
         self.assertEqual(traveling["combat_supply_loadout"]["ammo"], {})
         self.assertEqual(refilled["combat_bank_run"], {})
         self.assertEqual(refilled["combat_supply_loadout"]["ammo"], {"Bronze arrows": 12})
@@ -5127,7 +5127,7 @@ class CombatLogicTest(unittest.TestCase):
         traveling = apply_safe_combat_recovery_pure(player, EQUIPMENT_DATA)
         refilled = apply_safe_combat_recovery_pure(traveling, EQUIPMENT_DATA)
 
-        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(traveling["combat_bank_run"], {"ticks_remaining": 40, "target_id": "chicken"})
         self.assertEqual(refilled["combat_bank_run"], {})
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 2, "Mind rune": 2})
         self.assertEqual(refilled["inventory"]["Air rune"], 0)
@@ -5234,7 +5234,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(player["equipment_instances"]["equipment-1"]["condition"], 0)
         recovered, ok = start_combat_grave_walk_pure(player)
         self.assertTrue(ok)
-        recovered = advance_combat_grave_review_pure(recovered)
+        recovered = advance_combat_grave_review_pure(recovered, ticks=300)
         self.assertEqual(recovered["equipment"], {"hands": "Worn-out bronze gauntlets"})
         self.assertEqual(
             recovered["equipment_instances"]["equipment-1"]["location"],
@@ -5377,7 +5377,7 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertTrue(ok)
-        self.assertEqual(new_data["combat_rest_reviews"], 0)
+        self.assertEqual(new_data["combat_rest_ticks_remaining"], 180)
 
     def test_leave_combat_rest_heals_to_full_over_three_reviews(self):
         player = _player(combat_lifepoints=10, combat_auto_eat_food=[], combat_supply_loadout={})
@@ -5389,7 +5389,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(first["combat_lifepoints"], 40)   # 10 + ceil(90/3)
         self.assertEqual(second["combat_lifepoints"], 70)  # 40 + ceil(60/2)
         self.assertEqual(third["combat_lifepoints"], 100)  # 70 + ceil(30/1) -> full
-        self.assertEqual(third["combat_rest_reviews"], 3)
+        self.assertEqual(third["combat_rest_ticks_remaining"], 0)
 
     def test_death_grave_snapshots_worn_loadout_and_reclaim_reequips_it(self):
         player = _player(
@@ -5416,11 +5416,11 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["combat_grave"]["loadout"], {"weapon": "Iron sword"})
         self.assertEqual(died["equipment"], {})
 
-        # Grave auto-reclaims after COMBAT_GRAVE_RECOVERY_REVIEWS answered cards,
+        # A chosen grave walk reclaims after 300 ticks,
         # and the worn loadout re-equips into the empty slot instead of the bank.
         recovered, ok = start_combat_grave_walk_pure(died)
         self.assertTrue(ok)
-        recovered = advance_combat_grave_review_pure(recovered)
+        recovered = advance_combat_grave_review_pure(recovered, ticks=300)
 
         self.assertEqual(recovered["combat_grave"], {})
         self.assertEqual(recovered["equipment"], {"weapon": "Iron sword"})
@@ -6088,7 +6088,7 @@ class CombatLogicTest(unittest.TestCase):
             player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1
         )
         loaded, ok_loaded, completed = apply_combat_burst_pure(
-            banking, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1
+            banking, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=99
         )
         fought, ok_fought, result = apply_combat_burst_pure(
             loaded,

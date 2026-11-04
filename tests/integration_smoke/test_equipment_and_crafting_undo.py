@@ -315,16 +315,16 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(addon._state.player_data["inventory"]["Shark"], 30)
         self.assertEqual(addon._state.player_data["inventory"]["Bronze arrows"], 10)
         # One leave-combat rest review heals a ceil-share of the missing 80 LP
-        # (ceil(80/3) = 27), topping the player to full over three reviews.
-        self.assertEqual(addon._state.player_data["combat_lifepoints"], 47)
-        self.assertEqual(addon._state.player_data["combat_special_attack_energy"], 45)
+        # (ceil(80 * 12/180) = 6), at the selected 2x speed.
+        self.assertEqual(addon._state.player_data["combat_lifepoints"], 26)
+        self.assertEqual(addon._state.player_data["combat_special_attack_energy"], 37)
         self.assertEqual(addon._state.player_data["combat_current_levels"], {"attack": 2})
-        self.assertEqual(addon._state.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
+        self.assertEqual(addon._state.player_data["combat_recovery_progress"], {"stat_drain_ticks": 12})
         self.assertEqual(
             addon._state.player_data["combat_supply_loadout"],
             {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
         )
-        self.assertEqual(addon._state.player_data["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(addon._state.player_data["combat_bank_run"], {"ticks_remaining": 88, "target_id": "chicken"})
         self.assertEqual(addon._state.player_data["combat_last_result"]["reason"], "combat_bank_run")
         self.assertEqual(addon._state.player_data["combat_last_result"]["stop_reason"], "bank_trip")
         self.assertEqual(len(addon._state.review_undo_stack), 1)

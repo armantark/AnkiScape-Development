@@ -5,8 +5,8 @@ Each sampled route plays at least 3,600 game ticks (36 minutes of
 (``_spend_card_on_action``), so the carried pack, bank trips, the next-step
 check and the after-card recovery run as they do in play. The speed-10 run
 answers cards until the window is spent: 60 cards when no card ends early. Its
-last card can carry play past the minimum window. Both runs extend to a
-common endpoint with no unpaid step debt; otherwise XP that arrives in lumps
+last card can carry play past the minimum window. Combat caps the last card at the same tick endpoint in both runs; other
+actions extend to a common endpoint with no unpaid step debt; otherwise XP that arrives in lumps
 or before a borrowed step finishes would depend on the sample's cut point. A card that a
 danger stop or a kill ends early leaves its unspent ticks unplayed, so they
 count neither as play nor towards the window.
@@ -15,12 +15,8 @@ The route passes when the mean XP per tick spent at speed 10 is within four
 standard errors of the paired differences from speed 1. Quests and Dungeoneering take one stage
 or room per card at every speed (assumption 5), so they are not sampled.
 
-Combat runs with banking off, as Sol's 2026-10-15 kill-cap measurement did,
-because a Combat bank run takes two cards at every speed (plan Q12): the engine
-gets the same ``allow_bank_run=False`` that encounter-only enemies get, and the
-food loadout lasts the window. Gathering drops what it gathers, the player's own
-no-banking choice. Processing keeps its bank trips: a trip's travel reviews are
-six-tick steps at every speed, and the start of a trip is a danger stop.
+Combat includes supply and loot bank trips at every speed. Gathering drops what
+it gathers. Processing keeps its six-tick travel steps and trip-start stop.
 """
 
 from __future__ import annotations
@@ -31,7 +27,6 @@ import statistics
 import sys
 import unittest
 from typing import Any, Callable, Mapping
-from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.skill_registry import trainable_skill_definitions
@@ -304,9 +299,8 @@ COMBAT_PAIRS = {
     80: ("giant_spider_level_50", "fire_giant", "greater_demon", "bloodveld"),
     99: ("fire_giant", "black_demon", "abyssal_demon", "bloodveld"),
 }
-# Sol's 28 Sharks last one trip; chained fights eat under 100 in the window,
-# and banking is off, so the loadout holds more than the window needs.
-_SHARK_LOADOUT = 1_000
+# The bank stocks later trips; the initial carried pack is one real inventory.
+_SHARK_LOADOUT = 28
 
 
 def fighting(band: int, target_id: str) -> Route:
@@ -314,10 +308,11 @@ def fighting(band: int, target_id: str) -> Route:
 
     def player() -> dict:
         data = {
-            "inventory": {"Shark": _SHARK_LOADOUT},
+            "inventory": {"Shark": STOCK},
             "equipment": dict(COMBAT_SETUPS[band]),
             "current_combat_target": target_id,
             "combat_attack_style": "accurate",
+            "combat_auto_flee": False,
             "combat_lifepoints": band * 10,
             "combat_auto_eat_threshold_percent": 70,
             "combat_auto_eat_food": ["Shark"],
@@ -377,18 +372,9 @@ class RatePropertyCase(unittest.TestCase):
         addon._show_activity_gain = lambda _message: None
         addon._show_exp = lambda *_args, **_kwargs: None
         cls.addon = addon
-        combat_module = sys.modules[f"{addon.__name__}.runtime.runtime_actions_combat"]
-        burst = combat_module.apply_combat_burst_pure
-
-        def burst_without_banking(*args, **kwargs):
-            return burst(*args, **{**kwargs, "allow_bank_run": False})
-
-        cls._banking_off = patch.object(combat_module, "apply_combat_burst_pure", burst_without_banking)
-        cls._banking_off.start()
 
     @classmethod
     def tearDownClass(cls):
-        cls._banking_off.stop()
         sys.modules.clear()
         sys.modules.update(cls._orig_modules)
 
@@ -398,17 +384,17 @@ class RatePropertyCase(unittest.TestCase):
         self.addCleanup(random.setstate, state)
         self.addon.show_error_message = lambda _title, message: self.fail(message)
 
-    def _card_ticks(self, skill: str) -> int:
+    def _card_ticks(self, skill: str, remaining: int) -> int:
         addon = self.addon
         handler_key = addon.review_action_handler_key(skill)
         ctx = addon._runtime_action_context()
+        if handler_key == "combat":
+            ctx.card.ticks_remaining = min(ctx.card.ticks_remaining, remaining)
         budget = ctx.card.ticks_remaining
-        last_fight = addon._state.player_data.get("combat_last_result")
         addon._spend_card_on_action(ctx, handler_key, addon._registered_answer_handler(skill))
         if handler_key != "combat":
             return budget - ctx.card.ticks_remaining
-        fight = addon._state.player_data.get("combat_last_result")
-        return 0 if fight is last_fight else int(fight.get("ticks_elapsed", 0))
+        return ctx.card.combat_ticks_spent
 
     def play(self, route: Route, speed: int, seed: int, ticks: int) -> tuple[float, int]:
         """Play at least ``ticks`` and finish with every borrowed step tick paid."""
@@ -422,7 +408,7 @@ class RatePropertyCase(unittest.TestCase):
         while (
             spent < ticks or addon._state.player_data.get("card_tick_debt", 0)
         ) and cards < MAX_CARDS and addon._state.current_skill == route.skill:
-            spent += self._card_ticks(route.skill)
+            spent += self._card_ticks(route.skill, ticks - spent)
             cards += 1
         self.assertGreaterEqual(
             spent,

@@ -4941,10 +4941,10 @@ _COMBAT_RECOVERY_STATE_KEYS = (
 def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> None:
     if not any(key in _state.player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
         return
-    before_state = copy.deepcopy(_state.player_data)
-    recovered = apply_safe_combat_recovery_pure(_state.player_data, EQUIPMENT_DATA)
-    if recovered == before_state:
+    recovered = apply_safe_combat_recovery_pure(_state.player_data, EQUIPMENT_DATA, runtime_actions.card_ticks_pure(_review_action_multiplier()))
+    if recovered == _state.player_data:
         return
+    _state.player_data.clear()
     _state.player_data.update(recovered)
     save_callback()
     _refresh_skill_availability()

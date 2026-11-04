@@ -101,7 +101,7 @@ from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from ..logic.wicked_hood_logic import bank_run_phase_label_pure
 from ..logic_pure.logic_pure import (
-    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_BANK_RUN_TICKS,
     _non_negative_int,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
@@ -275,7 +275,7 @@ def review_bank_run_button_view_pure(
 
 
 def review_bank_run_travel_view_pure(
-    player_data: Mapping[str, Any], handler_key: Any
+    player_data: Mapping[str, Any], handler_key: Any, speed: int = 1
 ) -> dict[str, Any]:
     """Project the active review handler's bank run for the HUD strip."""
 
@@ -285,8 +285,8 @@ def review_bank_run_travel_view_pure(
     if handler == "combat":
         combat_run = _mapping(player_data, "combat_bank_run")
         remaining = min(
-            _non_negative_int(combat_run.get("reviews_remaining", 0)),
-            COMBAT_BANK_RUN_REVIEWS,
+            _non_negative_int(combat_run.get("ticks_remaining", 0)),
+            COMBAT_BANK_RUN_TICKS,
         )
         queued = requested_handler == handler
     elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
@@ -313,11 +313,11 @@ def review_bank_run_travel_view_pure(
         }
 
     if kind == "combat":
-        label, total = "Banking supplies", COMBAT_BANK_RUN_REVIEWS
+        label, total = "Banking supplies", COMBAT_BANK_RUN_TICKS
     else:
         label = bank_run_phase_label_pure(skilling_run)
         total = max(remaining, _non_negative_int(skilling_run.get("reviews_total", 0)))
-    done = min(total - remaining, total)
+    reviews = math.ceil(remaining / (6 * speed))
     return {
         "active": True,
         "queued": False,
@@ -325,8 +325,8 @@ def review_bank_run_travel_view_pure(
         "label": label,
         "total": total,
         "remaining": remaining,
-        "percent": int(round(100.0 * done / total)),
-        "text": f"Bank run — {label} · {done}/{total} travel reviews",
+        "percent": int(round(100.0 * (total - remaining) / total)),
+        "text": f"Bank run — {reviews} review{'s' if reviews != 1 else ''} remaining" if kind == "combat" else f"Bank run — {label} · {done}/{total} travel reviews",
     }
 
 

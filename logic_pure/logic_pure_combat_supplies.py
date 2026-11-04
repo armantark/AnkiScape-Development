@@ -231,7 +231,8 @@ from .logic_pure_equipment import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
+    combat_bank_trip_ticks_pure,
+    _combat_bank_run_result,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
@@ -297,7 +298,8 @@ from .logic_pure_equipment import (
 )
 
 from .logic_pure_state import (
-    COMBAT_BANK_RUN_REVIEWS,
+    combat_bank_trip_ticks_pure,
+    _combat_bank_run_result,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
     _COMBAT_STAT_POTION_BY_DOSE,
@@ -898,36 +900,6 @@ def _combat_try_pack_yak_winter_storage(
     return True
 
 
-def _combat_bank_run_result(data, target_id, started=False, completed=False):
-    bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
-    return {
-        "reason": "combat_bank_run",
-        "target_id": target_id,
-        "display_name": COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
-        if isinstance(target_id, str)
-        else "",
-        "bank_run_started": bool(started),
-        "bank_run_completed": bool(completed),
-        "bank_run_reviews_remaining": _non_negative_int(bank_run.get("reviews_remaining", 0), 0),
-        "ticks": 0,
-        "ticks_elapsed": 0,
-        "player_damage": 0,
-        "enemy_damage": 0,
-        "killed": False,
-        "died": False,
-        "stop_reason": "bank_run",
-        "food_used": tuple(),
-        "potions_used": tuple(),
-        "ammo_used": {},
-        "runes_used": {},
-        "status_damage": {},
-        "status_applied": {},
-        "status_expired": tuple(),
-        "drops": {},
-        "xp_rewards": {},
-    }
-
-
 def _combat_locks_can_bank_run(locked_reasons, *, allow_empty=True):
     if not locked_reasons:
         return allow_empty
@@ -938,7 +910,7 @@ def _combat_locks_can_bank_run(locked_reasons, *, allow_empty=True):
     )
 
 
-def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
+def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None, ticks=6):
     bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
     if bank_run and bank_run.get("target_id") not in (None, target_id):
         bank_run = {}
@@ -953,18 +925,20 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
             equipment_data,
             enemy_data,
         ):
-            bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
+            bank_run = {"ticks_remaining": combat_bank_trip_ticks_pure(data, target_id), "target_id": target_id}
     if not bank_run:
         data["combat_bank_run"] = {}
         return None
-    data["combat_encounter"] = {}
-    remaining = _non_negative_int(bank_run.get("reviews_remaining", 0), 0) - 1
+    if not (enemy_data or {}).get(target_id, {}).get("quest_id"):
+        data["combat_encounter"] = {}
+    spent = min(ticks, bank_run["ticks_remaining"])
+    remaining = bank_run["ticks_remaining"] - spent
     if remaining <= 0:
         data["combat_bank_run"] = {}
         _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data)
-        return _combat_bank_run_result(data, target_id, started=started, completed=True)
-    data["combat_bank_run"] = {"reviews_remaining": remaining, "target_id": target_id}
-    return _combat_bank_run_result(data, target_id, started=started, completed=False)
+        return _combat_bank_run_result(data, target_id, started=started, completed=True, spent=spent)
+    data["combat_bank_run"] = {"ticks_remaining": remaining, "target_id": target_id}
+    return _combat_bank_run_result(data, target_id, started=started, completed=False, spent=spent)
 
 
 def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
@@ -1520,6 +1494,9 @@ def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lif
 
 
 def combat_status_summary_pure(player_data, speed):
+    bank = player_data.get("combat_bank_run", {}) or {}
+    if bank:
+        return f"Bank run: {cards_left_text_pure(bank.get('ticks_remaining', 0), speed)}"
     effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
     poison = effects.get("poison")
     if poison:
@@ -1714,3 +1691,23 @@ def _combat_supply_slots_used(data):
     if _non_negative_int(loadout.get("cannonballs", 0), 0) > 0:
         slots += 1
     return slots
+
+
+def _combat_bank_window(
+    data, target_id, combat_class, ranged_weapon_spec, spell_spec,
+    equipment_data, enemy_data, ticks, allow_bank_run, locked_reasons,
+):
+    ticks = _positive_int(ticks, COMBAT_BURST_TICKS)
+    if not allow_bank_run or not _combat_locks_can_bank_run(locked_reasons):
+        return 0, ticks, None, locked_reasons
+    result = _combat_progress_or_start_bank_run(
+        data, target_id, combat_class, ranged_weapon_spec, spell_spec,
+        equipment_data, enemy_data, ticks=ticks,
+    )
+    if result is None:
+        return 0, ticks, None, locked_reasons
+    spent = result["ticks_elapsed"]
+    if not result["bank_run_completed"] or spent >= ticks:
+        return spent, ticks, result, ()
+    reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
+    return spent, ticks - spent, None, reasons

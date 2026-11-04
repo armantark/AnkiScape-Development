@@ -30,7 +30,7 @@ class ChainBankLootTests(unittest.TestCase):
         self.assertTrue(ok)
         result = ctx.player_data["combat_last_result"]
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 21))
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Bones": 1})
         self.assertEqual(ctx.player_data["inventory"]["Bones"], 8)
         carried = ctx.player_data["carried_inventory"]["chicken"]
@@ -51,7 +51,7 @@ class ChainBankLootTests(unittest.TestCase):
         self.assertTrue(ok)
         result = ctx.player_data["combat_last_result"]
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (2, 45))
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Bones": 2})
         self.assertEqual(ctx.player_data["inventory"]["Bones"], 8)
         self.assertEqual(ctx.player_data["carried_inventory"]["chicken"], {"Bones": 8})
@@ -83,7 +83,7 @@ class ChainBankLootTests(unittest.TestCase):
         self.assertTrue(ok)
         result = ctx.player_data["combat_last_result"]
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 1))
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Bones": 1})
         self.assertEqual(ctx.player_data["inventory"]["Bones"], 8)
         self.assertEqual(ctx.player_data["carried_inventory"]["chicken"], {"Bones": 8})

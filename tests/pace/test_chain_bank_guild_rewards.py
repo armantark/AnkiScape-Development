@@ -57,7 +57,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
         self.assertTrue(ok, _calls)
         result = ctx.player_data["combat_last_result"]
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 1))
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Big bones": 2})
         self.assertEqual(ctx.player_data["inventory"]["Big bones"], 8)
         carried = ctx.player_data["carried_inventory"]["cyclops"]
@@ -74,7 +74,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
         self.assertTrue(ok, _calls)
         result = ctx.player_data["combat_last_result"]
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 1))
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Big bones": 1, "Bronze defender": 1})
         self.assertEqual(ctx.player_data["inventory"]["Bronze defender"], 1)
         self.assertEqual(ctx.player_data["inventory"]["Big bones"], 7)
@@ -97,7 +97,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
                 self.assertTrue(ok, _calls)
                 result = ctx.player_data["combat_last_result"]
                 self.assertEqual((result["kills"], result["ticks_elapsed"]), (2, 5))
-                self.assertEqual(ctx.card.stop_reason, "bank_trip")
+                self.assertEqual(ctx.card.stop_reason, "")
                 self.assertEqual(result["drops"], drops)
                 self.assertEqual(ctx.player_data["carried_inventory"]["cyclops"], carried)
                 for item, count in carried.items():
@@ -133,7 +133,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
                  "drops": {"guaranteed": (("Big bones", 1),), "tables": ()}}
         ctx, _calls, ok = answer_guild(player, 0.999999, enemy=enemy)
         self.assertTrue(ok, _calls)
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(ctx.player_data["combat_last_result"]["ticks_elapsed"], 1)
         self.assertEqual(ctx.player_data["inventory"]["Big bones"], 8)
         self.assertEqual(ctx.player_data["warriors_guild"]["cyclossus_kills"], 1)
@@ -151,7 +151,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
                 self.assertTrue(ok, _calls)
                 result = ctx.player_data["combat_last_result"]
                 self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 21))
-                self.assertEqual(ctx.card.stop_reason, "bank_trip")
+                self.assertEqual(ctx.card.stop_reason, "")
                 self.assertEqual(result["drops"], {item: quantity})
                 self.assertEqual(ctx.player_data["inventory"][item], quantity)
                 self.assertEqual(ctx.player_data["carried_inventory"]["chicken"][item], quantity)
@@ -185,7 +185,7 @@ class ChainBankGuildRewardsTests(unittest.TestCase):
                 )
                 self.assertTrue(ok, _calls)
                 result = ctx.player_data["combat_last_result"]
-                self.assertEqual(ctx.card.stop_reason, "bank_trip")
+                self.assertEqual(ctx.card.stop_reason, "")
                 self.assertEqual(result["warriors_guild"]["tokens"]["ejected"], ejected)
                 self.assertEqual(ctx.player_data["warriors_guild"]["cyclossus_pending"], not ejected)
                 self.assertEqual(ctx.player_data["current_combat_target"], target)

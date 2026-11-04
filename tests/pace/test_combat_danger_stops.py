@@ -107,7 +107,7 @@ class CombatDangerStopsTests(unittest.TestCase):
         ctx, _calls, ok = answer_combat(player, hits=((True, 1),))
         self.assertTrue(ok)
         result = ctx.player_data["combat_last_result"]
-        self.assertEqual(ctx.card.stop_reason, "bank_trip")
+        self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual((result["kills"], result["ticks_elapsed"]), (1, 1))
         self.assertEqual(ctx.player_data["combat_encounter"], {})
         self.assertFalse(ctx.player_data.get("combat_bank_run"))

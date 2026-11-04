@@ -110,7 +110,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertTrue(addon.on_do_bank_run_now())
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
         addon._state.player_data["combat_bank_run"] = {}
         addon._state.current_skill = "Mining"
@@ -158,7 +158,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertTrue(addon.on_do_bank_run_now())
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
         addon._state.player_data["combat_bank_run"] = {}
         addon._state.current_skill = "Combat"

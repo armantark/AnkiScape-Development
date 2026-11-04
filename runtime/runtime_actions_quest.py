@@ -89,8 +89,8 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
     display_name = str(result.get("display_name") or "combat encounter")
     quantity_text = str(result.get("quantity_text") or "")
     if result.get("reason") == "quest_combat_bank_run":
-        remaining = int(result.get("bank_run_reviews_remaining", 0) or 0)
-        ctx.show_activity_gain(f"{display_name}: bank run ({remaining} reviews remaining)")
+        remaining = -(-int(result.get("bank_run_ticks_remaining", 0) or 0) // (6 * ctx.review_action_multiplier))
+        ctx.show_activity_gain(f"{display_name}: bank run (reviews remaining: {remaining})")
     elif result.get("died"):
         ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
     elif result.get("killed"):

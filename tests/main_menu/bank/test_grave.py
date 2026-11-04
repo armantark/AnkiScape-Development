@@ -57,12 +57,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             self.assertTrue(banner.isEnabled())
             banner.click()
             QApplication.processEvents()
-            self.assertEqual(player_data["combat_grave"]["walk_reviews_remaining"], 1)
+            self.assertEqual(player_data["combat_grave"]["walk_ticks_remaining"], 300)
         finally:
             dialog.deleteLater()
 
         player_data["death_office"] = {}
-        updated = advance_combat_grave_review_pure(player_data)
+        updated = advance_combat_grave_review_pure(player_data, ticks=300)
         player_data.clear()
         player_data.update(updated)
         reclaimed_dialog = self._open(player_data, current_skill="Agility")

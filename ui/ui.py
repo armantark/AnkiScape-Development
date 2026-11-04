@@ -2436,7 +2436,7 @@ if HAS_QT:
             # area (owner ruling: including combat's health/enemy presentation).
             # The ordinary branches re-show whatever they need below.
             travel = review_bank_run_travel_view_pure(
-                player_data, review_action_handler_key(skill)
+                player_data, review_action_handler_key(skill), _game_speed()
             )
             if travel.get("active") or travel.get("queued"):
                 for stale in (
@@ -7259,7 +7259,7 @@ def show_main_menu(
         bank_run_remaining = 0
         if isinstance(bank_run_raw, dict):
             try:
-                bank_run_remaining = max(0, int(bank_run_raw.get("reviews_remaining", 0) or 0))
+                bank_run_remaining = max(0, -(-int(bank_run_raw.get("ticks_remaining", 0) or 0) // (6 * _game_speed())))
             except (TypeError, ValueError):
                 bank_run_remaining = 0
         return (
@@ -25881,7 +25881,7 @@ def show_main_menu(
     tabs.currentChanged.connect(_update_help_button_tooltip)
     _update_help_button_tooltip()
 
-    grave_banner_view = combat_grave_banner_view_pure(player_data)
+    grave_banner_view = combat_grave_banner_view_pure(player_data, _game_speed())
     grave_banner = QPushButton(str(grave_banner_view["text"]))
     grave_banner.setObjectName("graveRecoveryBanner")
     grave_banner.setVisible(bool(grave_banner_view["visible"]))

@@ -56,7 +56,7 @@ class EncounterLifecycleTest(unittest.TestCase):
             walking,
             _combat.COMBAT_ENEMY_DATA,
             _combat.EQUIPMENT_DATA,
-            ticks=1,
+            ticks=99,
             rng=_combat._rng([]),
         )
         self.assertTrue(ok, second)
@@ -89,7 +89,7 @@ class EncounterLifecycleTest(unittest.TestCase):
             walking,
             _combat.COMBAT_ENEMY_DATA,
             _combat.EQUIPMENT_DATA,
-            ticks=1,
+            ticks=99,
             rng=_combat._rng([]),
         )
         self.assertTrue(ok, result)

@@ -98,6 +98,7 @@ _ROUTE_COSTS = {
 
 
 _HANDLER_DEFAULTS = {
+    "combat": (1.0, "weak", "Running to the bank", "ankiscape_trip_abstraction"),
     "mining": (1.0, "weak", "Running to the bank", "ankiscape_trip_abstraction"),
     "woodcutting": (1.0, "weak", "Running to the bank", "ankiscape_trip_abstraction"),
     "fishing": (1.0, "weak", "Running to the bank", "ankiscape_trip_abstraction"),

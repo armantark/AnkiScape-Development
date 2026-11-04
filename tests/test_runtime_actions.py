@@ -1745,7 +1745,7 @@ class TestRuntimeActions(unittest.TestCase):
         player_data.clear()
         player_data.update(started)
         runtime_actions.advance_shared_review_state_for_review(
-            _context(player_data, calls, random_values=(0.5,))
+            _context(player_data, calls, random_values=(0.5,), review_action_multiplier=50)
         )
 
         self.assertEqual(player_data["combat_grave"], {})

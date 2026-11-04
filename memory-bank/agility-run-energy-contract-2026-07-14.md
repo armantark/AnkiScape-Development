@@ -107,7 +107,7 @@ This makes the tiers fall out of one anchored number instead of four hand-set on
 | Firemaking | marginal | ~+3% | Basically at the bank |
 | Fletching | none | 0 | You stand on the bank chest |
 | Herblore | none | 0 | You stand on the bank chest |
-| Combat | weak, **restock unaffected** | ~+7% | Mostly short walks; the supply refill + altar restore still cost their reviews |
+| Combat | weak | ~+7% | A 100-base-tick bank trip at every speed; carried weight and run energy credit shorten travel, but the supply refill and altar restore always complete |
 
 ## Magnitude (labeled bounded abstraction — owner decision 2026-07-15)
 

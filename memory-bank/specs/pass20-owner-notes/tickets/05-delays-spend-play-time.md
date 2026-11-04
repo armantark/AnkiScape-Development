@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-05
+**Status:** built; native Combat HUD check waits for the orchestrator
 
-- [ ] `tests/pace/rates/rate_property.py` runs Combat with banking on, and it passes at 1x and 10x.
-- [ ] A played fight at 1x, 10x and 20x: a 10x card spends 60 ticks across a bank run when no danger stop occurs; a 1x bank run costs 17 cards.
-- [ ] Agility 99 costs about 93 ticks; a due trip is the only new RNG draw; the bank transaction always completes.
-- [ ] Ordinary combat still ends the encounter at a bank run; quest combat still keeps enemy LP.
-- [ ] A queue entry handed over after a bank run gets the remaining ticks.
-- [ ] The report holds the XP-per-card table for the four `facts-combat.md` fixtures at 1x, 10x and 20x beside the old values, measured with the same seed and script (`/tmp/pass20-facts/combat/measure.py` adapted, kept in the evidence folder).
+- [x] `tests/pace/rates/rate_property.py` runs Combat with banking on, and it passes at 1x and 10x.
+- [x] A played fight at 1x, 10x and 20x: a 10x card spends 60 ticks across a bank run when no danger stop occurs; a 1x bank run costs 17 cards.
+- [x] Agility 99 costs about 93 ticks; a due trip is the only new RNG draw; the bank transaction always completes.
+- [x] Ordinary combat still ends the encounter at a bank run; quest combat still keeps enemy LP.
+- [x] A queue entry handed over after a bank run gets the remaining ticks.
+- [x] The report holds the XP-per-card table for the four `facts-combat.md` fixtures at 1x, 10x and 20x beside the old values, measured with the same seed and script (`/tmp/pass20-facts/combat/measure.py` adapted, kept in the evidence folder).

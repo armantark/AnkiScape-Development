@@ -58,7 +58,6 @@ from ..logic_pure.logic_pure import (
     _combat_locks_can_bank_run,
     active_prayer_selection_pure,
     combat_near_death_without_food_pure,
-    COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
@@ -475,11 +474,12 @@ def _burst_kill_limit(ctx: RuntimeActionContext, slayer_limit):
 def _record_burst_stop(ctx: RuntimeActionContext, result, slayer_limit) -> str:
     """Record why the burst ended the card.
 
-    When the queue entry's kill count, not the Slayer task, ended the burst,
-    nothing ended the card early: its unspent ticks go to the queue's next entry.
+    A bank trip spends the rest of the card. A finished queue kill count hands
+    its ticks to the next entry; the Slayer task's terminal stop still ends it.
     """
     reason, elapsed = result.get("stop_reason", ""), result.get("ticks_elapsed", 0)
-    if reason == "slayer_task_complete" and _burst_kill_limit(ctx, slayer_limit) != slayer_limit:
+    ctx.card.combat_ticks_spent += elapsed
+    if reason == "bank_trip" or (reason == "slayer_task_complete" and _burst_kill_limit(ctx, slayer_limit) != slayer_limit):
         reason = ""
         ctx.card.burst_ticks_left = max(0, ctx.card.ticks_remaining - elapsed)
     return ctx.card.record_tick_stop(elapsed, reason)
@@ -844,16 +844,8 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         if result.get("bank_run_completed"):
             ctx.show_activity_gain("Bank run — arrived and restocked")
         else:
-            route = bank_run_phase_label_pure(
-                player_data.get("combat_bank_run")
-            )
-            remaining = max(
-                0, int(result.get("bank_run_reviews_remaining", 0) or 0)
-            )
-            ctx.show_activity_gain(
-                f"Bank run — {route} · {COMBAT_BANK_RUN_REVIEWS - remaining}"
-                f"/{COMBAT_BANK_RUN_REVIEWS} travel reviews"
-            )
+            remaining = -(-int(result.get("bank_run_ticks_remaining", 0)) // (6 * ctx.review_action_multiplier))
+            ctx.show_activity_gain(f"Bank run — {remaining} review{'s' if remaining != 1 else ''} remaining")
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
         vampyre_bites = int(result.get("vampyre_bites", 0) or 0)

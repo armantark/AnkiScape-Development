@@ -85,6 +85,7 @@ from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     _combat_missing_loaded_runes,
     _combat_pick_potion_for_skill,
     _combat_progress_or_start_bank_run,
+    _combat_bank_window,
     _combat_ranged_strength_bonus,
     _combat_recover_current_levels,
     _combat_refill_antipoison_loadout,
@@ -125,13 +126,9 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     COMBAT_POISON_TICK_DELAY,
     COMBAT_POISON_TIMER_SOURCE_PATH,
     COMBAT_PRESET_FIELDS,
-    COMBAT_REST_FULL_HEAL_REVIEWS,
     COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
     COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS,
     COMBAT_STAT_DRAIN_RECOVERY_TICKS,
-    NATURAL_COMBAT_RECOVERY_LIFEPOINTS,
-    SAFE_COMBAT_RECOVERY_LIFEPOINTS,
-    SAFE_COMBAT_RECOVERY_TICKS,
     _COMBAT_AFFECTABLE_SKILLS,
     _COMBAT_ANTIPOISON_SLOT_CAP,
     _COMBAT_DEFAULT_PACK_MODE,
@@ -319,7 +316,10 @@ from .logic_pure_equipment import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_REST_TICKS,
+    COMBAT_GRAVE_WALK_TICKS,
+    combat_bank_trip_ticks_pure,
+    advance_combat_rest_pure,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
@@ -356,6 +356,7 @@ from .logic_pure_combat_supplies import (
     _combat_consume_ranged_ammo,
     _combat_locks_can_bank_run,
     _combat_progress_or_start_bank_run,
+    _combat_bank_window,
     _combat_ranged_strength_bonus,
     _combat_recover_current_levels,
     _combat_refill_antipoison_loadout,
@@ -378,10 +379,6 @@ from .logic_pure_combat_food import _combat_preview_food_available  # noqa: F401
 from .logic_pure_combat_model import (
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
-    COMBAT_REST_FULL_HEAL_REVIEWS,
-    NATURAL_COMBAT_RECOVERY_LIFEPOINTS,
-    SAFE_COMBAT_RECOVERY_LIFEPOINTS,
-    SAFE_COMBAT_RECOVERY_TICKS,
     _COMBAT_XP_MODE_TO_STYLE_ID,
     _DEFAULT_COMBAT_AUTO_EAT_FOOD,
     _combat_accuracy,
@@ -696,7 +693,7 @@ def combat_enemy_pressure_attack_pure(
     }
 
 
-def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
+def apply_safe_combat_recovery_pure(player_data, equipment_data=None, ticks=60):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
     encounter = data.get("combat_encounter", {}) or {}
@@ -714,29 +711,11 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     ):
         data["combat_encounter"] = {}
     max_lp = combat_max_lifepoints_pure(data)
-    current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
-    rest_reviews = _non_negative_int(data.get("combat_rest_reviews", 0), 0)
-    if current_lp > max_lp:
-        data["combat_lifepoints"] = max(max_lp, current_lp - SAFE_COMBAT_RECOVERY_LIFEPOINTS)
-    elif current_lp < max_lp:
-        # Just left combat: heal to full over COMBAT_REST_FULL_HEAL_REVIEWS reviews
-        # (a share of the missing LP each review, so the last one tops off). Once
-        # that rest window is spent, fall back to the slow natural-regen trickle.
-        missing = max_lp - current_lp
-        turns_left = COMBAT_REST_FULL_HEAL_REVIEWS - rest_reviews
-        if turns_left >= 1:
-            heal = -(-missing // turns_left)  # ceil so the final rest review reaches full
-        else:
-            heal = NATURAL_COMBAT_RECOVERY_LIFEPOINTS
-        effects = prayer_effect_state_pure(data)
-        rapid_heal_multiplier = max(1.0, float(effects.get("rapid_heal", 0.0)))
-        heal = max(heal, int(NATURAL_COMBAT_RECOVERY_LIFEPOINTS * rapid_heal_multiplier))
-        data["combat_lifepoints"] = min(max_lp, current_lp + heal)
-    data["combat_rest_reviews"] = rest_reviews + 1
-    _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
-    _combat_recover_current_levels(data, SAFE_COMBAT_RECOVERY_TICKS)
+    advance_combat_rest_pure(data, max_lp, ticks, float(prayer_effect_state_pure(data).get("rapid_heal", 1.0)))
+    _combat_regenerate_special_attack_energy(data, ticks, exact=True)
+    _combat_recover_current_levels(data, ticks)
     _combat_consume_antipoison_if_needed(data)
-    status_result = _combat_advance_status_effects(data, SAFE_COMBAT_RECOVERY_TICKS)
+    status_result = _combat_advance_status_effects(data, ticks)
     if status_result.get("died"):
         _combat_apply_pvm_death(data, max_lp, "combat_poison_death")
         return data
@@ -754,7 +733,7 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
         combat_class,
         weapon_spec,
         spell_spec,
-        equipment_data,
+        equipment_data, ticks=ticks,
     )
     if bank_run_result is not None:
         bank_run_result["stop_reason"] = "bank_trip"
@@ -774,25 +753,22 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
 def start_combat_grave_walk_pure(player_data):
     data = _copy_player_data_with_nested(player_data)
     grave = dict(data.get("combat_grave", {}) or {})
-    if not grave.get("items") or grave.get("walk_reviews_remaining"):
+    if not grave.get("items") or "walk_ticks_remaining" in grave:
         return data, False
-    grave["walk_reviews_remaining"] = max(
-        1, _positive_int(grave.get("travel_reviews", 1), 1)
-    )
+    grave["walk_ticks_remaining"] = COMBAT_GRAVE_WALK_TICKS
     data["combat_grave"] = grave
     return data, True
 
 
-def advance_combat_grave_review_pure(player_data):
+def advance_combat_grave_review_pure(player_data, ticks=6):
     """Advance a chosen walk-back and the universal gravestone expiry clock."""
     data = _copy_player_data_with_nested(player_data)
     grave = data.get("combat_grave", {}) or {}
     if not isinstance(grave, Mapping) or not grave.get("items"):
         return data
     grave = dict(grave)
-    walking = _non_negative_int(grave.get("walk_reviews_remaining", 0), 0)
-    if walking > 0:
-        walking -= 1
+    if "walk_ticks_remaining" in grave or grave.get("walk_reviews_remaining"):
+        walking = max(0, _non_negative_int(grave.get("walk_ticks_remaining", 0), 0) - ticks)
         if walking <= 0:
             _combat_reclaim_items_to_player(
                 data, grave.get("items", ()) or (), _combat_stored_loadout(grave)
@@ -800,14 +776,16 @@ def advance_combat_grave_review_pure(player_data):
             data["combat_grave"] = {}
             data.update(sanitize_equipment_instance_state_pure(data, EQUIPMENT_CONDITION_DATA))
             return data
-        grave["walk_reviews_remaining"] = walking
+        grave["walk_ticks_remaining"] = walking
+        data["combat_grave"] = grave
+        return data
     remaining = max(0, _positive_int(grave.get("reviews_remaining", 1), 1) - 1)
     grave["reviews_remaining"] = remaining
     data["combat_grave"] = grave if remaining > 0 else {}
     return data
 
 
-def combat_grave_banner_view_pure(player_data):
+def combat_grave_banner_view_pure(player_data, speed=1):
     """Return the compact always-visible recovery banner projection."""
     grave = player_data.get("combat_grave", {}) or {}
     grave_items = _combat_grave_items(grave)
@@ -818,7 +796,7 @@ def combat_grave_banner_view_pure(player_data):
             grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
             COMBAT_GRAVE_RECOVERY_REVIEWS,
         )
-        walking = _non_negative_int(grave.get("walk_reviews_remaining", 0), 0)
+        walking = -(-_non_negative_int(grave.get("walk_ticks_remaining", 0), 0) // max(6, 6 * int(speed)))
         suffix = (
             f"walking back — {walking} reviews remaining"
             if walking
@@ -1086,22 +1064,11 @@ def apply_combat_burst_pure(
     spell_id, spell_spec = _combat_selected_magic_spell(data)
     borrowed_manual_cast = bool(spell_spec.get("borrowed_spell_id"))
     locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
-    bank_run_result = (
-        _combat_progress_or_start_bank_run(
-            data,
-            target_id,
-            combat_class,
-            ranged_weapon_spec,
-            spell_spec,
-            equipment_data,
-            enemy_data,
-        )
-        if allow_bank_run
-        else None
+    bank_ticks, ticks, bank_run_result, locked_reasons = _combat_bank_window(
+        data, target_id, combat_class, ranged_weapon_spec, spell_spec,
+        equipment_data, enemy_data, ticks, allow_bank_run, locked_reasons,
     )
     if bank_run_result is not None:
-        if not _combat_locks_can_bank_run(locked_reasons):
-            return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
         data["combat_last_result"] = bank_run_result
         return data, True, bank_run_result
     if locked_reasons:
@@ -1327,9 +1294,9 @@ def apply_combat_burst_pure(
     ticks_elapsed = 0
     death_burst = 0
     stop_reason = ""
-    # This is a live combat review, so the out-of-combat rest window restarts from
-    # zero; the next non-combat review begins healing you back toward full.
-    data["combat_rest_reviews"] = 0
+    # Fighting restarts the safe recovery window; later safe play spends it.
+    data.pop("combat_rest_reviews", None)
+    data["combat_rest_ticks_remaining"] = COMBAT_REST_TICKS
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
@@ -1661,8 +1628,9 @@ def apply_combat_burst_pure(
         "reason": "combat_burst",
         "target_id": target_id,
         "display_name": enemy.get("display_name", target_id),
-        "ticks": total_ticks,
-        "ticks_elapsed": ticks_elapsed,
+        "ticks": total_ticks + bank_ticks,
+        "ticks_elapsed": ticks_elapsed + bank_ticks,
+        "bank_ticks": bank_ticks,
         "player_damage": player_damage,
         "player_hits_landed": player_hits_landed,
         "enemy_damage": enemy_damage,
@@ -1883,13 +1851,11 @@ def request_combat_bank_run_now_pure(player_data):
     data.update(sanitize_combat_state_pure(data))
     data["combat_encounter"] = {}
     active_run = data.get("combat_bank_run")
-    if isinstance(active_run, Mapping) and _non_negative_int(
-        active_run.get("reviews_remaining", 0), 0
-    ) > 0:
+    if active_run:
         return data, True, ""
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     data["combat_bank_run"] = {
-        "reviews_remaining": COMBAT_BANK_RUN_REVIEWS,
+        "ticks_remaining": combat_bank_trip_ticks_pure(data, target_id),
         "target_id": target_id,
     }
     return data, True, ""

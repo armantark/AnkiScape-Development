@@ -647,7 +647,7 @@ class ReviewBankRunViewTest(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(combat["combat_bank_run"]["target_id"], "chicken")
-        self.assertGreater(combat["combat_bank_run"]["reviews_remaining"], 0)
+        self.assertGreater(combat["combat_bank_run"]["ticks_remaining"], 0)
         self.assertTrue(skilling_ok)
         self.assertEqual(
             skilling["review_bank_run_requested_target"], "copper_ore"
@@ -669,7 +669,7 @@ class ReviewBankRunViewTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(
             combat["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
         # Owner ruling (Pass 14): the trip leaves the fight, so the enemy is gone
         # and the walk back starts a fresh one.
@@ -682,10 +682,10 @@ class BankRunTravelViewTest(unittest.TestCase):
 
         self.assertEqual(view, {"active": False, "queued": False})
 
-    def test_active_combat_run_projects_its_two_review_trip(self):
+    def test_active_combat_run_projects_its_100_tick_trip(self):
         data = _player()
         data["combat_bank_run"] = {
-            "reviews_remaining": 2,
+            "ticks_remaining": 100,
             "target_id": "chicken",
         }
 
@@ -694,23 +694,23 @@ class BankRunTravelViewTest(unittest.TestCase):
         self.assertTrue(view["active"])
         self.assertFalse(view["queued"])
         self.assertEqual(view["kind"], "combat")
-        self.assertEqual(view["total"], 2)
-        self.assertEqual(view["remaining"], 2)
+        self.assertEqual(view["total"], 100)
+        self.assertEqual(view["remaining"], 100)
         self.assertEqual(view["percent"], 0)
 
     def test_halfway_combat_run_names_the_progress(self):
         data = _player()
         data["combat_bank_run"] = {
-            "reviews_remaining": 1,
+            "ticks_remaining": 50,
             "target_id": "chicken",
         }
 
         view = review_bank_run_travel_view_pure(data, "combat")
 
-        self.assertEqual(view["remaining"], 1)
+        self.assertEqual(view["remaining"], 50)
         self.assertEqual(view["percent"], 50)
         self.assertEqual(
-            view["text"], "Bank run — Banking supplies · 1/2 travel reviews"
+            view["text"], "Bank run — 9 reviews remaining"
         )
 
     def test_active_carried_run_uses_its_route_label_and_total(self):
@@ -754,7 +754,7 @@ class BankRunTravelViewTest(unittest.TestCase):
         data = _player()
         data["review_bank_run_requested_handler"] = "utility"
         data["combat_bank_run"] = {
-            "reviews_remaining": 2,
+            "ticks_remaining": 100,
             "target_id": "chicken",
         }
         data["skilling_bank_run"] = {
@@ -772,7 +772,7 @@ class BankRunTravelViewTest(unittest.TestCase):
     def test_coexisting_states_project_the_current_handlers_route(self):
         data = _player()
         data["combat_bank_run"] = {
-            "reviews_remaining": 2,
+            "ticks_remaining": 100,
             "target_id": "chicken",
         }
         data["skilling_bank_run"] = {
@@ -788,7 +788,7 @@ class BankRunTravelViewTest(unittest.TestCase):
         self.assertEqual(mining_view["remaining"], 4)
         self.assertEqual(mining_view["percent"], 60)
         self.assertEqual(combat_view["kind"], "combat")
-        self.assertEqual(combat_view["remaining"], 2)
+        self.assertEqual(combat_view["remaining"], 100)
 
 
 class FillDrawerViewTest(unittest.TestCase):
