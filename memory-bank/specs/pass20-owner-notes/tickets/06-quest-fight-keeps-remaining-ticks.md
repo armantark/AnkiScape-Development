@@ -4,7 +4,7 @@
 
 **Blocked by:** 05
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-06
 
 - [ ] Witch's House experiment forms at 10x: a kill with ticks left continues into the next form in the same card.
 - [ ] A kill followed by a non-fight step ends the card.
