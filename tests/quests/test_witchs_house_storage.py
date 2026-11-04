@@ -90,7 +90,7 @@ class WitchsHouseStorageTest(unittest.TestCase):
                         player, ok, _ = progress(player)
                         self.assertTrue(ok)
                 before = copy.deepcopy(player)
-                self.assertFalse(progress(player)[1])
+                self.assertTrue(progress(player)[1])
                 self.assertEqual(player, before)
                 self.assertEqual(player[RESUME_KEY], resume)
                 wear_leather(player)

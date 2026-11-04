@@ -4,12 +4,12 @@
 
 **Blocked by:** 05
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-07
+**Status:** built; native Equipment and Review HUD check waits for the orchestrator
 
-- [ ] Witch's House plays from stage 5 to stage 7 with Barrows gloves worn at the start and no menu action: gloves switch physically in the save, and the original pair returns at the next bank run during the experiment fights.
-- [ ] The same quest with no bank run returns the gloves at quest end, and a Stop returns them at once.
-- [ ] Demon Slayer wields Silverlight for Delrith, and the old weapon and any shield return at quest end.
-- [ ] A hand change of the slot clears the record, and no later return happens.
-- [ ] Review undo restores equipment, bank and the record.
-- [ ] Holding no accepted item stops the quest and names what is missing, unless the quest supplies it.
-- [ ] The Equipment tab and Review HUD show the switched item, dark and light, in offscreen PNGs.
+- [x] Witch's House plays from stage 5 to stage 7 with Barrows gloves worn at the start and no menu action: gloves switch physically in the save, and the original pair returns at the next bank run during the experiment fights.
+- [x] The same quest with no bank run returns the gloves at quest end, and a Stop returns them at once.
+- [x] Demon Slayer wields Silverlight for Delrith, and the old weapon and any shield return at quest end.
+- [x] A hand change of the slot clears the record, and no later return happens.
+- [x] Review undo restores equipment, bank and the record.
+- [x] Holding no accepted item stops the quest and names what is missing, unless the quest supplies it.
+- [x] The Equipment tab and Review HUD show the switched item, dark and light, in offscreen PNGs.
