@@ -95,7 +95,7 @@ Every row below is required once before `Required sweep complete` can become
 | Local implementation and audit seam diff | Whether a period surface is absent, named-only, implemented, or owned elsewhere | Pending | Exact `rg` evidence across code, tests, assets, audits, contracts, Kanban, and backlog for every admitted candidate |
 
 The source roles above come directly from
-`memory-bank/pre-eoc-source-verification-standard.md:90-132,145-178,181-209`.
+`memory-bank/pre-eoc-source-verification-standard.md:90-132,145-178,186-214`.
 In particular, rev 727 and Darkan are one source layer, caches prove client
 identity rather than server mechanics, and modern pages may locate questions
 but cannot independently close parity.

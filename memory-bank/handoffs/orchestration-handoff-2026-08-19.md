@@ -105,7 +105,7 @@ that buys nothing.
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123` (actions / reachable items / orphan
   inputs / root orphans / cascade orphans / blocked actions / seed items),
   re-measured with `python3 tools/audit_item_reachability.py` and pinned at
-  `tests/test_item_reachability_audit.py:559-567`. The original text follows:
+  `8d3613c6:tests/test_item_reachability_audit.py:559-567`. The original text follows:
 
   The habitat crops at
   `data/farming_data.py:394-398` carried

@@ -36,7 +36,7 @@ ships, with exact ids and, for the imbued rings, exact equipment blocks.
 
 The Investments page states the rule as `((low alch value)/2)+1` per item, and
 this repo already derives low alchemy as 40% of the cache store value
-(`data/grand_exchange_data.py:90`). Composing the two and checking against seven
+(`data/grand_exchange_data.py:91`). Composing the two and checking against seven
 unrelated rows of the Investments table reproduces every figure exactly:
 
 | item | store value | low alchemy | formula | page says |

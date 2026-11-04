@@ -34,16 +34,16 @@ Left out as ground spawns: grapes, dwellberries, white berries, jangerberries, t
 | Item | In data? | How obtained now | Uses |
 |---|---|---|---|
 | Banana | data/combat/items.py:55 | Farming data/farming_data.py:321; Monkey food stall data/thieving_data.py:160; Bones to Bananas data/magic_data.py:393; drop | Ape Atoll teleport data/magic_data.py:114; Tai Bwo Wannai Trio |
-| Redberries | data/cooking_data.py:446 | Farming only data/farming_data.py:266 | Redberry pie data/cooking_data.py:381; Aggie's red dye activity_updates.py:203 |
+| Redberries | data/cooking_data.py:451 | Farming only data/farming_data.py:266 | Redberry pie data/cooking_data.py:381; Aggie's red dye activity_updates.py:291 |
 | Cadava berries | data/combat/items.py:137 | Farming data/farming_data.py:267; imp drop | Cactus Farming payment data/farming_data.py:332 |
-| Cabbage | data/cooking_data.py:450 (ID 1965) | Farming :202; Vegetable stall data/thieving_data.py:157; drops | Garden pie data/cooking_data.py:391; Black Knights' Fortress |
+| Cabbage | data/cooking_data.py:455 (ID 1965) | Farming :202; Vegetable stall data/thieving_data.py:157; drops | Garden pie data/cooking_data.py:391; Black Knights' Fortress |
 | Draynor Manor cabbage | No (ID 1967 absent) | - | - |
-| Potato | data/cooking_data.py:439 | Farming :200; Vegetable stall | Fish pie, Admiral pie, stew data/cooking_data.py:392-396 |
-| Onion | data/cooking_data.py:442 | Farming :201; Vegetable stall | Chopped onion, Garden pie; yellow dye activity_updates.py:213 |
+| Potato | data/cooking_data.py:444 | Farming :200; Vegetable stall | Fish pie, Admiral pie, stew data/cooking_data.py:392-396 |
+| Onion | data/cooking_data.py:447 | Farming :201; Vegetable stall | Chopped onion, Garden pie; yellow dye activity_updates.py:301 |
 | Grain | data/cooking_data.py:423 | "Gather grain" data/cooking_data.py:327; drops | Flour data/cooking_data.py:335 |
-| Flax | yes | "Gather flax" activity_updates.py:99; Miscellania | Bow string, Unfinished net |
-| Pineapple | data/cooking_data.py:511 | Farming :324; rare Slayer drop | Pineapple chunks data/cooking_data.py:418 |
-| Nettles | data/cooking_data.py:534 | "Pick nettles" activity_updates.py:118 | Nettle tea; Skippy and the Mogres |
+| Flax | yes | "Gather flax" activity_updates.py:104; Miscellania | Bow string, Unfinished net |
+| Pineapple | data/cooking_data.py:516 | Farming :324; rare Slayer drop | Pineapple chunks data/cooking_data.py:418 |
+| Nettles | data/cooking_data.py:539 | "Pick nettles" activity_updates.py:123 | Nettle tea; Skippy and the Mogres |
 | Sq'irk, garden herbs | data/sorceress_garden_data.py | Sorceress's Garden activity | Sq'irk juice |
 | Mort myre fungus | yes | Slayer drop only; no Bloom | Super energy data/herblore_data.py:222 |
 | Mort myre pear, stem | No | - | - |
@@ -65,7 +65,7 @@ No shop in data/shop_data.py sells any of these items.
 - activity_updates.py:107 gather_flax and :97 gather_wool cite OSRS pages (not period sources).
 - pick_nettles (activity_updates.py:128) and WHEAT_PICK_SOURCE_PATH (data/cooking_data.py:104-107) point to /Users/ArmanTarkhanian1/...
 - AnkiScape item "Grain"; period name "Wheat": "'''Wheat''' (previously ''Grain'')" (P Wheat 5908312).
-- data/quest/stage_cleanups.py:242 uses "Raw potato"; item is "Potato" elsewhere; data/quest/item_names.py:67 maps only "Potatoes".
+- data/quest/stage_cleanups.py:245 uses "Raw potato"; item is "Potato" elsewhere; data/quest/item_names.py:67 maps only "Potatoes".
 - Spinning flax needs level 10 (data/crafting_data.py:220); period Flax page says "level 1 [[Crafting]]".
 - Banana Tree, Pineapple Plant and Potato/Wheat (scenery) pages have no revision before 2013-11-20; only item pages serve.
 

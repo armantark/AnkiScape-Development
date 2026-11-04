@@ -60,7 +60,7 @@ On a successful Agility roll the code still repacks, refills, materialises urns
 charge a review for it. Flipping `act=True` without repacking makes processing act on an
 empty pack (`runtime_actions.py:618` only repacks in the `not act` branch), silently drops
 an urn charge, and immediately re-triggers churn. Combat must run its full
-restock/altar/deposit transaction (`logic_pure/logic_pure_combat_supplies.py:676`) or it proceeds with no supplies
+restock/altar/deposit transaction (`logic_pure/logic_pure_combat_supplies.py:675`) or it proceeds with no supplies
 and loops. Roll only when a cost unit is actually due, or RNG streams (Fishing/Hunter/
 gem/nest/Thieving/combat) drift.
 

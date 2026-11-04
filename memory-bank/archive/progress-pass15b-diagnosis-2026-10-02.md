@@ -46,7 +46,7 @@ FAILED (failures=1, skipped=6)
 error: remote qt lane failed with exit 1
 ```
 
-Additional failure: `test_fletching_is_selectable_and_shows_grouped_target_tree (tests.test_main_menu_widget.MainMenuWidgetTest.test_fletching_is_selectable_and_shows_grouped_target_tree)`, `tests/test_main_menu_widget.py:7248`. Exact assertion:
+Additional failure: `test_fletching_is_selectable_and_shows_grouped_target_tree (tests.test_main_menu_widget.MainMenuWidgetTest.test_fletching_is_selectable_and_shows_grouped_target_tree)`, `tests/main_menu/skills/test_fletching.py:59`. Exact assertion:
 
 ```text
 AssertionError: 'Chisel x1' not found in 'Requires Fletching level 42. You have 99 (base 99).\nOutput: Long kebbit bolts x6\nMaterials:\nLong kebbit spike x1 (you have 1)'

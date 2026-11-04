@@ -109,7 +109,7 @@ Resolution: accepted. The row is now `dormant` with `future_system="world_transp
 
 Finding: the Bronze pickaxe is present on every fresh mining tool belt, so the cited attach action cannot succeed.
 
-Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:449::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:800-806::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:190-221::attach_tool_to_toolbelt_pure`.
+Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:449::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:798-804::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:190-221::attach_tool_to_toolbelt_pure`.
 
 ### 14. Row 245: Stronghold second-level off-by-one
 

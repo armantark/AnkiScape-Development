@@ -118,7 +118,7 @@ was reached after Claude's verify budget was spent.
   exactly the hyperspecific checkbox the casual-surface-minimalism ruling exists to
   prevent. Recommendation: demote to the advanced editor only; casual surface drops the
   checkbox and the pack-mode dial decides it. The pass-5 latch bug (Dream requirement
-  kicking the player off combat) already has a guard in `core/storage_pure.py:2443`;
+  kicking the player off combat) already has a guard in `core/storage_pure.py:2394`;
   re-verify it during implementation.
 - **D.3 Full scroll-pane separation feasibility**: owner accepts the current iteration
   "given limitations" but the ideal is the card scroll pane entirely separate from the

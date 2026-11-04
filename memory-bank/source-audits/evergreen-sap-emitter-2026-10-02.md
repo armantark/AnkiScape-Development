@@ -9,7 +9,7 @@ No new source harvest was performed.
 - [The Eyes of Glouphrie, oldid 6371270](https://runescape.wiki/w/The_Eyes_of_Glouphrie?oldid=6371270), 2012-10-08T12:33:57Z, and [Questreq, oldid 6552449](https://runescape.wiki/w/Template:Questreq?oldid=6552449), 2012-11-13T19:50:29Z: Construction 5, Magic 46 and The Grand Tree are quest-start gates, not sap acquisition gates.
 
 The packet reconciles Darkan commit `06b4e277e10c846b1a2746d9e57df723edbeb5e9`,
-`/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/src/main/java/com/rs/game/content/quests/icthlarins_little_helper/IcthlarinsLittleHelper.kt:718`,
+`/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/icthlarins_little_helper/IcthlarinsLittleHelper.kt:718`,
 and its replacement helper at line 489 with the period item prose. The handler
 replaces the empty bucket with the filled bucket and does not debit the knife.
 

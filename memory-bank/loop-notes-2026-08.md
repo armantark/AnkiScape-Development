@@ -1551,7 +1551,7 @@ polished away while the Codex block runs down:
 
 1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
    but not `"smithing"`, although Smithing availability now applies
-   `QUEST_UNLOCK_RULES` and `data/quest/ledger.py:147` gates `forge_cannonballs`
+   `QUEST_UNLOCK_RULES` and `data/quest/ledger.py:148` gates `forge_cannonballs`
    on `dwarf_cannon`. The reviewer could not construct a player state that
    produces a wrong output, because completing the quest grants an Ammo mould
    which is itself a tracked requirement item. An asymmetry to close, not a

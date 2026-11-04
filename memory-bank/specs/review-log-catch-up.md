@@ -29,7 +29,7 @@ Those queries do not credit past reviews.
 
 ## 3. Facts from the real code
 
-1. The live path is `on_answer_card` in `__init__.py:5285`. It
+1. The live path is `on_answer_card` in `__init__.py:5150`. It
    wraps `Reviewer._answerCard`. It processes an answer only when the
    reviewer showed the question and the answer (`card_turned` and
    `answer_shown`).

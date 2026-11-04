@@ -105,9 +105,9 @@ Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
   a new `QDialog` per open (`ui/ui.py:4818-4823`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:22683-22685`); the Bank
+  Equipment, Stats, Settings build at open (`ui/ui.py:21428-21430`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24052-24063,25874-25887`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:22795-22806,24588-24601`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
   real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before

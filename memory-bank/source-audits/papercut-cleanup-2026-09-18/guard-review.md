@@ -60,6 +60,6 @@ This proves the guard's decision/order contract with inert adapters; root still 
 - 2026-09-19T09:18:10-07:00: An overly broad memory-bank read returned `Warning: truncated output (original token count: 273962)`; the aggregate tool result also reported `Warning: truncated output (original token count: 35572)`. All safety-relevant source and diff sections were subsequently read in bounded focused calls; no conclusion depends on the omitted text.
 - 2026-09-19T09:18:10-07:00: Initial convention searches guessed absent paths: `pyproject.toml`, `.pre-commit-config.yaml`, `tools/audit_module_surface.py`, `tests/promotion/test_locking.py`, `tools/check_module_surface.py`, `tools/__init__.py`, and `AGENTS.md`; commands reported `No such file or directory`. Repository inventory plus root's explicit installed lizard/complexipy directions resolved the paths. No install or config edit followed.
 
-Historical memory was consulted only for the canonical-checkout safety boundary (`MEMORY.md:57-57`, rollout `01a09e58-77ff-7b91-9b9d-c20d3c9af535`); all safety conclusions above use current source or executed inert evidence.
+Historical memory was consulted only for the canonical-checkout safety boundary (`0e543a4d:MEMORY.md:57-57`, rollout `01a09e58-77ff-7b91-9b9d-c20d3c9af535`); all safety conclusions above use current source or executed inert evidence.
 
 Root retained the original report in `guard-review.md.gz`. The command above uses the equivalent file-path selector because the documentation audit treats the nested module selector as a dangling test-method reference.

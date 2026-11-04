@@ -142,6 +142,6 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 - Pure enumeration/probe artifacts: `activity_registry_dump.json`, `live_strip_probe.json`, and `defect_reducer_probe.json` in this scratchpad.
 - The real reducer probe returned Livid Farm keys `agility`, `construction`, `crafting`, `farming`, `magic`; Mage Training Arena returned 301 Magic XP at its first XP-bearing checkpoint; and the four noncombat Warriors' Guild activities returned Attack, Defence, Strength, and Strength respectively.
-- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:396-407`).
+- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:375-386`).
 - Pyramid Plunder produced two visible bars (Thieving, Strength) plus Runecrafting in `also_trains`, matching the two-bar cap.
 - No repository file was edited and no git command was run.

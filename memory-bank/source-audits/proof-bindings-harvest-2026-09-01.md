@@ -19,7 +19,7 @@ recipe. No source-faithful emitted event exists for any of the three predicates.
 - Quest ID: `legacy_of_seergaze`.
 - Stage: `5`.
 - Exact predicate: `Cast Enchant Level 2 Jewellery for the emerald preparations`.
-- Catalog location: `data/quest/stage_cleanups.py:664-669`; the predicate is at `:9375`.
+- Catalog location: `data/quest/stage_cleanups.py:654-659`; the predicate is at `:9375`.
 
 ### Existing action and what it emits
 
@@ -69,7 +69,7 @@ emitted pair represents the documented sickle transformation.
 - Quest ID: `in_aid_of_the_myreque`.
 - Stage: `6`.
 - Exact predicate: `Enchant sapphire for the Myreque preparations`.
-- Catalog location: `data/quest/stage_cleanups.py:512-522`; the predicate is at `:9229`.
+- Catalog location: `data/quest/stage_cleanups.py:508-518`; the predicate is at `:9229`.
 
 ### Existing action and what it emits
 

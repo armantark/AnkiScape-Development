@@ -794,8 +794,8 @@ The Cooking module notes that temporary gathering bridges for several farm produ
 
 Sources:
 
-- `data/crafting_data.py:222-228`
-- `data/crafting_data.py:332-333`
+- `data/crafting_data.py:231-237`
+- `data/crafting_data.py:341-342`
 - `AS/tools/audit_item_reachability.py --json`
 - GM tree/root behavior:
   - `GM/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/farming/handlers/TreeChoppingHandler.kt`
