@@ -105,7 +105,7 @@ class SupplyStepReviewTest(unittest.TestCase):
             QUEST_DATA[QUEST_ID], id='bread_errand', display_name='Bread Errand', stages=1,
             stage_requirements=(stage,), journal_stages={},
             supply_recipes=tuple(
-                {'utility_id': key, 'step': step, 'utility': UTILITY_ACTIVITY_DATA[key]} for key, step in recipes
+                {'utility_id': key, 'step': step, 'action': UTILITY_ACTIVITY_DATA[key]} for key, step in recipes
             ),
         )
         with patch.dict(QUEST_DATA, {'bread_errand': quest}):

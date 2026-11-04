@@ -195,8 +195,8 @@ def _report_quest_progress_refusal(ctx, quest_id, quest):
         )
 
 
-def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, float], completed_now: bool, cook_phase: Any) -> None:
-    if completed_now or cook_phase == 'prepare':
+def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, float], completed_now: bool, cook_phase: Any, phase: Any) -> None:
+    if completed_now or cook_phase == 'prepare' or (isinstance(phase, dict) and phase.get('xp_rewards')):
         ctx.show_quest_exp_delta(exp_before)
 
 
@@ -266,7 +266,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
     player_data.update(new_data)
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
-    _show_quest_review_exp(ctx, exp_before, completed_now, cook_phase)
+    _show_quest_review_exp(ctx, exp_before, completed_now, cook_phase, repair_phase)
     if completed_now:
         ctx.deactivate_current_skill()
     ctx.check_achievements(player_data)

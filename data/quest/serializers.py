@@ -18,7 +18,18 @@ def _xp_reward_dict(reward: QuestXpReward) -> Dict[str, object]:
 
 
 def _supply_recipe_dict(recipe: QuestSupplyRecipe) -> Dict[str, object]:
-    return {"utility_id": recipe.utility_id, "step": recipe.step}
+    requirements = dict(recipe.inputs)
+    if recipe.coins:
+        requirements["Coins"] = requirements.get("Coins", 0) + recipe.coins
+    return {
+        "utility_id": recipe.utility_id, "herblore_id": recipe.herblore_id, "step": recipe.step,
+        "action": {
+            "requirements": requirements, "output_item": recipe.product, "output_qty": recipe.quantity,
+            "required_skills": tuple(map(_skill_requirement_dict, recipe.required_skills)),
+            "required_tools": dict(recipe.required_tools),
+            "xp_rewards": tuple(map(_xp_reward_dict, recipe.xp_rewards)), "source": recipe.source,
+        },
+    }
 
 
 def _lamp_reward_dict(reward: QuestLampReward) -> Dict[str, object]:

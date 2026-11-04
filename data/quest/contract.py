@@ -93,13 +93,26 @@ class QuestLampReward:
 
 @dataclass(frozen=True)
 class QuestSupplyRecipe:
-    """A Utility recipe the quest runs for the player when a stage lacks its product.
+    """One source-backed deed; exactly one of Utility, Herblore or a local product.
 
-    ``step`` names the deed in the quest card's next-step line and in the
-    reason the quest stops with when a supply for it is missing.
+    ``step`` names the deed in the card and any missing-supply notice.
+    Local actions stay inside the quest rather than adding a Utility row.
     """
-    utility_id: str
-    step: str
+    utility_id: str = ""
+    step: str = ""
+    herblore_id: str = ""
+    product: str = ""
+    inputs: Tuple[Tuple[str, int], ...] = ()
+    quantity: int = 1
+    coins: int = 0
+    required_skills: Tuple[QuestSkillRequirement, ...] = ()
+    required_tools: Tuple[Tuple[str, int], ...] = ()
+    xp_rewards: Tuple[QuestXpReward, ...] = ()
+    source: str = ""
+
+    def __post_init__(self):
+        if sum(map(bool, (self.utility_id, self.herblore_id, self.product))) != 1:
+            raise ValueError("A quest supply recipe needs exactly one Utility, Herblore or local action")
 
 
 @dataclass(frozen=True)

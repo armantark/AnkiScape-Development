@@ -3,6 +3,7 @@
 from typing import Mapping
 
 from ...core.skill_registry import get_skill
+from .skill_levels import skill_level_requirement_reason_pure
 from ..logic_pure_combat_engine import player_combat_level_pure
 from ..logic_pure_state import _non_negative_int, _positive_int
 
@@ -27,11 +28,5 @@ def _skill_requirement_reason(player_data, requirement, *, quest_id=""):
     level_required = _positive_int(requirement.get("level", 1), 1)
     if skill_id == "combat":
         return None if player_combat_level_pure(player_data) >= level_required else f"{label} {level_required}"
-    if skill is None or not skill.trainable:
-        return f"{label} {level_required} (not implemented)"
-    level_key = skill.level_key
-    if level_key not in player_data:
-        return f"{label} {level_required} (not implemented)"
-    if _quest_requirement_level(player_data, skill_id, level_key, quest_id) < level_required:
-        return f"{label} {level_required}"
-    return None
+    level_override = _quest_requirement_level(player_data, skill_id, skill.level_key, quest_id) if skill else None
+    return skill_level_requirement_reason_pure(player_data, requirement, level_override=level_override)

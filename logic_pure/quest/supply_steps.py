@@ -1,21 +1,24 @@
 """Supply steps: quest reviews that make a missing stage item from supplies the player brought.
 
-A quest declares supply recipes, each an existing Utility row that core attaches
-to the quest data. When the current stage lacks an item, the quest plans that
-item's whole chain on a copy of the bank, so a recipe whose product or a later
-product is held is never reached, and the review runs the plan's first recipe
+A quest declares Utility, Herblore or local recipes attached to its data. When
+the current stage lacks an item, the quest plans its whole chain on a bank copy.
+A recipe whose product or a later product is held is never reached, and the
+review runs the plan's first recipe
 for one batch. The plan treats a supply that no recipe makes as brought, so one
 pass names every missing supply, and any missing supply stops the quest before
 a review spends supplies on a stage it cannot finish.
 """
 
+from .completion_rewards import _apply_quest_xp_rewards
+from .skill_levels import skill_level_requirement_reason_pure
+from .stage_items import _has_quest_tool
 from ..production.utility_activity import apply_utility_activity_pure
 from ..logic_pure_state import _copy_player_data_with_nested, _positive_int
 
 
 def _recipes_by_product(quest_data, quest_id):
     quest = (quest_data or {}).get(quest_id) or {}
-    return {recipe["utility"]["output_item"]: recipe for recipe in quest.get("supply_recipes", ())}
+    return {recipe["action"]["output_item"]: recipe for recipe in quest.get("supply_recipes", ())}
 
 
 def _makes(blocker, recipes):
@@ -23,12 +26,21 @@ def _makes(blocker, recipes):
 
 
 def _run(recipe, inventory):
-    utility_id = recipe["utility_id"]
-    made, _, ok, _ = apply_utility_activity_pure(utility_id, inventory, {utility_id: recipe["utility"]})
+    made, _, ok, _ = apply_utility_activity_pure("supply", inventory, {"supply": recipe["action"]})
     if not ok:
-        # The plan supplied every input, so a refusal is a Utility gate it does not model.
-        raise ValueError(f"Supply recipe {utility_id} refused its planned inputs")
+        raise ValueError(f"Supply recipe {recipe['step']} refused its planned inputs")
     return made
+
+
+def _recipe_blockers(player_data, recipe, stage):
+    action = recipe["action"]
+    reasons = [reason for requirement in action.get("required_skills", ())
+               if (reason := skill_level_requirement_reason_pure(player_data, requirement))]
+    reasons.extend(f"Needs {tool} x{amount} for {recipe['step']}"
+                   for tool, amount in action.get("required_tools", {}).items()
+                   if not _has_quest_tool(player_data, tool, amount))
+    return tuple(dict(stage=stage, kind="supply_requirement", reason=reason, source=action.get("source", ""))
+                 for reason in reasons)
 
 
 def _plan_stage(player_data, recipes, blockers):
@@ -45,7 +57,7 @@ def _plan_stage(player_data, recipes, blockers):
             if recipe is None:
                 inventory = {**inventory, item: amount}
                 return [(item, amount, step)]
-            for supply, quantity in recipe["utility"]["requirements"].items():
+            for supply, quantity in recipe["action"]["requirements"].items():
                 missing += plan_item(supply, quantity, recipe["step"])
             inventory = _run(recipe, inventory)
             plan.append(recipe)
@@ -64,7 +76,7 @@ def supply_step_blockers_pure(player_data, quest_id, quest_data, blockers):
     recipes = _recipes_by_product(quest_data, quest_id)
     if not recipes:
         return blockers
-    _, missing = _plan_stage(player_data, recipes, blockers)
+    plan, missing = _plan_stage(player_data, recipes, blockers)
     inventory = player_data.get("inventory", {}) or {}
     rewritten = []
     for index, blocker in enumerate(blockers):
@@ -77,6 +89,8 @@ def supply_step_blockers_pure(player_data, quest_id, quest_data, blockers):
                  reason=f"Needs {item} x{amount} for {step}")
             for item, amount, step in supplies
         )
+    for recipe in plan:
+        rewritten.extend(_recipe_blockers(player_data, recipe, blockers[0]["stage"]))
     return tuple(rewritten)
 
 
@@ -86,12 +100,15 @@ def supply_step_pure(player_data, quest_id, quest_data, blockers):
     if not blockers or not all(_makes(blocker, recipes) for blocker in blockers):
         return None
     plan, missing = _plan_stage(player_data, recipes, blockers)
-    return None if any(missing.values()) else plan[0]
+    if any(missing.values()) or any(_recipe_blockers(player_data, recipe, 0) for recipe in plan):
+        return None
+    return plan[0]
 
 
 def apply_supply_step_pure(player_data, recipe):
     data = _copy_player_data_with_nested(player_data)
     data["inventory"] = _run(recipe, data["inventory"])
+    _apply_quest_xp_rewards(data, recipe["action"])
     return data
 
 
@@ -100,7 +117,7 @@ def supply_step_phase_pure(player_data, quest_id, quest_data, blockers):
     recipe = supply_step_pure(player_data, quest_id, quest_data, blockers)
     if recipe is None:
         return None
-    product = recipe["utility"]["output_item"]
+    product = recipe["action"]["output_item"]
     inventory = player_data.get("inventory", {}) or {}
     made = _run(recipe, inventory)[product] - _positive_int(inventory.get(product, 0), 0)
-    return {"notice": f"+{made} {product}"}
+    return {"notice": f"+{made} {product}", "xp_rewards": recipe["action"].get("xp_rewards", ())}

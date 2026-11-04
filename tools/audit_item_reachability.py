@@ -60,40 +60,6 @@ def _outputs(spec: Mapping[str, Any]) -> set[str]:
     return outputs
 
 
-def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ...]]:
-    required = (
-        _names(spec.get("requirements"))
-        | _names(spec.get("required_items"))
-        | _names(spec.get("tools"))
-        | _names(spec.get("rune_cost"))
-    )
-    alternatives: list[set[str]] = []
-    material_options = spec.get("material_options", {}) or {}
-    if isinstance(material_options, Mapping):
-        for material, options in material_options.items():
-            option_names = _names(options)
-            if material in required and option_names:
-                required.remove(material)
-                alternatives.append(option_names)
-    for option_group in spec.get("required_item_options", ()) or ():
-        option_names = _names(option_group)
-        if option_names:
-            alternatives.append(option_names)
-    any_requirements = _names(spec.get("any_requirements"))
-    if any_requirements:
-        alternatives.append(any_requirements)
-    essence = _names(spec.get("essence_items"))
-    if essence:
-        alternatives.append(essence)
-    bait = _names(spec.get("bait_options"))
-    if bait:
-        alternatives.append(bait)
-    reachability_inputs = _names(spec.get("reachability_inputs"))
-    if reachability_inputs:
-        alternatives.append(reachability_inputs)
-    return required, tuple(alternatives)
-
-
 def _drop_names(value: Any) -> set[str]:
     names: set[str] = set()
     if isinstance(value, Mapping):
@@ -224,6 +190,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure.quest_action_proofs import quest_action_proofs_after_stage_actions_pure
 from ankiscape.tools import quest_action_proof_reachability
 from ankiscape.tools.reachability import shop_rows
+from ankiscape.tools.reachability.action_rows import requirements, quest_supply_actions
 from ankiscape.tools.reachability.pins import read_reachability_pins
 
 
@@ -1369,6 +1336,7 @@ def build_reachability_report() -> dict[str, Any]:
         "Magic": constants.MAGIC_DATA,
         "Prayer": constants.PRAYER_DATA,
         "Utility": constants.UTILITY_ACTIVITY_DATA,
+        "Quest supply": quest_supply_actions(constants.QUEST_DATA),
     }
     actions: list[dict[str, Any]] = []
     consumers: dict[str, set[str]] = defaultdict(set)
@@ -1392,7 +1360,7 @@ def build_reachability_report() -> dict[str, Any]:
         for action_id, raw_spec in table.items():
             if not isinstance(raw_spec, Mapping) or raw_spec.get("status", "implemented") != "implemented":
                 continue
-            required, alternatives = _requirements(raw_spec)
+            required, alternatives = requirements(raw_spec, _names)
             outputs = _outputs(raw_spec)
             if not outputs:
                 continue

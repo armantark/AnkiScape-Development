@@ -4,11 +4,23 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-08
+**Status:** built; native Anki check waits for the orchestrator
 
-- [ ] Jungle Potion finishes from a new save with its prerequisites in exactly 15 cards at 1x and 10x, with no action switch and no dialog except quest complete.
-- [ ] Held grimy or clean herbs skip their steps; a save mid-quest continues.
-- [ ] Herblore XP is 2.5 per cleaning, 12.5 in all, plus the quest's existing rewards.
-- [ ] Goblin Diplomacy still finishes as Pass 18 left it.
-- [ ] A quest-local action adds no row to the Utilities tab.
-- [ ] The item-reachability census moves by exactly this change.
+- [x] Jungle Potion finishes from a new save with its prerequisites in exactly 15 cards at 1x and 10x, with no action switch and no dialog except quest complete.
+- [x] Held grimy or clean herbs skip their steps; a save mid-quest continues.
+- [x] Herblore XP is 2.5 per cleaning, 12.5 in all, plus the quest's existing rewards.
+- [x] Goblin Diplomacy still finishes as Pass 18 left it.
+- [x] A quest-local action adds no row to the Utilities tab.
+- [x] The item-reachability census moves by exactly this change.
+
+Implementation evidence: real review-loop and handler tests cover both speeds,
+held herbs, reloads, level stops, local-action coins/equipment, and cleaning Undo.
+Goblin Diplomacy retains its 10-card raw-supplies flow. The supplied walker,
+rebound to this ticket worktree, finishes Jungle Potion empty-bank in 15 cards.
+The existing herb assets and post-quest Utility rows are reused.
+
+The census adds 17 quest-owned supply actions (10 Jungle Potion and the 7
+existing Goblin Diplomacy recipes) and removes the 5 repeatable grimy-herb stage
+seeds. Reachable items, orphan counts, blocked actions and completable quests
+stay unchanged. Full lanes, native Anki checks and promotion belong to the
+orchestrator; the boxes above record the focused and offscreen proofs only.

@@ -1,5 +1,17 @@
 # Jungle Potion playable quest closure — 2026-08-13
 
+## Pass 20 supply steps — 2026-11-04
+
+[Pass 20 ticket 08](../specs/pass20-owner-notes/tickets/08-supply-steps-grow-jungle-potion.md)
+replaces the historical manual-cleaning review route below. Each herb now uses
+one quest-local search, one referenced Herblore cleaning and one hand-in: 15
+cards at 1x and 10x. Held products skip their supply steps. The pinned guide's
+five walkthrough sections explicitly give 2.5 XP per cleaning and no search XP;
+the existing 775 XP completion reward stays. The quest awards cleaning XP through
+the quest review transaction, with level checks and Undo, so ordinary Herblore's
+strange-rock substitution does not consume the quest's clean herb. Post-quest
+Utility searches and ordinary Herblore cleaning retain their existing behavior.
+
 ## Scope and result
 
 `Jungle Potion` is now a complete review-native quest rather than generated objective buttons plus unavailable herb hand-ins. The live path preserves the Druidic Ritual and level-3 Herblore gates, strict five-herb order, search locations, grimy/clean identities, cleaning actions, one-at-a-time Trufitus turn-ins, 775 Herblore XP, one quest point, and the Shilo Village prerequisite edge.

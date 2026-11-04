@@ -41,12 +41,25 @@ from .constants_parts.activity_updates import *
 from .constants_parts.skill_catalog import *
 
 QUEST_DATA = quests_as_dict()
-# A supply recipe names its Utility row; quest logic runs that row, which the
-# data layer cannot import, so each recipe carries it from here.
+
+
+def _attach_quest_supply_recipe(recipe):
+    if recipe["utility_id"]:
+        action = UTILITY_ACTIVITY_DATA[recipe["utility_id"]]
+    elif recipe["herblore_id"]:
+        row = HERBLORE_DATA[recipe["herblore_id"]]
+        action = dict(
+            row, outputs={row["output_item"]: row.get("output_qty", 1), **row.get("byproducts", {})},
+            required_skills=({"skill_id": "herblore", "display_name": "Herblore", "level": row["level"]},),
+            xp_rewards=({"skill_id": "herblore", "amount": row["exp"]},),
+        )
+    else:
+        action = recipe["action"]
+    return dict(recipe, action=action)
+
+
 for _quest in QUEST_DATA.values():
-    _quest["supply_recipes"] = tuple(
-        dict(recipe, utility=UTILITY_ACTIVITY_DATA[recipe["utility_id"]]) for recipe in _quest["supply_recipes"]
-    )
+    _quest["supply_recipes"] = tuple(map(_attach_quest_supply_recipe, _quest["supply_recipes"]))
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
 from .constants_parts.quest_items import QUEST_REWARD_ITEM_DATA
