@@ -60,14 +60,13 @@ def _scroll_saved_target_into_view(selector, live: dict) -> None:
         return
 
 
-def _row_rank(filter_bar, row, group_labels: dict, match_tooltip: bool) -> int | None:
+def _row_rank(filter_bar, row, group_labels: dict) -> int | None:
     group = row.group or ""
-    details = (row.target_id, row.tooltip) if match_tooltip else ()
     return match_rank(
         filter_bar.query(), row.label,
         group,
         group_labels.get(group, group.replace("_", " ")),
-        *details,
+        *row.search_terms,
     )
 
 
@@ -75,9 +74,9 @@ def _ticked(extra_filter) -> bool:
     return extra_filter is not None and extra_filter[0].isChecked()
 
 
-def _visible_rows(rows, filter_bar, group_labels: dict, match_tooltip: bool, extra_filter) -> tuple:
+def _visible_rows(rows, filter_bar, group_labels: dict, extra_filter) -> tuple:
     ticked = _ticked(extra_filter)
-    ranked = [(_row_rank(filter_bar, row, group_labels, match_tooltip), row)
+    ranked = [(_row_rank(filter_bar, row, group_labels), row)
               for row in rows if not ticked or extra_filter[1](row)]
     return tuple(row for _tier, row in sorted(
         (entry for entry in ranked if entry[0] is not None), key=lambda entry: entry[0]
@@ -116,7 +115,6 @@ def build_searchable_target_selector(
     saved_groups=None,
     extra_filter=None,
     empty_text=None,
-    match_tooltip: bool = False,
     **selector_options,
 ) -> "QWidget":
     """Return a search bar above the selector ``build_selector`` draws for ``rows``.
@@ -144,7 +142,7 @@ def build_searchable_target_selector(
 
     def _render() -> None:
         _drop_selector(layout, live)
-        visible = _visible_rows(rows, filter_bar, group_labels, match_tooltip, extra_filter)
+        visible = _visible_rows(rows, filter_bar, group_labels, extra_filter)
         opened = _opened_groups(
             saved_groups, visible, _ticked(extra_filter) or bool(filter_bar.query())
         )

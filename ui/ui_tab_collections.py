@@ -7,7 +7,6 @@ try:
         QHBoxLayout,
         QHeaderView,
         QLabel,
-        QLineEdit,
         QScrollArea,
         QTreeWidget,
         QTreeWidgetItem,
@@ -24,7 +23,7 @@ from ..logic.collection_log_logic import (
     drop_log_view_pure,
 )
 from ..logic.music_log_logic import music_log_view_pure
-from .ui import _clear_layout, _pixel_item_icon, dim_text_color, dim_text_css
+from .ui import SearchLineEdit, _clear_layout, _pixel_item_icon, dim_text_color, dim_text_css
 from .ui_first_cell_tree import FirstCellSelectionTree
 
 
@@ -119,7 +118,7 @@ def build_collections_tab(ctx) -> "QWidget":
     right_layout.addLayout(detail_heading)
 
     search_row = QHBoxLayout()
-    search = QLineEdit()
+    search = SearchLineEdit()
     search.setObjectName("collectionsSearch")
     search.setPlaceholderText("Search this family…")
     search_row.addWidget(search, 1)

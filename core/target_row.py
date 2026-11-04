@@ -21,6 +21,7 @@ class TargetRowMetadata:
     requires_confirmation: bool = False
     confirmation_title: str = ""
     confirmation_message: str = ""
+    search_terms: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

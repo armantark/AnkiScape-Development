@@ -450,7 +450,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         dialog = self._open(pd, current_skill="Combat")
         search = _find_named_line_edit(dialog, "combatTargetSearchInput")
 
-        search.setText("cockatrice mirror")
+        search.setText("cockatrice")
         QApplication.processEvents()
         tree = dialog.findChild(QListWidget, "combatTargetTree")
         self.assertIsNotNone(tree)

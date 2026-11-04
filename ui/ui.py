@@ -74,7 +74,7 @@ except Exception:
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
 from .ui_first_cell_tree import FirstCellSelectionTree, show_settled
-from .ui_flow_layout import FlowLayout as WidgetFlowLayout
+from .ui_catalog_search import CatalogFilterBar, SearchLineEdit
 from .ui_palette import dim_text_color, dim_text_css
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
 from ..core.action_registry import landmark_activity_name, review_action_handler_key
@@ -1547,86 +1547,6 @@ if HAS_QT:
             super().keyPressEvent(event)
 
     from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, ShrinkFirstPage, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
-
-    class CatalogFilterBar(QWidget):
-        """Shared search/filter chrome for catalog-like pages.
-
-        Pages retain ownership of searchable metadata and filter predicates.
-        This widget standardizes text entry, clear/Escape behavior, optional
-        page filters, and the visible/total summary without knowing what a row
-        means or how a result is rendered.
-        """
-
-        def __init__(
-            self,
-            *,
-            placeholder: str,
-            search_object_name: str,
-            parent=None,
-        ):
-            super().__init__(parent)
-            self.setObjectName(f"{search_object_name}Bar")
-            root = QVBoxLayout(self)
-            root.setContentsMargins(0, 0, 0, 0)
-            root.setSpacing(8)
-
-            search_row = LeadRowLayout()
-            search_row.setContentsMargins(0, 0, 0, 0)
-            search_row.setSpacing(8)
-
-            self.search_input = QLineEdit()
-            self.search_input.setObjectName(search_object_name)
-            self.search_input.setPlaceholderText(placeholder)
-            self.search_input.setClearButtonEnabled(True)
-            self.search_input.setStyleSheet(
-                "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
-                " border-radius: 8px; color: palette(text); background: palette(base); }"
-            )
-            self.search_input.installEventFilter(self)
-            self.search_input.setMinimumWidth(self.search_input.fontMetrics().horizontalAdvance(placeholder) + 56)
-            search_row.addWidget(self.search_input)
-
-            self.summary_label = QLabel("")
-            self.summary_label.setObjectName(f"{search_object_name}Summary")
-            self.summary_label.setStyleSheet(f"color: {dim_text_css(self.summary_label)};")
-            search_row.addWidget(self.summary_label)
-            root.addLayout(search_row)
-
-            self.filter_row = QWidget()
-            # Filters wrap onto more lines rather than squeezing at 720 px. The
-            # gap between filters is three times a label's gap to its own box,
-            # so each label reads as part of its box, not of the filter before.
-            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=12, v_spacing=8)
-            self.filter_row.setVisible(False)
-            root.addWidget(self.filter_row)
-
-        def eventFilter(self, watched, event):  # type: ignore[no-untyped-def]
-            if (
-                watched is self.search_input
-                and event.type() == QEvent.Type.KeyPress
-                and event.key() == Qt.Key.Key_Escape
-                and self.search_input.text()
-            ):
-                self.search_input.clear()
-                event.accept()
-                return True
-            return super().eventFilter(watched, event)
-
-        def add_filter(self, widget: QWidget, label: str = "") -> None:
-            self.filter_row.setVisible(True)
-            if label:
-                widget = side_pair(label, widget, f"color: {dim_text_css(widget)};")
-            self.filter_layout.addWidget(widget)
-
-        def query(self) -> str:
-            return self.search_input.text().strip().casefold()
-
-        def matches_text(self, *values: object) -> bool:
-            return match_rank(self.query(), *values) is not None
-
-        def set_count(self, visible: int, total: int) -> None:
-            self.summary_label.setText(f"Showing {int(visible)}/{int(total)}")
-            self.summary_label.setMinimumWidth(self.summary_label.sizeHint().width())
 
     class HelpCenterPanel(QWidget):
         """Searchable, contextual Help Center embedded in the main menu."""
@@ -3522,24 +3442,6 @@ if HAS_QT:
                 self._anim.start()
 else:
     # Minimal placeholder to keep references safe during tests
-    class CatalogFilterBar:
-        # The tab modules import this at module scope, so it must exist without
-        # Qt or `import ui_tab_shop` fails outright instead of degrading.
-        def __init__(self, *, placeholder: str = "", search_object_name: str = "", parent=None):
-            pass
-
-        def add_filter(self, widget, label: str = "") -> None:
-            pass
-
-        def query(self) -> str:
-            return ""
-
-        def matches_text(self, *values: object) -> bool:
-            return True
-
-        def set_count(self, visible: int, total: int) -> None:
-            pass
-
     class ExpPopup:
         def __init__(self, parent):
             pass
@@ -7532,7 +7434,6 @@ def show_main_menu(
             group_labels={group: group for group in COMBAT_TARGET_GROUP_ORDER},
             extra_filter=(task_only, lambda row: row.target_id in assignment_target_ids),
             empty_text=_empty_combat_text,
-            match_tooltip=True,
             group_role_prefix="__combat_group__:",
             on_select=on_set_combat,
             confirm_select=_confirm_combat_target,
@@ -23749,7 +23650,7 @@ def show_main_menu(
     bank_controls_layout = QHBoxLayout(bank_controls)
     bank_controls_layout.setContentsMargins(0, 0, 0, 0)
     bank_controls_layout.setSpacing(8)
-    bank_search = QLineEdit()
+    bank_search = SearchLineEdit()
     bank_search.setObjectName("bankSearchInput")
     bank_search.setPlaceholderText("Search Bank…")
     bank_search.setClearButtonEnabled(True)

@@ -1449,7 +1449,6 @@ def combat_target_rows(
         if isinstance(examined_raw, (list, tuple))
         else set()
     )
-
     for target_id, enemy in combat_enemy_data.items():
         if enemy.get("encounter_only") and encounter_target != target_id:
             continue
@@ -1656,6 +1655,7 @@ def combat_target_rows(
                 target_id=target_id,
                 label=f"{display_name} (Lvl {level})",
                 tooltip=tooltip,
+                search_terms=tuple(combat_observed_drops_for_target_pure(player_data, target_id)),
                 enabled=not locked_reasons,
                 current=target_id == current_target,
                 icon_path=enemy_images.get(target_id) or enemy_images.get(display_name),
