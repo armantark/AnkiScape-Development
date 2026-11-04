@@ -267,7 +267,7 @@ class TargetClickTest(QueueProfile):
         search = self._visible(dialog, QWidget, "utilityActivityTargetSearchInput")
 
         def order():
-            parent = _tree_row(tree, "search_marshy_jungle_vines").parent()
+            parent = _tree_row(tree, "search_marshy_jungle_vines").parent() or tree.invisibleRootItem()
             return [parent.child(i).data(0, Qt.ItemDataRole.UserRole) for i in range(parent.childCount())]
 
         search.setText("search")
@@ -291,7 +291,7 @@ class TargetClickTest(QueueProfile):
             ("actionQueueMoveDown", "smelt_iron_bar", " Iron bar"),
         ):
             panel = dialog.findChild(QWidget, "actionQueuePanel")
-            next(b for b in panel.findChildren(QToolButton, control) if b.isVisible() and b.isEnabled()).click()
+            next(b for b in panel.findChildren(QPushButton, control) if b.isVisible() and b.isEnabled()).click()
             self._settle()
             self.assertEqual(save["current_smith"], target)
             self.assertEqual(self._count(dialog).suffix(), suffix)

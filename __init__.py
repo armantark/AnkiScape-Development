@@ -4904,32 +4904,6 @@ def _registered_answer_handler(skill):
     return runtime_actions.answer_handler_for_key(handler_key)
 
 
-_COMBAT_RECOVERY_STATE_KEYS = (
-    "combat_lifepoints",
-    "combat_special_attack_energy",
-    "combat_current_levels",
-    "combat_status_effects",
-    "combat_supply_loadout",
-    "combat_grave",
-)
-
-
-def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> None:
-    if not any(key in _state.player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
-        return
-    recovered = apply_safe_combat_recovery_pure(_state.player_data, EQUIPMENT_DATA, runtime_actions.card_ticks_pure(_review_action_multiplier()))
-    if recovered == _state.player_data:
-        return
-    _state.player_data.clear()
-    _state.player_data.update(recovered)
-    save_callback()
-    _refresh_skill_availability()
-    try:
-        update_review_hud(_state.player_data, _state.current_skill)
-    except Exception:
-        pass
-
-
 def _advance_world_events_after_review() -> None:
     """Advance silent world events inside the persisted answer transaction."""
     spawn_due = evil_tree_spawn_due_pure(_state.player_data)
@@ -4968,17 +4942,24 @@ def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
     # ends them; a full queue entry hands the rest of the card to the next entry.
     reviewed_action = _selected_review_action()
     queue_count = QueueCount(sys.modules[__name__])
+    stepped_recovery = handler_key == "utility" and reviewed_action[1] != DEFAULT_UTILITY_ACTIVITY
+
     # Combat carries no skilling pack: its engine owns supplies and bank trips.
-    step = handler if handler_key == "combat" else (
-        lambda ctx: runtime_actions.run_answer_with_carried_overlay(ctx, handler_key, handler)
-    )
+    def step(ctx):
+        if handler_key == "combat":
+            return handler(ctx)
+        result = runtime_actions.run_answer_with_carried_overlay(ctx, handler_key, handler)
+        if result is not False and stepped_recovery:
+            runtime_actions.apply_review_recovery(sys.modules[__name__], ctx.save_player_data, ticks=6)
+        return result
+
     progressed = runtime_actions.spend_card_budget(
         review_ctx, handler_key, queue_count.counted(step),
         can_continue=lambda: not queue_count.full and _selected_review_action() == reviewed_action
         and _can_start_current_action(review_ctx),
     )
-    if progressed and handler_key not in ("combat", "quest", "thieving", "agility"):
-        _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
+    if progressed and not stepped_recovery and handler_key not in ("combat", "quest", "thieving", "agility"):
+        runtime_actions.apply_review_recovery(sys.modules[__name__], review_ctx.save_player_data)
     if queue_count.hand_over():
         _spend_card_on_action(review_ctx, review_action_handler_key(_state.current_skill), _registered_answer_handler(_state.current_skill))
 

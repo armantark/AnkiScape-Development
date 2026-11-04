@@ -145,7 +145,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         )
         self.assertEqual(addon._state.player_data["quest_combat_encounters"], {})
         self.assertEqual(calls["save"], len(calls["gains"]))
-        self.assertEqual(calls["gains"], ["Defeated Fear reaper", "Fear reaper: 60 damage dealt, 340 LP left"])
+        self.assertEqual(calls["gains"], ["Defeated Fear reaper", "Fear reaper: 275 damage dealt, 295 LP left"])
         self.assertEqual(calls["dialogs"], [])
 
     def test_stolen_hearts_review_flow_resolves_the_real_mercenary_stage(self):

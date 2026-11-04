@@ -606,8 +606,8 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
     handle_farming_review_answer,
     missing_materials_text,
 )
-
 from .runtime_actions_context import (  # noqa: F401  (re-export)
+    apply_review_recovery,
     ONE_PER_CARD_HANDLER_KEYS,
     RuntimeActionContext,
     activity_session_cleared,

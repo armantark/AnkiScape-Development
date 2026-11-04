@@ -15,6 +15,8 @@ The route passes when the mean XP per tick spent at speed 10 is within four
 standard errors of the paired differences from speed 1. Quests and Dungeoneering take one stage
 or room per card at every speed (assumption 5), so they are not sampled.
 
+Fight Caves re-enters through its real command after a safe defeat, keeping earned XP and spent supplies, so its finite runs fill the same minimum play window.
+
 Combat includes supply and loot bank trips at every speed. Gathering drops what
 it gathers. Processing keeps its six-tick travel steps and trip-start stop.
 """
@@ -38,6 +40,7 @@ from ankiscape.runtime.runtime_actions_carried_requirements import (
     _processing_requirements_for,
 )
 from tests.test_fight_caves import _entered as _fight_caves_entered
+from ankiscape.logic.fight_caves_logic import apply_fight_caves_command_pure
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 from tests.test_livid_farm_logic import _player as _livid_farm_player
 from tests.test_sorceress_garden import _player as _sorceress_garden_player
@@ -78,11 +81,12 @@ _SKILL_NAMES = {
 class Route:
     """One sampled route: the skill to select and a fresh save that can play it."""
 
-    def __init__(self, handler_key: str, action_id: str, player: Callable[[], dict], name: str = ""):
+    def __init__(self, handler_key: str, action_id: str, player: Callable[[], dict], name: str = "", restart=None):
         self.handler_key = handler_key
         self.action_id = action_id
         self.skill = _SKILL_NAMES[handler_key]
         self.player = player
+        self.restart = restart
         self.name = name or f"{handler_key}:{action_id}"
 
     def __repr__(self) -> str:
@@ -142,22 +146,27 @@ def building(action_id: str) -> Route:
     )
 
 
-def activity(action_id: str, player: Callable[[], dict]) -> Route:
+def activity(action_id: str, player: Callable[[], dict], *, restart=None) -> Route:
     def entered() -> dict:
         data = player()
         data["current_utility"] = action_id
         return data
 
-    return Route("utility", action_id, entered)
+    return Route("utility", action_id, entered, restart=restart)
+
+
+def _reenter_fight_caves(data):
+    # Safe defeat restores LP. Re-entry is the real menu action, with no reset of XP or supplies.
+    updated, ok, info = apply_fight_caves_command_pure(data, "enter")
+    assert ok, info
+    updated["current_utility"] = "fight_caves"
+    return updated
 
 
 def _animated_armour_fighter() -> dict:
     data = _warriors_guild_player()
     data["inventory"].update({"Rune full helm": 1, "Rune platebody": 1, "Rune platelegs": 1})
     return data
-
-
-_RUNE_ARMOUR = {"body": "Rune platebody", "legs": "Rune platelegs", "head": "Rune full helm"}
 
 
 # For each handler key: the lowest-level, the middle and the highest route by
@@ -278,11 +287,7 @@ SAMPLE: dict[str, tuple[Route, ...]] = {
     # Activities carry no catalog level: the first, the middle and the last
     # XP-paying activity by id, each on its own suite's entered player.
     "utility": (
-        activity("fight_caves", lambda: _fight_caves_entered(
-            equipment={"weapon": "Rune scimitar", "shield": "Rune kiteshield", **_RUNE_ARMOUR},
-            inventory={"Shark": 28}, combat_auto_eat_food=["Shark"],
-            combat_supply_loadout={"food": {"Shark": 28}},
-        )),
+        activity("fight_caves", _fight_caves_entered, restart=_reenter_fight_caves),
         activity("sorceress_garden", _sorceress_garden_player),
         activity("warriors_guild_animated_armour", _animated_armour_fighter),
         activity("livid_farm", lambda: _livid_farm_player(rune_quantity=10_000_000)),
@@ -290,6 +295,7 @@ SAMPLE: dict[str, tuple[Route, ...]] = {
 }
 
 
+_RUNE_ARMOUR = {"body": "Rune platebody", "legs": "Rune platelegs", "head": "Rune full helm"}
 # Sol's setups and pairs (combat-kill-cap-measurement-sol-2026-10-15.md, sections 2 and 3).
 COMBAT_SETUPS = {
     20: {"weapon": "Mithril scimitar", "body": "Mithril platebody", "legs": "Mithril platelegs"},
@@ -413,7 +419,12 @@ class RatePropertyCase(unittest.TestCase):
         spent = cards = 0
         while (
             spent < ticks or addon._state.player_data.get("card_tick_debt", 0)
-        ) and cards < MAX_CARDS and addon._state.current_skill == route.skill:
+        ) and cards < MAX_CARDS:
+            if addon._state.current_skill != route.skill:
+                if route.restart is None:
+                    break
+                addon._state.player_data = route.restart(addon._state.player_data)
+                addon._state.current_skill = route.skill
             spent += self._card_ticks(route.skill, ticks - spent)
             cards += 1
         self.assertGreaterEqual(

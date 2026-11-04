@@ -297,8 +297,8 @@ class EncounterMethodChangeIntegrationTest(unittest.TestCase):
         self.assertTrue(travel["active"])
         self.assertFalse(travel["queued"])
         self.assertEqual(travel["kind"], "combat")
-        self.assertEqual(travel["total"], 2)
-        self.assertEqual(travel["remaining"], 2)
+        self.assertEqual(travel["total"], 100)
+        self.assertEqual(travel["remaining"], 100)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")

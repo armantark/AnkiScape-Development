@@ -270,3 +270,32 @@ def spend_card_budget(
     if waiting:
         ctx.show_activity_gain(waiting)
     return progressed
+
+
+_COMBAT_RECOVERY_STATE_KEYS = (
+    "combat_lifepoints",
+    "combat_special_attack_energy",
+    "combat_current_levels",
+    "combat_status_effects",
+    "combat_supply_loadout",
+    "combat_grave",
+)
+
+
+def apply_review_recovery(addon, save_callback=None, *, ticks=None) -> None:
+    if not any(key in addon._state.player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
+        return
+    if ticks is None:
+        ticks = addon.runtime_actions.card_ticks_pure(addon._review_action_multiplier())
+    recovered = addon.apply_safe_combat_recovery_pure(addon._state.player_data, addon.EQUIPMENT_DATA, ticks)
+    if recovered == addon._state.player_data:
+        return
+    addon._state.player_data.clear()
+    addon._state.player_data.update(recovered)
+    (save_callback or addon.save_player_data)()
+    addon._refresh_skill_availability()
+    try:
+        addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
+    except Exception:
+        pass
+
