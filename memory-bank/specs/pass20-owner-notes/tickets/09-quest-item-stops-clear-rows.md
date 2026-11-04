@@ -4,7 +4,7 @@
 
 **Blocked by:** 08
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-09
 
 - [ ] Each changed quest plays through the real handler with an empty bank past each folded row. Items a `player brings` row still names are held by the test, and no other item.
 - [ ] `/Users/ArmanTarkhanian1/Documents/ankiscape-pass20/scan/walk.py`, empty-bank walk, shows none of the folded stops.
