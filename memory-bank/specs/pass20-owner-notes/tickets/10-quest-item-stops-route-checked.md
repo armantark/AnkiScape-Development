@@ -4,7 +4,7 @@
 
 **Blocked by:** 09
 
-**Status:** open
+**Status:** claimed by gpt-6.1-sol on goal/pass20-10
 
 - [ ] Each folded quest plays past its row through the real handler with an empty bank, holding only what `player brings` rows name.
 - [ ] A table in the report gives each row's step, price, XP and period source quote, and the rows not folded with their reasons.
