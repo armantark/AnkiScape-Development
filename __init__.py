@@ -250,7 +250,7 @@ from .core.action_registry import (
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .core.action_queue import (
     QueueCount, apply_action_queue_command, bankstanding_event_text, unexplained_stop_pure,
-    record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, stop_action,
+    record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, set_aside_action_queue, stop_action,
 )
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
@@ -737,6 +737,7 @@ def _select_review_action(skill, *, keep_encounter=False):
     if not keep_encounter and (changed or not is_combat_review_action(selected_skill)):
         _state.player_data["combat_encounter"] = {}
     _state.current_skill = selected_skill
+    set_aside_action_queue(sys.modules[__name__])
     try:
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except AttributeError:
@@ -1347,9 +1348,8 @@ def save_skill(skill, dialog) -> bool:
     if refusal:
         show_error_message(*refusal)
         return False
-    if _select_review_action(skill):
-        _save_player_data_if_anki_ready()
-    # Update the HUD immediately so users see the new skill progress without waiting for XP
+    _select_review_action(skill)
+    _save_player_data_if_anki_ready()
     try:
         update_review_hud(_state.player_data, _state.current_skill)
     except Exception:

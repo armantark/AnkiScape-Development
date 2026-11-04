@@ -224,7 +224,7 @@ class ActionQueueReviewTest(QueueProfile):
         self.assertTrue(addon.on_resume_last_action())
         self.assertEqual((addon._state.current_skill, addon._state.player_data["current_ore"]), ("Mining", "iron"))
 
-    def test_an_action_the_player_starts_himself_pauses_the_queue(self):
+    def test_an_action_the_player_starts_himself_sets_aside_the_queue(self):
         from ankiscape.core.action_queue import action_queue_view_pure
 
         addon = self._queue_addon("ankiscape_queue_takeover", (_MINE_IRON, 30), woodcutting_level=40)
@@ -235,7 +235,8 @@ class ActionQueueReviewTest(QueueProfile):
 
         self.assertEqual(addon._state.current_skill, "Woodcutting")
         view = action_queue_view_pure(addon._state.player_data)
-        self.assertTrue(view["paused"])
+        self.assertFalse(view["paused"])
+        self.assertTrue(view["suspended"])
         self.assertEqual(view["entries"][0]["done"], 0)
 
     def _paused_at_first_entry(self, name):

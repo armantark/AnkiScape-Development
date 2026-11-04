@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-01
+**Status:** built; native Anki check waits for the orchestrator
 
-- [ ] Played through the review handler: a hand-started Mining ahead of a two-entry queue runs out of supplies, and the next card runs the top entry.
-- [ ] A hand-run quest that completes leaves the queue in that review, with all its entries, and the queue continues or stays paused by its earlier state.
-- [ ] A free pickup ahead of the queue stops only on Stop or add; Stop starts the top entry.
-- [ ] Stop on a running entry ends at Bankstanding and the queue stays paused; a hand start then leaves it paused.
-- [ ] Clear ends at Bankstanding. An old save's `paused` queue stays paused.
-- [ ] A Monte Carlo sweep of add, hand-start, Stop, Clear and finish sequences holds the spec's invariants.
+- [ ] Played through the review handler: a hand-started Mining ahead of a two-entry queue runs out of supplies, and the next card runs the top entry. Mining consumes no supplies; the focused proof covers a missing-pickaxe Mining stop and supply exhaustion in Smithing.
+- [x] A hand-run quest that completes leaves the queue in that review, with all its entries, and the queue continues or stays paused by its earlier state.
+- [x] A free pickup ahead of the queue stops only on Stop or add; Stop starts the top entry.
+- [x] Stop on a running entry ends at Bankstanding and the queue stays paused; a hand start then leaves it paused.
+- [x] Clear ends at Bankstanding. An old save's `paused` queue stays paused.
+- [x] A Monte Carlo sweep of add, hand-start, Stop, Clear and finish sequences holds the spec's invariants.

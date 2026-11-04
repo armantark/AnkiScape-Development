@@ -197,7 +197,7 @@ def _row_text(row: Mapping[str, Any]) -> str:
 def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     """The menu's queue box: a title, one numbered line per entry, Resume for a paused queue, and Clear."""
     view = action_queue_view_pure(player_data)
-    labels = {"current": "Paused" if view["paused"] else "Now", "waiting": "Next"}
+    labels = {"current": "Paused" if view["paused"] else "Next" if view["suspended"] else "Now", "waiting": "Next"}
     count = len(view["entries"])
     return {
         "title": f"Queue: {count} of {MAX_QUEUE_ENTRIES}" if count else "Queue: empty",
@@ -211,5 +211,5 @@ def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             }
             for position, row in enumerate(view["entries"])
         ],
-        "resume_text": "Resume queue" if view["paused"] else "",
+        "resume_text": "Resume queue" if view["paused"] or view["suspended"] else "",
     }
