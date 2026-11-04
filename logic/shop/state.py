@@ -297,6 +297,14 @@ def _quest_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str,
     return f"Requires {label}"
 
 
+def _all_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    for child in rule.get("rules", ()):
+        reason = shop_access_lock_reason_pure(player_data, {"access": child})
+        if reason:
+            return reason
+    return None
+
+
 def _quest_points_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
     required = int(rule.get("quest_points", 0) or 0)
     if int(player_data.get("quest_points", 0) or 0) >= required:
@@ -321,6 +329,7 @@ def _skill_total_access_lock_reason(player_data: Mapping[str, Any], rule: Mappin
 
 _ACCESS_LOCK_REASONS: Dict[str, Callable[[Mapping[str, Any], Mapping[str, Any], str], Optional[str]]] = {
     "quest": _quest_access_lock_reason,
+    "all": _all_access_lock_reason,
     "quest_points": _quest_points_access_lock_reason,
     "skill": _skill_access_lock_reason,
     "skill_total": _skill_total_access_lock_reason,

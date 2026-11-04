@@ -10,6 +10,9 @@ a width change settles after one extra layout pass.
 
 guard_wheel keeps the mouse wheel from changing number boxes and drop-down
 lists in an AnkiScape window, so the wheel scrolls the page instead.
+
+main_menu_tabs keeps every tab name whole and scrolls the bar instead, with one
+scroll arrow at each end.
 """
 
 from aqt.qt import (  # type: ignore
@@ -25,6 +28,7 @@ from aqt.qt import (  # type: ignore
     QModelIndex,
     QObject,
     QPointF,
+    QProxyStyle,
     QRect,
     QScrollArea,
     QSize,
@@ -34,6 +38,7 @@ from aqt.qt import (  # type: ignore
     QStyleOptionViewItem,
     QStyledItemDelegate,
     QStylePainter,
+    QTabWidget,
     Qt,
     QTimer,
     QVBoxLayout,
@@ -231,8 +236,22 @@ def lay_out_whole(check):
     return check
 
 
+class ShrinkFirstPage(QWidget):
+    """A page that shrinks to its minimum before a vertical_scroll scrolls it.
+
+    A resizable QScrollArea sizes a height-for-width page to its preferred
+    height for the width, so a page with wrapping text would scroll while it
+    still had room to shrink.
+    """
+
+    def heightForWidth(self, width):
+        return self.layout().minimumHeightForWidth(width)
+
+
 def vertical_scroll(widget):
     """Scroll vertically without squeezing the widget below its minimum height."""
+    # Nothing scrolls sideways, so the widget takes the viewport's width rather than run off its edge.
+    widget.setSizePolicy(QSizePolicy.Policy.Ignored, widget.sizePolicy().verticalPolicy())
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -517,3 +536,45 @@ def guard_wheel(window):
     window.setProperty(_WHEEL_GUARDED, True)
     QApplication.instance().installEventFilter(_wheel_guard)
     return window
+
+
+class _ArrowAtEachEndStyle(QProxyStyle):
+    """Puts the tab bar's left scroll arrow, and the tear mark beside it, at the bar's left end.
+
+    Every Qt style puts both arrows at the right end. QTabBar lays its tabs out
+    between whatever rects the style returns, so it offsets the tabs past the
+    moved arrow and still scrolls to both ends. Both arrows take the width
+    QTabBar gives the buttons, which asks with an option; Qt's own rects ask
+    without one and come out narrower at 96 dpi, leaving tabs under the arrows.
+    """
+
+    def subElementRect(self, element, option, widget):
+        rect = super().subElementRect(element, option, widget)
+        arrow = self.pixelMetric(QStyle.PixelMetric.PM_TabBarScrollButtonWidth, option, widget)
+        moved = {
+            QStyle.SubElement.SE_TabBarScrollLeftButton: QRect(0, rect.y(), arrow, rect.height()),
+            QStyle.SubElement.SE_TabBarTearIndicatorLeft: QRect(arrow, rect.y(), rect.width(), rect.height()),
+            QStyle.SubElement.SE_TabBarScrollRightButton: QRect(option.rect.width() - arrow, rect.y(), arrow, rect.height()),
+        }.get(element)
+        return rect if moved is None else QStyle.visualRect(option.direction, option.rect, moved)
+
+
+def main_menu_tabs():
+    """The main menu's top-level tabs, scrolled by an arrow at each end of the bar."""
+    tabs = QTabWidget()
+    tabs.setDocumentMode(True)
+    tabs.setIconSize(QSize(18, 18))
+    bar = tabs.tabBar()
+    bar.setElideMode(Qt.TextElideMode.ElideNone)
+    bar.setExpanding(False)
+    tabs.setUsesScrollButtons(True)
+    # A QProxyStyle without a base takes the desktop style, not the application
+    # style that Anki's widget-style setting picked. An application style sheet
+    # hides that name, so the desktop style is used; under Anki's own widget
+    # style that sheet draws every tab anyway.
+    style = _ArrowAtEachEndStyle(QApplication.style().name())
+    # Parented to the bar, whose Python wrapper is temporary, PyQt drops the
+    # subclass and Qt falls back to plain QProxyStyle with both arrows at the right.
+    style.setParent(tabs)
+    bar.setStyle(style)
+    return tabs

@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401
-from ankiscape.core import elder_kiln_dialog
+from ankiscape.core import logic as core_logic
 from ankiscape.core.constants import QUEST_DATA
 from ankiscape.data.quest.elder_kiln import FAILURE_COPY, STATE_KEY
 from ankiscape.logic_pure.logic_pure_quest import can_attempt_quest_review_pure
@@ -78,7 +78,7 @@ class IngressTest(unittest.TestCase):
         calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
         ctx = _context(data, calls)
         ctx.random_random = rng or random.Random(1440).random
-        with patch.object(elder_kiln_dialog, "present_elder_kiln_hatching", script):
+        with patch.object(core_logic, "present_elder_kiln_hatching", script):
             result = handle_quest_answer(ctx)
         return result, calls
 
@@ -238,7 +238,7 @@ def review_session(data):
 
 class AnswerWrapperTest(unittest.TestCase):
     def _patch(self, addon, script):
-        module = sys.modules[f"{addon.__name__}.core.elder_kiln_dialog"]
+        module = sys.modules[f"{addon.__name__}.core.logic"]
         return patch.object(module, "present_elder_kiln_hatching", script)
 
     def test_again_neither_opens_nor_advances(self):

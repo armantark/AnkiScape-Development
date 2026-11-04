@@ -211,11 +211,12 @@ class LocalTestHostTests(unittest.TestCase):
             self.addCleanup(_kill_exiting, survivors)
             self.assertEqual(survivors, set(), f"group {group} outlived its deadline: {survivors}")
 
-    def _assert_deadline_stops_child(self, *, early_exit: bool) -> None:
+    def _assert_deadline_stops_child(self, *, early_exit: bool, startup_delay: float = 0) -> None:
         state = self.root / "child.json"
         program = f"""
 import json, os, signal, time
 from pathlib import Path
+time.sleep({startup_delay!r})
 child = os.fork()
 if child == 0:
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
@@ -228,25 +229,32 @@ if {early_exit!r}:
     os._exit(0)
 os.waitpid(child, 0)
 """
-        owned = []
-        create = subprocess.Popen
-
-        def start(*args, **kwargs):
-            process = create(*args, **kwargs)
-            owned.append(process)
-            return process
-
+        command = (sys.executable, "-c", program)
+        process = subprocess.Popen(
+            command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True,
+        )
         try:
+            # Python startup and fork can exceed the tested one-second deadline
+            # in the full Qt suite. Start that deadline only with a ready child.
+            ready_deadline = time.monotonic() + 10
+            while not state.exists() and time.monotonic() < ready_deadline:
+                time.sleep(0.01)
+            self.assertTrue(state.exists(), "deadline fixture child did not become ready")
             with (
                 patch.object(run_remote_tests, "_on_test_host", return_value=True),
                 patch.object(run_remote_tests, "_host_shell", return_value=(sys.executable, "-c")),
-                patch.object(run_remote_tests.subprocess, "Popen", side_effect=start),
+                patch.object(run_remote_tests.subprocess, "Popen", return_value=process) as launch,
                 patch.object(run_remote_tests.os, "getpgid", wraps=os.getpgid) as lookup,
                 self.assertRaisesRegex(run_remote_tests.SSHDeadlineExceeded, "child deadline"),
             ):
                 run_remote_tests._ssh(program, label="child deadline", deadline=time.monotonic() + 1.0)
+            launch.assert_called_once_with(
+                command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                start_new_session=True,
+            )
             record = json.loads(state.read_text())
-            self.assertEqual(record["group"], owned[0].pid)
+            self.assertEqual(record["group"], process.pid)
             self.assertNotEqual(record["group"], os.getpgrp())
             table = subprocess.run(
                 ("/bin/ps", "-p", str(record["pid"]), "-o", "stat="),
@@ -258,9 +266,9 @@ os.waitpid(child, 0)
             )
             lookup.assert_not_called()
         finally:
-            # A failed cleanup must still let this fixture's finite child reach its exit.
-            for process in owned:
-                process.communicate(timeout=6)
+            if process.returncode is None:
+                run_remote_tests._stop_process_group(process)
+            process.communicate(timeout=6)
 
     def test_deadline_kills_child_after_leader_exits_on_sigterm(self):
         self._assert_deadline_stops_child(early_exit=False)

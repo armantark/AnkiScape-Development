@@ -15,6 +15,13 @@ Per asset it queries the FULL upload history at https://runescape.wiki/api.php
 (never /w/api.php), picks the latest revision strictly before the EOC cutoff
 2012-11-20T00:00:00Z, downloads that exact revision, verifies the API's sha1,
 normalizes through the shared write_png pipeline, and replaces the repo PNG.
+A missing File page is followed through the wiki's move log: the wiki often
+renamed files with suppressredirect, which empties the old title while the
+upload history travels to the new one. The file a title held at the cutoff left
+with the first move after the cutoff, so that move (and each first later move
+of its target) leads to the title that holds the 2012 revisions; a move before
+the cutoff took a file the title no longer held in 2012, so it is never
+followed.
 The provenance ledger is deliberately NOT written here — the workflow's single
 apply step owns it to avoid concurrent-writer corruption.
 
@@ -46,6 +53,10 @@ API_URL = "https://runescape.wiki/api.php"
 CUTOFF = "2012-11-20T00:00:00Z"
 USER_AGENT = "AnkiScapePeriodArtResearch/2.0 (single-user preservation project)"
 BASE_DELAY_SECONDS = 0.5
+# Editors undo a rename by moving the file back, so a move chain can revisit a
+# title (Torag's hammers 0 -> Torag's hammer 0 -> back -> forward again); the
+# cap only stops a same-second back-and-forth from looping.
+MAX_MOVE_HOPS = 10
 
 
 def _request(url: str, *, binary: bool = False, attempts: int = 4) -> bytes:
@@ -95,6 +106,65 @@ def _query_history(file_title: str) -> tuple[str, list[dict]] | None:
     return None
 
 
+def _first_move_since(file_title: str, since: str) -> tuple[str, str] | None:
+    """Return (target title, move timestamp) of the first move of File:<file_title> at or after since."""
+    params = urllib.parse.urlencode(
+        {
+            "action": "query",
+            "list": "logevents",
+            "letype": "move",
+            "letitle": f"File:{file_title}",
+            "lestart": since,
+            "ledir": "newer",
+            "lelimit": 1,
+            "maxlag": 5,
+            "format": "json",
+        }
+    )
+    decoded = json.loads(_request(f"{API_URL}?{params}").decode("utf-8"))
+    for event in decoded.get("query", {}).get("logevents", []):
+        target = event.get("params", {}).get("target_title")
+        if target:
+            return target.removeprefix("File:"), event["timestamp"]
+    return None
+
+
+def _query_history_following_moves(file_title: str, tried: list[str]) -> tuple[str, list[dict]] | None:
+    resolved = _query_history(file_title)
+    since = CUTOFF
+    for _ in range(MAX_MOVE_HOPS):
+        if resolved is not None:
+            break
+        move = _first_move_since(file_title, since)
+        if move is None:
+            break
+        file_title, since = move
+        tried.append(file_title)
+        resolved = _query_history(file_title)
+    return resolved
+
+
+def _download_matching_sha1(candidate_urls: list[str], expected_sha1: str, attempts_log: list[str]) -> tuple[bytes, str] | None:
+    """Return (bytes, url) of the first candidate whose bytes hash to expected_sha1, logging every miss."""
+    # Cloudflare Polish recompresses an image once the CDN has cached it, so a
+    # cache hit can serve bytes that differ from the upload. A query string the
+    # cache has never seen reaches the original file, so each URL is retried
+    # that way before its bytes count as a mismatch.
+    uncached = f"uncached={time.time_ns()}"
+    for url in candidate_urls:
+        for fetch_url in (url, f"{url}{'&' if '?' in url else '?'}{uncached}"):
+            try:
+                downloaded = _request(fetch_url, binary=True)
+            except RuntimeError as exc:
+                attempts_log.append(f"{fetch_url}: {exc}")
+                continue
+            actual_sha1 = hashlib.sha1(downloaded).hexdigest()
+            if not expected_sha1 or actual_sha1 == expected_sha1:
+                return downloaded, url
+            attempts_log.append(f"{fetch_url}: served {actual_sha1}, want {expected_sha1}")
+    return None
+
+
 def _title_variants(title: str) -> list[str]:
     base, dot, extension = title.rpartition(".")
     if not dot:
@@ -114,13 +184,13 @@ def research_asset(path: str, title: str, *, explicit_title: str | None = None) 
     for variant in variants:
         tried.append(variant)
         try:
-            resolved = _query_history(variant)
+            resolved = _query_history_following_moves(variant, tried)
         except RuntimeError as exc:
             return {"path": path, "status": "unreachable", "evidence": f"history query failed for {variant}: {exc}", "titles_tried": tried}
         if resolved is not None:
             break
     if resolved is None:
-        return {"path": path, "status": "no_period_art", "evidence": "no File page under any tried title", "titles_tried": tried}
+        return {"path": path, "status": "no_period_art", "evidence": "no File page under any tried or moved-to title", "titles_tried": tried}
 
     resolved_title, revisions = resolved
     period = [r for r in revisions if str(r.get("timestamp", "")) < CUTOFF]
@@ -148,23 +218,12 @@ def research_asset(path: str, title: str, *, explicit_title: str | None = None) 
     if not any(candidate_urls):
         return {"path": path, "status": "unreachable", "evidence": f"{resolved_title} period revision {chosen.get('timestamp')} has no url", "titles_tried": tried}
 
-    payload = None
     attempts_log: list[str] = []
-    for image_url in candidate_urls:
-        try:
-            downloaded = _request(image_url, binary=True)
-        except RuntimeError as exc:
-            attempts_log.append(f"{image_url}: {exc}")
-            continue
-        actual_sha1 = hashlib.sha1(downloaded).hexdigest()
-        if not expected_sha1 or actual_sha1 == expected_sha1:
-            payload, matched_url = downloaded, image_url
-            break
-        attempts_log.append(f"{image_url}: served {actual_sha1}, want {expected_sha1}")
-    if payload is None:
+    downloaded = _download_matching_sha1(candidate_urls, expected_sha1, attempts_log)
+    if downloaded is None:
         status = "unreachable" if not any("served" in line for line in attempts_log) else "sha_mismatch"
         return {"path": path, "status": status, "evidence": "; ".join(attempts_log), "titles_tried": tried}
-    image_url = matched_url
+    payload, image_url = downloaded
 
     output_path = REPO_ROOT / path
     size_limit = None
@@ -181,7 +240,7 @@ def research_asset(path: str, title: str, *, explicit_title: str | None = None) 
         "file_page_url": f"https://runescape.wiki/wiki/{urllib.parse.quote(resolved_title.replace(' ', '_'), safe=':')}",
         "image_url": image_url,
         "timestamp": chosen.get("timestamp"),
-        "sha1": expected_sha1 or actual_sha1,
+        "sha1": expected_sha1 or hashlib.sha1(payload).hexdigest(),
         "size": chosen.get("size"),
         "mime": chosen.get("mime", "image/png"),
         "source_wiki": "rs3",

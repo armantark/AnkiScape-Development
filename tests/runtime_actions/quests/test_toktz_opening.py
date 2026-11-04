@@ -212,7 +212,9 @@ class ToktzRuntimeTest(unittest.TestCase):
         calls = {'xp': [], 'saves': 0, 'errors': []}
         ctx = _context(data, calls)
         unrelated = ({'kind': 'required_inventory', 'reason': 'Need unrelated item'},)
-        with patch('ankiscape.runtime.runtime_actions_quest.quest_current_stage_blockers_pure', return_value=unrelated):
+        with patch('ankiscape.runtime.runtime_actions_quest.quest_current_stage_blockers_pure', return_value=unrelated), patch(
+            'ankiscape.logic_pure.logic_pure_quest.quest_current_stage_blockers_pure', return_value=unrelated,
+        ):
             self.assertFalse(handle_quest_answer(ctx))
         self.assertEqual(calls['saves'], 0)
         self.assertEqual(calls['errors'][0][0], 'Quest blocked')

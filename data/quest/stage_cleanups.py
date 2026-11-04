@@ -17,9 +17,12 @@ from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_S
 from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_CLEANUPS
 from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_CLEANUPS
 from .stage_overrides.members.classic.observatory_quest import OBSERVATORY_QUEST_CLEANUPS
+from .stage_overrides.members.later import animal_magnetism as _animal_magnetism
 from .stage_overrides.members.later.horror_from_the_deep import HORROR_FROM_THE_DEEP_OPENING_CLEANUP
 
-QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
+QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {
+    "animal_magnetism": _animal_magnetism.ANIMAL_MAGNETISM_CLEANUPS,
+    BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
     'one_small_favour': (QuestStageRequirementCleanup(stage=1, remove_required_inventory=('Empty Pot',),
         remove_required_actions=('Complete One Small Favour stage 1 objective',),
         add_required_actions=OPENING_PROOFS, source=OPENING_SOURCE),),

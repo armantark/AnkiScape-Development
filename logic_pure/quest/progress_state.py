@@ -61,6 +61,28 @@ def quest_combat_prerequisites_completed_pure(player_data, quest_id, quest_data,
     return True
 
 
+_QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
+    "missing_item",
+    "missing_item_option",
+    "missing_skill",
+    "missing_tool",
+    "required_action",
+    "unmet_route",
+    "quest_choice",
+}
+
+
+_QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
+    "missing_item",
+    "missing_item_option",
+    "missing_skill",
+    "missing_tool",
+    "missing_weapon",
+    "unmet_route",
+    "quest_choice",
+}
+
+
 def _quest_stage_strings(requirement, key):
     raw_values = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
     if isinstance(raw_values, str):

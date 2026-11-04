@@ -1,0 +1,709 @@
+{
+  "source_register": {
+    "W": {
+      "title": "The Grand Tree",
+      "saved_body": "sources/the-grand-tree-6450823.txt",
+      "sha256": "4a18eb0d6e3b7a05ddb43ae616fc4f557d90cd497e74c3f53addf99ba3f13836",
+      "bytes": 14436,
+      "rung": "5",
+      "timestamp_utc": "2012-10-21T20:56:52Z",
+      "url": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+      "exact_original_lines": {
+        "9": "| members = Yes",
+        "24": "|start=Talk to King Narnode Shareen in The [[Grand Tree]].",
+        "27": "|members=Yes",
+        "28": "|requirements= {{Skillreq|Agility|25}}",
+        "30": "'''Recommended:'''",
+        "31": "*Armour, weapon, [[food]] and/or [[prayer potion]]s",
+        "32": "*Runes for Teleports",
+        "33": "*[[Ring of Duelling]] or [[Amulet of Glory]]",
+        "34": "*Completion of [[Tree Gnome Village (quest)]]",
+        "42": "To start the quest, speak to [[King Narnode Shareen]] on the ground floor of the [[Grand Tree]]. He says that there is something wrong with the Grand Tree, which frames up the Gnome Stronghold. In confidence, he takes you to below to the foundations of the tree, where you see that the roots are deteriorating. He will tell you that the only person that could help them is [[Hazelmere]], a Grand Tree creator and guardian. Narnode gives you a [[Bark sample]] and a [[Translation book]] to help you understand his words.",
+        "44": "Hazelmere can be found on a small island east of [[Yanille]]. Travel to Yanille and hand both the items over to [[Hazelmere]].",
+        "56": "Talk to [[Hazelmere]] once you arrive. You will not understand him, but after some blabbering, he will use magic to communicate with you. He will take your [[bark sample]] and, after examining it, he will write down a message.",
+        "58": "After using the [[translation book]], it reads:",
+        "60": "A man came to me with the King's seal <br />",
+        "61": "I gave the man [[Daconia stone|Daconia rocks]] <br />",
+        "62": "and Daconia rocks will kill the tree!",
+        "67": "Return to [[King Narnode Shareen]] in the [[Grand Tree]]. When he asks you for any information that you may have obtained, pass over to him the translation of Hazelmere's message. You will need to choose each translated line from the conversation window. After giving him the message, King Narnode tenses up at the thought of the Daconia rocks.",
+        "69": "When you ask him about the rocks, he says that they are a fail-safe method, created by Hazelmere, to destroy the Tree incase it grows out of hand. The king wants you to help their race, by assisting them in finding the rocks. He also requests you to warn one of the tree guardians, [[Glough]], of the imminent threat to the stronghold.",
+        "71": "Glough is located just south-east of the Grand Tree, in a tree house. When you try to talk to him, you find out that he greatly resents humans. As you mention the situation about the Daconia rocks to him, he surprisingly blames the humans. As he does not trust humans, he tells you that he will take care of the problem and that you should report back to the king.",
+        "73": "Return to King Narnode Shareen. He will tell you that Glough has already caught the culprit - a human who was caught with three Daconia rocks. You will ask to see the prisoner, who is located on the top floor of the [[Grand Tree]]. Go up the ladder to the top floor of the tree and talk to the prisoner, whose name is [[Charlie (Prisoner)|Charlie]]. When you interrogate him for a motive, he will blurt out that he was only doing what Glough had paid him to do. He had gone to the \"gnome on the hill\" and gave him the \"seal\" in exchange for the rocks. He will tell you to search Glough's house for evidence.",
+        "77": "Go to Glough's house again - search the cupboard and you will find his [[Glough's journal|journal]]. After reading the journal, you find out that Glough, unlike his ancestors, wants to come out of hiding and launch an attack on the humans. When you confront Glough for being a spy and framing Charlie, he will become outraged and will order his guards to arrest you and throw you into jail.",
+        "79": "Talk to Charlie while you are in the cell and he says that if you want to gather more information about Glough's plans, you will need to talk to the foreman at the [[Shipyard]]. He also gives you a password - \"Ka-Lu-Min\" - so that you can work undercover in Glough's crew.",
+        "81": "The King will appear and apologize for [[Glough]]'s actions. He will tell you to quickly escape on the [[Gnome glider]], as Glough has set up guards on all other escape routes. Talk to the Gnome Pilot and he will fly you to Karamja; although, for whatever reason, the glider crash lands just west of the Ship yard. Walk to the shipyard and try to open the gate; you will be stopped by a shipyard worker. Tell him that Glough sent you, and give him the password that Charlie told you."
+      },
+      "oldid": 6450823,
+      "reused": true
+    },
+    "T": {
+      "title": "Grand Tree, The — Tip.It",
+      "saved_body": "sources/tipit-grand-tree-20121119221116.html",
+      "sha256": "06da75040ec36c9692d8b773486752ac2c1dfa5fb0f34effd182ea8c12fdbd1d",
+      "bytes": 26445,
+      "rung": "contemporary independent article",
+      "timestamp_utc": "2012-11-19T22:11:16Z",
+      "url": "https://web.archive.org/web/20121119221116id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=33",
+      "exact_original_lines": {
+        "240": "\t\t\t\t<td colspan=\"6\" class=\"databasebig\">Grand Tree, The</td>",
+        "246": "<p><b>Start location:</b> Begins in the Tree Gnome Stronghold. Talk to King Narnode Shareen at the ground floor of the Grand Tree.</p><div><b>Required:</b> <p><u>Skills</u>: Level 25 Agility</p><p><u>Skills:</u>(40+ magic and/or melee stats recommended).</p></div><div><b>Suggested:</b> <p><u>Items:</u> ",
+        "247": "30 gold (for ship from Karamja to Ardougne), 1k gp - optional (if you help Femi with her crates the first time you enter the stronghold this is not necessary), 2 <a href=\"?rs2item_id=232\">Water</a> and  <a href=\"?rs2item_id=233\">Laws</a> (only if you are able to teleport to Ardougne)</p></div><div><b>Monsters:</b> <a href=\"?rs2monster_id=77\">Jogres (level 53)</a>, <a href=\"?rs2monster_id=78\">Jungle spiders (level 44)</a>, <a href=\"?rs2monster_id=45\">Giant bats (level 27)</a>, <a href=\"?rs2monster_id=8\">Black demon (level 172)</a></div><p><b>NPCs:</b> Anita, <a href=\"?rs2npc_id=872\">Femi</a>, Foreman, <a href=\"?rs2npc_id=1047\">Glough</a>, Hazelmere</p>\t\t\t\t<p><b>Walkthrough</b> <a href=\"javascript:hide('tohide');\">Hide</a>/<a href=\"javascript:show('tohide');\">Show</a>:</p>",
+        "252": "<p>1. Talk to King Narnode Shareen who is found at the ground floor of the Grand Tree. He will give you a <a href=\"?rs2item_id=2321\">bark sample</a> and a tree gnome <a href=\"?rs2item_id=3485\">translation book</a> to bring to Hazelmere.</p> ",
+        "254": "<p>2. Go east of Yanille and on to the small island. You will have to evade <a href=\"?rs2monster_id=78\">Jungle spiders (level 44)</a> along the way. Walk across the bridges and you'll end up on the largest of the two islands there, go to the house and up the ladder. Talk to the gnome Hazelmere; he'll just say, \"Blah, blah, blah.\" You will give him the bark sample and be given <a href=\"?rs2item_id=2197\">Hazelmere's scroll</a> in return. Use the book to translate, and you will find out that he said \"<i>A man came to me with the king's seal, I gave the man Daconia Rocks, and Daconia Rocks will kill the tree</i>.\" Head back to the Gnome Stronghold.</p>",
+        "256": "<p>3. Talk to King Narnode and choose the option \"None of these\" until you see the first part of the translation. Click it and do the same with the second and third sentences. King Narnode then asks you to go speak to Glough, located southeast of the Grand Tree. Go up the ladders around there to find him.</p>",
+        "260": "<p>4. Talk to Glough, who will show his resentment towards humans, including you. Head back to King Narnode, who will inform you that the culprit has been arrested. Go up to the top level of the Grand Tree, and talk to the prisoner Charlie.</p>",
+        "262": "<p>5. Go to Glough's tree house again and search the cupboard there to get his <a href=\"?rs2item_id=3054\">journal</a>. Speak to Glough and he will call his guards to lock you up in jail with Charlie. Talk to Charlie and he will tell you about the shipyard in Brimhaven. King Narnode will let you out of jail, and apologise for Glough's actions.</p>",
+        "306": "\t\t\t\t<p><b>Last updated:</b> September 24th 2012</p>"
+      },
+      "actual_capture": "20121119221116",
+      "reused": true
+    },
+    "H": {
+      "title": "Grand Tree, The — RuneHQ",
+      "saved_body": "sources/runehq-grand-tree-20121107193758.html",
+      "sha256": "4304d102761a77ec287b158a844d967b2566a13b54f284a9029a5cd85ca70c92",
+      "bytes": 37233,
+      "rung": "contemporary independent article",
+      "timestamp_utc": "2012-11-07T19:37:58Z",
+      "url": "https://web.archive.org/web/20121107193758id_/http://www.runehq.com:80/quest/grand-tree-the",
+      "exact_original_lines": {
+        "227": "    <div class=\"content-intro-header\"><a id=\"top\"></a>Grand Tree, The</div>",
+        "246": "<div class=\"undersubheader\">Difficulty:</div><div class=\"guide\">Experienced</div><div class=\"undersubheader\">Length:</div><div class=\"guide\">Long</div><div class=\"undersubheader\">Quest Requirements:<br /></div><div class=\"guide\">None</div><div class=\"undersubheader\">Skill/Other Requirements:<br /></div><div class=\"guide\">25 <a href=\"/guide.php?type=skill&amp;id=448\">Agility</a><br />",
+        "247": "Able to defeat a level 172 demon.</div><div class=\"undersubheader\">Quests Unlocked/Partially Unlocked by completing this Quest:<br /></div><div class=\"guide\"><a href=\"/guide.php?type=quest&amp;id=0435\">Monkey Madness</a><br /><a href=\"/guide.php?type=quest&amp;id=0761\">Eyes of Glouphrie, The</a></div><div class=\"undersubheader\">Items Needed at Quest Start:</div><div class=\"guide\">1K <a href=\"/database.php?type=item&amp;id=295\">Coins</a>, Armor, and a Weapon.</div><div class=\"undersubheader\">Items Needed to Complete Quest:</div><div class=\"guide\">None.</div><div class=\"undersubheader\">Items Recommended for Quest:</div><div class=\"guide\"><a href=\"/database.php?type=item&amp;id=550\">Ring of duelling</a>, Watchtower teleport method, ",
+        "248": "<a href=\"/guide.php?type=city&amp;id=269\">Ardougne</a> teleport method, <a href=\"/database.php?type=item&amp;id=13675\">Prayer potions</a>, and Food.</div><div class=\"undersubheader\">Items Acquired During Quest:</div><div class=\"guide\"><a href=\"/database.php?type=item&amp;id=73\">Bark sample</a>, <a href=\"/database.php?type=item&amp;id=469\">Translation book</a>, <a href=\"/database.php?type=item&amp;id=1689\">Hazelmere's scroll</a>, <a href=\"/database.php?type=item&amp;id=452\">Glough's journal</a>, <a href=\"/database.php?type=item&amp;id=540\">Lumber order</a>, <a href=\"/database.php?type=item&amp;id=453\">Glough's key</a>, <a href=\"/database.php?type=item&amp;id=454\">Invasion plans</a>, 4 <a href=\"/database.php?type=item&amp;id=467\">Twigs</a>, a <a href=\"/database.php?type=item&amp;id=317\">Daconia rock</a>, and 2 free spins on the <a href=\"/guide.php?type=minigame&amp;id=987\">Squeal of Fortune</a>.</div><div class=\"undersubheader\">Quest Points:</div><div class=\"guide\">5</div><div class=\"undersubheader\">Reward:</div><div class=\"guide\">18.4K <a href=\"/guide.php?type=skill&amp;id=561#attack\">Attack</a> XP, 7.9K <a href=\"/guide.php?type=skill&amp;id=448\">Agility</a> XP, 2150 <a href=\"/guide.php?type=skill&amp;id=389\">Magic</a> XP, access to the <a href=\"/guide.php?type=map&amp;id=246\">Grand Tree mine</a>, ability to use the <a href=\"/guide.php?type=specialreport&amp;id=523\">Gnome Glider</a> transportation system, ability to use the Grand Tree Spirit Tree, and the ability use the <a href=\"/guide.php?type=skill&amp;id=448\">Agility</a> shortcut from the <a href=\"/guide.php?type=city&amp;id=846\">Grand Tree</a> to the <a href=\"/guide.php?type=city&amp;id=284\">Barbarian Outpost</a>.</div><div class=\"undersubheader\">Start Point:</div><div class=\"guide\">The Grand Tree, in the northeastern part of the <a href=\"/guide.php?type=city&amp;id=846\">Tree Gnome Stronghold</a>.</div><div class=\"undersubheader\">To Start:</div><div class=\"guide\">Speak to <a href=\"/database.php?type=person&amp;id=84\">King Narnode Shareen</a>.</div><div class=\"undersubheader\">Instructions:</div><div class=\"guidecontent\"><ol>",
+        "251": "Head to the Grand Tree in the <a href=\"/guide.php?type=city&amp;id=846\">Tree Gnome Stronghold</a> and ask <a href=\"/database.php?type=person&amp;id=84\">King Narnode Shareen</a> why he seems worried. You will then follow him down into the foundations of stronghold, where he will tell you that the Grand Tree's health is deteriorating for some reason. Offer your help and he tell you to take a <a href=\"/database.php?type=item&amp;id=73\">Bark sample</a> and a <a href=\"/database.php?type=item&amp;id=469\">Translation book</a>, which he gives you, to one of the Grand Tree's creators named <a href=\"/database.php?type=person&amp;id=139\">Hazelmere</a>.",
+        "253": "<span class=\"smallbold\">Note: </span>The easiest way to reach the <a href=\"/guide.php?type=city&amp;id=846\">Tree Gnome Stronghold</a> is by using the <a href=\"/guide.php?type=specialreport&amp;id=523\">Spirit Tree</a> transportation system (requires completion of the <a href=\"/guide.php?type=quest&amp;id=188\">Tree Gnome Village</a> quest) or the <a href=\"/guide.php?type=specialreport&amp;id=523\">Hot Air Balloon</a> transportation system (requires completion of the ",
+        "254": "<a href=\"/guide.php?type=quest&amp;id=829\">Enlightened Journey</a> quest). Alternatively, use the gnome glider system.",
+        "261": "<a href=\"/database.php?type=person&amp;id=139\">Hazelmere</a> can be found on the top floor of his house, on the small island east of <a href=\"/guide.php?type=city&amp;id=329\">Yanille</a>. Although you cannot understand him at first, you will still give him <a href=\"/database.php?type=item&amp;id=73\">Bark sample</a>. Upon your request, <a href=\"/database.php?type=person&amp;id=139\">Hazelmere</a> will then give you a message. Use the <a href=\"/database.php?type=item&amp;id=469\">Translation book</a> to translate the <a href=\"/database.php?type=item&amp;id=1689\">Hazelmere's scroll</a>. The message when translated says: \"A man came to me with the King seal. I gave human Daconia rock and Daconia rocks will kill trees!\"",
+        "263": "<span class=\"smallbold\">Note: </span>Beware of <a href=\"/database.php?type=monster&amp;id=92\">Jungle spiders</a> (level 44) near <a href=\"/database.php?type=person&amp;id=139\">Hazelmere</a>'s house. The easiest way to reach the small island is by using the Fairy Ring code CLS (after the completion of <a href=\"/guide.php?type=quest&amp;id=750\">Fairy Tale Part II</a> quest). Other options are to teleport to the ",
+        "264": "<a href=\"/guide.php?type=minigame&amp;id=466\">Castle Wars</a> arena using a <a href=\"/database.php?type=item&amp;id=550\">Ring of duelling</a>, or to teleport to <a href=\"/guide.php?type=city&amp;id=329\">Yanille</a> using the Watchtower teleport spell (requires 58 <a href=\"/guide.php?type=skill&amp;id=389\">Magic</a> and completion of the <a href=\"/guide.php?type=quest&amp;id=341\">Watchtower</a> quest), Yanille/House tab and Lunar Port Khazard spell.",
+        "271": "Return to <a href=\"/database.php?type=person&amp;id=84\">King Narnode Shareen</a> at the <a href=\"/guide.php?type=city&amp;id=846\">Tree Gnome Stronghold</a> and tell him what the message says by picking each line from the list of lines. You may have to select \"none of the above\" if you cannot find the line on the list. The king will then send you off to <a href=\"/database.php?type=person&amp;id=86\">Glough</a> to inform him about the situation",
+        "273": "<span class=\"smallbold\">Note: </span>The easiest way to reach the <a href=\"/guide.php?type=city&amp;id=846\">Tree Gnome Stronghold</a> is by using the <a href=\"/guide.php?type=specialreport&amp;id=523\">Spirit Tree</a> transportation system (requires completion of the <a href=\"/guide.php?type=quest&amp;id=188\">Tree Gnome Village</a> quest).",
+        "278": "Walk down the ramp to the south of Grand Tree and climb up the ladder to the east of it to reach <a href=\"/database.php?type=person&amp;id=86\">Glough</a>'s house. Inform him of what the king said. He will say that he will take care of it and that you should report back to <a href=\"/database.php?type=person&amp;id=84\">King Narnode Shareen</a>.",
+        "285": "Head back to the Grand Tree where <a href=\"/database.php?type=person&amp;id=84\">King Narnode Shareen</a> will tell you that they have already caught the perpetrator. Ask him if you may see the prisoner. The king will then give you permission to visit him and tell you that the prisoner can be found on the top floor of the Grand Tree. Climb the nearby ladder to the top floor and talk to Charlie, the prisoner. He will tell you that he did what <a href=\"/database.php?type=person&amp;id=86\">Glough</a> told him to. Charlie will then suggest that you search <a href=\"/database.php?type=person&amp;id=86\">Glough</a>'s house for evidence.",
+        "483": "<p></p><p>This Quest Guide was written by <strong>pj and Alfawarlord</strong>. Thanks to <strong>Shinraz, Swaty, Koppen, micka190, Pingpong7172, kang227, Your Homey 1, jacobzcoool, Pirate Bob49, faital03, xxtigurxx, Hafling, Tim8607, Ju Juitsu, flatlander20, T man300, pokemama, acdcfreak64, Keystone, amiele, Poofy, Robin Hewd24, dragoon889, Burtybob, and Hilwin1</strong> for corrections.<br />This Quest Guide was entered into the database on Sat, May 08, 2004, at 02:19:43 PM by <strong>Freakybat, CJH, Headshot</strong>, and it was last updated on Thu, Jul 05, 2012, at 12:41:00 PM by <strong>Unknown</strong>.</p><p>If you see this guide on any other site, please report it to us so we can take legal action against anyone found stealing our content. This guide is copyrighted by RuneHQ, and its use on other sites is expressly forbidden. Do not ask if you can use our guides or images, the answer is and always will be NO!</p>"
+      },
+      "actual_capture": "20121107193758",
+      "reused": true
+    },
+    "B": {
+      "title": "Bark sample",
+      "saved_body": "sources/bark-sample-5912140.txt",
+      "sha256": "f3c4a9ec62a35844c16b1fc1e9b401ccf66c2bfff43ed47f3c84e0e658d3046b",
+      "bytes": 763,
+      "rung": "5",
+      "timestamp_utc": "2012-07-09T15:28:05Z",
+      "url": "https://runescape.wiki/w/index.php?title=Bark+sample&oldid=5912140&action=raw",
+      "exact_original_lines": {
+        "3": "|name = Bark sample",
+        "4": "|image = [[File:Bark sample.png]]",
+        "7": "|members = Yes",
+        "9": "|tradeable = No",
+        "10": "|equipable = No",
+        "11": "|stackable = No",
+        "14": "|value = 2",
+        "15": "|destroy = Drop",
+        "16": "|store = No",
+        "17": "|examine = A sample of the bark from the Grand Tree.",
+        "18": "|weight = 0",
+        "23": "The '''Bark sample''' is a sample of bark from the dying [[Grand Tree]] which you receive during [[The Grand Tree]] quest to have examined by [[Hazelmere]], a [[gnome]] who lives near [[Yanille]]. Upon giving Hazelmere the bark sample, you must use the [[Translation book]] to find out what he is saying."
+      },
+      "oldid": 5912140,
+      "reused": false
+    },
+    "K": {
+      "title": "Translation book",
+      "saved_body": "sources/translation-book-6162857.txt",
+      "sha256": "afb870f10a1d8c31b0b43f0adeb41b235c7eddedc2ad86ce56127d4e06a2764b",
+      "bytes": 2087,
+      "rung": "5",
+      "timestamp_utc": "2012-08-29T19:37:41Z",
+      "url": "https://runescape.wiki/w/index.php?title=Translation+book&oldid=6162857&action=raw",
+      "exact_original_lines": {
+        "3": "|name = Translation book",
+        "4": "|image = [[File:Translation book.png]]",
+        "5": "|AKA = Gnome-English Translation Dictionary",
+        "6": "|members = Yes",
+        "9": "|quest = Yes",
+        "10": "|tradeable = No",
+        "11": "|stackable = No",
+        "12": "|equipable = No",
+        "15": "|value = 2",
+        "16": "|destroy = Drop",
+        "17": "|store = No",
+        "18": "|examine = A book to translate the ancient gnome language into English.",
+        "22": "The '''Translation book''', or '''Gnome-English Translation''', is part of [[The Grand Tree]] quest. It helps you translate the speech of [[Hazelmere]] who only speaks in the [[Old Gnomish|Gnomic tongue]], and helps solve a puzzle with sticks. During [[The Eyes of Glouphrie]] however, you don't need the book to talk to Hazelmere.",
+        "24": "After doing the quest, you can find the book on the [[bookcase]] in your [[Player-owned house|house]]."
+      },
+      "oldid": 6162857,
+      "reused": false
+    },
+    "S": {
+      "title": "Hazelmere's scroll",
+      "saved_body": "sources/hazelmeres-scroll-6154711.txt",
+      "sha256": "c2942e6f78d9355966c8e036ae93cf7b4fc53dd93f433f1830abf21abf9f8f90",
+      "bytes": 1050,
+      "rung": "5",
+      "timestamp_utc": "2012-08-28T02:21:02Z",
+      "url": "https://runescape.wiki/w/index.php?title=Hazelmere%27s+scroll&oldid=6154711&action=raw",
+      "exact_original_lines": {
+        "3": "|name = Hazelmere's scroll",
+        "4": "|image = [[File:Hazelmere's scroll.png]]",
+        "7": "|members = Yes",
+        "9": "|tradeable = No",
+        "10": "|equipable = No",
+        "11": "|stackable = No",
+        "14": "|value = 2",
+        "15": "|destroy = Drop",
+        "16": "|store = No",
+        "17": "|examine = Hazelmere wrote something down on this scroll.",
+        "18": "|weight = 0",
+        "20": "'''Hazelmere's scroll''' is an item used during [[The Grand Tree]]. Players obtain it by using the [[bark sample]] on [[Hazelmere]]. Hazelmere writes on the scroll in [[gnome]] language, and gives it to the player.",
+        "22": "Players should deliver this message back to [[King Narnode Shareen]].",
+        "25": "Es lemanto meso pro eis prit ta Cinqo mond",
+        "27": "Mi lovos te lemanto Daconia arpos",
+        "29": "et Daconia arpos eto meriz ta priwl ",
+        "32": "''With use of the [[Translation book]]:''<br>",
+        "33": "A man came to me with the King seal. I gave the man [[Daconia rock]]s and Daconia rocks will kill the tree!\""
+      },
+      "oldid": 6154711,
+      "reused": false
+    },
+    "D": {
+      "title": "Darkan item config at e7fb1dd19af8eafcff4e972b1122bbb0c8871b42",
+      "saved_body": "sources/darkan-item-config.json",
+      "sha256": "09015b74b3a14c7e83240d28b59fa2a434debdc9273a5e9c859f6988e4c98219",
+      "bytes": 6883376,
+      "rung": "1",
+      "timestamp_utc": "2026-10-25T07:38:42Z",
+      "url": "local canonical read-only checkout; path in inspection-register.json",
+      "exact_original_lines": {
+        "8716": "  \"783\": {",
+        "8717": "    \"uidName\": \"bark_sample\",",
+        "8718": "    \"dropSound\": 2739,",
+        "8719": "    \"equipSound\": 2240,",
+        "8720": "    \"attackDelay\": -1,",
+        "8721": "    \"defendAnim\": -1,",
+        "8722": "    \"defendSound\": -1,",
+        "8723": "    \"attackRange\": 0,",
+        "8724": "    \"weight\": 0.0,",
+        "8725": "    \"examine\": \"A sample of the bark from the Grand Tree.\"",
+        "8726": "  },",
+        "8727": "  \"784\": {",
+        "8728": "    \"uidName\": \"translation_book\",",
+        "8729": "    \"dropSound\": 2739,",
+        "8730": "    \"equipSound\": 2240,",
+        "8731": "    \"attackDelay\": -1,",
+        "8732": "    \"defendAnim\": -1,",
+        "8733": "    \"defendSound\": -1,",
+        "8734": "    \"attackRange\": 0,",
+        "8735": "    \"weight\": 0.0,",
+        "8736": "    \"examine\": \"A book to translate the ancient gnome language into English.\"",
+        "8737": "  },",
+        "8749": "  \"786\": {",
+        "8750": "    \"uidName\": \"hazelmeres_scroll\",",
+        "8751": "    \"dropSound\": 2739,",
+        "8752": "    \"equipSound\": 2240,",
+        "8753": "    \"attackDelay\": -1,",
+        "8754": "    \"defendAnim\": -1,",
+        "8755": "    \"defendSound\": -1,",
+        "8756": "    \"attackRange\": 0,",
+        "8757": "    \"weight\": 0.0,",
+        "8758": "    \"examine\": \"Hazelmere wrote something down on this scroll.\"",
+        "8759": "  },"
+      },
+      "supplying_commit": "43c971faa9f3947f18db7269c80560e4be46de27",
+      "supplying_date_utc": "2022-09-14T22:47:43Z",
+      "classification": "Original upstream configuration; not a 2012 server transaction"
+    },
+    "D0": {
+      "title": "Darkan supplying item config",
+      "saved_body": "sources/darkan-config-43c971faa9.stdout",
+      "sha256": "e5709f9c7e33154bb95e16ac36443cd78876995da692aab88cf3c2462b8b0b46",
+      "bytes": 4495309,
+      "rung": "1",
+      "timestamp_utc": "2022-09-14T22:47:43Z",
+      "url": "git:43c971faa9f3947f18db7269c80560e4be46de27:data/items/config.json",
+      "exact_original_lines": {
+        "5483": "  \"783\": {",
+        "5484": "    \"uidName\": \"bark_sample\",",
+        "5485": "    \"dropSound\": 2739,",
+        "5486": "    \"equipSound\": 2240,",
+        "5487": "    \"weight\": 0.0,",
+        "5488": "    \"examine\": \"A sample of the bark from the Grand Tree.\"",
+        "5489": "  },",
+        "5490": "  \"784\": {",
+        "5491": "    \"uidName\": \"translation_book\",",
+        "5492": "    \"dropSound\": 2739,",
+        "5493": "    \"equipSound\": 2240,",
+        "5494": "    \"weight\": 0.0,",
+        "5495": "    \"examine\": \"A book to translate the ancient gnome language into English.\"",
+        "5496": "  },",
+        "5504": "  \"786\": {",
+        "5505": "    \"uidName\": \"hazelmeres_scroll\",",
+        "5506": "    \"dropSound\": 2739,",
+        "5507": "    \"equipSound\": 2240,",
+        "5508": "    \"weight\": 0.0,",
+        "5509": "    \"examine\": \"Hazelmere wrote something down on this scroll.\"",
+        "5510": "  },"
+      }
+    },
+    "C727": {
+      "title": "OpenRS2 RuneScape build 727 exact item definitions",
+      "saved_body": "sources/cache727-exact.txt",
+      "sha256": "b77ce4bcab2a5b0362c67921a46f08b6c3b8068f326d9669b839a3234057e5ac",
+      "bytes": 948,
+      "rung": "2",
+      "timestamp_utc": "2012-07-24 (UTC time not stated)",
+      "url": "https://archive.openrs2.org/caches/runescape/309",
+      "exact_original_lines": {
+        "1": "783\tBark sample\tmodel=2625\trecolors=[6024]->[6028]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, Destroy]",
+        "2": "784\tTranslation book\tmodel=2543\trecolors=[5018, 61, 11177]->[18721, 7952, 7952]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, Destroy]",
+        "3": "786\tHazelmere's scroll\tmodel=2600\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, Destroy]",
+        "4": "1965\tCabbage\tmodel=8195\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=true\toptions=[Eat, null, null, null, drop]"
+      },
+      "definition_fields": "id, name, model, recolors, textures, sprite recolors, bonuses, stackable, exchangeable, options",
+      "limits": "Client definitions only; no grant quantity, server gate, custody, replacement service or transaction"
+    },
+    "C742": {
+      "title": "OpenRS2 RuneScape build 742 exact item definitions",
+      "saved_body": "sources/cache742-exact.txt",
+      "sha256": "b77ce4bcab2a5b0362c67921a46f08b6c3b8068f326d9669b839a3234057e5ac",
+      "bytes": 948,
+      "rung": "4",
+      "timestamp_utc": "2012-11-07 (UTC time not stated)",
+      "url": "https://archive.openrs2.org/caches/runescape/544",
+      "exact_original_lines": {
+        "1": "783\tBark sample\tmodel=2625\trecolors=[6024]->[6028]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[null, null, null, null, Destroy]",
+        "2": "784\tTranslation book\tmodel=2543\trecolors=[5018, 61, 11177]->[18721, 7952, 7952]\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, Destroy]",
+        "3": "786\tHazelmere's scroll\tmodel=2600\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=false\toptions=[Read, null, null, null, Destroy]",
+        "4": "1965\tCabbage\tmodel=8195\trecolors=null->null\ttextures=null->null\tsprite-recolors=null\tbonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\tstackable=false\texchangeable=true\toptions=[Eat, null, null, null, drop]"
+      },
+      "definition_fields": "id, name, model, recolors, textures, sprite recolors, bonuses, stackable, exchangeable, options",
+      "limits": "Client definitions only; no grant quantity, server gate, custody, replacement service or transaction"
+    },
+    "G": {
+      "title": "Configured revision-667 game-main item constants",
+      "saved_body": "sources/game-main-items.kt",
+      "sha256": "77b817e72cbaf384178fcbeada61cddc5502129b5bb8b45ba3c34b39bf15847b",
+      "bytes": 768538,
+      "rung": "3",
+      "timestamp_utc": "Snapshot date not stated; revision configured as 667 in game.yml",
+      "url": "local mirror; original exact path in inspection-register.json",
+      "exact_original_lines": {
+        "784": "    const val BARK_SAMPLE = 783",
+        "785": "    const val TRANSLATION_BOOK = 784",
+        "787": "    const val HAZELMERES_SCROLL = 786"
+      },
+      "supplying_commit": "not available: no Git metadata",
+      "limits": "Modern reconstruction/constants; cannot date original Jagex behavior"
+    }
+  },
+  "transaction_table": {
+    "item": 2110,
+    "quest": "the_grand_tree",
+    "period_exclusive_utc": "2012-11-20T00:00:00Z",
+    "status": "evidence only; no implementation or acceptance",
+    "stage_numbers": "Existing AnkiScape composition, not a historical source assertion",
+    "source_register": "source-register.json",
+    "rows": [
+      {
+        "order": 1,
+        "stage": 1,
+        "deed": "Narnode commission and initial grant",
+        "source_action": "Speak to Narnode, inspect dying roots and offer help; carry sample to Hazelmere",
+        "input_custody": {},
+        "output_custody": {
+          "Bark sample (783)": 1,
+          "Translation book (784)": 1
+        },
+        "citations": {
+          "W": [
+            42
+          ],
+          "T": [
+            252
+          ],
+          "H": [
+            251
+          ]
+        },
+        "rung": "5 + contemporary articles; identities supplied at1/corroborated2/3/4",
+        "consensus": "agrees",
+        "quantity_limit": "Singular narrated items in each independent account; numeric UI stack not stated",
+        "gate": "Existing Agility25 and membership preserved; predecessor quest None; exact base/boost semantics not stated",
+        "repeat": "not stated",
+        "replacement": "not stated"
+      },
+      {
+        "order": 2,
+        "stage": 1,
+        "deed": "Hazelmere bark examination and scroll",
+        "source_action": "Talk to Hazelmere / use bark sample on Hazelmere",
+        "input_custody": {
+          "Bark sample (783)": 1
+        },
+        "output_custody": {
+          "Hazelmere's scroll (786)": 1
+        },
+        "retained": "Translation book available for subsequent translation",
+        "citations": {
+          "W": [
+            44,
+            56,
+            58
+          ],
+          "B": [
+            23
+          ],
+          "S": [
+            20
+          ],
+          "T": [
+            254
+          ],
+          "H": [
+            261
+          ]
+        },
+        "rung": "5 + contemporary articles; identities supplied at1/corroborated2/3/4",
+        "consensus": "agrees on bark-for-scroll exchange; disagrees with permanent-book-surrender reading of W44; bark-only transfer taken",
+        "gate": "Narrative follows commission; strict book-possession examination gate not stated consistently",
+        "repeat": "not stated",
+        "replacement": "not stated"
+      },
+      {
+        "order": 3,
+        "stage": 2,
+        "deed": "Translate scroll with book",
+        "source_action": "Use Translation book to translate Hazelmere's message",
+        "required_use": [
+          "Translation book (784)",
+          "Hazelmere's scroll (786)"
+        ],
+        "input_custody": "No consumption described",
+        "output_custody": "No new item described",
+        "citations": {
+          "W": [
+            58,
+            60,
+            61,
+            62
+          ],
+          "K": [
+            22
+          ],
+          "S": [
+            25,
+            27,
+            29,
+            32,
+            33
+          ],
+          "T": [
+            254
+          ],
+          "H": [
+            261
+          ]
+        },
+        "rung": "5 + contemporary articles",
+        "consensus": "agrees on meaning and order; exact wording variants preserved in evidence",
+        "gate": "After examination and scroll acquisition in narrated route",
+        "engine_gesture": "not stated; Read is a client option, not a server transaction proof"
+      },
+      {
+        "order": 4,
+        "stage": 2,
+        "deed": "Report translation to Narnode",
+        "source_action": "Choose each translated sentence in conversation",
+        "input_custody": "Scroll removal or physical surrender not stated",
+        "output_custody": "No item grant described",
+        "citations": {
+          "W": [
+            67
+          ],
+          "S": [
+            22
+          ],
+          "T": [
+            256
+          ],
+          "H": [
+            271
+          ]
+        },
+        "rung": "5 + contemporary articles",
+        "consensus": "agrees",
+        "gate": "After translation",
+        "repeat": "not stated"
+      },
+      {
+        "order": 5,
+        "stage": 2,
+        "deed": "Receive Narnode commission to warn Glough",
+        "source_action": "Continue Narnode conversation after report",
+        "input_custody": "No item input described",
+        "output_custody": "No item grant described",
+        "citations": {
+          "W": [
+            69
+          ],
+          "T": [
+            256
+          ],
+          "H": [
+            271
+          ]
+        },
+        "rung": "5 + contemporary articles",
+        "consensus": "agrees on warning commission; detailed failsafe explanation W69 has no independent consensus source",
+        "gate": "After report"
+      },
+      {
+        "order": 6,
+        "stage": 2,
+        "deed": "Warn Glough; hear instruction to report back",
+        "source_action": "Talk to Glough at his tree house southeast of Grand Tree",
+        "input_custody": "No item input described",
+        "output_custody": "No item grant described",
+        "citations": {
+          "W": [
+            71
+          ],
+          "T": [
+            256,
+            260
+          ],
+          "H": [
+            278
+          ]
+        },
+        "rung": "5 + contemporary articles",
+        "consensus": "agrees; H independently corroborates take-care/report-back response; T omits that detail",
+        "gate": "After Narnode commission to warn",
+        "boundary": "Stop at instruction; do not perform subsequent return, Charlie, journal, arrest or shipyard"
+      }
+    ],
+    "unqualified": [
+      "replacement grants",
+      "repeat grants",
+      "hidden state values",
+      "scroll disposal after report",
+      "strict examination book gate",
+      "base-vs-boost eligibility semantics",
+      "out-of-order dialogue",
+      "inventory-full period mechanics"
+    ]
+  },
+  "item1380_source_mapping": {
+    "item": 1380,
+    "baseline_revision": "ef65f693e55bee4b5dd212da76f7c33d05c9243d",
+    "quest_id": "the_grand_tree",
+    "journal_stage": 2,
+    "source_title": "The Grand Tree",
+    "oldid": 6450823,
+    "timestamp_utc": "2012-10-21T20:56:52Z",
+    "body": "sources/the-grand-tree-6450823.txt",
+    "body_sha256": "4a18eb0d6e3b7a05ddb43ae616fc4f557d90cd497e74c3f53addf99ba3f13836",
+    "after": "After using the translation book, it reads:",
+    "statements": [
+      {
+        "line": 60,
+        "original": "A man came to me with the King's seal <br />",
+        "display": "A man came to me with the King's seal"
+      },
+      {
+        "line": 61,
+        "original": "I gave the man [[Daconia stone|Daconia rocks]] <br />",
+        "display": "I gave the man Daconia rocks"
+      },
+      {
+        "line": 62,
+        "original": "and Daconia rocks will kill the tree!",
+        "display": "and Daconia rocks will kill the tree!"
+      }
+    ],
+    "before_source_line": 67,
+    "supplying_markup": "Inline cquote2 parameter lines59-63; br tags separate statements; wikilink label Daconia rocks is the displayed wording. No external template supplies these words.",
+    "speaker": "Hazelmere in first person, not the player",
+    "authorized_change": "Only insert these three statement strings in the existing stage-2 journal at the existing prompt; preserve stage boundaries and all gameplay state.",
+    "runtime_acceptance": "Not performed in evidence-only task."
+  },
+  "icon_register": [
+    {
+      "title": "File:Bark sample.png",
+      "timestamp": "2010-04-28T16:28:02Z",
+      "url": "https://runescape.wiki/images/archive/20140502173944%21Bark_sample.png?3adeb",
+      "api_sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1",
+      "saved_body": "sources/bark-sample-icon.png",
+      "command": [
+        "curl",
+        "-f",
+        "-L",
+        "--retry",
+        "2",
+        "--connect-timeout",
+        "15",
+        "--max-time",
+        "45",
+        "-sS",
+        "https://runescape.wiki/images/archive/20140502173944%21Bark_sample.png?3adeb",
+        "-D",
+        "sources/bark-sample-icon.headers",
+        "-o",
+        "sources/bark-sample-icon.png"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1",
+      "sha256": "6d8f1282e0bd80fe433bcbfcf752a23bd2a7a9e92edef2a4d7893a87d97deb96",
+      "bytes": 1378,
+      "api_sha1_match": true
+    },
+    {
+      "title": "File:Hazelmere's scroll.png",
+      "timestamp": "2011-11-22T16:25:04Z",
+      "url": "https://runescape.wiki/images/archive/20140502064018%21Hazelmere%27s_scroll.png?ac24c",
+      "api_sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22",
+      "saved_body": "sources/hazelmeres-scroll-icon.png",
+      "command": [
+        "curl",
+        "-f",
+        "-L",
+        "--retry",
+        "2",
+        "--connect-timeout",
+        "15",
+        "--max-time",
+        "45",
+        "-sS",
+        "https://runescape.wiki/images/archive/20140502064018%21Hazelmere%27s_scroll.png?ac24c",
+        "-D",
+        "sources/hazelmeres-scroll-icon.headers",
+        "-o",
+        "sources/hazelmeres-scroll-icon.png"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22",
+      "sha256": "cbc83acbd991d7329401730a14eff68cf54002f066afacee7fa9f95d54aff9f2",
+      "bytes": 3580,
+      "api_sha1_match": true
+    },
+    {
+      "title": "File:Translation book.png",
+      "timestamp": "2008-11-25T19:42:29Z",
+      "url": "https://runescape.wiki/images/archive/20140502071100%21Translation_book.png?4a165",
+      "api_sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6",
+      "saved_body": "sources/translation-book-icon.png",
+      "command": [
+        "curl",
+        "-f",
+        "-L",
+        "--retry",
+        "2",
+        "--connect-timeout",
+        "15",
+        "--max-time",
+        "45",
+        "-sS",
+        "https://runescape.wiki/images/archive/20140502071100%21Translation_book.png?4a165",
+        "-D",
+        "sources/translation-book-icon.headers",
+        "-o",
+        "sources/translation-book-icon.png"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6",
+      "sha256": "8d0bac344f1fac79a4c6bf0e132f4ce88cf5764a77ec8ef3b31e431d34542bbc",
+      "bytes": 615,
+      "api_sha1_match": true
+    }
+  ],
+  "icon_history": {
+    "batchcomplete": "",
+    "query": {
+      "pages": {
+        "19727": {
+          "pageid": 19727,
+          "ns": 6,
+          "title": "File:Bark sample.png",
+          "imagerepository": "local",
+          "imageinfo": [
+            {
+              "timestamp": "2010-04-28T16:28:02Z",
+              "size": 1378,
+              "width": 29,
+              "height": 29,
+              "url": "https://runescape.wiki/images/archive/20140502173944%21Bark_sample.png?3adeb",
+              "descriptionurl": "https://runescape.wiki/w/File:Bark_sample.png",
+              "descriptionshorturl": "https://runescape.wiki/index.php?curid=19727",
+              "sha1": "ff97af3ce48e838aa015f0af70dfa8012a3805a1"
+            }
+          ]
+        },
+        "48033": {
+          "pageid": 48033,
+          "ns": 6,
+          "title": "File:Hazelmere's scroll.png",
+          "imagerepository": "local",
+          "imageinfo": [
+            {
+              "timestamp": "2011-11-22T16:25:04Z",
+              "size": 3580,
+              "width": 31,
+              "height": 29,
+              "url": "https://runescape.wiki/images/archive/20140502064018%21Hazelmere%27s_scroll.png?ac24c",
+              "descriptionurl": "https://runescape.wiki/w/File:Hazelmere%27s_scroll.png",
+              "descriptionshorturl": "https://runescape.wiki/index.php?curid=48033",
+              "sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22"
+            }
+          ]
+        },
+        "7499": {
+          "pageid": 7499,
+          "ns": 6,
+          "title": "File:Translation book.png",
+          "imagerepository": "local",
+          "imageinfo": [
+            {
+              "timestamp": "2008-11-25T19:42:29Z",
+              "size": 615,
+              "width": 30,
+              "height": 29,
+              "url": "https://runescape.wiki/images/archive/20140502071100%21Translation_book.png?4a165",
+              "descriptionurl": "https://runescape.wiki/w/File:Translation_book.png",
+              "descriptionshorturl": "https://runescape.wiki/index.php?curid=7499",
+              "sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "owner_decision": {
+    "date": "2026-10-25",
+    "examination": "Require only bark for examination; require book and scroll for translation.",
+    "custody_conflict": "W44 says hand over both items; W56/W58, T254 and H261 retain the book for translation. Consume only bark; no invented hand-back.",
+    "report_custody": "Physical scroll surrender/removal not stated; retain book and scroll under simpler-playable-option ruling, memory-bank/grill-decisions-2026-10-25.md:107–110."
+  },
+  "application_representation": {
+    "reviews": [
+      "commission",
+      "examination",
+      "translation",
+      "report_warning"
+    ],
+    "ordered_final_bundle": [
+      "report",
+      "warning"
+    ],
+    "atomic": true,
+    "historical_limit": "Application proof IDs, stages and review bundles are not recovered historical server states or dialogue flags.",
+    "report_order": "Report the three statements in W60–62 order to Narnode before warning Glough; stop before returning to Narnode.",
+    "repeat": "Completed grants never repeat after output loss; no replacement or disposal service."
+  },
+  "evidence_root": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/2110-grand-tree-bark-examination-and-glough"
+}

@@ -63,7 +63,7 @@ class TickedPrayersTests(unittest.TestCase):
         )
         self.assertEqual(
             combat_setup_panel_view_pure(player, EQUIPMENT_ITEM_DATA)["max_hit_text"],
-            "Your max hit: 160 LP with Incredible Reflexes, Ultimate Strength and Steel Skin (picked for you) · accuracy 99%",
+            "Max hit: 160 LP · Accuracy: 99%",
         )
         prayed, _hits = _fight(player)
         self.assertLess(prayed["combat_prayer_points"], 430)
@@ -76,7 +76,7 @@ class TickedPrayersTests(unittest.TestCase):
         )
         self.assertEqual(
             prayer_swap_note_pure(player, "burst_of_strength", True),
-            "Burst of Strength replaced Ultimate Strength: they cannot run together.",
+            "Burst of Strength replaced Ultimate Strength.",
         )
         self.assertEqual(prayer_swap_note_pure(player, "protect_item", True), "")
         player = apply_combat_prayer_config_pure(
@@ -104,10 +104,10 @@ class TickedPrayersTests(unittest.TestCase):
 
     def test_the_view_says_when_the_game_can_pick_the_prayers_and_why_not(self):
         cases = (
-            ({"combat_prayers_enabled": False}, ("Pick the best for me", False, "Tick “Use prayers in fights” first.")),
-            ({}, ("Using the best pick", False, "The blue ticks are already the best prayers for your weapon.")),
+            ({"combat_prayers_enabled": False}, ("Auto-pick", False, "Prayers are off.")),
+            ({}, ("Auto-picked", False, "Already the best prayers for your weapon.")),
             ({"combat_selected_prayers": ["burst_of_strength"]},
-             ("Pick the best for me", True, "Clear your ticks and let the game pick the best prayers for your weapon.")),
+             ("Auto-pick", True, "Replaces your ticks with the best prayers for your weapon.")),
         )
         for settings, expected in cases:
             with self.subTest(settings=settings):

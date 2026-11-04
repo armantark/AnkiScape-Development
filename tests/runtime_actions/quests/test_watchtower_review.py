@@ -194,7 +194,7 @@ class WatchtowerReviewTest(unittest.TestCase):
             # Equivalent non-investigation blocker has the same normal wrapper
             # clocks, telemetry and deactivation effects as a missing clue.
             runtime = sys.modules[f'{addon.__name__}.runtime.runtime_actions_quest']
-            with patch.object(runtime, 'quest_review_ready_pure', return_value=False):
+            with patch.object(runtime, 'can_attempt_quest_review_pure', return_value=False):
                 with patch.object(runtime, 'apply_quest_progress_pure') as service:
                     _answer_review(addon)
                 service.assert_not_called()

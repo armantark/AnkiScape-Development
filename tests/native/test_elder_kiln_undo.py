@@ -65,7 +65,7 @@ class ElderKilnUndoTest(unittest.TestCase):
         reviewer_type = sys.modules["aqt.reviewer"].Reviewer
         reviewer_type._answerCard = self._scheduler_answer
         self.addon = runtime_fixture._load_addon_as_package("ankiscape_elder_kiln_undo")
-        self.dialog = sys.modules["ankiscape_elder_kiln_undo.core.elder_kiln_dialog"]
+        self.dialog = sys.modules["ankiscape_elder_kiln_undo.core.logic"]
         self.reviewer = reviewer_type()
         self._prepare_player()
         self.cards = [self._new_card(str(index)) for index in range(len(PHASES) + 1)]

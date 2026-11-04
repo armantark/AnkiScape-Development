@@ -910,6 +910,7 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         inventory,
         UTILITY_ACTIVITY_DATA,
         r_output=ctx.random_random() if weighted_outputs else None,
+        batch_limit=ctx.queue_action_limit(),
     )
     if not ok:
         missing = missing_materials_text(spec.get("requirements", {}), inventory)

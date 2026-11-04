@@ -1,0 +1,21 @@
+{
+  "timestamp": "2008-11-25T19:42:29Z",
+  "size": 615,
+  "width": 30,
+  "height": 29,
+  "url": "https://runescape.wiki/images/archive/20140502071100%21Translation_book.png?4a165",
+  "descriptionurl": "https://runescape.wiki/w/File:Translation_book.png",
+  "descriptionshorturl": "https://runescape.wiki/index.php?curid=7499",
+  "sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6",
+  "title": "File:Translation book.png",
+  "api_sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6",
+  "actual_sha1": "b7f0114adbae572c29fae8e225e8c7fe75fbfbd6",
+  "sha256": "8d0bac344f1fac79a4c6bf0e132f4ce88cf5764a77ec8ef3b31e431d34542bbc",
+  "saved_path": "data/quest/assets/translation_book.png",
+  "proposed_registry_path": "data/quest/assets/translation_book.png",
+  "verification": "sha1 and size agree with historical imageinfo entry",
+  "file_page_url": "https://runescape.wiki/w/File:Translation_book.png",
+  "source_wiki": "rs3-period",
+  "license_string": "not stated by inspected imageinfo; Jagex game image",
+  "date_limit": "The URL’s 2014 archive-directory timestamp is not the image revision date. Independent period pixel consensus is unavailable."
+}

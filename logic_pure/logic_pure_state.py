@@ -59,6 +59,11 @@ def _non_negative_int(value, default=0):
     return parsed if parsed >= 0 else default
 
 
+def _at_most(count, limit):
+    """``count``, cut down to ``limit`` when a limit is given."""
+    return count if limit is None else min(count, limit)
+
+
 def _non_negative_float(value, default=0.0):
     if isinstance(value, bool):
         return default

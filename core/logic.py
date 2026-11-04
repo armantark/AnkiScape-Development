@@ -184,3 +184,17 @@ def check_achievements(player_data):
             deferred_dialogs.append(
                 lambda title=title, data=data: show_achievement_dialog(title, data)
             )
+
+
+def present_elder_kiln_hatching(command, observation):
+    """Open The Elder Kiln's exercise as a modal child of Anki's main window.
+
+    Blocks until the player closes it; the command callback does the play.
+    """
+    from ..ui.elder_kiln_hatching_dialog import ElderKilnHatchingDialog
+
+    try:
+        from aqt import mw  # type: ignore
+    except ImportError:
+        mw = None
+    ElderKilnHatchingDialog(command, observation, parent=mw).exec()

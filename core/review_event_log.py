@@ -32,14 +32,22 @@ def sanitize_review_event_log_pure(value: Any) -> list[dict[str, Any]]:
         except (TypeError, ValueError, OverflowError):
             review = 0
         kind = str(raw.get("kind", "activity") or "activity")[:32]
-        rows.append({"review": review, "kind": kind, "text": text[:500]})
+        row = {"review": review, "kind": kind, "text": text[:500]}
+        if raw.get("ref"):
+            row["ref"] = str(raw["ref"])
+        rows.append(row)
     return rows
 
 
 def record_review_event_pure(
-    player_data: Mapping[str, Any], kind: str, text: str
+    player_data: Mapping[str, Any], kind: str, text: str, *, ref: str = ""
 ) -> dict[str, Any]:
-    """Append one emitted floating notification through the shared save seam."""
+    """Append one emitted floating notification through the shared save seam.
+
+    A writer that rewrites its row later gives it a unique ``ref``, because
+    every write copies the rows and the full window trims the oldest, so
+    neither the row object nor its position stays valid.
+    """
 
     message = str(text or "").strip()
     if not message:
@@ -50,6 +58,7 @@ def record_review_event_pure(
         "review": _answered_reviews_pure(player_data),
         "kind": str(kind or "activity")[:32],
         "text": message[:500],
+        **({"ref": ref} if ref else {}),
     })
     # 4.15 answer 2: the drawer expands through everything retained, but the
     # save keeps a large bounded window rather than growing forever.

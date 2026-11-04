@@ -14,7 +14,7 @@ from ankiscape.core.constants import QUEST_DATA
 
 if fixture.HAS_AQT:
     from aqt.qt import QPoint, QRect, QTimer
-    from ankiscape.core import elder_kiln_dialog
+    from ankiscape.core import logic as core_logic
     from ankiscape.runtime.elder_kiln_review import _HatchingSession
     from ankiscape.ui.elder_kiln_hatching_dialog import ElderKilnHatchingDialog, WINDOW_TITLE
 
@@ -172,7 +172,7 @@ class ElderKilnDialogTest(unittest.TestCase):
 
         QTimer.singleShot(0, drive)
         with allow_modal_dialogs():
-            elder_kiln_dialog.present_elder_kiln_hatching(self.session.command, self.session.observation())
+            core_logic.present_elder_kiln_hatching(self.session.command, self.session.observation())
         self.assertEqual(seen, [True])
         self.assertEqual(self.session.data[STATE_KEY]["phase"], "preparing")
 

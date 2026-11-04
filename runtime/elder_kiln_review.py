@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..core import elder_kiln_dialog
+from ..core import logic as core_logic
 from ..core.constants import QUEST_DATA
 from ..data.quest.elder_kiln import ATTEMPT_EVENT_ID, FAILURE_COPY, FAILURE_EVENT_ID, HATCH_EVENT_ID
 from ..logic_pure.logic_pure import apply_quest_progress_pure, start_quest_pure
@@ -102,7 +102,7 @@ def answer_elder_kiln_opening(
     if not started:
         return _refuse(ctx, quest, ("The quest cannot be started",))
     session = _HatchingSession(working, quest_id, ctx.random_random)
-    elder_kiln_dialog.present_elder_kiln_hatching(session.command, session.observation())
+    core_logic.present_elder_kiln_hatching(session.command, session.observation())
     if elder_kiln_attempt_pure(session.data)["phase"] == "hatched":
         return _commit_hatch(ctx, quest_id, quest, session.data)
     return _commit_attempt(ctx, quest, session.data)

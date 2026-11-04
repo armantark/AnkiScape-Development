@@ -518,7 +518,9 @@ class TestShopData(unittest.TestCase):
         ledger_path = Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json")
         ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
         self.assertEqual(ledger["shop_data_version"], SHOP_DATA_VERSION)
-        self.assertEqual({**ledger["summary"], "service_count": 85}, SHOP_COVERAGE_SUMMARY)  # Retained ledger is the historical 84-service source snapshot.
+        self.assertEqual(ledger["summary"]["vendor_action_count"], 6)
+        # The retained source snapshot predates the bounded runtime service/vendor additions.
+        self.assertEqual({**ledger["summary"], "service_count": 85, "vendor_action_count": 7}, SHOP_COVERAGE_SUMMARY)
         self.assertEqual(SHOP_COVERAGE_SUMMARY["player_sell_price_count"], len(SHOP_PLAYER_SELL_PRICES))
         self.assertTrue(any(shop["id"] == "a_test_shop" and shop["disposition"] == "excluded" for shop in ledger["shops"]))
 

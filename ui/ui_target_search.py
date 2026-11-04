@@ -27,7 +27,7 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
     pass
 
 from ..core.search_match import match_rank
-from .ui import CatalogFilterBar, dim_text_color
+from .ui import CatalogFilterBar, dim_text_color, dim_text_css
 
 # Written by the Agility, Thieving and Summoning row builders in core/target_metadata.py.
 _LOCK_SUFFIX = " \u2014 Locked: "
@@ -195,3 +195,29 @@ def style_flat_target_list(target_list) -> None:
     target_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     target_list.setResizeMode(QListWidget.ResizeMode.Adjust)
     target_list.setItemDelegate(WrappedRowDelegate(target_list, _ROW_PADDING))
+
+
+def style_grouped_target_tree(tree) -> None:
+    from .ui_tab_shop_widgets import WrappedRowDelegate
+
+    tree.setHeaderHidden(True)
+    tree.setIconSize(QSize(28, 28))
+    tree.setAlternatingRowColors(True)
+    tree.setRootIsDecorated(True)
+    tree.setIndentation(14)
+    tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+    tree.setStyleSheet(
+        "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 4px; }"
+        # Qt makes a row 2 px taller than its 28 px icon, so top or bottom padding
+        # would grow an icon row past the 30 px of a group row.
+        f" QTreeWidget::item {{ min-height: 30px; padding: 0px {_ROW_PADDING}px; }}"
+        " QTreeWidget::item:selected { color: palette(text); }"
+        " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
+        f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+    )
+    # The list sits in the narrowest pane of the Skills page, and a recipe
+    # row with its level and yield outgrows it at the menu's minimum width.
+    tree.setWordWrap(True)
+    tree.setTextElideMode(Qt.TextElideMode.ElideNone)
+    tree.setItemDelegate(WrappedRowDelegate(tree, _ROW_PADDING))

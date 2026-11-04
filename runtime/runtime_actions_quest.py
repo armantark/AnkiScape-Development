@@ -13,22 +13,28 @@ from ..logic_pure.logic_pure import (
     apply_quest_combat_encounter_pure,
     apply_quest_progress_pure,
     can_start_quest_pure,
+    can_attempt_quest_review_pure,
     quest_current_stage_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_lamps_waiting_text_pure,
 )
-from ..logic_pure.quest.review_services import quest_review_service_phase_pure
+from ..data.quest.grand_tree import PHASE_NOTICES
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
-from ..logic_pure.quest.elemental_workshop import opening_review_ready_pure
 from ..logic_pure.quest.elder_kiln import elder_kiln_opening_applies_pure
+from ..logic_pure.quest.grand_tree import grand_tree_phase_pure
+from ..logic_pure.quest.review_services import quest_review_service_phase_pure
 from ..logic_pure.quest.hazeel_journal import hazeel_opening_announcement_pure
 from ..data.quest.hazeel_opening import OpeningAction
-from ..logic_pure.quest.review_steps import quest_review_phase_pure, quest_review_ready_pure, quest_review_feedback_pure
+from ..logic_pure.quest.murder_mystery import (
+    murder_mystery_silver_review_phase_pure, murder_mystery_silver_action_pure,
+    murder_mystery_silver_refusal_reason_pure, INVALID_CUSTODY,
+)
+from ..logic_pure.quest.review_steps import quest_review_phase_pure, quest_review_feedback_pure
 from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, toktz_opening_message_pure
 from ..logic_pure.quest.another_cook import (
-    another_cook_phase_pure, another_cook_review_ready_pure, another_cook_progress_message_pure,
+    another_cook_phase_pure, another_cook_progress_message_pure,
 )
 from .elder_kiln_review import answer_elder_kiln_opening
 from .runtime_actions_context import RuntimeActionContext
@@ -133,7 +139,17 @@ def _announce_watchtower_progress(ctx, phase):
     ctx.show_activity_gain(fill(messages[phase], width=48))
 
 
-def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any, opening_message: str = "", cook_phase: Any = None) -> None:
+def _announce_quest_progress(
+    ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], repair_phase: Any,
+    opening_message: str = "", cook_phase: Any = None, opening_phase=None, silver_action="",
+) -> None:
+    if silver_action:
+        ctx.show_activity_gain(silver_action)
+        return
+    if opening_phase in PHASE_NOTICES:
+        # ExpPopup sizes to its text, so wrap the full notice for laptop windows.
+        ctx.show_activity_gain(fill(PHASE_NOTICES[opening_phase], width=48))
+        return
     if repair_phase == "recover_key":
         ctx.show_activity_gain("Recovered the backroom key from the fountain.")
         return
@@ -161,6 +177,12 @@ def _announce_quest_progress(ctx: RuntimeActionContext, quest_id: str, quest: di
 
 
 def _report_quest_progress_refusal(ctx, quest_id, quest):
+    if murder_mystery_silver_review_phase_pure(ctx.player_data, quest_id, QUEST_DATA):
+        reason = murder_mystery_silver_refusal_reason_pure(
+            ctx.player_data, quest_id, QUEST_DATA, quest_eligibility_reasons_pure,
+        )
+        ctx.show_error_message('Bedroom search refused', reason or INVALID_CUSTODY)
+        return
     blockers = quest_current_stage_blockers_pure(ctx.player_data, quest_id, QUEST_DATA)
     if toktz_opening_review_ready_pure(ctx.player_data, quest_id, blockers):
         ctx.show_error_message("Quest item not received", "The quest item could not be added. No opening progress was saved.")
@@ -180,14 +202,27 @@ def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, floa
         ctx.show_quest_exp_delta(exp_before)
 
 
-def _answer_stage_activity(ctx: RuntimeActionContext, quest_id: str, quest: dict, stage_blockers) -> bool | None:
+def _answer_stage_activity(ctx: RuntimeActionContext, quest_id: str, quest: dict, combat_blockers, stage_blockers) -> bool | None:
     """Hand the Answer to the activity that owns the current stage, or return None for ordinary review."""
-    combat_blockers = quest_current_stage_resolvable_combat_blockers_pure(ctx.player_data, quest_id, QUEST_DATA)
     if combat_blockers:
         return _answer_quest_combat(ctx, quest_id, quest, combat_blockers[0].get("encounter_id"))
     if elder_kiln_opening_applies_pure(ctx.player_data, quest_id):
         return answer_elder_kiln_opening(ctx, quest_id, quest, stage_blockers)
     return None
+
+
+def _quest_review_announcement_phase(player_data, quest_id, stage_blockers):
+    return (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
+            or quest_review_phase_pure(player_data, quest_id, stage_blockers, QUEST_DATA))
+
+
+def _quest_review_blockers(player_data, quest_id, silver_phase):
+    if silver_phase:
+        return (), ()
+    combat = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
+    if combat:
+        return combat, ()
+    return (), quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
 
 
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
@@ -197,20 +232,16 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         _switch_material_failure_to_bankstanding(ctx)
         return False
     quest = QUEST_DATA[quest_id]
-    stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-    activity_answer = _answer_stage_activity(ctx, quest_id, quest, stage_blockers)
+    silver_phase = murder_mystery_silver_review_phase_pure(player_data, quest_id, QUEST_DATA)
+    combat_blockers, stage_blockers = _quest_review_blockers(player_data, quest_id, silver_phase)
+    activity_answer = _answer_stage_activity(ctx, quest_id, quest, combat_blockers, stage_blockers)
     if activity_answer is not None:
         return activity_answer
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
-    review_ready = (
-        toktz_opening_review_ready_pure(player_data, quest_id, stage_blockers)
-        or another_cook_review_ready_pure(player_data, quest_id, stage_blockers)
-        or quest_review_ready_pure(player_data, quest_id, stage_blockers, quest_data=QUEST_DATA,
-                                   eligibility_reasons=quest_eligibility_reasons_pure)
-        or opening_review_ready_pure(
-            player_data, quest_id, QUEST_DATA, stage_blockers, quest_eligibility_reasons_pure,
-        )
-    )
+    review_ready = can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA)
+    if silver_phase and not review_ready:
+        _report_quest_progress_refusal(ctx, quest_id, quest)
+        return False
     if stage_blocker_reasons and not review_ready:
         _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
         return False
@@ -222,10 +253,11 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    silver_action = murder_mystery_silver_action_pure(player_data) if silver_phase else ""
+    opening_phase = grand_tree_phase_pure(player_data, quest_id)
     opening_message = toktz_opening_message_pure(player_data, quest_id)
     cook_phase = another_cook_phase_pure(player_data, quest_id)
-    repair_phase = (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
-                    or quest_review_phase_pure(player_data, quest_id))
+    repair_phase = _quest_review_announcement_phase(player_data, quest_id, stage_blockers)
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now, clue_reward_refusal_reason = (
         apply_quest_progress_pure(
@@ -255,5 +287,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         _announce_quest_completion(ctx, quest_id, quest, clue_reward_refusal_reason)
     else:
-        _announce_quest_progress(ctx, quest_id, quest, repair_phase, opening_message, cook_phase)
+        _announce_quest_progress(
+            ctx, quest_id, quest, repair_phase, opening_message,
+            cook_phase=cook_phase, opening_phase=opening_phase, silver_action=silver_action,
+        )
     return True
