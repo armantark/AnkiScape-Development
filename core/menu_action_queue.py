@@ -1,11 +1,10 @@
 """The main menu's side of the action queue: what "Add to queue" offers, and the queue list.
 
-The count box starts at the most the Bank holds inputs for now, so a sensible
-count needs no arithmetic; the player may type more, because an earlier entry
-can make what a later one uses, and the line beside the box names both: what
-the Bank holds and what the queue will make. An action no Bank item limits,
-such as mining or a fight, starts at one inventory, the unit a 2012 player
-counts gathering in.
+The count box starts at what the Bank and the earlier entries supply inputs
+for, never below one, so a sensible count needs no arithmetic and an entry can
+plan on what an earlier one makes; the line beside the box names both sources.
+An action no Bank item limits, such as mining or a fight, starts at one
+inventory, the unit a 2012 player counts gathering in.
 """
 
 from __future__ import annotations
@@ -59,18 +58,23 @@ def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked
     return record
 
 
-def queue_runs_surface_pure(player_data: Mapping[str, Any], surface: str) -> bool:
-    """Whether the queue's running entry is this panel's action, so a target click must not switch it."""
-    queue = action_queue_pure(player_data)
-    entry = current_queue_entry_pure(queue)
-    if entry is None or queue["paused"]:
+def queue_runs_surface_pure(player_data: Mapping[str, Any], surface: str, current_skill: Any) -> bool:
+    """Whether the queue really runs its first entry on this panel, so a target click must not switch it."""
+    if not queue_runs_pure(player_data, current_skill):
         return False
-    action = entry["action"]
+    action = action_queue_pure(player_data)["entries"][0]["action"]
     if action["kind"] == "utility":
         return utility_review_surface_for_target(action["utility_id"]) == surface
     if action["kind"] == "combat":
         return surface == COMBAT_REVIEW_ACTION_DISPLAY_NAME
     return action.get("skill") == surface
+
+
+def surface_trains_pick_pure(player_data: Mapping[str, Any], surface: str, active: Any, picked: Any) -> bool:
+    """Whether the panel's skill runs the target the panel shows; a held pick of another target does not."""
+    return active == surface and menu_action_record_pure(player_data, surface, picked) == menu_action_record_pure(
+        player_data, surface
+    )
 
 
 def activity_started_by_add_pure(
@@ -132,8 +136,23 @@ def _bank_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
     return sum(int(bank.get(item) or 0) for item in items)
 
 
-def action_bank_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> int | None:
-    """The most of the entry's unit the Bank holds inputs for now; None when no Bank item limits it.
+def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[tuple[int, int]]:
+    """What the queue's entries will still make of ``items``: (entry number, amount)."""
+    queue = action_queue_pure(player_data)
+    makes = []
+    for position, entry in enumerate(queue["entries"]):
+        done = queue["done"] if position == 0 else 0
+        if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
+            makes.append((position + 1, max(0, entry["count"] - done)))
+    return makes
+
+
+def _supply_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
+    return _bank_count(player_data, items) + sum(amount for _entry, amount in _queued_makes(player_data, items))
+
+
+def action_supply_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> int | None:
+    """The most of the entry's unit the Bank and earlier entries supply inputs for; None when no Bank item limits it.
 
     An entry that counts reviews has no such limit: one review can use several
     inputs, so its count in reviews is unknown.
@@ -145,21 +164,10 @@ def action_bank_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, 
     if not needs:
         return None
     if unit == "uses":
-        return sum(_bank_count(player_data, items) for items in alternatives.values())
+        return sum(_supply_count(player_data, items) for items in alternatives.values())
     return min(
-        _bank_count(player_data, alternatives[need]) // max(1, int(amount)) for need, amount in needs.items()
+        _supply_count(player_data, alternatives[need]) // max(1, int(amount)) for need, amount in needs.items()
     ) * made
-
-
-def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[str]:
-    """What the queue's entries will still make of ``items``: "100 from entry 1"."""
-    queue = action_queue_pure(player_data)
-    parts = []
-    for position, entry in enumerate(queue["entries"]):
-        done = queue["done"] if position == 0 else 0
-        if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
-            parts.append(f"{max(0, entry['count'] - done):,} from entry {position + 1}")
-    return parts
 
 
 def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
@@ -167,7 +175,10 @@ def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -
     alternatives, _needs, _made = _inputs_and_yield(player_data, action)
     return " · ".join(
         f"{need[:1].upper()}{need[1:]}: "
-        + ", ".join([f"{_bank_count(player_data, items):,} in Bank", *_queued_makes(player_data, items)])
+        + ", ".join([
+            f"{_bank_count(player_data, items):,} in Bank",
+            *(f"{amount:,} from entry {entry}" for entry, amount in _queued_makes(player_data, items)),
+        ])
         for need, items in alternatives.items()
     )
 
@@ -184,7 +195,7 @@ def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any
     """What an "Add to queue" control shows for ``action``: whether it can add, and the count box."""
     refusal = queue_add_refusal_pure(player_data, action)
     has_count = bool(action) and action["kind"] != "quest"
-    limit = action_bank_limit_pure(player_data, action) if has_count else None
+    limit = action_supply_limit_pure(player_data, action) if has_count else None
     unit = (
         _unit_text(queue_entry_unit_pure(action), action_product_items_pure(action), action_used_input_pure(action))
         if has_count
@@ -193,10 +204,10 @@ def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any
     return {
         "enabled": not refusal,
         "has_count": has_count,
-        "count": CARRIED_CAPACITY if limit is None else limit,
+        "count": CARRIED_CAPACITY if limit is None else max(1, limit),
         "unit": unit,
         "materials": _materials_text(player_data, action) if has_count else "",
-        "count_tooltip": "Starts at the most your Bank allows." if limit is not None else "",
+        "count_tooltip": "Starts at your Bank plus earlier entries." if limit is not None else "",
         "tooltip": refusal,
     }
 

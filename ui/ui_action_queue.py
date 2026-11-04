@@ -16,6 +16,7 @@ from ..core.menu_action_queue import (
     queue_add_view_pure,
     queue_panel_view_pure,
     queue_runs_surface_pure,
+    surface_trains_pick_pure,
     utility_action_record_pure,
 )
 from .ui_palette import dim_text_css
@@ -33,6 +34,7 @@ try:
         QPalette,
         QPushButton,
         QRect,
+        QSignalBlocker,
         QSpinBox,
         Qt,
         QTimer,
@@ -52,6 +54,11 @@ _BUTTON_STYLE = (
     "QPushButton { padding: 4px 10px; border: 1px solid palette(mid);"
     " border-radius: 6px; color: palette(text); background: palette(base); }"
     " QPushButton:hover { border-color: #4CAF50; }"
+)
+_START_BUTTON_STYLE = _BUTTON_STYLE.replace("padding: 4px 10px", "padding: 6px 12px")
+_TRAINING_BUTTON_STYLE = (
+    "QPushButton { padding: 6px 12px; border: 1px solid #4CAF50;"
+    " border-radius: 6px; color: #4CAF50; background: rgba(76,175,80,0.12); }"
 )
 # How long an add shows on its button and its new entry line (owner, Pass 18: about 1.5 s).
 _CONFIRM_MS = 1500
@@ -86,11 +93,12 @@ if HAS_QT:
         """The menu's queue command and what the menu does around it.
 
         An add or move that starts an activity at once first asks to leave a
-        running session, as Start does. A count the player added keeps its box after
-        the panel rebuilds, and each result goes to the menu's follow-up. For
-        ``_CONFIRM_MS`` after an add, ``confirmed`` names the action and the
-        entry total its Add button confirms, also on a control the follow-up
-        rebuilt, and ``added`` tells the queue box which line is new.
+        running session, as Start does. A count the player typed and the queue
+        took keeps its box after the panel rebuilds, and each result goes to the
+        menu's follow-up. For ``_CONFIRM_MS`` after an add, ``confirmed`` names
+        the action and the entry total its Add button confirms, also on a
+        control the follow-up rebuilt, and ``added`` tells the queue box which
+        line is new.
         """
 
         added = pyqtSignal(int)
@@ -102,14 +110,14 @@ if HAS_QT:
             self._on_command = on_command
             self._on_result = on_result
             self._leave_running_activity = leave_running_activity
-            self.typed: dict = {}
+            self.remembered: dict = {}
             self.confirmed: tuple | None = None
             self._confirm_timer = QTimer(self)
             self._confirm_timer.setSingleShot(True)
             self._confirm_timer.setInterval(_CONFIRM_MS)
             self._confirm_timer.timeout.connect(self._end_confirmation)
 
-        def __call__(self, command: str, payload: dict) -> None:
+        def __call__(self, command: str, payload: dict, remember: bool = False) -> None:
             if command == "move":
                 activity = activity_started_by_move_pure(
                     self._player_data, self._current_skill(), payload["position"], payload["new_index"]
@@ -122,10 +130,10 @@ if HAS_QT:
                 )
                 if activity and not self._leave_running_activity(activity):
                     return
-                if payload["count"] is not None:
-                    self.typed[_record_key(payload["action"])] = payload["count"]
             result = self._on_command(command, payload)
             if command == "add" and result["ok"]:
+                if remember:
+                    self.remembered[_record_key(payload["action"])] = payload["count"]
                 self._confirm(payload["action"])
             self._on_result(result)
 
@@ -166,6 +174,7 @@ if HAS_QT:
             self._record_for = record_for
             self._record = None
             self._has_count = False
+            self._typed = False
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(2)
@@ -182,6 +191,7 @@ if HAS_QT:
             # The owner set no limit on an entry's count, only on the entry total.
             self.count_box.setRange(0, 2_147_483_647)
             self.count_box.setGroupSeparatorShown(True)
+            self.count_box.valueChanged.connect(self._mark_typed)
             self.add_button = QPushButton()
             self.add_button.setObjectName("queueAddButton")
             self.add_button.setStyleSheet(
@@ -201,8 +211,11 @@ if HAS_QT:
             view = queue_add_view_pure(self._player_data, record)
             if record != self._record:
                 self._record = record
-                typed = self._queue.typed if self._queue is not None else {}
-                self.count_box.setValue(typed.get(_record_key(record), view["count"]))
+                remembered = self._queue.remembered.get(_record_key(record)) if self._queue is not None else None
+                self._typed = remembered is not None
+                self._show_count(remembered if self._typed else view["count"])
+            elif not self._typed:
+                self._show_count(view["count"])
             self._has_count = view["has_count"]
             self.materials.setText(_without_widow(view["materials"]))
             self.materials.setVisible(bool(view["materials"]))
@@ -214,9 +227,16 @@ if HAS_QT:
             confirmation = self._queue.confirmation(record) if self._queue is not None else ""
             self.add_button.setText(confirmation or "Add to queue")
 
+        def _show_count(self, count: int) -> None:
+            with QSignalBlocker(self.count_box):
+                self.count_box.setValue(count)
+
+        def _mark_typed(self) -> None:
+            self._typed = True
+
         def _add(self) -> None:
             count = self.count_box.value() if self._has_count else None
-            self._queue("add", {"action": self._record, "count": count})
+            self._queue("add", {"action": self._record, "count": count}, remember=self._typed)
 
     def surface_queue_control(player_data: dict, queue, surface: str, picked) -> QueueAddControl:
         """The control under a skill panel's Start: it queues what that Start would run, or ``picked()``."""
@@ -226,18 +246,61 @@ if HAS_QT:
         """The control on the Activities card that ``activity_id()`` names, empty when none is open."""
         return QueueAddControl(player_data, queue, lambda: utility_action_record_pure(activity_id()))
 
-    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target) -> bool:
+    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target, active) -> bool:
         """Hold a target picked while the queue runs this panel's action, for the queue controls only.
 
         True when held: the running entry keeps its target, and the panel's
         Start applies the pick through ``apply`` when the player presses it.
         """
-        if not queue_runs_surface_pure(player_data, surface):
+        if not queue_runs_surface_pure(player_data, surface, active):
             held.pop(surface, None)
             return False
         held[surface] = (apply, target)
         notify_action_queue_changed()
         return True
+
+    def show_held_pick(selector, target) -> None:
+        """Select the held row of a rebuilt list again; the selection style sets it apart from the training row."""
+        if target is None:
+            return
+        model = selector.model()
+        flags = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive
+        for index in model.match(model.index(0, 0), Qt.ItemDataRole.UserRole, target, 1, flags):
+            selector.setCurrentIndex(index)
+
+    class TrainButton(QPushButton):
+        """A skill panel's Start: it reads as running only while the skill runs the target the panel shows.
+
+        A held pick is another action, so the same button then starts that pick
+        ahead of the queue.
+        """
+
+        def __init__(self, player_data: dict, surface: str, active, picked, texts: tuple, available):
+            super().__init__()
+            self._player_data = player_data
+            self._surface = surface
+            self._active = active
+            self._picked = picked
+            self._texts = texts
+            self._available = available
+            self._training = None
+            _SIGNALS.changed.connect(self.refresh)
+            self.refresh()
+
+        def refresh(self) -> None:
+            picked = self._picked()
+            training = surface_trains_pick_pure(self._player_data, self._surface, self._active(), picked)
+            if training == self._training:
+                return
+            self._training = training
+            self.setProperty("ankiscapeCurrentlyTraining", training)
+            self.setText(self._texts[0] if training else self._texts[1])
+            self.setEnabled(not training and (picked is not None or self._available()))
+            self.setStyleSheet(
+                _TRAINING_BUTTON_STYLE
+                if training
+                else _START_BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}"
+            )
 
     def _queue_box_folded() -> bool:
         col = getattr(mw, "col", None)

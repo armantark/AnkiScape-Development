@@ -99,6 +99,7 @@ class UtilityActivityList:
         )
         self.tree = _styled_tree()
         marked = _fill_tree(self.tree, player_data, self._current, is_activities)
+        self._marked = marked
         self.marked_id = self._current if marked is not None else ""
         _remember_order(self.tree)
         self._apply_view()
@@ -109,6 +110,19 @@ class UtilityActivityList:
         self.filter_bar.search_input.textChanged.connect(
             lambda _text="": self._apply_view()
         )
+
+    def set_held_pick(self, pick: object) -> None:
+        """Set a row held for the queue apart: the running row takes the target lists' tick and bold, the pick their blue."""
+        held = pick not in (None, self._current)
+        self.tree.setProperty("heldPick", held)
+        self.tree.style().unpolish(self.tree)
+        self.tree.style().polish(self.tree)
+        if self._marked is not None:
+            label = self._marked.text(0).removeprefix("✓ ")
+            self._marked.setText(0, f"✓ {label}" if held else label)
+            font = self._marked.font(0)
+            font.setBold(held)
+            self._marked.setFont(0, font)
 
     def show_group(self, group: object) -> None:
         """Show one hub slice of the Activities list (Minigames, D&D), or "" for the rest."""
@@ -178,6 +192,14 @@ class UtilityActivityList:
         self._empty_row = empty
 
 
+def _tint(base, red: int, green: int, blue: int) -> str:
+    return QColor(
+        round((base.red() * 0.70) + (red * 0.30)),
+        round((base.green() * 0.70) + (green * 0.30)),
+        round((base.blue() * 0.70) + (blue * 0.30)),
+    ).name()
+
+
 def _styled_tree() -> "QTreeWidget":
     from .ui_tab_shop_widgets import WrappedRowDelegate
 
@@ -193,11 +215,8 @@ def _styled_tree() -> "QTreeWidget":
     tree.setItemDelegate(WrappedRowDelegate(tree, _ROW_PADDING))
     tree.setMinimumHeight(140)
     tree_base = tree.palette().color(QPalette.ColorRole.Base)
-    activity_selection = QColor(
-        round((tree_base.red() * 0.70) + (76 * 0.30)),
-        round((tree_base.green() * 0.70) + (175 * 0.30)),
-        round((tree_base.blue() * 0.70) + (80 * 0.30)),
-    ).name()
+    activity_selection = _tint(tree_base, 76, 175, 80)
+    held_pick_selection = _tint(tree_base, 66, 133, 244)
     tree.setStyleSheet(
         "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
         " background: palette(base); color: palette(text); padding: 4px; }"
@@ -206,6 +225,8 @@ def _styled_tree() -> "QTreeWidget":
         f" QTreeWidget::item:selected {{ background: {activity_selection};"
         " color: palette(text); }"
         f" QTreeWidget::branch:selected {{ background: {activity_selection}; }}"
+        f' QTreeWidget[heldPick="true"]::item:selected {{ background: {held_pick_selection}; }}'
+        f' QTreeWidget[heldPick="true"]::branch:selected {{ background: {held_pick_selection}; }}'
         f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
     )
     return tree

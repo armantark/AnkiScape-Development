@@ -4798,7 +4798,9 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
-    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, surface_queue_control
+    from .ui_action_queue import (
+        ActionQueuePanel, TrainButton, activity_queue_control, held_by_queue, menu_queue, show_held_pick, surface_queue_control,
+    )
     from .ui_dnd_favourite import DndFavouriteControls
     from .ui_activity_leave import LeaveRule, leave_running_activity
 
@@ -5303,24 +5305,27 @@ def show_main_menu(
     ) -> QWidget:
         skill, select = state["skill"], on_select
         on_select = select and (
-            lambda target: not held_by_queue(player_data, held_targets, skill, select, target) and select(target)
+            lambda target: not held_by_queue(player_data, held_targets, skill, select, target, state["active"]) and select(target)
         )
         if len(rows) < 25 or not any(row.group for row in rows):
-            return _build_flat_target_list(
+            selector = _build_flat_target_list(
                 sorted(rows, key=lambda r: r.sort_key or (r.label,)),
                 on_select,
                 confirm_select=confirm_select,
             )
-        return _build_grouped_target_tree(
-            rows,
-            group_labels or {},
-            group_role_prefix,
-            on_select,
-            confirm_select=confirm_select,
-            group_order=group_order,
-            expanded_groups=expanded_groups,
-            set_group_expanded=set_group_expanded,
-        )
+        else:
+            selector = _build_grouped_target_tree(
+                rows,
+                group_labels or {},
+                group_role_prefix,
+                on_select,
+                confirm_select=confirm_select,
+                group_order=group_order,
+                expanded_groups=expanded_groups,
+                set_group_expanded=set_group_expanded,
+            )
+        show_held_pick(selector, held_targets.get(skill, (None, None))[1])
+        return selector
 
     def _build_ore_list() -> QWidget:
         return build_searchable_target_selector(
@@ -19210,7 +19215,8 @@ def show_main_menu(
             selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
-            if not activate and held_by_queue(player_data, held_targets, surface_name, lambda _target: None, activity_id):
+            if not activate and held_by_queue(player_data, held_targets, surface_name, lambda _target: None, activity_id, state["active"]):
+                activity_list.set_held_pick(activity_id)
                 return True
             if not _leave_running_activity(activity_id):
                 return False
@@ -19627,6 +19633,8 @@ def show_main_menu(
         # the parentless bar and tree as windows of their own.
         container_layout.addWidget(activity_list.filter_bar)
         container_layout.addWidget(tree, 1)
+        activity_list.set_held_pick(held_targets.get(surface_name, (None, None))[1])
+        show_held_pick(tree, held_targets.get(surface_name, (None, None))[1])
         _show_activity_detail(activity_list.marked_id)
         return container
 
@@ -20757,48 +20765,34 @@ def show_main_menu(
             and card.selectable_for_review
             and name != _ACTIVITIES_HUB_NAME
         ):
-            train_btn = QPushButton()
+            def _picked():
+                return held_targets.get(name, (None, None))[1]
+
+            train_btn = TrainButton(
+                player_data,
+                name,
+                lambda: state["active"],
+                _picked,
+                (
+                    "Currently active" if is_utility else "Currently training",
+                    "Start utility" if name == _UTILITIES_HUB_NAME else "Train this skill",
+                ),
+                lambda: _skill_available(name),
+            )
             if name == "Prayer":
                 train_btn.setObjectName("prayerTrainButton")
-            train_btn.setProperty(
-                "ankiscapeCurrentlyTraining", state["active"] == name
-            )
-            if state["active"] == name:
-                train_btn.setText("Currently active" if is_utility else "Currently training")
-                train_btn.setEnabled(False)
-                train_btn.setStyleSheet(
-                    "QPushButton { padding: 6px 12px; border: 1px solid #4CAF50;"
-                    " border-radius: 6px; color: #4CAF50; background: rgba(76,175,80,0.12); }"
+            if state["active"] != name and not train_btn.isEnabled():
+                train_btn.setToolTip(
+                    prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"]
+                    if name == "Prayer"
+                    else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
                 )
-            else:
-                available = _skill_available(name)
-                if name == _UTILITIES_HUB_NAME:
-                    train_btn.setText("Start utility")
-                else:
-                    train_btn.setText("Train this skill")
-                train_btn.setEnabled(available)
-                train_btn.setStyleSheet(
-                    # Use the base/text palette pairing (same as the category and
-                    # list widgets) rather than button/buttonText: on macOS dark
-                    # mode the button face renders light, which washed out the
-                    # text. base+text stays legible in both themes.
-                    "QPushButton { padding: 6px 12px; border: 1px solid palette(mid);"
-                    " border-radius: 6px; color: palette(text); background: palette(base); }"
-                    " QPushButton:hover { border-color: #4CAF50; }"
-                    f" QPushButton:disabled {{ color: {dim_text_css(train_btn)}; }}"
-                )
-                if not available:
-                    train_btn.setToolTip(
-                        prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"]
-                        if name == "Prayer"
-                        else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
-                    )
-                    # A greyed Train button says why on screen, on its own wrapping row so no width clips it.
-                    header_rows.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason", wordWrap=True,
-                                                 styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
+                # A greyed Train button says why on screen, on its own wrapping row so no width clips it.
+                header_rows.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason", wordWrap=True,
+                                             styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
-            header_rows.addWidget(surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1]))
+            header_rows.addWidget(surface_queue_control(player_data, queue_command, name, _picked))
             if name in _TRAIN_BUTTON_KEYS:
                 _MAIN_MENU_CTX[_TRAIN_BUTTON_KEYS[name]] = train_btn
         panel_layout.addWidget(header)

@@ -12,7 +12,7 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.menu_action_queue import action_bank_limit_pure, queue_add_view_pure
+from ankiscape.core.menu_action_queue import action_supply_limit_pure, queue_add_view_pure
 from tests.action_queue.test_queue_reviews import _MINE_IRON, _SMELT_IRON, QueueProfile
 
 
@@ -32,7 +32,7 @@ class BankLimitTest(unittest.TestCase):
             ({"kind": "combat", "target": "chicken", "combat_action": "attack"}, None),
         ):
             with self.subTest(action=action):
-                self.assertEqual(action_bank_limit_pure(save, action), limit)
+                self.assertEqual(action_supply_limit_pure(save, action), limit)
 
     def test_an_unlimited_action_starts_at_one_inventory(self):
         view = queue_add_view_pure({"inventory": {}}, _MINE_IRON)

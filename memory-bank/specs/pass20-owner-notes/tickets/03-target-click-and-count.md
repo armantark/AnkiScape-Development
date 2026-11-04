@@ -4,9 +4,9 @@
 
 **Blocked by:** 01
 
-**Status:** claimed by claude-opus-5-5 on goal/pass20-03
+**Status:** built; the frontend-taste review and the native look wait for the orchestrator
 
-- [ ] A real widget flow reproduces the owner's Jungle Potion herb case: click, add and train each do what they show, with no typed count needed.
-- [ ] A held row click leaves training unchanged; the header button then starts the pick, and the queue returns after it (ticket 01).
-- [ ] A count never shows 0 after a target change. A failed add is not remembered. A supply change moves an untouched default and not a typed count.
-- [ ] Offscreen PNGs of selected row and training row, dark and light, with the difference legible in both.
+- [x] A real widget flow reproduces the owner's Jungle Potion herb case: click, add and train each do what they show, with no typed count needed.
+- [x] A held row click leaves training unchanged; the header button then starts the pick, and the queue returns after it (ticket 01).
+- [x] A count never shows 0 after a target change. A failed add is not remembered. A supply change moves an untouched default and not a typed count.
+- [x] Offscreen PNGs of selected row and training row, dark and light, with the difference legible in both.

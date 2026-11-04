@@ -47,7 +47,7 @@ def _words(label):
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
-    def _queue_command(self, player_data):
+    def _queue_command(self, player_data, running="Mining"):
         from ankiscape.core.action_queue import (
             ACTION_QUEUE_KEY,
             action_queue_pure,
@@ -57,7 +57,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         from ankiscape.ui.ui_action_queue import notify_action_queue_changed
 
         self.commands = []
-        active = {"skill": "Mining"}
+        active = {"skill": running}
 
         def command(name, payload):
             self.commands.append((name, payload))
@@ -75,14 +75,14 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
 
         return command
 
-    def _smithing_menu(self, queue=None, size=(900, 560), **inventory):
+    def _smithing_menu(self, queue=None, size=(900, 560), running="Mining", **inventory):
         pd = _make_player_data()
         pd["smithing_level"] = 40
         pd["current_smith"] = "smelt_iron_bar"
         pd["inventory"] = dict(inventory)
         if queue is not None:
             pd["action_queue"] = queue
-        dialog = self._open(pd, on_action_queue_command=self._queue_command(pd))
+        dialog = self._open(pd, running, on_action_queue_command=self._queue_command(pd, running))
         dialog.show()
         dialog.resize(*size)
         _goto_smithing(dialog)
@@ -118,11 +118,12 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         # Smithing started, so the panel was rebuilt; the new box keeps the count.
         self.assertEqual(self._visible(dialog, QSpinBox, "queueCountBox").value(), 100)
 
-        # Another target re-reads the Bank, and the queued bars show as its input.
+        # Another target re-reads the Bank, and the queued bars count as its input.
         pd["current_smith"] = "forge_iron_platebody"
         update_review_hud(pd, "Smithing")
         count = self._visible(dialog, QSpinBox, "queueCountBox")
-        self.assertEqual((count.value(), count.suffix()), (0, " Iron platebody"))
+        # Five bars make a platebody, so the 100 queued bars offer 20.
+        self.assertEqual((count.value(), count.suffix()), (20, " Iron platebody"))
         self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron bar: 0 in Bank, 100 from entry 1")
 
     def test_the_fifth_entry_fills_the_queue_and_clear_empties_it(self):
@@ -250,7 +251,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
 
         queue, _ok = add_queue_entry_pure(action_queue_pure({}), _SMELT_IRON, 50)
-        pd, dialog = self._smithing_menu(queue=queue, **{"Iron ore": 37, "Tin ore": 4, "Copper ore": 9})
+        pd, dialog = self._smithing_menu(queue=queue, running="Smithing", **{"Iron ore": 37, "Tin ore": 4, "Copper ore": 9})
         tree = _find_smith_tree(dialog)
 
         tree.itemClicked.emit(_smith_row(tree, "smelt_bronze_bar"), 0)

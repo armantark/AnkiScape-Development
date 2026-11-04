@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- [ ] Main menu > Skills > Artisan > Herblore, light and dark, at 10x or 1x, with a Herblore cleaning entry running first in the queue: click another cleaning row. Training stays on the green ticked row, the clicked row turns blue, the count box shows that herb's Bank count plus what earlier entries make (hover it: "Starts at your Bank plus earlier entries."), and the header reads "Train this skill". Add to queue adds your pick with no typing; "Train this skill" starts it, and the queue returns when its herbs run out. Skills > Utilities does the same with "Start utility". (Pass 20 ticket 03, after promotion)
+
 - [ ] Main menu > Grand Exchange, light and dark, with Offer safety collapsed: collect the middle of three offers; the outside offers stay in slots 1 and 3, and a new offer fills slot 2. Reopen the menu and repeat after reload; hover Sell all to see its existing quantity hint. No game-speed setting changes this behavior. (Pass 20 ticket 13, after promotion)
 
 - [ ] In any main-menu search, enter a phrase, double-click a word and press Backspace: the whole phrase clears. In Skills > Combat, search "bat": only Giant bat and Guard (battleaxe) show; hover Giant bat to read its full tooltip. Repeat in light and dark mode at any Game speed. (Pass 20 ticket 12, after promotion)
