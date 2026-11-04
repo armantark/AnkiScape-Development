@@ -93,12 +93,12 @@ if HAS_QT:
         """The menu's queue command and what the menu does around it.
 
         An add or move that starts an activity at once first asks to leave a
-        running session, as Start does. A count the player typed and the queue
-        took keeps its box after the panel rebuilds, and each result goes to the
-        menu's follow-up. For ``_CONFIRM_MS`` after an add, ``confirmed`` names
-        the action and the entry total its Add button confirms, also on a
-        control the follow-up rebuilt, and ``added`` tells the queue box which
-        line is new.
+        running session, as Start does. ``typed`` keeps a count the player typed
+        through a panel rebuild until the target changes, ``remembered`` keeps
+        one the queue took, and each result goes to the menu's follow-up. For
+        ``_CONFIRM_MS`` after an add, ``confirmed`` names the action and the
+        entry total its Add button confirms, also on a control the follow-up
+        rebuilt, and ``added`` tells the queue box which line is new.
         """
 
         added = pyqtSignal(int)
@@ -110,6 +110,7 @@ if HAS_QT:
             self._on_command = on_command
             self._on_result = on_result
             self._leave_running_activity = leave_running_activity
+            self.typed: dict = {}
             self.remembered: dict = {}
             self.confirmed: tuple | None = None
             self._confirm_timer = QTimer(self)
@@ -174,7 +175,8 @@ if HAS_QT:
             self._record_for = record_for
             self._record = None
             self._has_count = False
-            self._typed = False
+            self._typed = queue.typed if queue is not None else {}
+            self._remembered = queue.remembered if queue is not None else {}
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(2)
@@ -210,12 +212,12 @@ if HAS_QT:
             record = self._record_for()
             view = queue_add_view_pure(self._player_data, record)
             if record != self._record:
+                # A rebuilt control starts with no record, so only a real target change clears a typed count.
+                if self._record is not None:
+                    self._typed.pop(_record_key(self._record), None)
                 self._record = record
-                remembered = self._queue.remembered.get(_record_key(record)) if self._queue is not None else None
-                self._typed = remembered is not None
-                self._show_count(remembered if self._typed else view["count"])
-            elif not self._typed:
-                self._show_count(view["count"])
+            key = _record_key(record)
+            self._show_count(self._typed.get(key, self._remembered.get(key, view["count"])))
             self._has_count = view["has_count"]
             self.materials.setText(_without_widow(view["materials"]))
             self.materials.setVisible(bool(view["materials"]))
@@ -231,12 +233,12 @@ if HAS_QT:
             with QSignalBlocker(self.count_box):
                 self.count_box.setValue(count)
 
-        def _mark_typed(self) -> None:
-            self._typed = True
+        def _mark_typed(self, count: int) -> None:
+            self._typed[_record_key(self._record)] = count
 
         def _add(self) -> None:
             count = self.count_box.value() if self._has_count else None
-            self._queue("add", {"action": self._record, "count": count}, remember=self._typed)
+            self._queue("add", {"action": self._record, "count": count}, remember=_record_key(self._record) in self._typed)
 
     def surface_queue_control(player_data: dict, queue, surface: str, picked) -> QueueAddControl:
         """The control under a skill panel's Start: it queues what that Start would run, or ``picked()``."""

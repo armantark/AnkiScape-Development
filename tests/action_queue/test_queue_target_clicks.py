@@ -16,7 +16,7 @@ from tests.action_queue.test_queue_reviews import QueueProfile
 from tests.test_main_menu_widget import HAS_AQT, _find_artisan_skill_list, _find_tree_with_user_role, _tree_row
 
 if HAS_AQT:
-    from aqt.qt import QApplication, QLabel, QPushButton, QSpinBox, Qt, QWidget
+    from aqt.qt import QApplication, QLabel, QPushButton, QSpinBox, Qt, QToolButton, QWidget
     from PyQt6.QtTest import QTest
 
 _SNAKE_WEED = {"kind": "skill", "skill": "Herblore", "target": "clean_snake_weed"}
@@ -281,6 +281,24 @@ class TargetClickTest(QueueProfile):
         self.assertEqual(self._count(dialog).value(), 3)
         self._click_row(dialog, "clean_snake_weed")
         self.assertEqual(self._count(dialog).value(), 20)
+
+    def test_a_typed_count_stays_through_a_panel_redraw_until_the_target_changes(self):
+        addon = self._herblore_addon("redraw", (_ARDRIGAL, 1), (_ARDRIGAL, 1))
+        addon._state.player_data["inventory"]["Grimy snake weed"] = 2
+        dialog = self._menu(addon)
+        self._click_row(dialog, "clean_snake_weed")
+        self._count(dialog).setValue(6)
+
+        # Every queue command redraws the panel, and this one has nothing to do with the box.
+        panel = dialog.findChild(QWidget, "actionQueuePanel")
+        next(b for b in panel.findChildren(QToolButton, "actionQueueRemove") if b.isVisible()).click()
+        self._settle()
+        self.assertEqual(len(self._queue_lines(addon)), 1)
+        self.assertEqual(self._count(dialog).value(), 6)
+
+        self._click_row(dialog, "clean_ardrigal")
+        self._click_row(dialog, "clean_snake_weed")
+        self.assertEqual(self._count(dialog).value(), 2)
 
     def test_only_an_accepted_add_is_remembered(self):
         addon = self._herblore_addon("remember", (_ARDRIGAL, 1))
