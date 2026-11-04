@@ -4,7 +4,7 @@ Cutoff: 2012-11-20. Owner approvals: “8. Yes. Again, we need to do this for si
 
 The following table audits the 18 named rows. Defender of Varrock is dropped: the composed catalog still requires `Complete Defender of Varrock stage 1 objective` through `Complete Defender of Varrock stage 5 objective`, and its Armoured zombie has no stats. This violates ticket 09's “quests that do not stop at a required action” qualification. Its source is established for ticket 10/11; this change does not fake those deeds or restage that quest.
 
-Zero XP means no supply-action award is stated by the quest guide; no XP is invented. Existing stage completion XP is separate. Every pickup, purchase or preparation costs its existing supply-step card. Milking and preparation use the tool belt where appropriate. Optional environmental fights are excluded by ruling 8. No Utility row, new item or art is introduced; every product's registered asset exists.
+Zero XP means no supply-action award is stated by the quest guide; no XP is invented. Existing stage completion XP is separate. Every pickup, purchase or preparation costs its existing supply-step card and executes one recipe batch; surplus bank inputs are retained. Milking and preparation use the tool belt where appropriate. Optional environmental fights are excluded by ruling 8. No Utility row, new item or art is introduced; every product's registered asset exists.
 
 | Quest | Stage | Step | Coins | Supply XP | Period source quote and revision |
 |---|---:|---|---:|---|---|

@@ -83,7 +83,9 @@ class MogreDataContractTest(unittest.TestCase):
                 ("Give Skippy the hangover cure",),
             ),
         )
-        self.assertEqual(quest["stage_requirements"][1]["required_tools"], {"Leather gloves": 1})
+        nettles = next(recipe["action"] for recipe in quest["supply_recipes"]
+                       if recipe["action"]["output_item"] == "Nettles")
+        self.assertEqual(nettles["required_tools"], {"Leather gloves": 1})
         self.assertFalse(
             any(
                 action.startswith("Complete Mogre stage")
@@ -206,15 +208,8 @@ class MogreMiniquestFlowTest(unittest.TestCase):
         player, ok, completed = apply_quest_progress_pure(player, QUEST_ID, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed)
-        self.assertEqual(player["inventory"]["Nettles"], 0)
+        self.assertEqual(player["inventory"]["Nettles"], 1)
 
-        # Stage 2 consumed the picked Nettles; the tea Skippy drinks needs a
-        # second pick, and the repeatable gather row makes that possible.
-        inventory, xp, ok, processed = apply_utility_activity_pure(
-            "pick_nettles", player["inventory"], UTILITY_ACTIVITY_DATA
-        )
-        self.assertEqual((xp, ok, processed), (0, True, 1))
-        player["inventory"] = inventory
         inventory, xp, ok, processed = apply_utility_activity_pure(
             "prepare_nettle_water", player["inventory"], UTILITY_ACTIVITY_DATA
         )

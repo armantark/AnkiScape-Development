@@ -138,3 +138,13 @@ class ClearItemSupplyReviewTest(unittest.TestCase):
                 self.assertEqual(player, before)
                 self.assertTrue(calls['deactivated'])
                 self.assertIn(reason, calls['errors'][0][1])
+
+    def test_supply_card_prepares_only_the_quest_quantity_from_bulk_stock(self):
+        player = player_for('plague_city')
+        player['quests']['plague_city']['progress'] = 14
+        player['inventory'] = {'Chocolate bar': 28, 'Bucket of milk': 1, 'Snape grass': 1}
+        handled, calls = answer(player)
+        self.assertTrue(handled, calls)
+        self.assertEqual(player['inventory']['Chocolate bar'], 27)
+        self.assertEqual(player['inventory']['Chocolate dust'], 1)
+        self.assertEqual(calls['activity'], ['+1 Chocolate dust'])
