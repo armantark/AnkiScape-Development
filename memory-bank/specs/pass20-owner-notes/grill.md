@@ -19,6 +19,12 @@ Each question lists the recommendation the owner answered.
 11. Combat search matches monster name, group and logged drops only. Owner: "11. Yes. though I had also assumed that it was \"bat\" was too short of a word?"
 12. Owner: "12. I guess? Why is it not just a simple 10x of what it was before? A bank run would fit inside the 10x with time scaled automatically"
 13. Owner: "13. No I'd want it to physically be switched out during the period and then switch back after a bank run"
+14. Whole-card delays become play time at every speed. Owner: "14. Yes I believe. Remember the whole point of why we settled on 10x though, I'm not sure if this conflicts with that"
+15. The rest of a card after a quest kill goes to the next fight if the next quest step is also a fight. Owner: "15. B, unless it's dangerous"
+16. The quest card puts on what the stage needs at no time cost. The old item returns at the first bank run after the quest stops needing the slot, or at once if the quest ends or stops first. A change by hand cancels the switch back. Owner: "16. Yes"
+17. The Wilderness confirmation appears when the entry is added. At a queue change, an entry that cannot start is skipped with a log and Review HUD line and no popup. A popup appears only when the queue has nothing to continue with. Owner: "17. Yes"
+
+Later on 12: "12. Should a bank run really be only 12 ticks though? Shouldn't we scale it based on a rough guesstimate from how long it would realistically take to bank? And then we can have agility play into it, as we had been"
 
 Decided without a question: a double click in any of the 27 search boxes selects the whole phrase.
 
@@ -32,3 +38,10 @@ Decided without a question: a double click in any of the 27 search boxes selects
 
 `quest-stop-scan.tsv` holds the 519 rows of the quest scan that are not already automatic: revision `264ef9696`, 198 ledger entries, 1154 requirement rows. A walk with every item held finished 56 entries. Of the 142 others, 131 stopped at a required action: 129 at a generic `Complete <quest> stage <n> objective`, which has no entry in `data/quest_action_proof_data.py`, and 2 at a named action that has one (checked 2026-11-04). The verdicts are the scan agent's: 117 fold into quest, 15 player brings, 387 unresolved. Only 2 wearing rows stop a quest in code: Demon Slayer stage 7 (`Wield Silverlight to damage Delrith`) and Witch's House stage 6 (`Wear insulating gloves to pass the electric gate`). The other wearing rows are journal text with no slot check. Only Goblin Diplomacy declares supply recipes today.
 Rows in the 67 quests outside those 131: 23 clear item rows in 13 quests and 47 unresolved item rows.
+
+## Bank run time
+
+- Why 10x: the pace handoff of 2026-10-15 (`/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/pace-and-calendar-handoff-2026-10-15.md` on the MacBook, line 14) says "one answered card buys a fixed amount of 2012 play time for every action" and daily content has the weight it had for a player of 2.4 hours a day. Its line 100 requires equal XP per hour of 2012 play at 1x and 10x. Its line 60 keeps quests at one stage per card "because they are already faster than 2012 at ×1".
+- `tests/pace/rates/rate_property.py:18` turns Combat banking off in that proof, because a Combat bank run takes two cards at every speed.
+- Skilling trips already spend play time. `/tmp/pass20-facts/bank/skilling_keep.py`, 600 cards, one seed, items kept: iron 30.742 XP per card at 1x and 313.075 at 10x; oak 14.812 and 148.062.
+- Combat XP per card at 10x, estimated from the measured table for a bank run of T ticks with no lost ticks. These are not runs. T=12: 28.6, 84.7, 242.3, 598.5. T=100: 25.3, 78.3, 189.3, 504.1. Today: 24.043, 75.918, 164.933, 468.909 (levels 1, 20, 40, 70).
