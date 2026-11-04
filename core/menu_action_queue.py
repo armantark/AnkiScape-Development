@@ -24,8 +24,10 @@ from .action_queue import (
     add_queue_entry_pure,
     action_queue_view_pure,
     current_queue_entry_pure,
+    move_queue_entry_pure,
     queue_add_refusal_pure,
     queue_entry_unit_pure,
+    queue_move_takes_over_pure,
     queue_runs_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
@@ -88,6 +90,17 @@ def activity_started_by_add_pure(
         return ""
     entry = current_queue_entry_pure(queue)
     starting = entry["action"] if entry is not None else action
+    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
+
+
+def activity_started_by_move_pure(
+    player_data: Mapping[str, Any], current_skill: Any, position: int, new_index: int
+) -> str:
+    """The activity a move starts at once, so it first asks to leave a running session, as an add does."""
+    queue, ok = move_queue_entry_pure(action_queue_pure(player_data), position, new_index)
+    if not ok or not queue_move_takes_over_pure(player_data, current_skill, position, new_index):
+        return ""
+    starting = current_queue_entry_pure(queue)["action"]
     return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
 
 
@@ -195,7 +208,7 @@ def _row_text(row: Mapping[str, Any]) -> str:
 
 
 def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    """The menu's queue box: a title, one numbered line per entry, Resume for a paused queue, and Clear."""
+    """The menu's queue box: a title, one numbered line per entry with its moves, Resume for a paused queue, and Clear."""
     view = action_queue_view_pure(player_data)
     labels = {"current": "Paused" if view["paused"] else "Next" if view["suspended"] else "Now", "waiting": "Next"}
     count = len(view["entries"])
@@ -208,6 +221,8 @@ def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "text": _row_text(row),
                 "current": row["state"] == "current",
                 "removable": row["removable"],
+                "can_move_up": position > 0,
+                "can_move_down": position + 1 < count,
             }
             for position, row in enumerate(view["entries"])
         ],

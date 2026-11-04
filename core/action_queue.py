@@ -25,6 +25,11 @@ action sets the plan aside until that action stops, then the top entry resumes.
 Clear cancels the plan: it drops every entry and stops whatever runs, also an action the player started
 by hand, and Resume offers that back.
 
+Up and Down move an entry (owner, Pass 20). A new first entry in a running
+queue starts at once, and the old one keeps only the count it still owes. A
+paused or set-aside queue only changes its order: a pause holds until Resume,
+and a hand-started action keeps running until it stops.
+
 An add means the player wants the plan to run (owner, Pass 19): a queue
 that does not run its first entry, because it is new, paused, or put aside
 for an action the player started by hand, starts that entry at once in place
@@ -149,6 +154,23 @@ def remove_queue_entry_pure(queue: Mapping[str, Any], position: int) -> tuple[di
         return dict(queue), False
     del entries[position]
     return {**queue, "entries": entries, "done": queue["done"] if position else 0}, True
+
+
+def move_queue_entry_pure(queue: Mapping[str, Any], position: int, new_index: int) -> tuple[dict[str, Any], bool]:
+    """Move one entry; a move off the end of the queue refuses.
+
+    Progress lives once at queue level, so a move that changes the first entry
+    leaves the old one owing only what it has left, and the new one starts from nothing.
+    """
+    entries = list(queue["entries"])
+    if position == new_index or not (0 <= position < len(entries) and 0 <= new_index < len(entries)):
+        return dict(queue), False
+    done = queue["done"]
+    if done and 0 in (position, new_index):
+        entries[0] = {**entries[0], "count": entries[0]["count"] - done}
+        done = 0
+    entries.insert(new_index, entries.pop(position))
+    return {**queue, "entries": entries, "done": done}, True
 
 
 def same_action_pure(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
@@ -354,6 +376,22 @@ def remove_action_queue_entry(addon, position: int) -> bool:
     return ok and addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
 
 
+def queue_move_takes_over_pure(player_data: Mapping[str, Any], current_skill: Any, position: int, new_index: int) -> bool:
+    """Whether a move starts a new first entry at once: the queue runs, and the move changes that entry."""
+    return 0 in (position, new_index) and queue_runs_pure(player_data, current_skill)
+
+
+def move_action_queue_entry(addon, position: int, new_index: int) -> bool:
+    """Move one entry as one undoable menu action, starting a new first entry when the queue runs."""
+    player_data = addon._state.player_data
+    queue, ok = move_queue_entry_pure(action_queue_pure(player_data), position, new_index)
+    if not ok:
+        return False
+    if queue_move_takes_over_pure(player_data, addon._state.current_skill, position, new_index):
+        return _commit_run(addon, queue)
+    return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+
+
 def resume_action_queue(addon) -> bool:
     """Continue a paused or set-aside queue; False when it starts no entry.
 
@@ -379,6 +417,8 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
         ok = resume_action_queue(addon)
     elif command == "remove":
         ok = remove_action_queue_entry(addon, int(payload["position"]))
+    elif command == "move":
+        ok = move_action_queue_entry(addon, int(payload["position"]), int(payload["new_index"]))
     else:
         raise ValueError(f"Unknown action queue command: {command!r}")
     refresh_review_hud(addon)

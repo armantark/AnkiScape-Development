@@ -4,9 +4,9 @@
 
 **Blocked by:** 01
 
-**Status:** claimed by claude-opus-5-5 on goal/pass20-02
+**Status:** done
 
-- [ ] A real widget flow moves entries; the first Up and last Down are disabled.
-- [ ] A move to the top changes what the next card runs, and the moved-down entry keeps its remaining count.
-- [ ] Offscreen PNGs at the default size and 560 points tall, dark and light, with five entries; no clipped text and no scroll bar.
-- [ ] One `memory-bank/play-checklist.md` line names the screen.
+- [x] A real widget flow moves entries; the first Up and last Down are disabled.
+- [x] A move to the top changes what the next card runs, and the moved-down entry keeps its remaining count.
+- [x] Offscreen PNGs at the default size and 560 points tall, dark and light, with five entries; no clipped text and no scroll bar.
+- [x] One `memory-bank/play-checklist.md` line names the screen.

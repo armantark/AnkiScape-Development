@@ -11,6 +11,7 @@ from __future__ import annotations
 from ..core.action_queue import MAX_QUEUE_ENTRIES, action_queue_pure
 from ..core.menu_action_queue import (
     activity_started_by_add_pure,
+    activity_started_by_move_pure,
     menu_action_record_pure,
     queue_add_view_pure,
     queue_panel_view_pure,
@@ -54,6 +55,7 @@ _BUTTON_STYLE = (
 )
 # How long an add shows on its button and its new entry line (owner, Pass 18: about 1.5 s).
 _CONFIRM_MS = 1500
+_MOVE_STYLE = _BUTTON_STYLE.replace("padding: 4px 10px", "padding: 0 6px")
 # Anki's profile config keeps the fold across menus, as it keeps the tool belt's.
 _FOLDED_CONFIG_KEY = "ankiscape_action_queue_folded"
 # The band reaches this far past a line's text; the box's side margins give the room back.
@@ -92,8 +94,8 @@ if HAS_QT:
     class MenuQueue(QObject):
         """The menu's queue command and what the menu does around it.
 
-        An add that starts an activity at once first asks to leave a running
-        session, as Start does. A count the player added keeps its box after
+        An add or move that starts an activity at once first asks to leave a
+        running session, as Start does. A count the player added keeps its box after
         the panel rebuilds, and each result goes to the menu's follow-up. For
         ``_CONFIRM_MS`` after an add, ``confirmed`` names the action and the
         entry total its Add button confirms, also on a control the follow-up
@@ -117,6 +119,12 @@ if HAS_QT:
             self._confirm_timer.timeout.connect(self._end_confirmation)
 
         def __call__(self, command: str, payload: dict) -> None:
+            if command == "move":
+                activity = activity_started_by_move_pure(
+                    self._player_data, self._current_skill(), payload["position"], payload["new_index"]
+                )
+                if activity and not self._leave_running_activity(activity):
+                    return
             if command == "add":
                 activity = activity_started_by_add_pure(
                     self._player_data, self._current_skill(), payload["action"], payload["count"]
@@ -331,7 +339,8 @@ if HAS_QT:
             # One grid, so each column is as wide as its widest entry and the counts line up.
             rows_layout = QGridLayout(self._lines)
             rows_layout.setContentsMargins(_BAND_PAD, 0, _BAND_PAD, 0)
-            rows_layout.setSpacing(0)
+            rows_layout.setHorizontalSpacing(4)
+            rows_layout.setVerticalSpacing(2)
             rows_layout.setColumnStretch(1, 1)
             self._rows = [self._row(rows_layout, position) for position in range(MAX_QUEUE_ENTRIES)]
             layout.addWidget(self._lines)
@@ -361,11 +370,21 @@ if HAS_QT:
             remove.setFixedSize(text.fontMetrics().lineSpacing(), text.fontMetrics().lineSpacing())
             remove.setEnabled(self._queue is not None)
             remove.clicked.connect(lambda _=False: self._queue("remove", {"position": position}))
-            state.setContentsMargins(0, 1, 16, 1)
+            up = self._move_button("Up", position, position - 1)
+            down = self._move_button("Down", position, position + 1)
+            state.setContentsMargins(0, 1, 12, 1)
             text.setContentsMargins(0, 1, 0, 1)
-            for column, widget in enumerate((state, text, remove)):
+            for column, widget in enumerate((state, text, up, down, remove)):
                 layout.addWidget(widget, position, column)
-            return state, text, remove
+            return state, text, up, down, remove
+
+        def _move_button(self, label: str, position: int, new_index: int):
+            button = QPushButton(label)
+            button.setObjectName(f"actionQueueMove{label}")
+            button.setAccessibleName(f"Move entry {position + 1} {label.lower()}")
+            button.setStyleSheet(_MOVE_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}")
+            button.clicked.connect(lambda _=False: self._queue("move", {"position": position, "new_index": new_index}))
+            return button
 
         def _flash(self, position: int) -> None:
             self._lines.flash(self._rows[position][1])
@@ -383,12 +402,14 @@ if HAS_QT:
             self._resume.setText(view["resume_text"])
             self._resume.setVisible(bool(view["resume_text"]))
             self._lines.setVisible(self._title.isChecked())
-            for position, (state, text, remove) in enumerate(self._rows):
+            for position, (state, text, up, down, remove) in enumerate(self._rows):
                 row = view["rows"][position] if position < len(view["rows"]) else None
-                state.setVisible(row is not None)
-                text.setVisible(row is not None)
+                for widget in (state, text, up, down):
+                    widget.setVisible(row is not None)
                 remove.setVisible(row is not None and row["removable"])
                 if row is not None:
+                    up.setEnabled(row["can_move_up"] and self._queue is not None)
+                    down.setEnabled(row["can_move_down"] and self._queue is not None)
                     self._show_row(row, state, text)
 
         def _show_row(self, row: dict, state, text) -> None:

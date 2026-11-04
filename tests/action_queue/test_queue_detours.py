@@ -148,11 +148,13 @@ class QueueDetourTest(QueueProfile):
                     self._assert_queue_invariants(addon)
 
     def _random_command(self, addon, rng):
-        from ankiscape.core.action_queue import add_to_action_queue, clear_action_queue, stop_action
+        from ankiscape.core.action_queue import add_to_action_queue, clear_action_queue, move_action_queue_entry, stop_action
 
-        command = rng.choice(("add", "hand", "stop", "clear", "review", "quest"))
+        command = rng.choice(("add", "move", "hand", "stop", "clear", "review", "quest"))
         if command == "add":
             add_to_action_queue(addon, rng.choice((_MINE_IRON, _PICKUP, _QUEST)), rng.randint(1, 30))
+        elif command == "move":
+            move_action_queue_entry(addon, rng.randrange(5), rng.randrange(5))
         elif command == "hand":
             addon._set_value("current_utility", "pick_onions")
             addon.save_skill("Utilities", None)
@@ -172,6 +174,9 @@ class QueueDetourTest(QueueProfile):
 
         queue = action_queue_pure(addon._state.player_data)
         self.assertLessEqual(len(queue["entries"]), 5)
+        if queue["entries"] and queue["entries"][0]["count"] is not None:
+            self.assertLess(queue["done"], queue["entries"][0]["count"])
+        self.assertTrue(all(entry["count"] is None or entry["count"] >= 1 for entry in queue["entries"]))
         if queue["entries"] and not queue["paused"] and not queue["suspended"]:
             self.assertTrue(queue_runs_pure(addon._state.player_data, addon._state.current_skill))
             self.assertEqual(last_action_record_pure(addon._state.player_data, addon._state.current_skill), queue["entries"][0]["action"])
