@@ -239,10 +239,9 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN`. Read each script for its default launcher and Darkan core pin. The scripts require the pinned jars in the local Gradle cache.
 - **Darkan:** reconcile implementation behavior with period evidence under the source standard and `grill-decisions-2026-10-25.md`. Where period sources neither state nor contradict a behavior, ruling 1 permits Darkan as a marked, registered placeholder. A modern commit alone is not period proof; conflicting or missing evidence retains its named source gate.
 
-The Darkan thread's checkout on this MacBook is
-`/Users/armantarkhanian/Documents/2012scape with bots/`. These tools read it;
-some still carry historical `/Users/ArmanTarkhanian1/` defaults, so inspect
-the configured source path before a run:
+Resolve the external Darkan checkout from each tool's explicit arguments,
+environment or defaults before a run; paths in another host's receipt do not
+establish the local source root. These tools read it:
 `audit_citation_drift.py`, `build_pre_eoc_quest_catalog.py`,
 `generate_construction_data.py`, `generate_npc_shop_data.py`,
 `generate_achievement_diary_data.py` through its harvest input,
