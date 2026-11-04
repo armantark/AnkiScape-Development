@@ -88,7 +88,7 @@ class TreeGnomeVillageOpeningTest(unittest.TestCase):
         self.assertEqual(player["quests"][QUEST_ID], before["quests"][QUEST_ID])
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
-        self.assertEqual(player["woodcutting_exp"], 125.0)
+        self.assertEqual(player["woodcutting_exp"], 150.0)
         inventory = copy.deepcopy(player["inventory"])
         experience = {key: value for key, value in player.items() if key.endswith("_exp")}
         self.assertTrue(handle_quest_answer(_context(player)))
