@@ -780,10 +780,11 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     quest_locked = tuple(reason for reason in locked_reasons if reason != "materials")
     if quest_locked:
         ctx.deactivate_current_skill()
-        ctx.show_error_message(
+        ctx.show_stop_notice(
             "Activity locked",
             f"{display_name} requires {', '.join(quest_locked)}, so it's been switched off. "
             "Open the AnkiScape menu to pick another activity.",
+            f"{display_name} requires {', '.join(quest_locked)}.",
         )
         return False
 
@@ -796,10 +797,11 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             )
         else:
             ctx.deactivate_current_skill()
-            ctx.show_error_message(
+            ctx.show_stop_notice(
                 "Activity switched off",
                 f"{display_name} can't run right now, so it's been switched off. "
                 "Open the AnkiScape menu to pick another activity.",
+                f"{display_name} can't run right now.",
             )
         return False
 

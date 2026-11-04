@@ -87,6 +87,7 @@ class ActionQueueReviewTest(QueueProfile):
                 "+125 XP · Smithing · +10 Iron bar · −10 Iron ore",
                 "Queue: Smithing: Iron bar stopped · You need 1 Iron ore to make Iron bar.",
                 "+125 XP · Smithing · +1 Iron platebody · −5 Iron bar",
+                "Queue: Smithing: Iron platebody done",
                 "Switched to Bankstanding · Queue finished after Smithing: Iron platebody.",
             ],
         )
@@ -107,9 +108,9 @@ class ActionQueueReviewTest(QueueProfile):
 
         self._answer(addon)
 
-        self.assertEqual([title for title, _message in self.errors], ["Quest blocked"])
+        self.assertEqual(self.errors, [])
         self.assertEqual(addon._state.current_skill, "Mining")
-        self.assertEqual(self._log(addon)[-1], "Queue: Black Knights' Fortress stopped · Needs Iron chainbody")
+        self.assertEqual(self._log(addon)[-1], "Queue: Black Knights' Fortress stopped · Needs Iron chainbody. Next: Mining.")
         self.assertEqual(self.bankstanding_dialogs, [])
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
@@ -167,9 +168,9 @@ class ActionQueueReviewTest(QueueProfile):
         self._answer(addon)
 
         reason = "You need a usable pickaxe to train Mining. Mining has been switched off."
-        self.assertEqual(self.errors, [("Missing pickaxe", reason)])
+        self.assertEqual(self.errors, [])
         self.assertEqual(addon._state.current_skill, "Agility")
-        self.assertEqual(self._log(addon)[-1], f"Queue: Mining: Iron stopped · {reason}")
+        self.assertEqual(self._log(addon)[-1], f"Queue: Mining: Iron stopped · {reason} Next: Agility.")
         self.assertEqual(self._rows(addon), [("Agility: Gnome Stronghold Course", "current", 0)])
 
     def test_resume_of_a_paused_entry_that_cannot_start_shows_why_and_keeps_the_queue_paused(self):

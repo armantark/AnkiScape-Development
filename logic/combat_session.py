@@ -37,8 +37,9 @@ def confirm_wilderness_combat_risk(fingerprint: str) -> None:
         _CONFIRMED_WILDERNESS_RISKS.add(fingerprint)
 
 
-def wilderness_combat_risk_confirmed(fingerprint: str) -> bool:
-    return bool(fingerprint and fingerprint in _CONFIRMED_WILDERNESS_RISKS)
+def wilderness_combat_risk_confirmed(fingerprint: str, *, queued_fingerprint: str = "") -> bool:
+    """A running entry retains its saved add-time approval across process restarts."""
+    return bool(fingerprint and (fingerprint == queued_fingerprint or fingerprint in _CONFIRMED_WILDERNESS_RISKS))
 
 
 def reset_wilderness_combat_confirmations() -> None:

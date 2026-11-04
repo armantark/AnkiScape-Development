@@ -38,6 +38,7 @@ class QueueExactCountTest(QueueProfile):
                 "+3 Redberries",
                 "Queue: Pick redberries done",
                 "+28 Onion",
+                "Queue: Pick onions done",
                 "Switched to Bankstanding · Queue finished after Pick onions.",
             ],
         )
@@ -58,6 +59,7 @@ class QueueExactCountTest(QueueProfile):
                 "+125 XP · Smithing · +1 Iron platebody · −5 Iron bar",
                 "Queue: Smithing: Iron platebody done",
                 "+175 XP · Mining · +5 Iron ore",
+                "Queue: Mining: Iron done",
                 "Switched to Bankstanding · Queue finished after Mining: Iron.",
             ],
         )

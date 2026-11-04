@@ -105,6 +105,15 @@ class RuntimeActionContext:
     # uses when it counts uses. The remainder is None when no entry counts the step.
     queue_remainder: Optional[int] = None
     queue_use_size: int = 0
+    queue_wilderness_fingerprint: str = ""
+    stop_notice: Optional[Callable[..., bool]] = None
+
+    def show_stop_notice(self, title: str, message: str, queue_message: str, detail: str = "") -> bool:
+        """True when the continuing queue received the notice without a dialog."""
+        if self.stop_notice is not None:
+            return self.stop_notice(title, message, queue_message, detail)
+        self.show_error_message(title, message)
+        return False
 
     def __post_init__(self) -> None:
         if self.card is None:

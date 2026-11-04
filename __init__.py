@@ -249,8 +249,8 @@ from .core.action_registry import (
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .core.action_queue import (
-    QueueCount, apply_action_queue_command, bankstanding_event_text, unexplained_stop_pure,
-    record_bankstanding_stop, refine_stop_reason, resume_action, select_utility_target, set_aside_action_queue, stop_action,
+    QueueCount, apply_action_queue_command, bankstanding_event_text,
+    record_bankstanding_stop, runtime_notice_callbacks, resume_action, select_utility_target, set_aside_action_queue, stop_action,
 )
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .core.study_volume import advance_world_clock_for_answer
@@ -1053,30 +1053,13 @@ def _show_runtime_exp(value) -> None:
 
 
 def _runtime_action_context() -> RuntimeActionContext:
-    last_reason = {"text": "", "stop": None}
-
-    def _show_runtime_error(title, message) -> None:
-        last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
-        refine_stop_reason(sys.modules[__name__], last_reason["stop"], last_reason["text"])
-        if _state.pending_bankstanding_notice is not None:
-            _state.pending_bankstanding_notice["show_dialog"] = False
-        show_error_message(title, message)
-
-    def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
-        notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
-        reason = reason or last_reason["text"]
-        last_reason["stop"] = None if reason else unexplained_stop_pure(_state.player_data, _state.current_skill)
-        _switch_to_bankstanding(reason, caller_owns_notice=notice_owned)
-
-    def _show_runtime_gain(text) -> None:
-        last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
-        refine_stop_reason(sys.modules[__name__], last_reason["stop"], last_reason["text"])
-        _show_activity_gain(text)
+    _show_runtime_error, _switch_runtime_action, _show_runtime_gain = runtime_notice_callbacks(sys.modules[__name__])
 
     return RuntimeActionContext(
         player_data=_state.player_data,
         random_random=random.random,
         show_error_message=_show_runtime_error,
+        stop_notice=_show_runtime_error,
         deactivate_current_skill=_switch_runtime_action,
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,

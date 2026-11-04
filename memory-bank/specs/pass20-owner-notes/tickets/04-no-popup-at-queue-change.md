@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-04
+**Status:** built; native Anki check waits for the orchestrator
 
-- [ ] Played: Pirate's Treasure completes with a next entry; no dialog appears, and the line reads "Pirate's Treasure complete. Next: <entry>." plus lamp text when lamps wait.
-- [ ] Played: the same quest with nothing next shows the popup with its old text.
-- [ ] A locked entry is skipped with a line, and the next entry runs in the same review.
-- [ ] A Wilderness add shows the confirmation; declining adds nothing. A gear change before the entry starts skips it with a line and no dialog.
-- [ ] Offscreen PNG of the Review HUD line, dark and light; no clipped text.
+- [x] Played: Pirate's Treasure completes with a next entry; no dialog appears, and the line reads "Pirate's Treasure complete. Next: <entry>." plus lamp text when lamps wait.
+- [x] Played: the same quest with nothing next shows the popup with its old text.
+- [x] A locked entry is skipped with a line, and the next entry runs in the same review.
+- [x] A Wilderness add shows the confirmation; declining adds nothing. A gear change before the entry starts skips it with a line and no dialog.
+- [x] Offscreen PNG of the Review HUD line, dark and light; no clipped text.

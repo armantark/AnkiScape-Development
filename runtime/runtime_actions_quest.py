@@ -86,11 +86,16 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
             pass
     if xp_total > 0:
         ctx.show_exp(xp_total)
+    _announce_quest_combat(ctx, result)
+    return True
+
+
+def _announce_quest_combat(ctx: RuntimeActionContext, result: dict[str, Any]) -> None:
     display_name = str(result.get("display_name") or "combat encounter")
     quantity_text = str(result.get("quantity_text") or "")
     if result.get("reason") == "quest_combat_bank_run":
         remaining = -(-int(result.get("bank_run_ticks_remaining", 0) or 0) // (6 * ctx.review_action_multiplier))
-        ctx.show_activity_gain(f"{display_name}: bank run (reviews remaining: {remaining})")
+        ctx.show_activity_gain(f"{display_name}: bank run ({remaining} review{'s' if remaining != 1 else ''} remaining)")
     elif result.get("died"):
         ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
     elif result.get("killed"):
@@ -100,23 +105,22 @@ def _answer_quest_combat(ctx: RuntimeActionContext, quest_id: str, quest: dict[s
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
         )
-    return True
 
 
 def _announce_quest_completion(ctx: RuntimeActionContext, quest_id: str, quest: dict[str, Any], clue_reward_refusal_reason: Any) -> None:
     display_name = str(quest.get("display_name", quest_id))
-    ctx.show_activity_gain(f"{display_name} complete")
-    if clue_reward_refusal_reason:
-        ctx.show_activity_gain(clue_reward_refusal_reason)
-    # Quest lamps wait silently in Bank Claims, so the one modal the player
-    # reads at completion is where they learn the lamps exist.
     lamps_waiting = quest_lamps_waiting_text_pure(ctx.player_data, quest_id, CLAIM_DATA)
-    ctx.show_error_message(
+    continued = ctx.show_stop_notice(
         "Quest complete",
         f"{display_name} is complete, so questing has been switched off. "
         + (f"{lamps_waiting} " if lamps_waiting else "")
         + "Open the AnkiScape menu to pick another quest.",
+        f"{display_name} complete.", lamps_waiting,
     )
+    if not continued:
+        ctx.show_activity_gain(f"{display_name} complete")
+    if clue_reward_refusal_reason:
+        ctx.show_activity_gain(clue_reward_refusal_reason)
 
 
 def _announce_hazeel_step(ctx, action):

@@ -499,13 +499,14 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         enemy,
     )
     if wilderness_fingerprint and not wilderness_combat_risk_confirmed(
-        wilderness_fingerprint
+        wilderness_fingerprint, queued_fingerprint=ctx.queue_wilderness_fingerprint
     ):
         ctx.deactivate_current_skill()
-        ctx.show_error_message(
+        ctx.show_stop_notice(
             "Wilderness confirmation required",
             "Combat has been switched off. Reopen AnkiScape, review the current "
             "kept/lost equipment preview, and confirm this Wilderness target.",
+            "Wilderness equipment risk changed; confirm this target again.",
         )
         return False
 

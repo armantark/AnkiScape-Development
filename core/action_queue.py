@@ -68,7 +68,7 @@ from .last_action import (
     start_values,
     valid_action_record_pure,
 )
-from .review_event_log import record_review_event_pure
+from .review_event_log import _answered_reviews_pure, record_review_event_pure
 from ..logic.agility_logic import apply_agility_command_pure
 from ..logic.inventory_pure import review_item_changes_pure
 from ..logic_pure.logic_pure import quest_locked_reasons_pure, quest_state_pure
@@ -95,7 +95,10 @@ def action_queue_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     for entry in list(raw.get("entries") or ())[max(0, int(raw.get("index") or 0)):]:
         action = valid_action_record_pure(entry.get("action") if isinstance(entry, Mapping) else None)
         if action:
-            entries.append({"action": action, "count": entry.get("count")})
+            entries.append({
+                "action": action, "count": entry.get("count"),
+                **({"wilderness_fingerprint": entry["wilderness_fingerprint"]} if entry.get("wilderness_fingerprint") else {}),
+            })
     if not entries:
         return _empty_queue()
     return {
@@ -248,6 +251,70 @@ def action_queue_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def queue_notice_view_pure(player_data: Mapping[str, Any], activity_lines=()) -> str:
+    """The latest queue transition stays in the HUD until the next answered card."""
+    review = _answered_reviews_pure(player_data)
+    text = next((
+        row["text"] for row in reversed(player_data.get("review_event_log") or ())
+        if row.get("kind") == "queue" and row.get("review") == review
+    ), "")
+    return " • ".join(filter(None, (text, *activity_lines)))
+
+
+def _record_queue_notice(addon, text: str, row=None) -> None:
+    player_data = addon._state.player_data
+    if row is None:
+        player_data.update(record_review_event_pure(player_data, "queue", text))
+    else:
+        row.update(kind="queue", text=text[:500])
+
+
+def runtime_notice_callbacks(addon):
+    """One stop decision serves every handler: a continuing queue gets a line."""
+    last_reason = {"text": "", "stop": None, "continued": False}
+
+    def show_error(title, message, queue_message=None, detail=""):
+        last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
+        refine_stop_reason(addon, last_reason["stop"], last_reason["text"])
+        if last_reason["continued"]:
+            row = _ended_entry_row(addon)
+            text = queue_message or (row["text"] if row else last_reason["text"])
+            next_name = last_action_name_pure(last_action_record_pure(addon._state.player_data, addon._state.current_skill))
+            _record_queue_notice(addon, f"{text.rstrip('.')}. Next: {next_name}." + (f" {detail}" if detail else ""), row)
+            return True
+        if addon._state.pending_bankstanding_notice is not None:
+            addon._state.pending_bankstanding_notice["show_dialog"] = False
+        addon.show_error_message(title, message)
+        return False
+
+    def switch(reason=None, *, caller_owns_notice=False):
+        notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
+        reason = reason or last_reason["text"]
+        last_reason["stop"] = None if reason else unexplained_stop_pure(addon._state.player_data, addon._state.current_skill)
+        addon._switch_to_bankstanding(reason, caller_owns_notice=notice_owned)
+        last_reason["continued"] = queue_runs_pure(addon._state.player_data, addon._state.current_skill)
+
+    def show_gain(text):
+        last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
+        refine_stop_reason(addon, last_reason["stop"], last_reason["text"])
+        addon._show_activity_gain(text)
+
+    return show_error, switch, show_gain
+
+
+def _entry_start_refusal(addon, current, entry) -> str:
+    action = entry["action"]
+    if action["kind"] != "combat":
+        return ""
+    runtime = addon.runtime_actions
+    fingerprint = runtime.wilderness_combat_risk_fingerprint(
+        current, action["target"], runtime.COMBAT_ENEMY_DATA.get(action["target"], {})
+    )
+    if fingerprint and fingerprint != entry.get("wilderness_fingerprint"):
+        return "Wilderness equipment risk changed; confirm this target again."
+    return ""
+
+
 def _run_current_entry(addon, current: Mapping[str, Any], queue: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
     """The save that runs the queue's current entry, passing each entry that cannot start.
 
@@ -255,10 +322,11 @@ def _run_current_entry(addon, current: Mapping[str, Any], queue: dict[str, Any])
     """
     updated = dict(current)
     while (entry := current_queue_entry_pure(queue)) is not None:
-        started = start_values(addon, updated, entry["action"])
+        refusal = _entry_start_refusal(addon, updated, entry)
+        started = None if refusal else start_values(addon, updated, entry["action"])
         if started is not None:
             return {**started[0], ACTION_QUEUE_KEY: queue}, started[1]
-        updated = record_review_event_pure(updated, "activity", _entry_line(entry["action"], "it could not start"))
+        updated = record_review_event_pure(updated, "queue", _entry_line(entry["action"], refusal or "it could not start"))
         queue = pass_queue_entry_pure(queue)
     return {**updated, ACTION_QUEUE_KEY: queue}, None
 
@@ -346,6 +414,14 @@ def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> str:
     if not ok:
         # Every other cause was refused above.
         return "Type a count of 1 or more."
+    if action["kind"] == "combat":
+        if not addon.ui.confirm_wilderness_queue_action(player_data, action):
+            return "Wilderness entry was not added."
+        fingerprint = addon.runtime_actions.wilderness_combat_risk_fingerprint(
+            player_data, action["target"], addon.runtime_actions.COMBAT_ENEMY_DATA.get(action["target"], {})
+        )
+        if fingerprint:
+            queue["entries"][-1]["wilderness_fingerprint"] = fingerprint
     if runs:
         committed = addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
     else:
@@ -524,8 +600,10 @@ class QueueCount:
             return False
         before = {**player_data, "inventory": dict(player_data.get("inventory") or {})}
         ctx.queue_remainder, ctx.queue_use_size = remainder, use_size
+        ctx.queue_wilderness_fingerprint = self.entry.get("wilderness_fingerprint", "")
         result = step(ctx)
         ctx.queue_remainder, ctx.queue_use_size = None, 0
+        ctx.queue_wilderness_fingerprint = ""
         progress = queue_entry_progress_pure(action, before, player_data)
         self._credit(min(progress, remainder))
         return result
@@ -562,8 +640,9 @@ class QueueCount:
         player_data = addon._state.player_data
         queue = action_queue_pure(player_data)
         review_action = None
+        logged = record_review_event_pure(player_data, "queue", _entry_line(self.entry["action"]))
+        player_data.update(logged)
         if current_queue_entry_pure(queue) is not None:
-            logged = record_review_event_pure(player_data, "activity", _entry_line(self.entry["action"]))
             updated, review_action = _run_current_entry(addon, logged, queue)
             _apply_in_transaction(addon, updated, review_action)
         if review_action is None:
@@ -632,6 +711,9 @@ def record_bankstanding_stop(addon, reason: Any, *, automatic: bool) -> str | No
     stopped = last_action_record_pure(player_data, addon._state.current_skill)
     reason_text = str(reason or "").strip() or generic_stop_reason_pure(player_data, addon._state.current_skill)
     if _queue_takes_over_stop(addon, stopped, reason_text, automatic=automatic):
+        row = _ended_entry_row(addon)
+        if row is not None:
+            row["kind"] = "queue"
         return None
     player_data[LAST_ACTION_KEY] = {**stopped, "reason": reason_text} if stopped else {}
     return reason_text

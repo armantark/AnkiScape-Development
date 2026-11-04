@@ -2258,6 +2258,7 @@ if HAS_QT:
                 "color: #f0c75e; font-size: 10px; font-weight: 600;"
             )
             self.world_notice_lbl.setVisible(False)
+            self.world_notice_lbl.setWordWrap(True)
             info.addWidget(self.world_notice_lbl)
 
             # Combat-only: a second health bar for the enemy, and a chip line
@@ -2428,6 +2429,8 @@ if HAS_QT:
 
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
+            from .ui_action_queue import queue_notice_view_pure
+            queue_notice = queue_notice_view_pure(player_data)
             self._set_slayer_progress("")
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
@@ -2447,9 +2450,10 @@ if HAS_QT:
                     self.second_progress_lbl,
                     self.target_lbl,
                     self.sub_lbl,
-                    self.world_notice_lbl,
                 ):
                     stale.setVisible(False)
+                self.world_notice_lbl.setText(queue_notice)
+                self.world_notice_lbl.setVisible(bool(queue_notice))
                 self.icon_lbl.clear()
                 ip = os.path.join(current_dir, "icon", "bank_icon.png")
                 pm = QPixmap(ip) if os.path.exists(ip) else None
@@ -2510,8 +2514,9 @@ if HAS_QT:
                     f"{int(fog_match['player_charges']):,}–"
                     f"{int(fog_match['opponent_charges']):,} charges"
                 )
-            self.world_notice_lbl.setText(" • ".join(world_notices))
-            self.world_notice_lbl.setVisible(bool(world_notices))
+            notice = queue_notice_view_pure(player_data, world_notices)
+            self.world_notice_lbl.setText(notice)
+            self.world_notice_lbl.setVisible(bool(notice))
             # Enemy bar + chips are combat-only, and the in-bar percentage and
             # second skill bar belong to a running activity: reset all four here
             # so a branch that does not want them cannot inherit them.
@@ -4461,6 +4466,31 @@ def _help_registry_tables() -> dict[str, HelpRegistryTable]:
     }
 
 
+def _confirm_combat_target(player_data, row, parent=None) -> bool:
+    if not row.requires_confirmation:
+        return True
+    fingerprint = wilderness_combat_risk_fingerprint(player_data, row.target_id, COMBAT_ENEMY_DATA.get(row.target_id, {}))
+    if wilderness_combat_risk_confirmed(fingerprint):
+        return True
+    answer = QMessageBox.question(
+        parent, row.confirmation_title or "Confirm combat target",
+        row.confirmation_message or "This combat target may kill you. Select it anyway?",
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No,
+    )
+    confirmed = answer == QMessageBox.StandardButton.Yes
+    if confirmed and fingerprint:
+        confirm_wilderness_combat_risk(fingerprint)
+    return confirmed
+
+
+def confirm_wilderness_queue_action(player_data, action) -> bool:
+    target = action["target"]
+    if not wilderness_combat_risk_fingerprint(player_data, target, COMBAT_ENEMY_DATA.get(target, {})):
+        return True
+    rows = combat_target_rows(player_data, COMBAT_ENEMY_DATA, {}, EQUIPMENT_DATA, target)
+    return _confirm_combat_target(player_data, next(row for row in rows if row.target_id == target))
+
+
 def show_main_menu(
     player_data: dict,
     current_skill: str,
@@ -4768,14 +4798,14 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
-    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, queue_changed_what_runs, surface_queue_control
+    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, surface_queue_control
     from .ui_dnd_favourite import DndFavouriteControls
     from .ui_activity_leave import LeaveRule, leave_running_activity
 
     def _after_queue_command(result: dict) -> None:
         warn.setText(result["message"])
         # An add that starts the queue switches what runs, as Start would.
-        if result["active"] in _active_choices and queue_changed_what_runs(result["active"], state["active"]):
+        if result["active"] in _active_choices:
             state["active"] = result["active"]
             _refresh_active_label()
             ctx.refresh("quests")
@@ -7383,37 +7413,6 @@ def show_main_menu(
             slayer_target_ids_for_assignment_pure(player_data)
         )
 
-        def _confirm_combat_target(row: TargetRowMetadata) -> bool:
-            if not row.requires_confirmation:
-                return True
-            wilderness = bool(
-                (COMBAT_ENEMY_DATA.get(row.target_id, {}) or {}).get(
-                    "wilderness_risk"
-                )
-            )
-            fingerprint = (
-                wilderness_combat_risk_fingerprint(
-                    player_data,
-                    row.target_id,
-                    COMBAT_ENEMY_DATA.get(row.target_id, {}) or {},
-                )
-                if wilderness
-                else ""
-            )
-            if wilderness_combat_risk_confirmed(fingerprint):
-                return True
-            answer = QMessageBox.question(
-                container,
-                row.confirmation_title or "Confirm combat target",
-                row.confirmation_message or "This combat target may kill you. Select it anyway?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            confirmed = answer == QMessageBox.StandardButton.Yes
-            if confirmed and fingerprint:
-                confirm_wilderness_combat_risk(fingerprint)
-            return confirmed
-
         def _empty_combat_text(query: str) -> str:
             if not task_only.isChecked():
                 return "No combat targets match this search."
@@ -7436,7 +7435,7 @@ def show_main_menu(
             empty_text=_empty_combat_text,
             group_role_prefix="__combat_group__:",
             on_select=on_set_combat,
-            confirm_select=_confirm_combat_target,
+            confirm_select=lambda row: _confirm_combat_target(player_data, row, container),
             group_order=list(COMBAT_TARGET_GROUP_ORDER),
         )
 

@@ -798,7 +798,7 @@ def combat_grave_banner_view_pure(player_data, speed=1):
         )
         walking = -(-_non_negative_int(grave.get("walk_ticks_remaining", 0), 0) // max(6, 6 * int(speed)))
         suffix = (
-            f"walking back — {walking} reviews remaining"
+            f"walking back — {walking} review{'s' if walking != 1 else ''} remaining"
             if walking
             else f"expires after {remaining} more reviews — click to walk back"
         )

@@ -8,7 +8,7 @@ updates the list, without each list knowing about the queue.
 
 from __future__ import annotations
 
-from ..core.action_queue import MAX_QUEUE_ENTRIES, action_queue_pure
+from ..core.action_queue import MAX_QUEUE_ENTRIES, action_queue_pure, queue_notice_view_pure
 from ..core.menu_action_queue import (
     activity_started_by_add_pure,
     activity_started_by_move_pure,
@@ -64,15 +64,6 @@ _BAND_PAD = 4
 
 def _record_key(record) -> tuple:
     return tuple(sorted(record.items()))
-
-
-def queue_changed_what_runs(active, shown) -> bool:
-    """Whether a queue command left another action running than the menu shows.
-
-    A running quest always counts: the queue can start one quest over another,
-    and both run as "Quests".
-    """
-    return active != shown or active == "Quests"
 
 
 def _without_widow(text: str) -> str:
