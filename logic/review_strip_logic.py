@@ -326,7 +326,7 @@ def review_bank_run_travel_view_pure(
         "total": total,
         "remaining": remaining,
         "percent": int(round(100.0 * (total - remaining) / total)),
-        "text": f"Bank run — {reviews} review{'s' if reviews != 1 else ''} remaining" if kind == "combat" else f"Bank run — {label} · {done}/{total} travel reviews",
+        "text": f"Bank run — {reviews} review{'s' if reviews != 1 else ''} remaining" if kind == "combat" else f"Bank run — {label} · {total - remaining}/{total} travel reviews",
     }
 
 
