@@ -4,9 +4,11 @@
 
 **Blocked by:** 08
 
-**Status:** claimed by gpt-6.1-sol on goal/pass20-09
+**Status:** built; native Anki look waits for the orchestrator
 
-- [ ] Each changed quest plays through the real handler with an empty bank past each folded row. Items a `player brings` row still names are held by the test, and no other item.
-- [ ] `/Users/ArmanTarkhanian1/Documents/ankiscape-pass20/scan/walk.py`, empty-bank walk, shows none of the folded stops.
-- [ ] A table in the report gives each row's quest, stage, step, price, XP and period source quote.
-- [ ] The item-reachability census moves by exactly this change.
+- [x] Each changed quest plays through the real handler with an empty bank past each folded row. Items a `player brings` row still names are held by the test, and no other item.
+- [x] `/Users/ArmanTarkhanian1/Documents/ankiscape-pass20/scan/walk.py`, empty-bank walk, shows none of the folded stops.
+- [x] A table in the report gives each row's quest, stage, step, price, XP and period source quote.
+- [x] The item-reachability census moves by exactly this change.
+
+Defender of Varrock stage 3 is dropped under the required-action exclusion; the source and catalog evidence are in `memory-bank/source-audits/pass20-clear-item-supplies-2026-11-04.md`. The real-handler proofs hold only supplies for untouched rows, coins and required equipment; no folded product is preloaded. The rebound literal empty-bank and brought-supplies walks are in the external ticket 09 evidence folder. Demon Slayer reaches its independent later Silverlight wear gate; ticket 07 owns that switch.

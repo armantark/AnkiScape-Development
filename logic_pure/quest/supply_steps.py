@@ -21,6 +21,16 @@ def _recipes_by_product(quest_data, quest_id):
     return {recipe["action"]["output_item"]: recipe for recipe in quest.get("supply_recipes", ())}
 
 
+def _supply_options(blockers, recipes):
+    """A held alternative already passed; prepare the first declared quest product."""
+    rows = []
+    for blocker in blockers:
+        options = blocker.get("options", ()) if blocker.get("kind") == "missing_item_option" else ()
+        option = next((row for row in options if row["item_name"] in recipes), None)
+        rows.append(dict(blocker, kind="missing_item", **option) if option else blocker)
+    return tuple(rows)
+
+
 def _makes(blocker, recipes):
     return blocker.get("kind") == "missing_item" and blocker.get("item_name") in recipes
 
@@ -76,6 +86,7 @@ def supply_step_blockers_pure(player_data, quest_id, quest_data, blockers):
     recipes = _recipes_by_product(quest_data, quest_id)
     if not recipes:
         return blockers
+    blockers = _supply_options(blockers, recipes)
     plan, missing = _plan_stage(player_data, recipes, blockers)
     inventory = player_data.get("inventory", {}) or {}
     rewritten = []
@@ -97,6 +108,7 @@ def supply_step_blockers_pure(player_data, quest_id, quest_data, blockers):
 def supply_step_pure(player_data, quest_id, quest_data, blockers):
     """The recipe this quest review runs, or None when the stage needs none or lacks a supply."""
     recipes = _recipes_by_product(quest_data, quest_id)
+    blockers = _supply_options(blockers, recipes)
     if not blockers or not all(_makes(blocker, recipes) for blocker in blockers):
         return None
     plan, missing = _plan_stage(player_data, recipes, blockers)

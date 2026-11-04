@@ -8,8 +8,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = live_reachability_report()
 
-        self.assertEqual(report["action_count"], 1705)
-        self.assertEqual(report["reachable_item_count"], 2364)
+        self.assertEqual(report["action_count"], 1736)
+        self.assertEqual(report["reachable_item_count"], 2365)
         self.assertEqual(report["routes"].get("Living water"), "quest-stage:druidic_ritual:2")
         self.assertEqual(report["routes"].get("Wandering wyrmwood"), "quest-stage:druidic_ritual:3")
         self.assertEqual(report["routes"].get("Stone fish"), "quest-stage:druidic_ritual:4")
@@ -24,8 +24,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 161)
-        self.assertEqual(report["root_orphan_count"], 30)
+        self.assertEqual(report["orphan_input_count"], 169)
+        self.assertEqual(report["root_orphan_count"], 38)
         self.assertEqual(report["cascade_orphan_count"], 131)
         self.assertEqual(report["unresolved_action_count"], 246)
         self.assertEqual(report["seed_item_count"], 1238)

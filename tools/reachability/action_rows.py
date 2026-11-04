@@ -2,6 +2,8 @@
 
 from typing import Any, Mapping
 
+from ...data.mining_data import MINING_PICKAXES
+
 
 def requirements(spec: Mapping[str, Any], _names) -> tuple[set[str], tuple[set[str], ...]]:
     required = (
@@ -31,8 +33,12 @@ def requirements(spec: Mapping[str, Any], _names) -> tuple[set[str], tuple[set[s
 
 
 def quest_supply_actions(quest_data):
+    # A generic quest tool is a family of alternatives, not a nonexistent item.
     return {
-        f"{quest_id}:{index}": dict(recipe["action"], quest_gate=quest_id, quest_gate_state="started")
+        f"{quest_id}:{index}": dict(
+            recipe["action"], quest_gate=quest_id, quest_gate_state="started",
+            material_options={"Pickaxe": tuple(tool.display_name for tool in MINING_PICKAXES)},
+        )
         for quest_id, quest in quest_data.items()
         for index, recipe in enumerate(quest.get("supply_recipes", ()))
     }

@@ -29,11 +29,7 @@ MOGRE_STAGE_REQUIREMENTS = (
     QuestStageRequirement(
         stage=2,
         description="Pick nettles near Draynor Village jail for Skippy's tea.",
-        # Nettles are a repeatable glove-protected world pickable, so the
-        # stage consumes one picked Nettles the way its sibling stages
-        # consume theirs; the pick_nettles Utility row is the producer.
-        consumed_inventory=(("Nettles", 1),),
-        required_tools=(("Leather gloves", 1),),
+        required_inventory_options=((("Nettles", 1), ("Nettle-water", 1), ("Nettle tea", 1)),),
         auto_actions=(
             "Pick nettles near Draynor Village jail while wearing leather gloves",
         ),

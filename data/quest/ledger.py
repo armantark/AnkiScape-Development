@@ -53,17 +53,111 @@ QUEST_OVERRIDES_BY_ID = {quest.id: quest for quest in QUEST_OVERRIDES}
 MINIQUESTS = tuple(_definitions._QUESTS_BY_ID[quest_id] for quest_id in MINIQUEST_ORDER)
 
 
+# The taught non-combat item work stays on quest cards, with no new Utility rows.
+QUEST_SUPPLY_RECIPES_BY_ID = {
+    COOKS_ASSISTANT_ID: (
+        QuestSupplyRecipe(step="take the bucket beside the prized cow", product="Bucket",
+                          source="https://runescape.wiki/w/Cook's_Assistant?oldid=6540848"),
+        QuestSupplyRecipe(step="take the kitchen pot", product="Empty pot",
+                          source="https://runescape.wiki/w/Cook's_Assistant?oldid=6540848"),
+    ),
+    BLACK_KNIGHTS_FORTRESS_ID: (
+        QuestSupplyRecipe(step="pick a Monastery cabbage", product="Cabbage",
+                          source="https://runescape.wiki/w/Black_Knights'_Fortress_(quest)?oldid=6569597"),
+    ),
+    DEMON_SLAYER_ID: (
+        QuestSupplyRecipe(step="take the castle kitchen bucket", product="Bucket",
+                          source="https://runescape.wiki/w/Demon_Slayer_(historical)?oldid=6448395"),
+        QuestSupplyRecipe(step="fill the bucket", utility_id="draw_bucket_of_water"),
+    ),
+    ERNEST_THE_CHICKEN_ID: (
+        QuestSupplyRecipe(step="take fish food upstairs", product="Fish food",
+                          source="https://runescape.wiki/w/Ernest_the_Chicken?oldid=6542622"),
+        QuestSupplyRecipe(step="take poison from the manor table", product="Poison",
+                          source="https://runescape.wiki/w/Ernest_the_Chicken?oldid=6542622"),
+    ),
+    FISHING_CONTEST_ID: (
+        QuestSupplyRecipe(step="take garlic in Seers' Village", product="Garlic",
+                          source="https://runescape.wiki/w/Fishing_Contest?oldid=6326002"),
+        QuestSupplyRecipe(step="dig red vine worms", product="Red vine worm",
+                          required_tools=(("Spade", 1),),
+                          source="https://runescape.wiki/w/Fishing_Contest?oldid=6326002"),
+    ),
+    GERTRUDES_CAT_ID: (
+        QuestSupplyRecipe(step="pick doogle leaves behind Gertrude's house", product="Doogle leaves",
+                          source="https://runescape.wiki/w/Gertrude's_Cat?oldid=6326014"),
+    ),
+    MERLINS_CRYSTAL_ID: (
+        QuestSupplyRecipe(step="take the bucket by the beehives", product="Bucket",
+                          source="https://runescape.wiki/w/Merlin's_Crystal?oldid=6569685"),
+        QuestSupplyRecipe(step="take insect repellent in Catherby", product="Insect repellent",
+                          source="https://runescape.wiki/w/Merlin's_Crystal?oldid=6569685"),
+    ),
+    PIRATES_TREASURE_ID: (
+        QuestSupplyRecipe(step="buy rum from Zambo", product="Karamjan rum", coins=30,
+                          source="https://runescape.wiki/w/Pirate's_Treasure?oldid=6514086"),
+    ),
+    PLAGUE_CITY_ID: (
+        QuestSupplyRecipe(step="take a bucket in Edmond's garden", product="Bucket",
+                          source="https://runescape.wiki/w/Plague_City?oldid=6544754"),
+        QuestSupplyRecipe(step="fill a bucket in Edmond's house", utility_id="draw_bucket_of_water"),
+        QuestSupplyRecipe(step="buy chocolate from Wydin", product="Chocolate bar", coins=20,
+                          source="https://runescape.wiki/w/Chocolate_bar?oldid=6550445"),
+        QuestSupplyRecipe(step="grind the chocolate bar", utility_id="grind_chocolate_bar"),
+        QuestSupplyRecipe(step="milk a dairy cow", product="Bucket of milk", inputs=(("Bucket", 1),),
+                          source="https://runescape.wiki/w/Bucket_of_milk?oldid=6288698"),
+        QuestSupplyRecipe(step="pick snape grass on the peninsula", product="Snape grass",
+                          source="https://runescape.wiki/w/Snape_grass?oldid=6269500"),
+    ),
+    SKIPPY_AND_THE_MOGRES_ID: (
+        QuestSupplyRecipe(step="take a bucket by the Port Sarim farming shop", product="Bucket",
+                          source="https://runescape.wiki/w/Bucket?oldid=6337544"),
+        QuestSupplyRecipe(step="take a bowl in Lumbridge Castle kitchen", product="Bowl",
+                          source="https://runescape.wiki/w/Bowl?oldid=5102426"),
+        QuestSupplyRecipe(step="fill the bucket", utility_id="draw_bucket_of_water"),
+        QuestSupplyRecipe(step="pick nettles near Draynor jail", product="Nettles",
+                          required_tools=(("Leather gloves", 1),),
+                          source="https://runescape.wiki/w/Mogre_(lore_activity)?oldid=6070158"),
+        QuestSupplyRecipe(step="fill the bowl", utility_id="fill_bowl_of_water"),
+        QuestSupplyRecipe(step="mix nettles into water", utility_id="prepare_nettle_water"),
+        QuestSupplyRecipe(step="boil the nettle-water", product="Nettle tea", inputs=(("Nettle-water", 1),),
+                          required_skills=(QuestSkillRequirement("cooking", "Cooking", 20),),
+                          xp_rewards=(QuestXpReward("cooking", 61),),
+                          source="https://runescape.wiki/w/Nettle_tea?oldid=6241728"),
+        QuestSupplyRecipe(step="buy chocolate from Wydin", product="Chocolate bar", coins=20,
+                          source="https://runescape.wiki/w/Chocolate_bar?oldid=6550445"),
+        QuestSupplyRecipe(step="grind the chocolate bar", utility_id="grind_chocolate_bar"),
+        QuestSupplyRecipe(step="milk a dairy cow", product="Bucket of milk", inputs=(("Bucket", 1),),
+                          source="https://runescape.wiki/w/Bucket_of_milk?oldid=6288698"),
+        QuestSupplyRecipe(step="pick snape grass on the peninsula", product="Snape grass",
+                          source="https://runescape.wiki/w/Snape_grass?oldid=6269500"),
+    ),
+    THE_KNIGHTS_SWORD_ID: (
+        QuestSupplyRecipe(step="mine blurite in the ice dungeon", product="Blurite ore",
+                          required_skills=(QuestSkillRequirement("mining", "Mining", 10),),
+                          required_tools=(("Pickaxe", 1),), xp_rewards=(QuestXpReward("mining", 17.5),),
+                          source="https://runescape.wiki/w/The_Knight's_Sword?oldid=6514292; "
+                                 "https://runescape.wiki/w/Blurite_ore?oldid=6298112"),
+    ),
+}
+
+
+def _quest_with_supply_recipes(quest):
+    recipes = QUEST_SUPPLY_RECIPES_BY_ID.get(quest.id)
+    return replace(quest, supply_recipes=recipes) if recipes is not None else quest
+
+
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
-    apply_another_cook_opening(_quest_with_stage_requirements(
+    apply_another_cook_opening(_quest_with_supply_recipes(_quest_with_stage_requirements(
         replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
         if row_id in QUEST_OVERRIDES_BY_ID
         else _quest_from_catalog(row),
         row,
-    ))
+    )))
     for row in PRE_EOC_QUEST_CATALOG
     for row_id in (_quest_catalog_row_id(row),)
 ) + tuple(
-    _quest_with_stage_requirements(quest, {}) for quest in MINIQUESTS
+    _quest_with_supply_recipes(_quest_with_stage_requirements(quest, {})) for quest in MINIQUESTS
 )
 QUESTS_BY_ID: Dict[str, QuestDefinition] = {quest.id: quest for quest in QUESTS}
 QUEST_DISPLAY_NAMES: Dict[str, str] = {quest.id: quest.display_name for quest in QUESTS}
