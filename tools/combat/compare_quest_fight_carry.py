@@ -113,7 +113,7 @@ def rates(pairs):
             - (a["deaths"] - r_off * a["fights"]) / totals["off"]["fights"]
         )
     n = len(residuals)
-    se = statistics.stdev(residuals.values()) * n ** 0.5 if n > 1 else 0
+    se = statistics.stdev(residuals.values()) * n ** 0.5
     return dict(pairs=len(pairs), seed_clusters=n, off=totals["off"], on=totals["on"], off_rate=r_off, on_rate=r_on,
                 difference=r_on - r_off, paired_se=se, passes=r_on - r_off <= 4 * se)
 
@@ -138,6 +138,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--samples", type=int, default=64)
     args = parser.parse_args()
+    if args.samples < 2:
+        parser.error("--samples must be at least 2 for a paired standard error")
     spec = importlib.util.spec_from_file_location("ankiscape.runtime.quest_carry_baseline", args.baseline)
     baseline = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(baseline)
