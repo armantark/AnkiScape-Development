@@ -10,6 +10,7 @@ Finish by dependency layers. Nineteen complete skill surfaces, five partial Comb
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
+- Finish whole quests with the fewest blockers first under `grill-decisions-2026-10-28.md`, ruling 14; re-stage saved-state changes under the 2026-10-25 ruling rather than treating one journal stage as one final quest step.
 - Continue the Kanban parity-ledger cards (the open rows of the closed `gap-backlog.json`) only when pre-EOC evidence closes inputs, outputs, gates, values, and state transitions.
 - Preserve source base values and Anki pacing separation.
 - Split proven sub-slices from source-blocked families.
@@ -37,7 +38,7 @@ Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile
 ## Layer 5 — Economy and Collections
 
 - Extend the live Grand Exchange through its deterministic offers and item metadata. Preserve the Ironman access restriction.
-- Add achievement diaries, clue scrolls, collections, one-time rewards, and random/timed content.
+- Extend the existing achievement diaries, collections, clue/activity and one-time reward foundations through their remaining source and dependency gates.
 - Keep the global review clock for world/economy cadence, not ordinary skilling minutes.
 
 ## Layer 6 — Balance and Release Closure

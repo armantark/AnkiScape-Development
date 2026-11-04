@@ -1277,7 +1277,7 @@ measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
 `1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
 inputs / root orphans / cascade orphans / blocked actions / seed items.
 **Correction 2026-08-26:** the live pins at
-`tests/test_item_reachability_audit.py:701-710` and the audit tool now read `1600 /
+`tests/reachability/test_quest_emitters.py:116-125` and the audit tool now read `1600 /
 2468 / 36 / 32 / 4 / 35 / 1218`. These are the instrument's action, reachable-item,
 orphan-input, root-orphan, cascade-orphan, unresolved-action, and seed-item
 counts. Queue entry 5.12 proves that the instrument still credits inaccessible

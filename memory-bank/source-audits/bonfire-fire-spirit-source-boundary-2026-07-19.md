@@ -202,7 +202,7 @@ Darkan's implementation is a lower-tier executable lead:
   `7e927b2c14`;
 - `data/npcs/drops/fire_spirit.json:1-439`, commit
   `c6fbe036b1743f4dd6067ec178332c69c3708856`; and
-- `src/main/java/com/rs/game/content/skills/cooking/Cooking.java:299-329`,
+- `d52f13c99:src/main/java/com/rs/game/content/skills/cooking/Cooking.java:299-329`,
   with current source-qualified burn behavior at commit `d52f13c99`.
 
 Useful agreements:

@@ -4,8 +4,8 @@ Static review inspected exact main `d919d479838724fd16bad91c1aff60d67ba488e3`.
 The retained oldid `6589064` route is source-ready; this finding covers Rat Catchers only.
 The settled [quest-cat ownership contract](summoning-pet-acquisition-2026-07-16.md#quest-cats) requires Gertrude completion to grant a real pet entity.
 The [active-cat contract](summoning-pets-2026-07-16.md) requires the follower slot only for steps that need active cat behavior.
-Current `logic_pure/logic_pure_quest.py:1045` adds ordinary inventory rewards; `tests/test_logic.py:10365` expects inventory `Kitten`.
-Existing `ui/ui.py:26297` activation controls require a stored instance ID. `logic/pet_logic.py:121` activates that instance.
+Current `logic_pure/logic_pure_quest.py:880` adds ordinary inventory rewards; `tests/test_logic.py:10144` expects inventory `Kitten`.
+Existing `ui/ui.py:25009` activation controls require a stored instance ID. `logic/pet_logic.py:121` activates that instance.
 Root confirmed those source anchors and the production acquisition callers. Gertrude does not connect completion to a cat instance.
 A complete route requires Gertrude completion, a real kitten entity, and the source-required cat stage and follower checks.
 Inventory aliases, seeded prerequisite completion and removed gates do not satisfy this dependency.

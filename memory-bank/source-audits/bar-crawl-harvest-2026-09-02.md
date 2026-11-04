@@ -38,7 +38,7 @@ not a partially implemented quest. Its entire live completion footprint is:
 | Current gated content | `data/agility_data.py:178-189` and `data/agility_data.py:191-210` assign `quest_gate="bar_crawl"` to the normal and advanced Barbarian Outpost courses: **2** gates. `logic/agility_logic.py:327-329` enforces either gate through the reader above. |
 | Existing item data | `generated/item_values_generated.py:903` lists `Barcrawl card` at value **10**, but has no card lifecycle or quest logic. |
 | Existing bars and drinks | An exact search of shipped Python found **0** occurrences of any of the ten required specialty-drink names. Venue names survive only as unrelated quest, diary, music, or generic-shop text; there is no Bar Crawl venue entity, drink transaction, signed-card state, bartender route, or test reference. |
-| Reusable machinery | Generic bartender vendor actions exist at `data/shop_data.py:23` and `logic/shop_logic.py:638-661`; generic quest/action-proof machinery exists at `logic_pure/logic_pure_quest.py:1165-1183,1321` and `data/quest_action_proof_data.py:13-36`. Neither writes `bar_crawl_completed` or names a Bar Crawl drink. |
+| Reusable machinery | Generic bartender vendor actions exist at `data/shop_data.py:23` and `logic/shop_logic.py:646-669`; generic quest/action-proof machinery exists at `logic_pure/logic_pure_quest.py:991-1009,1168` and `data/quest_action_proof_data.py:13-36`. Neither writes `bar_crawl_completed` or names a Bar Crawl drink. |
 
 The premise therefore holds, rather than inverts: this is an
 unstartable-quest defect. The measured implementation scope is one miniquest

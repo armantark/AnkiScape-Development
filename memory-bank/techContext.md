@@ -43,7 +43,7 @@
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
 - A full run uses four worker processes with whole modules kept together, and a selection runs serially; `--processes N` overrides either, and full promotion lanes use eight workers and remain sequential.
 - `run_tests.py` re-runs itself under the checkout's `.venv-qt/bin/python`, with `QT_QPA_PLATFORM=offscreen` unless set, because Homebrew `python3` lacks Pillow and `aqt`; the plain lanes set `ANKISCAPE_PLAIN_LANE=1` to keep the calling interpreter.
-- `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
+- `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/reachability/test_report_baseline.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
 
 ### Bounded operator commands
 
@@ -109,9 +109,9 @@ with a smallest gap of 692 lines, and had zero `data/quest_data.py` conflicts.
 Prefer quests whose stage routes a player can already satisfy ([design-thread
 queue §3.32](design-thread-queue.md)), so a landed repair is finishable.
 
-Every quest branch also re-pins the seven values in
-`tests/test_item_reachability_audit.py`; that conflict is expected and must be
-resolved by re-measuring the merged tree. In the distance-batched follow-up,
+Quest branches that change reachability re-pin the affected values in
+`tests/reachability/test_report_baseline.py`; conflicts must be resolved by
+re-measuring the merged tree. In the distance-batched follow-up,
 merged `reachable_item_count` was 2392 while branches held 2390 and 2383, and
 merged `seed_item_count` was 1145 while branches held 1143 and 1136. No branch
 contained the merged truth.
@@ -235,14 +235,13 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 
 - **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
 - **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main` on the MacBook Pro. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
-- **Historical semantics:** literal wikitext from exact pre-cutoff RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable.
+- **Historical semantics:** literal wikitext from exact RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable. Prefer pre-cutoff revisions; ruling 5 of `grill-decisions-2026-10-25.md` also admits unchanged passages dated through `2013-11-20`.
 - **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN`. Read each script for its default launcher and Darkan core pin. The scripts require the pinned jars in the local Gradle cache.
-- **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
+- **Darkan:** reconcile implementation behavior with period evidence under the source standard and `grill-decisions-2026-10-25.md`. Where period sources neither state nor contradict a behavior, ruling 1 permits Darkan as a marked, registered placeholder. A modern commit alone is not period proof; conflicting or missing evidence retains its named source gate.
 
-The Darkan thread's checkout on this MacBook is
-`/Users/armantarkhanian/Documents/2012scape with bots/`. These tools read it;
-some still carry historical `/Users/ArmanTarkhanian1/` defaults, so inspect
-the configured source path before a run:
+Resolve the external Darkan checkout from each tool's explicit arguments,
+environment or defaults before a run; paths in another host's receipt do not
+establish the local source root. These tools read it:
 `audit_citation_drift.py`, `build_pre_eoc_quest_catalog.py`,
 `generate_construction_data.py`, `generate_npc_shop_data.py`,
 `generate_achievement_diary_data.py` through its harvest input,
@@ -404,7 +403,7 @@ These scripts have no caller in code, tests or other tools. They stay for manual
 - **Frozen combat comparators.** `tools/combat/compare_enemy_attack_rolls.py` (`--baseline`, `--candidate-sha256`, `--inventory`, `--output`, `--preflight`) and `tools/combat/compare_dragonfire_damage.py` (`--baseline`, `--candidate-engine-sha256`, `--candidate-specials-sha256`, `--inventory`, `--inventory-sha256`, `--output`, `--preflight`) compare the current engine with a frozen baseline on the test host. Their baselines are archived out of tree; `memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/SUMMARY.md` and `memory-bank/evidence/combat-dragonfire-damage-2026-09-08/SUMMARY.md` locate them.
 
 ## Manual Testing Target
-Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.
+Manual verification should happen inside Anki when runtime behavior changes. Browser checks through agent-browser apply only if the change introduces browser-rendered surfaces that can be exercised outside Anki.
 
 ## Operator environment and evidence paths
 

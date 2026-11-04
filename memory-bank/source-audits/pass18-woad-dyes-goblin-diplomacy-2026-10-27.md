@@ -141,13 +141,13 @@ Read-only Darkan root: `/Users/armantarkhanian/Code/2012scape with bots/darkan-w
 
 ### Wyson limits
 
-File: [Wyson.java](</Users/armantarkhanian/Code/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/world/areas/falador/npcs/Wyson.java:16>), lines 16–81; last file-changing commit **456ddb12fd3bf2c868c2d51eeff5553999f07a4c**, **2023-06-17T18:02:26Z**.
+File: [Wyson.java](</Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/world/areas/falador/npcs/Wyson.java>) (`456ddb12:src/main/java/com/rs/game/content/world/areas/falador/npcs/Wyson.java:16-81`); last file-changing commit **456ddb12fd3bf2c868c2d51eeff5553999f07a4c**, **2023-06-17T18:02:26Z**.
 
 The NPC handler maps `case "Talk-to" -> e.getPlayer().startConversation(new Wyson(e.getPlayer()));`. Its purchase callbacks check coins and perform `removeCoins(15)` plus `addItem(1793, 1)`, or `removeCoins(20)` plus `addItem(1793, 2)`. There is no stock counter, reset timestamp, daily cap or shop-opening call in this complete NPC implementation. **The emulator therefore implements repeatable dialogue purchases without a stock/daily limit.** This does not elevate an unlimited-stock claim to period-wiki verification.
 
 ### Mixing amounts, XP, levels and vials
 
-File: [Dye.kt](</Users/armantarkhanian/Code/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/items/Dye.kt:28>), lines 28–42; last file-changing commit **4acbf573f06f38e42fa8710d4f0913cebb1fe3c2**, **2026-07-18T17:49:49-07:00**, “Restore source-bounded Crafting methods.”
+File: [Dye.kt](</Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/items/Dye.kt>) (`4acbf573:src/main/java/com/rs/game/content/items/Dye.kt:28-42`); last file-changing commit **4acbf573f06f38e42fa8710d4f0913cebb1fe3c2**, **2026-07-18T17:49:49-07:00**, “Restore source-bounded Crafting methods.”
 
 The complete successful `onItemOnItem` mixing branch consists of finding the red/yellow→orange, blue/yellow→green, or blue/red→purple result, then:
 
@@ -157,7 +157,7 @@ The complete successful `onItemOnItem` mixing branch consists of finding the red
         e.player.inventory.addItem(result)
 ```
 
-The default single-item amount is confirmed by [Inventory.java](</Users/armantarkhanian/Code/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/player/Inventory.java:255>): `public boolean addItem(int itemId)` returns `addItem(itemId, 1)`. The mixing branch checks no level, awards no XP, and adds no empty vial. **In this emulator, one bottle of each input becomes one bottle of secondary dye, with no extra container returned.** No other dye-pair recipes are registered in that file. The period wiki establishes the resulting colours and the red-with-yellow Use action, but not these numerical consumption/by-product/XP details. The modern restoration date is a reason to keep those details qualified.
+The default single-item amount is confirmed by [Inventory.java](</Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/player/Inventory.java>) (`4acbf573:src/main/java/com/rs/game/model/entity/player/Inventory.java:255`): `public boolean addItem(int itemId)` returns `addItem(itemId, 1)`. The mixing branch checks no level, awards no XP, and adds no empty vial. **In this emulator, one bottle of each input becomes one bottle of secondary dye, with no extra container returned.** No other dye-pair recipes are registered in that file. The period wiki establishes the resulting colours and the red-with-yellow Use action, but not these numerical consumption/by-product/XP details. The modern restoration date is a reason to keep those details qualified.
 
 ## Research limitations and reproducibility
 

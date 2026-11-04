@@ -8,7 +8,7 @@ The gate must keep the `(not implemented)` blocker for an unknown skill. This sl
 
 ## Runtime authority
 
-`logic_pure/logic_pure_combat_engine.py:1994-2007` computes the player combat level from eight combat stats. This is the existing game value.
+`logic_pure/logic_pure_combat_engine.py:1979-1992` computes the player combat level from eight combat stats. This is the existing game value.
 
 `logic_pure/logic_pure_quest.py:112-131` now handles `skill_id == "combat"` before the skill registry check. A low level gives `Combat N`. A sufficient level gives no blocker.
 

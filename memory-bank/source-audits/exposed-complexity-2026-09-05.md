@@ -35,7 +35,7 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 
 | Function at measured source | CCN | Cognitive | Halstead |
 | --- | ---: | ---: | ---: |
-| `logic_pure/logic_pure_combat_engine.py:1033::apply_combat_burst_pure` | 348 | 690 | 16.59811320754717 |
+| `logic_pure/logic_pure_combat_engine.py:1021::apply_combat_burst_pure` | 348 | 690 | 16.59811320754717 |
 | `runtime/runtime_actions_carried_overlay.py:951::run_answer_with_carried_overlay` | 189 | 267 | 11.831521739130435 |
 | `91c39417:__init__.py:5700::on_answer_card` | 93 | 84 | 3.664285714285714 |
 | `runtime/runtime_actions_activities_training.py:882::handle_agility_answer` | 61 | 80 | 5.6911764705882355 |
@@ -78,7 +78,7 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 | `tools/generate_achievement_diary_data.py:495::_regional_roster` | 30 | 47 | 4.9655172413793105 |
 | `logic/shop_logic.py:430::rollback_shop_event_pure` | 21 | 48 | 3.4285714285714284 |
 | `runtime/runtime_actions_activities.py:819::handle_temple_trekking_answer` | 20 | 16 | 1.5 |
-| `logic/shop_logic.py:496::_preview_sell_from_state` | 16 | 17 | 7.5 |
+| `logic/shop_logic.py:498::_preview_sell_from_state` | 16 | 17 | 7.5 |
 | `runtime/runtime_actions_activities.py:650::handle_castle_wars_answer` | 16 | 10 | 4.277777777777778 |
 | `logic/shop_logic.py:174::search_shop_catalog_pure` | 15 | 19 | 3.5454545454545454 |
 | `91c39417:tools/generate_achievement_diary_data.py:1076::_condition_src` | 14 | 16 | 3.8333333333333335 |
@@ -93,25 +93,25 @@ The recovered snapshot has 56 unique above-threshold functions across the fourte
 
 | Function at captured source | CCN | Cognitive | Halstead |
 | --- | ---: | ---: | ---: |
-| `logic_pure/logic_pure_combat_engine.py:558::combat_target_preview_pure` | 54 | 58 | 7.930232558139535 |
+| `logic_pure/logic_pure_combat_engine.py:556::combat_target_preview_pure` | 54 | 58 | 7.930232558139535 |
 | `ui/ui_tab_shop.py:1139::build_shop_tab._refresh_service_preview` | 45 | None | None |
 | `ui/ui_tab_shop.py:1592::build_shop_tab._populate_shop_selector` | 40 | None | None |
-| `data/quest/catalog.py:279::_quest_from_catalog` | 35 | 35 | 2.1176470588235294 |
+| `data/quest/catalog.py:282::_quest_from_catalog` | 35 | 35 | 2.1176470588235294 |
 | `__init__.py:4881::_set_combat_prayer_config` | 26 | 37 | 3.0172413793103448 |
-| `__init__.py:5096::on_good_answer` | 24 | 39 | 6.111111111111111 |
+| `__init__.py:4960::on_good_answer` | 24 | 39 | 6.111111111111111 |
 | `ui/ui_tab_shop.py:718::build_shop_tab._preview_denial_text` | 24 | None | None |
 | `tests/combat_roster/test_roster_contract.py:60::CombatEnemyRosterDataTest.test_new_slayer_family_assets_are_present_and_provenanced` | 22 | 41 | 1.8333333333333333 |
 | `tests/combat_roster/test_roster_contract.py:41::CombatEnemyRosterDataTest.test_new_enemies_have_required_schema` | 20 | 42 | 3.787878787878788 |
 | `ui/ui_tab_shop.py:1485::build_shop_tab._render_shop_detail` | 20 | None | None |
-| `logic_pure/logic_pure_combat_engine.py:2082::combat_hud_state_pure` | 18 | 22 | 4.34 |
+| `logic_pure/logic_pure_combat_engine.py:2067::combat_hud_state_pure` | 18 | 22 | 4.34 |
 | `__init__.py:1073::resolve_review_context_action` | 18 | 21 | 5.173913043478261 |
 | `ui/ui_tab_shop.py:60::build_shop_tab` | 17 | 653 | 9.028409090909092 |
 | `__init__.py:575::_combine_activity_feedback` | 17 | 29 | 6.868421052631579 |
 | `__init__.py:808::_skill_availability_fingerprint` | 16 | 13 | 1.0 |
 | `ui/ui_tab_shop.py:960::build_shop_tab._refresh_transaction_panel` | 16 | None | None |
-| `data/quest/catalog.py:106::_catalog_item_pairs` | 15 | 33 | 2.6923076923076925 |
-| `__init__.py:760::commit_direct_action` | 14 | 16 | 3.142857142857143 |
-| `data/quest/reward_items.py:77::quest_reward_items_as_dict` | 12 | 19 | 1.1 |
+| `data/quest/catalog.py:109::_catalog_item_pairs` | 15 | 33 | 2.6923076923076925 |
+| `__init__.py:715::commit_direct_action` | 14 | 16 | 3.142857142857143 |
+| `data/quest/reward_items.py:89::quest_reward_items_as_dict` | 12 | 19 | 1.1 |
 | `__init__.py:655::_catalog_requirement_item_names` | 11 | 36 | 0.5 |
 | `__init__.py:5244::on_equip_item` | 9 | 18 | 2.0 |
 | `__init__.py:5297::on_unequip_slot` | 9 | 17 | 2.0 |

@@ -63,8 +63,8 @@ level 13, and uncut 1629 to cut 1613 with 25 XP at level 16. This is current
 reconstruction corroboration, not an additional period tradeability source.
 No Darkan source or harvest ledger was modified.
 
-In `data/crafting_data.py:191`, the `cut_jade` recipe outputs the exact key
-`Jade`; `data/crafting_data.py:192` outputs `Red topaz` from `cut_red_topaz`. Both explicitly set
+In `data/crafting_data.py:200`, the `cut_jade` recipe outputs the exact key
+`Jade`; `data/crafting_data.py:201` outputs `Red topaz` from `cut_red_topaz`. Both explicitly set
 `tradeable=False`, and neither supplies `source_item_id`. The recipe converter
 at line 434 carries those values into the output specification.
 `core/item_registry.py:214` registers each Crafting output with that same
@@ -110,7 +110,7 @@ cached JSON is preserved with deterministic gzip, without reserialization.
 The global table and per-item pages are separate period records from the
 same wiki, not two independent publishers.
 
-`data/grand_exchange_data.py:41` requires registry tradeability and membership
+`data/grand_exchange_data.py:42` requires registry tradeability and membership
 in the exchangeable-name set. It selects a positive period price, otherwise
 the cache value, and emits no buy limit when the generated limit is missing.
 Thus changing only the two false flags would enable cache-value pricing

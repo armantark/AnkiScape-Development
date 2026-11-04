@@ -721,3 +721,134 @@ Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
   the player; do not expose a disabled placeholder or invent task state early.
 - Closed 2026-10-16: the Combat "Current Slayer task only" filter is live, and
   Pass 16 gave every search bar one fuzzy, ranked matcher (`core/search_match.py`).
+
+## November 2026 rotation
+
+- **Closed 2026-08-09:** the seven ordinary Taverley blue-dragon-scale spawns
+  now run through the established zero-XP Utility gathering route. Exact item
+  identities and normalized period sprites activate the existing scale → dust
+  → Weapon poison/Antifire chain without a placeholder. Reachability is now
+  1,548 actions, 2,377 reachable items, 137 orphan inputs, and 148 blocked
+  actions. See
+  `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
+
+- **Tooling 2026-08-09:** use
+  `python3 tools/audit_item_reachability.py --rank-roots N` to rank the
+  remaining authentic root-acquisition candidates by simulated transitive
+  item/action recovery. The score is prioritization evidence, never period
+  source evidence. See
+  `audits/item-reachability-leverage-ranking-2026-08-09.md`.
+
+- **Closed 2026-08-09:** the three ordinary first-level Kalphite-Hive Potato
+  cactus spawns now run through the established zero-XP Utility gathering
+  route. Exact item identity and normalized period art activate 20 downstream
+  item paths and 19 actions, including the complete Magic-potion chain.
+  Reachability is now 1,549 actions, 2,397 reachable items, 124 orphan inputs,
+  and 129 blocked actions. See
+  `source-audits/potato-cactus-acquisition-2026-08-09.md`.
+
+- **Closed 2026-08-09:** Tokkul is now a live inventory currency across the
+  three cutoff TzHaar shops. All 23 stock rows use their period tables, the
+  shops are player-buy only, and one Uncut onyx costs exactly 2,700,000 Tokkul.
+  This activates 16 downstream item paths and 11 actions without a placeholder
+  or new UI pattern. Reachability is now 1,549 actions, 2,413 reachable items,
+  117 orphan inputs, and 118 blocked actions. See
+  `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.
+
+- **Closed 2026-07-20:** the period player-grown Willow route now exposes
+  post-health-check branches every five era-minutes to a six-branch cap,
+  accepts either Secateurs variant, awards zero pruning XP, and preserves Chop
+  as the primary tree action. The live graph is now 1,344 actions, 1,999
+  reachable items, 237 orphan inputs, and 249 blocked actions; see
+  `source-audits/farming-willow-branch-acquisition-2026-07-20.md`.
+
+- **Closed 2026-07-20:** canonical registry metadata now marks empty vial/flask
+  containers and every vial/flask potion dose unstackable, matching the
+  cache-derived runtime set and the established carried-slot model. See
+  `source-audits/potion-container-stackability-correction-2026-07-20.md`.
+
+- **Closed 2026-07-20:** Teplin Macagan now fills new six-dose flasks and
+  reverses eligible partial flasks after the authentic quest gate, with exact
+  dose/container conservation, direct undo, complete registered potion art,
+  and native-Anki UI proof. See
+  `source-audits/teplin-potion-flask-decanting-2026-07-20.md`.
+
+- **Closed 2026-07-20:** the complete empty Potion flask chain is live:
+  quest-gated level-81 Red sandstone mining with a 50-success review-day cap,
+  free no-XP Robust glass conversion under Utilities, and level-89/100-XP
+  Potion flask glassblowing with a held pipe. Utilities and Activities are
+  distinct navigation surfaces over the shared no-XP runtime. See
+  `source-audits/potion-flask-acquisition-2026-07-20.md`.
+
+- **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct
+  Hunter 95 action with its exact Hunter and Agility XP awards and no captured
+  item. The prior XP/hour-audit gap remains useful evidence that missing method
+  variants must be checked separately from item identity; see
+  `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
+
+### Grand Exchange
+
+Labels: `COMPLETE`, `DESIGN LOCKED`.
+
+- Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
+- NPC shops are already live. Owner decision 2026-07-19: the item-breadth
+  sequencing gate is removed — GE implementation may proceed now, alongside
+  the ongoing item-universe work, rather than waiting for it. Prices and
+  limits for not-yet-obtainable items simply stay dormant until their items
+  exist.
+- **Full closure shipped 2026-07-19:** cache `exchangeable` extraction,
+  the registered-item catalog intersection, period-six-slot offer/escrow
+  lifecycle, confirmation gates, Ironman lockout, and save migration are
+  implemented.
+  The period price/buy-limit harvest now supplies 1,330 direct prices and 1,640
+  limits across 1,659 registered items, with 19 ambiguous identities
+  fail-closed. The bounded hidden-price
+  market, stochastic fills, impact/shocks, live review ticks, and deterministic
+  review undo are implemented. The top-level period interface, offer editing,
+  configurable safety controls, persistent completion notice, and no-XP
+  Bankstanding fallback are live. `grand-exchange-slot-count-supersession-2026-07-19.md`
+  supersedes the older eight-slot/±20% clauses. See
+  `source-audits/grand-exchange-interface-bankstanding-2026-07-19.md`.
+
+### CS2 reader proposal — historical
+
+Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
+
+We hold seven OpenRS2 builds at `~/Library/Caches/codex/2012scape-openrs2/`,
+including rev 741 (2012-11-04), sixteen days before cutoff. We read almost none
+of it: `tools/query_openrs2_cache.sh` and its definition sibling cover item and
+object definitions only. This paragraph is the historical pre-tool state:
+enums, structs, params, and interface definitions are now readable. See
+`source-audits/ge-offer-price-controls-2026-07-24.md`.
+
+**Why this is cheap.** The deobfuscated client at
+`~/Documents/2012scape with bots/darkan-client/src/main/java/com/rs/jagex/`
+already contains the decoder: `CS2Instruction.java` is a complete named opcode
+enum for this revision (1,042 lines), and `CS2Script.java`, `CS2Interpreter`,
+`CS2Executor` and `ScriptRunner` load and run the scripts. A **disassembler** —
+linear named-opcode listing per script id — reuses that decoder and needs only a
+printer. Full control-flow decompilation into `if`/`while` is a bigger job and is
+usually unnecessary: reading arithmetic off a linear listing is enough.
+
+**Why it will answer real questions.** `STORE_VARP` is opcode 929, so client
+scripts write varps directly. Any interface behaviour the client computes locally
+is therefore recoverable as genuine Jagex data rather than reconstruction: offer
+price arithmetic, display formatting and rounding, requirement text, tooltip
+thresholds, client-side gating.
+
+**Be honest about the ceiling.** This unblocks *client-side* facts only. XP
+rates, drop tables, success chances, timers, loot weights and every hidden roll
+lived on a server that was never released, and that is most of what sits
+`source_blocked` in the parity ledger. Do not sell this as a general parity
+oracle, and do not let it reopen items that are blocked for server-side reasons.
+
+Suggested order, highest aggregate value first:
+
+1. ~~Extend cache search to **enums, structs and params**.~~ Shipped
+   2026-08-03 as `tools/query_openrs2_cache_configs.sh`.
+2. **Interface definitions**: component ids, text, hidden flags. Cheap, and it
+   makes every future UI-parity question answerable.
+3. The **CS2 disassembler**, then harvest the GE offer interface out of rev 741
+   and settle the price-button arithmetic as the first real test.
+4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
+   and clear the ones this now reaches. Leave server-side blocks alone.

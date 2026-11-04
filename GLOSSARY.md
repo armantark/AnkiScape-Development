@@ -37,19 +37,33 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 - **Action queue** — an ordered list of up to five actions, each with a count
   in that action's own unit (bars made, logs cut, kills), that reviews work
   through once from top to bottom. An add starts the queue at once, in place
-  of whatever runs, unless the queue already runs. An entry makes exactly its
-  count; the rest of that card's play goes to the next entry. A finished or
-  stopped entry leaves the queue, and an entry that cannot continue gives a
-  notice. An empty queue, or a cleared one, ends at Bankstanding. Avoid:
+  of whatever runs, unless the queue already runs. The player can move entries
+  up and down; a new top entry starts at once and the old one keeps its
+  remaining count. An entry makes exactly its count; the rest of that card's
+  play goes to the next entry. A finished or stopped entry leaves the queue,
+  and a finished quest removes every entry for that quest. An action started
+  ahead of the queue runs until it stops by itself and the queue then continues
+  from its top entry; a free pickup started that way runs until Stop or an add.
+  Stop on a running entry pauses the queue at Bankstanding. A queue change
+  shows no dialog: an entry that cannot start is skipped with a log line and a
+  Review HUD line. Only a Clear, or an empty queue, ends at Bankstanding. Avoid:
   "loop", "task list".
 - **Bankstanding** — the neutral action every ended session lands on. An
   automatic switch to Bankstanding notifies the player; a manual Stop does not.
+- **Bank run** — the trip from an action to the bank and back. It takes a fixed
+  amount of 2012 play time at every game speed, so its cost in cards follows the
+  speed. Agility shortens the walking part. A bank run always completes its
+  bank transaction.
 - **Supply step** — one quest card in which the quest makes, picks up or buys
   an item it needs, as the player would during the 2012 quest (asking Aggie for
   a dye, mixing it, dyeing goblin mail). It pays the period price, gives the
   period XP and never starts a fight. A supply step whose product the player
   already holds is skipped; one the player lacks the coins, level or equipment
   for stops the quest and names what is missing.
+- **Quest wear** — the quest card puts on an item its step needs. The old item
+  returns at the first bank run after the quest stops needing the slot, or at
+  once if the quest ends or stops first. A change of that slot by hand cancels
+  the return.
 - **Free pickup** — an action that gives an item and needs no input item and no
   tool, such as picking bananas or searching the Goblin Village crates.
 - **Coming soon** — the state of a quest that a player cannot finish from a new

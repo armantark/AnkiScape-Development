@@ -74,7 +74,7 @@ This prevents an old sentence from resurrecting closed work. For example, the
 starter packet once called Warriors' Guild unowned
 (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:705-706`), but the
 current board records its executable closure
-(`memory-bank/future-work-kanban.md:399-405`) and the focused implementation
+(`memory-bank/future-work-kanban.md:393-399`) and the focused implementation
 audit supplies pinned period citations
 (`memory-bank/source-audits/warriors-guild-live-implementation-2026-07-18.md:1-23`).
 
@@ -95,7 +95,7 @@ Every row below is required once before `Required sweep complete` can become
 | Local implementation and audit seam diff | Whether a period surface is absent, named-only, implemented, or owned elsewhere | Pending | Exact `rg` evidence across code, tests, assets, audits, contracts, Kanban, and backlog for every admitted candidate |
 
 The source roles above come directly from
-`memory-bank/pre-eoc-source-verification-standard.md:90-132,145-178,181-209`.
+`memory-bank/pre-eoc-source-verification-standard.md:90-132,145-178,186-214`.
 In particular, rev 727 and Darkan are one source layer, caches prove client
 identity rather than server mechanics, and modern pages may locate questions
 but cannot independently close parity.
@@ -125,7 +125,7 @@ The named family anchors are at
 `memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:632-681,683-745`.
 The canonical forward cards for special methods, activities, bosses,
 diaries/collections, random content, and exclusions are at
-`memory-bank/future-work-kanban.md:701-813,944-949`.
+`memory-bank/future-work-kanban.md:689-801,926-931`.
 
 ## Baseline ledger reconciliation
 

@@ -80,7 +80,7 @@ Three defects. The loadout summary is truthful (it projects the persisted
   Reuse the unload/refill sequence at
   `16112e59:logic_pure/logic_pure_combat_engine.py:2709-2720`. Apply ruling 6 for live
   encounters.
-- Move the "Current inventory" label and scroll area (`ui/ui.py:24778-24784`)
+- Move the "Current inventory" label and scroll area (`ui/ui.py:23521-23527`)
   inside `custom_view` so Auto mode stops showing the unrelated
   `carried_inventory` overlay (`__init__.py:1991-2000`) next to the combat
   loadout summary.
@@ -92,8 +92,8 @@ switch to melee `accurate` leaves both loaded and unreconciled.
 
 Focused tests: `tests/test_combat_logic.py:531`, `:568`, `:5535`, `:5557`
 (currently asserts melee Vengeance runes; reverse it),
-`tests/test_main_menu_widget.py:3683` (contrary assertions at `:3754-3766`),
-`:6642`, `:6796`, `tests/test_integration_smoke.py:4051` (esp. `:3886-3910`).
+`tests/main_menu/bank/test_packs.py:305` (contrary assertions at `:3754-3766`),
+`:6642`, `:6796`, `tests/integration_smoke/test_combat_loadout.py:79` (esp. `:3886-3910`).
 Neighbours: `tests/test_inventory_pure.py`,
 `tests/test_direct_action_undo_seam.py`.
 
@@ -112,16 +112,16 @@ runes. Auto mode renders no Current inventory grid.
 - Add one shared transition predicate for `activity_session.active_id`
   going nonempty to empty, applied at the direct-command boundary
   (`__init__.py:1038-1047`) and at the review boundaries
-  (`__init__.py:5470-5476`, `:5757-5762`). A completed transaction whose
+  (`16112e59:__init__.py:5470-5476,5757-5762`). A completed transaction whose
   session cleared routes through `_switch_to_bankstanding()` before the undo
   snapshot is finalized, so undo restores the former activity atomically.
 - Combat-session exits that restore a prior combat target may keep the saved
   target, but the active review surface still becomes Bankstanding.
 - Profile bootstrap (`__init__.py:335`) stays `"None"`. Out of scope.
 
-Focused tests: `tests/test_integration_smoke.py:2228`, `:2111`, `:2472`,
+Focused tests: `tests/integration_smoke/test_action_readiness.py:37`, `:2111`, `:2472`,
 `:2762`, `tests/test_runtime_actions.py:819-859`, `tests/test_logic.py:959`,
-`tests/test_main_menu_widget.py:12196`. Neighbours:
+`tests/main_menu/activities/test_navigation.py:244`. Neighbours:
 `tests/test_direct_action_undo_seam.py`, the `test_undo_seam_*.py` family.
 
 Acceptance: explicit Stop, a level/quest invalidation, a review-driven
@@ -172,7 +172,7 @@ lands on Bankstanding.
   `review_bank_run_button_view_pure` (`logic/review_strip_logic.py:263-289`)
   returning active/queued status, kind, label, total, remaining, percent, and
   display text. Sources: `combat_bank_run` (total always
-  `COMBAT_BANK_RUN_REVIEWS` = 2, `logic_pure/logic_pure_state.py:157-167`),
+  `COMBAT_BANK_RUN_REVIEWS` = 2, `logic_pure/logic_pure_state.py:162-172`),
   `skilling_bank_run` (`reviews_total`/`route_label` optional,
   `logic/inventory_pure.py:340-355`), and the pending request fields
   `review_bank_run_requested_target`, `skilling_bank_run_requested`,
@@ -183,7 +183,7 @@ lands on Bankstanding.
   progress area. Hide stale `second_progress`, `second_progress_lbl`,
   `combat_resources`, `enemy_progress`, `chips_lbl`, and unrelated labels.
   Render the existing `progress_lbl` and thin `progress` bar
-  (`ui/ui.py:2321-2334`) as the travel status. Ruling 2: this replaces
+  (`ui/ui.py:2240-2253`) as the travel status. Ruling 2: this replaces
   combat's player/enemy presentation (`ui/ui.py:2792-2839`) during the run.
   When the state clears, ordinary branch rendering returns by itself.
 - Replace the button-only refresher (`__init__.py:1729-1738`) with one shared
@@ -194,13 +194,13 @@ lands on Bankstanding.
   state of its own; it delegates through `_trigger_active_bank_run()`.
 - Adjacent fix (in scope): combat bank-run reviews currently fall through to
   the generic zero-damage message at
-  `runtime/runtime_actions_combat.py:848-864`. Add an explicit bank-run
+  `runtime/runtime_actions_combat.py:857-873`. Add an explicit bank-run
   branch so the event log does not contradict the travel display.
 
 Focused tests: `tests/test_combat_logic.py:546`, `:4707`,
-`tests/test_review_strip_logic.py:752`, `:773` (obsolete refusal expectation;
+`tests/test_review_strip_logic.py:637`, `:773` (obsolete refusal expectation;
 replace), `tests/test_review_strip.py:566`, `:614`, `:643`, `:663`,
-`tests/test_integration_smoke.py:6990`, `:6761`, `:8955`,
+`tests/integration_smoke/test_menu_callbacks.py:49`, `:6761`, `:8955`,
 `tests/test_runtime_actions.py:2425-2502`, `:2382`, `:5190`, `:5510`.
 Neighbour: `tests/test_direct_action_undo_seam.py`.
 
@@ -226,7 +226,7 @@ rebuilds all 600 carried-picker buttons even for a zero-result query.
   model/view rewrite in this slice; each cell owns drag/drop, menus, icons,
   quantity text, accessibility, and tooltips.
 
-Focused tests: `tests/test_main_menu_widget.py:10503`, `:10356`, `:10411`,
+Focused tests: `tests/main_menu/bank/test_grid.py:44`, `:10356`, `:10411`,
 `:10546`, `:3518`, `:1383`. Add a coalescing regression: several `setText()`
 calls inside one debounce interval produce one completed render, and
 carried-picker plus bank-tab button identities survive query changes.
@@ -249,9 +249,9 @@ Coordination: this slice and `runes` edit nearby `ui/ui.py` regions
   state) and do not globally change `_request_utility_selection`.
 - Big Top does not share this defect; leave it alone.
 
-Focused tests: `tests/test_main_menu_widget.py:14892` (currently expects the
+Focused tests: `tests/main_menu/activities/sessions/test_fish_flingers.py:21` (currently expects the
 non-activating callback; correct it), `:12575`, `:12680`, `:12706`, `:17361`,
-`tests/test_integration_smoke.py:3717`, `tests/test_fish_flingers.py:187`,
+`16112e59:tests/test_integration_smoke.py:3717`, `tests/test_fish_flingers.py:187`,
 `tests/test_circus.py:339`.
 
 Acceptance: starting on Mining, one click on the Fish Flingers primary button
