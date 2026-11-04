@@ -2,6 +2,7 @@
 the reason a danger stop ended it early (plan 2.1, owner Q8).
 """
 
+from ..data.combat.consumables import COMBAT_ANTIPOISON_POTION_DATA, CONSUMABLE_DATA
 from ..data.fish_flingers_data import FISH_FLINGERS_CATCH_TICKS, FISH_FLINGERS_EVENT_CATCHES
 
 # The reason rides on the card's last line rather than a line of its own: with
@@ -88,6 +89,30 @@ def combine_activity_feedback(messages, stop_reason: str = "") -> str:
     else:
         line = messages[-1] if messages else ""
     return _with_stop_reason(line, stop_reason)
+
+
+# What drinking one dose leaves: the next dose down, or the empty vial, flask or glass.
+_DRINK_LEAVES = {
+    **{name: spec["leaves"] for name, spec in CONSUMABLE_DATA.items() if spec.get("leaves")},
+    **{name: spec["replacement"] for name, spec in COMBAT_ANTIPOISON_POTION_DATA.items()},
+}
+
+
+def _fold_drinks(changes) -> dict:
+    """The owner reads a drink as one loss, "−1 Antipoison (3)" (Pass 17 Q3), so the
+    dose or vial it leaves is not listed as a gain beside it."""
+    folded = dict(changes)
+    for item, count in changes.items():
+        leaves = _DRINK_LEAVES.get(item)
+        if count < 0 and folded.get(leaves, 0) > 0:
+            folded[leaves] -= min(-count, folded[leaves])
+    return {item: count for item, count in folded.items() if count}
+
+
+def item_changes_text(changes) -> str:
+    """"+2 Iron bar · −4 Iron ore": gains before losses, larger counts first."""
+    ordered = sorted(_fold_drinks(changes).items(), key=lambda change: (change[1] < 0, -abs(change[1]), change[0]))
+    return " · ".join(f"{'+' if count > 0 else '−'}{abs(count)} {item}" for item, count in ordered)
 
 
 def fish_flingers_card_feedback(before, after) -> str:

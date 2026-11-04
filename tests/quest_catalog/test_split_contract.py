@@ -11,7 +11,7 @@ from ankiscape.data import quest_data
 
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPORT_ORDER_SHA256 = "c18f570c66aca04f5d57de8f1e8770e2904fb67d72340af46eeb5fa74fca4160"
+EXPORT_ORDER_SHA256 = "3fa9e74c11ce23b1ccea4f406e39e23cf71fde385115ef335fd31145f9fd1ffa"
 
 
 class TestQuestSplitContract(unittest.TestCase):

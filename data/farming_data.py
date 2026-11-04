@@ -683,6 +683,12 @@ FARMING_ITEMS: Tuple[FarmingItem, ...] = tuple(
 )
 _FARMING_ITEM_OVERRIDES: Mapping[str, Mapping[str, object]] = MappingProxyType(
     {
+        "Spade": MappingProxyType(
+            {
+                "source_item_id": 952,
+                "source": "Creature of Fenkenstrain oldid 6535792; retained build-727/cache-309 identity comparison, Spade 952",
+            }
+        ),
         "Secateurs": MappingProxyType(
             {
                 "source_item_id": 5329,

@@ -52,7 +52,6 @@ CURRENT_ASSETS = (
         "icon/grand_exchange_icon.png",
         OSRS_WIKI,
     ),
-    ("Bank", "Bank icon.png", "icon/bank_icon.png", OSRS_WIKI),
     (
         "Worn Equipment",
         "Worn Equipment.png",
@@ -63,12 +62,6 @@ CURRENT_ASSETS = (
         "Distractions and Diversions",
         "Distraction & Diversion icon.png",
         "icon/dnd_icon.png",
-        OSRS_WIKI,
-    ),
-    (
-        "Minigames",
-        "Minigame icon.png",
-        "icon/minigame_icon.png",
         OSRS_WIKI,
     ),
 )
@@ -88,6 +81,18 @@ PERIOD_INTERFACE_ASSETS = (
         "Shop",
         "Coins.png",
         "icon/shop_icon.png",
+    ),
+    # The wiki renamed these two files in 2014; their 2010 revisions moved
+    # with them, so the period art lives under the map-icon titles.
+    (
+        "Bank",
+        "Bank map icon.png",
+        "icon/bank_icon.png",
+    ),
+    (
+        "Minigames",
+        "Minigame map icon.png",
+        "icon/minigame_icon.png",
     ),
 )
 

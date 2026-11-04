@@ -128,6 +128,15 @@ GEM_SOURCE = f"{CRAFTING_SOURCE_ROOT}/gems/GemData.kt"
 POTTERY_SOURCE = URN_POTTERY_SOURCE
 POTTERY_RUNE_SOURCE = URN_RUNE_SOURCE
 SPINNING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/spinning/SpinningData.kt"
+# Flax spins at Crafting 1, not the OSRS 10: the period Bow string, Spinning
+# wheel and Flax pages and Darkan's spinning recipe all give level 1.
+FLAX_SPINNING_SOURCE = (
+    "https://runescape.wiki/w/Bow_string?oldid=6547251; "
+    "https://runescape.wiki/w/Spinning_wheel?oldid=6566263; "
+    "https://runescape.wiki/w/Flax?oldid=6564477; "
+    "Darkan darkan-world-server src/main/java/com/rs/game/content/skills/crafting/SpinningWheel.java "
+    "at commit 1912a55cb245cc4410e51b200f9ad4c5e480510f"
+)
 SILVER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/silver/SilverData.kt"
 JEWELLERY_SOURCE = f"{CRAFTING_SOURCE_ROOT}/jewellery/JewelleryData.kt"
 LEATHER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/leather/LeatherData.kt"
@@ -217,7 +226,7 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
 
     # Spinning. No XP-bearing batching.
     CraftingRecipe("spin_wool_to_ball_of_wool", "Ball of wool", "spinning", "spinning_wheel", 1, 2.5, _req(("Wool", 1)), "Ball of wool", source=SPINNING_SOURCE, source_enum="WOOL"),
-    CraftingRecipe("spin_flax_to_bow_string", "Bow string", "spinning", "spinning_wheel", 10, 15.0, _req(("Flax", 1)), "Bow string", source=SPINNING_SOURCE, source_enum="FLAX"),
+    CraftingRecipe("spin_flax_to_bow_string", "Bow string", "spinning", "spinning_wheel", 1, 15.0, _req(("Flax", 1)), "Bow string", source=FLAX_SPINNING_SOURCE, source_enum="FLAX"),
     CraftingRecipe("spin_sinew_to_crossbow_string", "Crossbow string", "spinning", "spinning_wheel", 10, 15.0, _req(("Sinew", 1)), "Crossbow string", source=SPINNING_SOURCE, source_enum="CBOW_STRING", notes="Live target; input-starved until sinew acquisition exists."),
     CraftingRecipe("spin_oak_roots_to_crossbow_string", "Crossbow string", "spinning", "spinning_wheel", 10, 15.0, _req(("Oak roots", 1)), "Crossbow string", source=SPINNING_SOURCE, source_enum="CBOW_STRING1", source_item_id=9438, notes="Source accepts each root type as an alternative input; input-starved until root acquisition exists."),
     CraftingRecipe("spin_willow_roots_to_crossbow_string", "Crossbow string", "spinning", "spinning_wheel", 10, 15.0, _req(("Willow roots", 1)), "Crossbow string", source=SPINNING_SOURCE, source_enum="CBOW_STRING1", source_item_id=9438, notes="Source accepts each root type as an alternative input; input-starved until root acquisition exists."),

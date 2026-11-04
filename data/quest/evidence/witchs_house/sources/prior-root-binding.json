@@ -1,0 +1,151 @@
+{
+  "verified_at": "2026-10-15T15:02:13.392891+00:00",
+  "source_bindings": [
+    {
+      "id": "actual-definition",
+      "path": "data/quest/definitions/members/witchs_house.py",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "bcc72928c49a594d819a3aeb4689a74b04f299899c9349b9a9445fd30f29aec6"
+    },
+    {
+      "id": "composition",
+      "path": "data/quest/catalog.py",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "c8f2d4e9258a44d2af81dedfd3750056399ebd3084650943e9e581eea68124e1"
+    },
+    {
+      "id": "ledger",
+      "path": "data/quest/ledger.py",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "1dcc65c64b1b9dd8bbc9971655d4309e602e92e1de296aedfb7cceaf379ba0df"
+    },
+    {
+      "id": "consumer",
+      "path": "logic_pure/logic_pure_quest.py",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "5b7c2f9e8319bfa30ecd003e39c6d95543a0856c065b947f745efc544db7388d"
+    },
+    {
+      "id": "ui-consumer",
+      "path": "ui/ui_tab_quests.py",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "c1ab0cf38e1f4586916fbb5a7b2f5d7b61c66edb14cf827637654f3ce1aad5de"
+    },
+    {
+      "id": "old-audit",
+      "path": "memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "782838b36bfca066efe1ed05f40df4865ef0460791a1de0547eaa90950058668"
+    },
+    {
+      "id": "contract",
+      "path": "memory-bank/plans/next-quest-root-qualification-25-2026-10-15.md",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "b2fa2acbfd401dec4c514bb0055a0f194983bbe1e59e2f5bb192aff50ad1170c"
+    },
+    {
+      "id": "standard",
+      "path": "memory-bank/pre-eoc-source-verification-standard.md",
+      "revision": "4ba68a4e266f4efeacba0e3f806b7015396ead74",
+      "sha256": "97d2c83d41c614308e7569e3796f0d0ebd8444ea7436c49d50165d8b9e4f3721"
+    },
+    {
+      "id": "original-handler",
+      "path": "src/main/java/com/rs/game/player/quests/handlers/witchshouse/WitchsHouse.java",
+      "revision": "1bc2d48174b6319eb0878b9c905d2578e36100db",
+      "sha256": "cf486be4cf5fc3ea30c2be15959a02bf548819478d1796137b8c537f37aabc23"
+    },
+    {
+      "id": "original-spawn",
+      "path": "data/items/spawns/spawns.json",
+      "revision": "1bc2d48174b6319eb0878b9c905d2578e36100db",
+      "sha256": "7a201f9d0b63b18a14038c78bacc7edfbd36cd86c2e485777b8b1333569593e0"
+    },
+    {
+      "id": "restored-handler",
+      "path": "src/main/java/com/rs/game/content/quests/witchshouse/WitchsHouse.java",
+      "revision": "88db0f79dfa881b21db697646b27ce5157b69eab",
+      "sha256": "7ccd08b2f2d3719c4d60d4c858607bfca822f409ee3e3642dbeaf57dc04aa037"
+    },
+    {
+      "id": "supplying-handler",
+      "path": "src/main/java/com/rs/game/content/quests/witchshouse/WitchsHouse.java",
+      "revision": "c73c79aae7d5fb45e7677376f70fb108447c8dd2",
+      "sha256": "930edd5e77d25c9e0d8d9bbb016c197286c88c40db63c236d339281d2cba3413"
+    },
+    {
+      "id": "supplying-diary",
+      "path": "src/main/java/com/rs/game/content/quests/witchshouse/WitchsDiary.java",
+      "revision": "c73c79aae7d5fb45e7677376f70fb108447c8dd2",
+      "sha256": "6ac8b2f7c5da14a626fec0d13915394a58b486d65ac25885fad539f67a6fb669"
+    },
+    {
+      "id": "supplying-boy",
+      "path": "src/main/java/com/rs/game/content/quests/witchshouse/BoyWitchsHouseD.java",
+      "revision": "c73c79aae7d5fb45e7677376f70fb108447c8dd2",
+      "sha256": "2af1646e7049f72f2b88b967b8fd8fb34d8bc3850838477b97ee85d9aa8ad19a"
+    },
+    {
+      "id": "supplying-spawn",
+      "path": "data/items/spawns/spawns.json",
+      "revision": "c73c79aae7d5fb45e7677376f70fb108447c8dd2",
+      "sha256": "b5d496d3bb1216972357e7c52b19a8102797e5dd2bcb4ac0f4f0880d20369b16"
+    },
+    {
+      "id": "period-guide",
+      "path": "/Users/armantarkhanian/ankiscape_worktrees/pool/.treehouse/AnkiScape-091389/2/AnkiScape/tools/generation/quest_sources.json.gz",
+      "revision": null,
+      "sha256": "25fc80f0a9d6ff067111020fcc2fa13cdb3d0ee8306caf1f9e3ab3eb2b870c2c"
+    },
+    {
+      "id": "period-diary",
+      "path": "/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/witchs-house-diary-oldid-5849371.json",
+      "revision": null,
+      "sha256": "0b8de9c6b1afb10b659c83bfc7707d63f49a10f546636203fa1bc112e4a9b5e1"
+    },
+    {
+      "id": "restoration-period-guide",
+      "path": "/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/witchs-house-oldid-5933243.json",
+      "revision": null,
+      "sha256": "a1d79393500313ae50e4970ef823a7e8752ab023d880954e774b5d84a8455aef"
+    },
+    {
+      "id": "retained-cache-identity",
+      "path": "/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-witchs-house.json",
+      "revision": null,
+      "sha256": "b0c46fbb5ce64818b27205d5c37246dc247ab41f6def7ccac3174d3cd5b38f24"
+    },
+    {
+      "id": "retained-composed-row",
+      "path": "/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-25/qualification.json",
+      "revision": null,
+      "sha256": "54faad73d54c647ca43388b8ee3f50c1cbbf331ce3ec034604bfbc21af0c6d05"
+    }
+  ],
+  "raw_period_sources": [
+    {
+      "id": "period-guide",
+      "oldid": 6474931,
+      "timestamp": "2012-10-26T12:16:36Z",
+      "content_sha256": "b89036019923a1922f60068293aa7e334358a1631b54155f29863c5a5be9ffe1"
+    },
+    {
+      "id": "period-diary",
+      "oldid": 5849371,
+      "timestamp": "2012-06-27T19:24:38Z",
+      "content_sha256": "e0e75c3b74a31ed704cf49d0356228480be1d21e179ab81890e0f904e7ddeef2"
+    },
+    {
+      "id": "restoration-period-guide",
+      "oldid": 5933243,
+      "timestamp": "2012-07-14T10:22:31Z",
+      "content_sha256": "08579fdc73855d0135240a1c40a8628db3ad6948479e15cc25bc6a228d879b5e"
+    }
+  ],
+  "actual_prerequisite_set_equal": true,
+  "packet_hashes": {
+    "report.md": "98ac3798b747d2ff6003dd6f1e21bd01f76a43e452257a1c361bebb5d90ff00e",
+    "qualification.json": "bcb3b41b134dfebadea2f93a2b8d34bab6815127ef07c0d6eb67f7fd5f4356ce"
+  },
+  "limits": "Exact bytes and selected lines verified; independent disposition review pending. No registry import/product/native/promotion acceptance."
+}

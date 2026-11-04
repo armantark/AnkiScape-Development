@@ -61,7 +61,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         util_texts = [it.text(0) for it in _tree_items(utility_tree)]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
-        self.assertIn("Gather grain", util_texts)
+        self.assertIn("Pick wheat", util_texts)
         self.assertIn("Make bread dough", util_texts)
         self.assertIn("Bankstanding", util_texts)
         economy = next(

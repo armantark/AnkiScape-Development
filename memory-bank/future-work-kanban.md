@@ -93,7 +93,7 @@ Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope
 
 - `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
   one card "should drag it out". Bulk work such as burying stays on targets.
-- `PARKED` An action queue, so a run out of resources does not end in Bankstanding.
+- `PARKED` Pass 17 (2026-10-26): the Bloom spell for Mort Myre fungus, pears and stems.
 - `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
   the catalog parser drops choice XP not worded as a lamp.
 - `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.

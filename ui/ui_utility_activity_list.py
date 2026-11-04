@@ -5,26 +5,27 @@ CatalogFilterBar the Skills target lists use, and a query goes through that
 bar's matcher with the same fields: a row's name, its group and the group's
 label. A query hides and ranks the existing rows within groups, because the
 Activities panel outlives each visit and the hub's Minigames and D&D entries
-show slices of the same items. Typing never selects or activates a row, so the
-current utility or activity never changes while the player searches.
+show slices of the same items. Each query takes every row out of the tree,
+orders the detached rows and puts them back, because a sort or a relayout of
+rows a macOS accessibility client has read crashes Qt 6.11 (see
+ui_first_cell_tree). Typing never selects or activates a row, so the current
+utility or activity never changes while the player searches.
 """
 import os
+from operator import attrgetter
 from typing import Optional
 
 try:
     from aqt.qt import (  # type: ignore
         QAbstractItemView,
         QColor,
+        QItemSelectionModel,
         QPalette,
         QSize,
         Qt,
         QTreeWidget,
         QTreeWidgetItem,
     )
-
-    class _SearchItem(QTreeWidgetItem):
-        def __lt__(self, other):
-            return self.search_order < other.search_order
 
     # Flat activity rows have no group parent, so each row carries its group.
     _ACTIVITY_GROUP_ROLE = int(Qt.ItemDataRole.UserRole) + 1
@@ -65,14 +66,17 @@ from .ui import (
     _STRONGHOLD_UTILITY_KEY,
     _UTILITY_GROUP_LABELS,
     CatalogFilterBar,
+    _game_speed,
     _pixel_path_icon,
     activity_collapsed_groups,
     dim_text_color,
     dim_text_css,
     set_activity_group_collapsed,
 )
+from .ui_first_cell_tree import settle_tree
 
 _GROUP_ROLE_PREFIX = "__utility_group__:"
+_ROW_PADDING = 5
 
 
 class UtilityActivityList:
@@ -122,12 +126,23 @@ class UtilityActivityList:
                 return
 
     def _apply_view(self) -> None:
-        filtering = bool(self.filter_bar.query())
+        query = self.filter_bar.query()
+        filtering = bool(query)
         # Search-driven opening is never saved as the player's own choice.
         self.tree.blockSignals(True)
-        self._drop_empty_row()
-        self._hold_expansion(filtering)
-        _rank_tree(self.tree, self.filter_bar.query())
+        expansion = self._expansion_for(filtering)
+        view = _view_state(self.tree)
+        rows = [row for row in _detached_rows(self.tree) if row is not self._empty_row]
+        self._empty_row = None
+        self.tree.invisibleRootItem().addChildren(_ranked(rows, query))
+        for item, expanded in expansion:
+            item.setExpanded(expanded)
+        shown, total = self._filter_rows(filtering)
+        _restore_view(self.tree, *view)
+        self.tree.blockSignals(False)
+        self.filter_bar.set_count(shown, total)
+
+    def _filter_rows(self, filtering: bool) -> tuple:
         shown = total = 0
         for item in _top_level_items(self.tree):
             in_view = _in_group_view(item, self._group)
@@ -140,35 +155,32 @@ class UtilityActivityList:
                 total += item_total
         if filtering and not shown:
             self._add_empty_row()
-        self.tree.blockSignals(False)
-        self.filter_bar.set_count(shown, total)
+        return shown, total
 
-    def _hold_expansion(self, filtering: bool) -> None:
-        # A query opens every group that holds a match; clearing it puts back
-        # the groups that were open before the search began.
+    def _expansion_for(self, filtering: bool) -> list:
+        """Return the (branch, expanded) pairs to put back once the rows return to the tree.
+
+        A query opens every group that holds a match; clearing it puts back
+        the groups that were open before the search began.
+        """
+        current = [(item, item.isExpanded()) for item in _branches(self.tree)]
         if filtering and self._held_expansion is None:
-            self._held_expansion = [
-                (item, item.isExpanded()) for item in _branches(self.tree)
-            ]
+            self._held_expansion = current
         elif not filtering and self._held_expansion is not None:
-            for item, expanded in self._held_expansion:
-                item.setExpanded(expanded)
-            self._held_expansion = None
+            current, self._held_expansion = self._held_expansion, None
+        return current
 
     def _add_empty_row(self) -> None:
-        empty = _SearchItem([f"No {self._noun} match this search."])
+        empty = QTreeWidgetItem([f"No {self._noun} match this search."])
         empty.setFlags(Qt.ItemFlag.NoItemFlags)
         empty.setForeground(0, dim_text_color(self.tree))
         self.tree.addTopLevelItem(empty)
         self._empty_row = empty
 
-    def _drop_empty_row(self) -> None:
-        if self._empty_row is not None:
-            self.tree.takeTopLevelItem(self.tree.indexOfTopLevelItem(self._empty_row))
-            self._empty_row = None
-
 
 def _styled_tree() -> "QTreeWidget":
+    from .ui_tab_shop_widgets import WrappedRowDelegate
+
     tree = QTreeWidget()
     tree.setObjectName("utilityActivityTree")
     tree.setHeaderHidden(True)
@@ -178,6 +190,7 @@ def _styled_tree() -> "QTreeWidget":
     tree.setUniformRowHeights(False)
     tree.setWordWrap(True)
     tree.setTextElideMode(Qt.TextElideMode.ElideNone)
+    tree.setItemDelegate(WrappedRowDelegate(tree, _ROW_PADDING))
     tree.setMinimumHeight(140)
     tree_base = tree.palette().color(QPalette.ColorRole.Base)
     activity_selection = QColor(
@@ -188,7 +201,7 @@ def _styled_tree() -> "QTreeWidget":
     tree.setStyleSheet(
         "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
         " background: palette(base); color: palette(text); padding: 4px; }"
-        " QTreeWidget::item { min-height: 32px; padding: 5px;"
+        f" QTreeWidget::item {{ min-height: 32px; padding: {_ROW_PADDING}px;"
         " border-radius: 6px; }"
         f" QTreeWidget::item:selected {{ background: {activity_selection};"
         " color: palette(text); }"
@@ -223,6 +236,7 @@ def _surface_rows(player_data: dict, current: str, is_activities: bool) -> tuple
         BIRD_NEST_OPEN_TABLES,
         DEFAULT_UTILITY_ACTIVITY,
         QUEST_UNLOCK_RULES,
+        speed=_game_speed(),
     )
     surface_id = ACTIVITY_SURFACE_ID if is_activities else UTILITY_SURFACE_ID
     rows = tuple(
@@ -283,7 +297,7 @@ def _add_row_group(tree, group: str, rows: list, current: str, is_activities: bo
 
 def _group_header(tree, group: str) -> "QTreeWidgetItem":
     # The view writes the visible-row count after the label.
-    header = _SearchItem([_group_label(group)])
+    header = QTreeWidgetItem([_group_label(group)])
     header.setData(0, Qt.ItemDataRole.UserRole, f"{_GROUP_ROLE_PREFIX}{group}")
     header.setFlags(Qt.ItemFlag.ItemIsEnabled)
     font = header.font(0)
@@ -302,7 +316,7 @@ def _group_row_item(row, group: str) -> "QTreeWidgetItem":
 
 
 def _row_item(label: str, row_id: str, tooltip: str, icon_path=None) -> "QTreeWidgetItem":
-    item = _SearchItem([label])
+    item = QTreeWidgetItem([label])
     item.setData(0, Qt.ItemDataRole.UserRole, row_id)
     item.setToolTip(0, tooltip)
     icon = _pixel_path_icon(icon_path, 28) if icon_path else None
@@ -422,7 +436,7 @@ def _mage_arena_item(player_data: dict, state: dict) -> "QTreeWidgetItem":
 
 
 def _sub_group(parent, title: str) -> "QTreeWidgetItem":
-    item = _SearchItem([title])
+    item = QTreeWidgetItem([title])
     item.setFlags(Qt.ItemFlag.ItemIsEnabled)
     parent.addChild(item)
     return item
@@ -527,11 +541,35 @@ def _remember_branch_order(item, index) -> None:
         _remember_branch_order(child, child_index)
 
 
-def _rank_tree(tree, query: str) -> None:
-    for item in _top_level_items(tree):
+def _detached_rows(tree) -> list:
+    # Taking every row at once invalidates every cell before the tree tells
+    # the accessibility bridge, so no cell a client has read survives into
+    # the reset that the coming relayout queues.
+    return tree.invisibleRootItem().takeChildren()
+
+
+def _view_state(tree) -> tuple:
+    # selectedItems() skips hidden rows, and a query can hide the selected one.
+    selected = [tree.itemFromIndex(index) for index in tree.selectionModel().selectedIndexes()]
+    return tree.currentItem(), selected, tree.verticalScrollBar().value()
+
+
+def _restore_view(tree, current, selected: list, scroll: int) -> None:
+    """Put back what taking the rows out cleared, then settle the rebuilt tree."""
+    if current is not None:
+        tree.setCurrentItem(current, 0, QItemSelectionModel.SelectionFlag.NoUpdate)
+    for item in selected:
+        item.setSelected(True)
+    settle_tree(tree)
+    tree.verticalScrollBar().setValue(scroll)
+
+
+def _ranked(rows: list, query: str) -> list:
+    """Order detached top-level ``rows`` for ``query``, reordering each branch's rows in place."""
+    for item in rows:
         rank = _rank_branch(item, query, _flat_row_context(item))
         item.search_order = (item.group_position, rank, item.original_position)
-    tree.sortItems(0, Qt.SortOrder.AscendingOrder)
+    return sorted(rows, key=attrgetter("search_order"))
 
 
 def _rank_branch(item, query: str, context: tuple) -> int:
@@ -540,9 +578,11 @@ def _rank_branch(item, query: str, context: tuple) -> int:
     if item.childCount():
         group = _group_id(item)
         inner = (*context, group, _group_label(group)) if group else (*context, item.text(0))
-        for child in _children(item):
+        children = item.takeChildren()
+        for child in children:
             child_tier = _rank_branch(child, query, inner)
             child.search_order = (child_tier, child.original_position)
+        item.addChildren(sorted(children, key=attrgetter("search_order")))
         return 0
     return tier
 

@@ -15,7 +15,8 @@ from ankiscape.data.treasure_trails_data import TREASURE_TRAILS_EASY_STEPS
 from ankiscape.logic import treasure_trails_logic as trails
 from tests import test_storage_runtime as storage_fixture
 from tests.test_treasure_trails import _draws
-from tests.treasure_trails import SEARCH_ROWS
+from tests.treasure_trails.test_three_searches import SEARCH_ROWS, NEW_ROWS
+from tests.treasure_trails.test_search_catalog import SEARCH_CASES
 
 EXPECTED_SOURCE = (
     "RuneScape Wiki Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z); "
@@ -253,14 +254,14 @@ class NpcCatalogTest(unittest.TestCase):
             "simple_port_sarim_fishing_shop_crates",
             "simple_catherby_archery_shop_drawers",
         )
-        expected_keys = [*expected, *added_keys, *(step_id for step_id, _ in SEARCH_ROWS)]
+        expected_keys = [*expected, *added_keys, *(step_id for step_id, _ in (*SEARCH_ROWS, *NEW_ROWS, *SEARCH_CASES))]
         expected.update({
             step_id: dict(step_id=step_id, kind="simple", text=text,
                           equipment=(), bare=False, source=EXPECTED_SOURCE)
-            for step_id, text in SEARCH_ROWS
+            for step_id, text in (*SEARCH_ROWS, *NEW_ROWS, *SEARCH_CASES)
         })
         self.assertEqual(list(TREASURE_TRAILS_EASY_STEPS), expected_keys)
-        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 30)
+        self.assertEqual(len(TREASURE_TRAILS_EASY_STEPS), 41)
         for step_id, definition in expected.items():
             with self.subTest(step_id=step_id):
                 self.assertEqual(TREASURE_TRAILS_EASY_STEPS[step_id], definition)

@@ -92,6 +92,17 @@ class QuestLampReward:
 
 
 @dataclass(frozen=True)
+class QuestSupplyRecipe:
+    """A Utility recipe the quest runs for the player when a stage lacks its product.
+
+    ``step`` names the deed in the quest card's next-step line and in the
+    reason the quest stops with when a supply for it is missing.
+    """
+    utility_id: str
+    step: str
+
+
+@dataclass(frozen=True)
 class QuestDefinition:
     id: str
     display_name: str
@@ -119,6 +130,7 @@ class QuestDefinition:
     stage_requirements: Tuple[QuestStageRequirement, ...] = ()
     start_inventory: Tuple[Tuple[str, int], ...] = ()
     choices: Tuple[QuestChoice, ...] = ()
+    supply_recipes: Tuple[QuestSupplyRecipe, ...] = ()
     # Miniquests are ordinary ledger rows that award no quest points; the flag
     # only tells the Quests tab to group them separately.
     miniquest: bool = False
@@ -298,6 +310,7 @@ QuestPrerequisite.__module__ = "ankiscape.data.quest_data"
 QuestSkillRequirement.__module__ = "ankiscape.data.quest_data"
 QuestXpReward.__module__ = "ankiscape.data.quest_data"
 QuestLampReward.__module__ = "ankiscape.data.quest_data"
+QuestSupplyRecipe.__module__ = "ankiscape.data.quest_data"
 QuestDefinition.__module__ = "ankiscape.data.quest_data"
 ClaimDefinition.__module__ = "ankiscape.data.quest_data"
 QuestReference.__module__ = "ankiscape.data.quest_data"
@@ -307,7 +320,7 @@ TargetUnlockRule.__module__ = "ankiscape.data.quest_data"
 QuestStageRequirementCleanup.__module__ = "ankiscape.data.quest_data"
 
 __all__ = (
-    'QuestStage', 'QuestCombatEncounter', 'QuestStageRequirement', 'QuestChoiceOption', 'QuestChoice', 'QuestPrerequisite', 'QuestSkillRequirement', 'QuestXpReward', 'QuestLampReward', 'QuestDefinition',
+    'QuestStage', 'QuestCombatEncounter', 'QuestStageRequirement', 'QuestChoiceOption', 'QuestChoice', 'QuestPrerequisite', 'QuestSkillRequirement', 'QuestXpReward', 'QuestLampReward', 'QuestSupplyRecipe', 'QuestDefinition',
     'ClaimDefinition', 'QuestReference', 'QuestUnlockRule', 'TargetUnlockRequirement', 'TargetUnlockRule', '_clean_journal', '_simple_stage', '_stage_req', '_combat', 'QuestCombatEncounterReplacement',
     'QuestStageRequirementCleanup',
 )

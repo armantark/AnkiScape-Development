@@ -443,7 +443,6 @@ from .logic_pure_urns import (
 )
 
 from .logic_pure_prayer import (
-    prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
 )
 
@@ -504,7 +503,6 @@ from .logic_pure_combat_setup import (
     _combat_prayer_tick,
     _combat_resume_attack_clocks,
     _combat_start_prayer,
-    _combat_switch_off_spent_prayers,
 )
 from .logic_pure_combat_live import (
     _combat_live_enemy_accuracy,
@@ -587,25 +585,14 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             spell_id,
         )
     else:
-        # Combat drinks loaded potions, then rolls with this target's prayer
-        # setup drained across one ordinary review burst, so the preview
-        # projects that same hit. Magic keeps its own projection above until
-        # the owner's Magic decision.
+        # Combat drinks loaded potions, then rolls with this target's prayers
+        # as the next card starts them; its drain only lowers later ticks.
+        # Magic keeps its own projection above until the owner's decision.
         loadout = _combat_target_loadout(player_data, target_id)
         _combat_auto_drink_potions(loadout, combat_class)
-        selected_prayers, halo_drain_multipliers, requested_uptime = _combat_prayer_request(loadout, False)
-        _points, _counter, prayer_uptime = prayer_drain_and_effective_uptime_pure(
-            _non_negative_int(loadout.get("combat_prayer_points", 0), 0),
-            loadout.get("combat_prayer_drain_counter", 0.0),
-            selected_prayers,
-            _equipment_bonus_value(player_totals, "prayer"),
-            COMBAT_BURST_TICKS,
-            requested_uptime,
-            halo_drain_multipliers,
-        )
         player_attack_roll, player_max_hit = _combat_player_attack_rolls(
             loadout, combat_class, style_id, melee_style_type, player_totals,
-            prayer_effect_state_pure(loadout, prayer_uptime), ammo_name, spell_spec, spell_id,
+            prayer_effect_state_pure(loadout), ammo_name, spell_spec, spell_id,
         )
     enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
         _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
@@ -624,7 +611,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         combat_class,
         accuracy,
         {
-            "player_max_hit": int(player_max_hit * 10),
+            # A live card rolls whole old-HP hits, so the max hit moves in 10s.
+            "player_max_hit": int(player_max_hit) * 10,
             "ammo": ammo_name or "",
             "spell_id": spell_id if combat_class == "magic" else "",
             "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
@@ -1369,7 +1357,7 @@ def apply_combat_burst_pure(
                 fled = True
                 familiar_escape = status_stop == "void_shifter"
                 break
-            stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
+            stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime, prayer_points_before)
             if stop_reason:
                 fled = stop_reason == "fled"
                 break
@@ -1584,7 +1572,7 @@ def apply_combat_burst_pure(
             stop_reason, fled = _combat_kill_boundary_stop(
                 data, live_cadence and stop_on_danger, kill_rewards.kills, stop_after_kills, allow_bank_run,
                 target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data,
-                player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime,
+                player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, died, drops, observed_before, requested_prayer_uptime, prayer_points_before,
             )
             if stop_reason or stop_on_kill:
                 break
@@ -1596,7 +1584,7 @@ def apply_combat_burst_pure(
                 (magic_effects_applied, magic_effect_applied, enemy_attack_factor, enemy_defence_factor, spell_enemy_attack_factor, spell_enemy_defence_factor, curse_attack_count),
             )
             continue
-        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime)
+        stop_reason = _combat_tick_stop_reason(data, live_cadence and stop_on_danger, player_lp, max_player_lp, prayer_points_after, selected_prayers, poison_before, requested_prayer_uptime, prayer_points_before)
         if stop_reason:
             fled = stop_reason == "fled"
             break
@@ -1647,9 +1635,6 @@ def apply_combat_burst_pure(
         if live_cadence and vengeance_cast_paid:
             next_encounter["vengeance_cast_paid"] = True
         data["combat_encounter"] = next_encounter
-
-    if live_cadence:
-        _combat_switch_off_spent_prayers(data, prayer_points_after, selected_prayers)
 
     _combat_advance_dragonfire_effects(
         data, ticks_elapsed - dragonfire_effect_tick
@@ -2104,7 +2089,6 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "attack_style_name": str(style.get("display_name", style_id)),
         "trained_skills": combat_attack_style_trained_skills_pure(xp_style_id),
         **last_fight,
-        "status": combat_status_summary_pure(player_data),
         **_combat_hud_finisher_text(finisher),
         "finisher": finisher,
     }

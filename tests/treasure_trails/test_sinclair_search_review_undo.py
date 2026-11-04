@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from tests import test_integration_smoke as smoke
 from tests.treasure_trails.test_sinclair_search_catalog import (
-    NEW_EXPECTED, contact_draws, fresh_player, owned_items,
+    FINAL_CENSUS, NEW_EXPECTED, contact_draws, fresh_player, owned_items,
 )
 
 
@@ -79,7 +79,7 @@ class SinclairSearchReviewUndoTest(unittest.TestCase):
         addon._on_main_menu()
         registry = sys.modules[f'{addon.__name__}.data.treasure_trails_data'].TREASURE_TRAILS_EASY_STEPS
         index = list(registry).index(step_id)
-        self.assertEqual(len(registry), 30)
+        self.assertEqual(len(registry), FINAL_CENSUS)
         with patch.object(random, 'random', contact_draws(index, length)):
             result = captured['on_treasure_trails_command']('start_from_bank', {'tier': 'easy'})
         self.assertTrue(result['ok'], result)

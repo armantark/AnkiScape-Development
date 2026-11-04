@@ -73,10 +73,11 @@ except Exception:
 
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
-from .ui_first_cell_tree import FirstCellSelectionTree
+from .ui_first_cell_tree import FirstCellSelectionTree, show_settled
 from .ui_flow_layout import FlowLayout as WidgetFlowLayout
+from .ui_palette import dim_text_color, dim_text_css
 from .ui_pace_settings import _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, pace_settings_section, run_pace_onboarding  # noqa: F401  (re-export for the profile-load hooks)
-from ..core.action_registry import review_action_handler_key
+from ..core.action_registry import landmark_activity_name, review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
@@ -101,7 +102,6 @@ from ..core.constants import (
     FLETCHING_GROUP_ORDER,
     HERBLORE_DATA,
     PRAYER_DATA,
-    COMBAT_PRAYERS,
     DEFAULT_PRAYER_TARGET,
     PRAYER_ITEM_IMAGES,
     MAGIC_DATA,
@@ -125,14 +125,10 @@ from ..core.constants import (
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
     CLAIM_DATA,
-    COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ENEMY_DATA,
     COMBAT_ENEMY_IMAGES,
-    COMBAT_MAGIC_SPELL_DATA,
     COMBAT_TARGET_GROUP_ORDER,
     BINDING_NECKLACE_ITEM,
-    DEFAULT_COMBAT_ATTACK_STYLE,
-    DEFAULT_COMBAT_SPELL,
     DEFAULT_COMBAT_TARGET,
     FIREMAKING_LOG_ITEMS,
     FISHING_OUTPUT_ITEMS,
@@ -466,12 +462,12 @@ from ..data.summoning_data import (
 from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
 from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
 from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
-from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import WICKED_HOOD_REQUIRED_MESSAGE, wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
-from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
+from ..logic_pure.logic_pure import EQUIPMENT_BONUS_FIELDS, combat_grave_banner_view_pure, combat_status_summary_pure
 from ..logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 
 from ..logic_pure.logic_pure import (
@@ -480,8 +476,6 @@ from ..logic_pure.logic_pure import (
 )
 
 from ..logic_pure.logic_pure import STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, landmark_hud_progress_pure
-
-from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
 
 from ..core.skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
 
@@ -523,7 +517,6 @@ from ..core.target_metadata import (
 )
 
 from ..data.livid_farm_data import (
-    BORROWED_POWER_COMBAT_SPELLS,
     LIVID_FARM_ACTIVITY_ID,
     LIVID_FARM_ENTRY_LEVELS,
     LIVID_FARM_UNLOCKS,
@@ -592,8 +585,6 @@ from ..core.review_context import (
     review_context_projection_pure,
 )
 
-from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
-
 from ..core.constants import ALCH_VALUES, ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
 from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
 
@@ -605,17 +596,12 @@ from ..logic.farming_logic import (
     PLANT_CURE_ITEM_FIRST,
     farming_frontend_projection_pure,
 )
-from ..logic.dnd_favourites_logic import (
-    dnd_favourite_context_menu_view_pure,
-    dnd_favourite_detail_button_view_pure,
-)
 from ..logic.summoning_logic import familiar_reviews_remaining_pure, familiarisation_view_pure
 from ..logic.skilling_boost_logic import (
     skilling_potion_target_enabled_pure,
 )
 from ..logic.cooking_gauntlets_logic import (
     cooking_equipment_choice_pure,
-    family_gauntlet_conversion_state_pure,
     family_gauntlet_recovery_state_pure,
 )
 from ..data.brawling_gloves_data import BRAWLING_GLOVE_DATA
@@ -624,9 +610,8 @@ from ..logic.brawling_gloves_logic import (
     brawling_wilderness_enabled_pure,
 )
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
+from .review_hud_buttons import ReviewBankRunButton
 from ..logic.review_strip_logic import (
-    REVIEW_BANK_RUN_LABEL,
-    REVIEW_BANK_RUN_TOOLTIP,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
     REVIEW_STRIP_WIDTH,
@@ -815,39 +800,6 @@ def playable_review_skill_names() -> tuple:
     return tuple(implemented_review_skill_names())
 
 
-# ---- dark-mode-safe text colors ------------------------------------------
-# RECURRING BUG, READ BEFORE STYLING TEXT: ``palette(mid)`` / ``QPalette.Mid`` is
-# a *frame/border* role, NOT a text role. In dark mode it resolves to a near-black
-# grey, so using it as a text/foreground color makes the text invisible on the
-# dark base (greyed/disabled rows "vanish"). It has bitten the Skills-hub buttons,
-# the Smithing locked rows, and the Equipment empty slots. Never use palette(mid)
-# (or QPalette.Mid) for text. For dimmed-but-legible text use the helpers below,
-# which derive the color from the theme's actual Text role and just drop the
-# alpha — guaranteed contrast in BOTH light and dark themes. (palette(mid) is fine
-# for borders/frames, which is its intended role.)
-
-def dim_text_color(widget=None) -> "QColor":
-    """A dimmed-but-readable text QColor that works in light AND dark themes.
-
-    Use for greyed/placeholder/disabled-row text (e.g. ``setForeground(...)``).
-    """
-    palette = widget.palette() if widget is not None else QApplication.palette()
-    color = QColor(palette.color(QPalette.ColorRole.Text))
-    color.setAlpha(150)
-    return color
-
-
-def dim_text_css(widget=None) -> str:
-    """``rgba(...)`` form of :func:`dim_text_color` for Qt stylesheets.
-
-    Stylesheets can't reference a dimmed text role (the stylesheet ``palette()``
-    function only exposes solid roles, and ``mid`` is the trap we're avoiding), so
-    bake an explicit rgba string from the live palette instead.
-    """
-    c = dim_text_color(widget)
-    return f"rgba({c.red()}, {c.green()}, {c.blue()}, {c.alphaF():.2f})"
-
-
 def _clear_layout(target_layout) -> None:
     """Remove and delete every widget in a layout (Skills, Shop and Bank all rebuild in place)."""
     child = target_layout.takeAt(0)
@@ -951,7 +903,7 @@ def is_equippable_item(item_name: str) -> bool:
 
 
 def equipment_slot_icon_path(slot_id: str) -> Optional[str]:
-    """Path to the greyed OSRS placeholder for a worn slot, or None if unfetched.
+    """Path to the 2012 placeholder icon for a worn slot, or None if unfetched.
 
     Slot art is developer-fetched by tools/fetch_equipment_assets.py into
     equipment_slots/<slot_id>.png. Missing files degrade to a text-only row.
@@ -1037,22 +989,6 @@ _SPECIAL_ACTIVITY_TARGETS = {
     EVIL_TREE_UTILITY_ID,
     BIG_CHINCHOMPA_UTILITY_ID,
 }
-# The landmarks live outside UTILITY_ACTIVITY_DATA, so a spec lookup returns an
-# empty dict and the HUD would otherwise fall back to a literal placeholder name.
-_LANDMARK_ACTIVITY_NAMES = {
-    _STRONGHOLD_UTILITY_KEY: "Stronghold of Security",
-    _KNIGHT_WAVES_UTILITY_KEY: "Knight Waves Training Ground",
-    _MAGE_ARENA_UTILITY_KEY: "Mage Arena",
-}
-
-
-def _landmark_activity_name(activity_key: object) -> str:
-    target_id = str(activity_key or "")
-    if target_id.startswith("mage_arena_attune:"):
-        return "Mage Arena attunement"
-    return _LANDMARK_ACTIVITY_NAMES.get(target_id, "")
-
-
 # How long a resolved world event keeps its outcome in the Activities strip.
 # Not sourced — the source game had no such surface. Long enough to be seen
 # during an ordinary run, short enough that the strip does not become the
@@ -1379,6 +1315,34 @@ def focus_main_menu_if_open() -> bool:
         pass
     return False
 
+
+# Why a skill's Train button is off; the Skills panel and the live availability
+# hook below show the same text.
+_TRAIN_UNAVAILABLE_TOOLTIPS = {
+    "Smithing": "Mine ores until you can smelt a bar.",
+    "Crafting": "Gather materials or level up to craft an item.",
+    "Fletching": "Cut logs or level up to fletch an item.",
+    "Firemaking": "Cut or acquire logs before training Firemaking.",
+    "Hunter": "Gather jars/materials, complete unlocks, or level up before training Hunter.",
+    "Cooking": "Gather raw food or prep ingredients before training Cooking.",
+    "Runecrafting": "Complete Rune Mysteries and gather essence plus altar access.",
+    "Thieving": "Choose an unlocked target before training Thieving.",
+    "Agility": "Choose an unlocked course or activity before training Agility.",
+    _COMBAT_HUB_NAME: "Select an available enemy.",
+}
+# The processing skills whose Train button the live hook re-enables mid-review,
+# in refresh_skill_availability's argument order.
+_TRAIN_BUTTON_KEYS = {
+    "Smithing": "smith_btn",
+    "Crafting": "craft_btn",
+    "Fletching": "fletch_btn",
+    "Firemaking": "firemaking_btn",
+    "Hunter": "hunter_btn",
+    "Cooking": "cooking_btn",
+    "Runecrafting": "runecrafting_btn",
+}
+
+
 def refresh_skill_availability(
     can_smelt_any_bar: bool,
     can_craft_any_item: bool,
@@ -1393,52 +1357,17 @@ def refresh_skill_availability(
     Never auto-selects the skill; users must choose it explicitly.
     """
     try:
-        button_specs = (
-            (
-                "smith_btn",
-                can_smelt_any_bar,
-                "Smithing",
-                "Mine ores until you can smelt a bar.",
-            ),
-            (
-                "craft_btn",
-                can_craft_any_item,
-                "Crafting",
-                "Gather materials or level up to craft an item.",
-            ),
-            (
-                "fletch_btn",
-                can_fletch_any_item,
-                "Fletching",
-                "Cut logs or level up to fletch an item.",
-            ),
-            (
-                "firemaking_btn",
-                can_firemake_any_item,
-                "Firemaking",
-                "Cut or acquire logs before training Firemaking.",
-            ),
-            (
-                "hunter_btn",
-                can_hunt_any_item,
-                "Hunter",
-                "Gather jars/materials, complete unlocks, or level up before training Hunter.",
-            ),
-            (
-                "cooking_btn",
-                can_cook_any_item,
-                "Cooking",
-                "Gather raw food or prep ingredients before training Cooking.",
-            ),
-            (
-                "runecrafting_btn",
-                can_runecraft_any_item,
-                "Runecrafting",
-                "Complete Rune Mysteries and gather essence plus altar access.",
-            ),
+        availability = (
+            can_smelt_any_bar,
+            can_craft_any_item,
+            can_fletch_any_item,
+            can_firemake_any_item,
+            can_hunt_any_item,
+            can_cook_any_item,
+            can_runecraft_any_item,
         )
         buttons = []
-        for key, available, skill_name, unavailable_tooltip in button_specs:
+        for (skill_name, key), available in zip(_TRAIN_BUTTON_KEYS.items(), availability):
             button = _MAIN_MENU_CTX.get(key)
             if button is None:
                 continue
@@ -1446,7 +1375,7 @@ def refresh_skill_availability(
             is_current = bool(button.property("ankiscapeCurrentlyTraining"))
             button.setEnabled(bool(available) and not is_current)
             if not is_current:
-                button.setToolTip(skill_name if available else unavailable_tooltip)
+                button.setToolTip(skill_name if available else _TRAIN_UNAVAILABLE_TOOLTIPS[skill_name])
 
         if any(button.isEnabled() for button in buttons):
             warn = _MAIN_MENU_CTX.get("warn_label")
@@ -1517,18 +1446,8 @@ if HAS_QT:
     _HUD_ENEMY = "#E53935"  # Material red (enemy health)
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
-
-    class _ResponsiveGridScrollArea(QScrollArea):
-        """Notify a grid when its viewport width changes."""
-
-        def __init__(self, parent=None):
-            super().__init__(parent)
-            self.on_viewport_resize = None
-
-        def resizeEvent(self, event):  # type: ignore[no-untyped-def]
-            super().resizeEvent(event)
-            if self.on_viewport_resize is not None:
-                self.on_viewport_resize()
+    from .review_hud_buttons import ReviewResumeButton
+    from .ui_bank_grid import ResponsiveGridScrollArea
 
     class _BankDropButton(QToolButton):
         """Keyboard-focusable Bank cell with native Qt item drag/drop."""
@@ -1627,7 +1546,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
+    from .ui_text_fit import FittingLabel, FlowLayout, LeadRowLayout, ShrinkFirstPage, WrappingCheckBox, guard_wheel, lay_out_whole, main_menu_tabs, side_pair, stacked_pair, vertical_scroll, wrap_last_column, wrapped_label, set_equipment_scroll_body
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -2367,7 +2286,7 @@ if HAS_QT:
                 )
                 if icon is not None:
                     icon_lbl.setPixmap(icon.pixmap(QSize(18, 18)))
-                value_lbl = QLabel()
+                value_lbl = FittingLabel() if resource_id == "prayer" else QLabel()
                 value_lbl.setObjectName(f"combatHudResourceValue_{resource_id}")
                 value_lbl.setStyleSheet(
                     "color: rgba(255,255,255,0.85); font-size: 10px;"
@@ -2401,6 +2320,8 @@ if HAS_QT:
             info.addWidget(self.second_progress)
 
             self.sub_lbl = QLabel("")
+            # A Bankstanding stop reason can run past one line.
+            self.sub_lbl.setWordWrap(True)
             self.sub_lbl.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 11px;")
             info.addWidget(self.sub_lbl)
 
@@ -2455,6 +2376,9 @@ if HAS_QT:
             chips_column.setSpacing(1)
             chips_column.addWidget(self.chips_lbl)
             chips_column.addWidget(self.slayer_lbl)
+            # Resume shows only at Bankstanding, where the chips are empty.
+            self.resume_button = ReviewResumeButton(self)
+            chips_column.addWidget(self.resume_button)
             bottom_row = QHBoxLayout()
             bottom_row.setContentsMargins(0, 0, 0, 0)
             bottom_row.setSpacing(6)
@@ -2501,7 +2425,7 @@ if HAS_QT:
             button.setParent(self)
             button.setFixedSize(button.sizeHint())
             self.action_column.addWidget(
-                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom
+                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
             )
 
         def _skill_icon_path(self, skill: str) -> Optional[str]:
@@ -2587,6 +2511,7 @@ if HAS_QT:
             self._set_slayer_progress("")
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
+            self.resume_button.set_data(player_data, skill)
             # While a bank run is active or queued it owns the entire progress
             # area (owner ruling: including combat's health/enemy presentation).
             # The ordinary branches re-show whatever they need below.
@@ -2627,7 +2552,7 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            combat_status = combat_status_summary_pure(player_data)
+            combat_status = combat_status_summary_pure(player_data, _game_speed())
             has_hatchet = (
                 best_woodcutting_axe_pure(
                     int(player_data.get("woodcutting_level", 1) or 1),
@@ -2750,16 +2675,14 @@ if HAS_QT:
                 else:
                     activity_name = (
                         str(spec.get("display_name", ""))
-                        or _landmark_activity_name(activity_key)
+                        or landmark_activity_name(activity_key)
                         or str(activity_key)
                     )
                     # "Utilities"/"Activities" already sit in title_lbl and
                     # neither surface grants XP, so a "(no XP)" tail only
                     # restates the title. Bankstanding keeps its line because
                     # "deliberately not training" is not implied by the title.
-                    activity_kind = (
-                        "idle at the Bank" if spec.get("no_op") else ""
-                    )
+                    activity_kind = self.resume_button.bank_status if spec.get("no_op") else ""
                 ip = skill_icon_path_for(surface_name) or self._placeholder_icon_path()
                 if ip:
                     pm = QPixmap(ip)
@@ -2794,7 +2717,7 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA)
+            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA, _game_speed())
             if state is not None:
                 ip = os.path.join(current_dir, "icon", "attack_icon.png")
                 if not os.path.exists(ip):
@@ -2813,9 +2736,7 @@ if HAS_QT:
                 self.combat_resource_labels["lifepoints"].setText(
                     f"{state['player_lifepoints']}/{state['player_max_lifepoints']}"
                 )
-                self.combat_resource_labels["prayer"].setText(
-                    f"{state['prayer_points']}/{state['prayer_max_points']}"
-                )
+                self.combat_resource_labels["prayer"].set_texts(state["prayer_texts"])
                 self.combat_resource_labels["summoning"].setText(
                     f"{state['summoning_points']}/{state['summoning_max_points']}"
                 )
@@ -3239,30 +3160,6 @@ if HAS_QT:
                 pass
             return False
 
-    class ReviewBankRunButton(QPushButton):
-        """Always-present strip action backed by the runtime bank-run seam."""
-
-        def __init__(self, parent=None):
-            super().__init__(REVIEW_BANK_RUN_LABEL, parent)
-            self.setObjectName("reviewBankRunButton")
-            self.setToolTip(REVIEW_BANK_RUN_TOOLTIP)
-            self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            self._action_callback = None
-            self.clicked.connect(self._activate)
-
-        def set_data(self, view: dict, action_callback=None) -> None:
-            self._action_callback = action_callback
-            self.setText(str(view.get("text", REVIEW_BANK_RUN_LABEL)))
-            self.setToolTip(str(view.get("tooltip", REVIEW_BANK_RUN_TOOLTIP)))
-            self.setEnabled(bool(view.get("enabled")) and action_callback is not None)
-            visible = bool(view.get("visible", True))
-            self.setProperty("ankiscapeOverlayRequested", visible)
-            self.setVisible(visible)
-
-        def _activate(self) -> None:
-            if self._action_callback is not None:
-                self._action_callback()
-
     class ReviewFillDrawer(QWidget):
         """Grand Exchange status, stacked above the Event log.
 
@@ -3458,11 +3355,11 @@ if HAS_QT:
             self.rows.clear()
             rendered_rows = []
             for entry in view.get("rows", ()):
+                repeat = str(entry["repeat_label"])
                 rendered_rows.append(
-                    '<div style="margin:0; padding:1px 3px; color:'
-                    + str(entry["foreground"])
-                    + ';">'
-                    + html.escape(str(entry["label"]))
+                    f'<div style="margin:0; padding:1px 3px; color:{entry["foreground"]};">'
+                    + html.escape(str(entry["label"]).removesuffix(repeat))
+                    + (f'<span style="color:{entry["repeat_foreground"]};">{repeat}</span>' if repeat else "")
                     + "</div>"
                 )
             self.rows.setHtml("".join(rendered_rows))
@@ -3679,12 +3576,6 @@ else:
         def __init__(self, kind: str = "distractions", parent=None):
             pass
         def set_data(self, view: dict, open_target=None) -> None:
-            pass
-
-    class ReviewBankRunButton:
-        def __init__(self, parent=None):
-            pass
-        def set_data(self, view: dict, action_callback=None) -> None:
             pass
 
     class ReviewFillDrawer:
@@ -4089,10 +3980,13 @@ def ensure_review_hud() -> None:
         pass
 
 def update_review_hud(player_data: dict, current_skill: str) -> None:
-    """Update and show the Review HUD based on current data."""
+    """Update and show the Review HUD based on current data, and the menu's queue controls."""
     try:
         if not HAS_QT:
             return
+        from .ui_action_queue import notify_action_queue_changed
+
+        notify_action_queue_changed()
         # Respect setting to fully disable the review HUD visuals
         if not get_config_bool("ankiscape_review_hud_enabled", True):
             try:
@@ -4213,6 +4107,11 @@ def update_review_bank_run_button(
             action_callback,
         )
     _sync_review_strip_layout()
+
+
+def set_review_resume_action(action_callback) -> None:
+    if HAS_QT and _REVIEW_HUD is not None:
+        _REVIEW_HUD.resume_button.set_action(action_callback)
 
 
 def ensure_review_fill_drawer() -> None:
@@ -4799,6 +4698,7 @@ def show_main_menu(
     on_open_item_pack=None,
     on_open_impling_jar=None,
     on_convert_rogue_kit=None,
+    on_mix_dye=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
     on_ge_action=None,
@@ -4810,13 +4710,14 @@ def show_main_menu(
     initial_global_tab=None,
     on_check_achievements=None,
     on_save_player_data=None,
+    on_action_queue_command=None,
 ):
     """Show global sections and the registry-driven Skills hub.
 
     Callbacks apply changes and handle persistence in the caller.
     """
     _debug_log("ui.show_main_menu: enter")
-    dialog = QDialog(mw)
+    dialog = guard_wheel(QDialog(mw))
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("AnkiScape Menu")
     dialog.setMinimumWidth(720)
@@ -4826,12 +4727,7 @@ def show_main_menu(
     layout.setContentsMargins(16, 16, 16, 16)
     layout.setSpacing(12)
 
-    tabs = QTabWidget()
-    tabs.setDocumentMode(True)
-    tabs.setIconSize(QSize(18, 18))
-    tabs.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
-    tabs.tabBar().setExpanding(False)
-    tabs.setUsesScrollButtons(True)
+    tabs = main_menu_tabs()
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
         icon_path = os.path.join(current_dir, "icon", filename)
@@ -4843,8 +4739,8 @@ def show_main_menu(
     # this single tab as category filter -> skill list -> target list. Normal
     # mode shows playable skills only; developer mode also surfaces the planned
     # 2011-era catalog so future skills can be inspected before they are coded.
-    skills_tab = QWidget()
-    s_layout = QVBoxLayout(skills_tab)
+    skills_tab = vertical_scroll(skills_body := ShrinkFirstPage())
+    s_layout = QVBoxLayout(skills_body)
     s_layout.setContentsMargins(12, 12, 12, 12)
     s_layout.setSpacing(8)
 
@@ -4970,7 +4866,22 @@ def show_main_menu(
     from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
+    from .ui_action_queue import ActionQueuePanel, activity_queue_control, held_by_queue, menu_queue, queue_changed_what_runs, surface_queue_control
+    from .ui_dnd_favourite import DndFavouriteControls
+    from .ui_activity_leave import LeaveRule, leave_running_activity
 
+    def _after_queue_command(result: dict) -> None:
+        warn.setText(result["message"])
+        # An add that starts the queue switches what runs, as Start would.
+        if result["active"] in _active_choices and queue_changed_what_runs(result["active"], state["active"]):
+            state["active"] = result["active"]
+            _refresh_active_label()
+            ctx.refresh("quests")
+            _render_panel()
+
+    queue_command = menu_queue(player_data, lambda: state["active"], on_action_queue_command, _after_queue_command, lambda a: _leave_running_activity(a))
+    # Targets picked while the queue runs that panel's action, by panel: (apply, target).
+    held_targets: dict = {}
     ctx = MainMenuCtx(
         player_data=player_data,
         dialog=dialog,
@@ -4983,6 +4894,7 @@ def show_main_menu(
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_agility_command=on_agility_command,
         on_achievement_diary_command=on_achievement_diary_command,
+        on_action_queue_command=queue_command,
     )
     # Test seam: lets offscreen tests fire a cross-tab refresh at a tab that has
     # not been built yet. Harmless in production.
@@ -5167,6 +5079,9 @@ def show_main_menu(
     ctx.refreshers["active_label"] = _refresh_active_label
 
     def _set_active(display_name: str) -> None:
+        # A target picked while the queue ran this panel's action applies only now.
+        apply_pick, pick = held_targets.pop(display_name, (lambda _target: None, ""))
+        apply_pick(pick)
         # Mirror the original gating: never let users train a skill they cannot
         # actually progress, and explain why instead of silently selecting it.
         if display_name == "Smithing" and not _smithing_available():
@@ -5201,7 +5116,7 @@ def show_main_menu(
             return
         if display_name in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}:
             start = activity_start_transition.get(display_name)
-            if callable(start) and start():
+            if callable(start) and start(pick):
                 warn.setText("")
                 state["active"] = display_name
                 _refresh_active_label()
@@ -5217,18 +5132,21 @@ def show_main_menu(
         _render_panel()
 
     def _stop_training() -> None:
-        if on_stop_training is None or not on_stop_training():
+        if on_stop_training is None or not (stopped := on_stop_training()):
             warn.setText("Could not switch to Bankstanding.")
             return
         warn.setText("")
-        state["active"] = _UTILITIES_HUB_NAME
+        # The add-on names what runs now, which is Bankstanding.
+        state["active"] = stopped
         _refresh_active_label()
         _render_panel()
 
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
+    from .ui_target_search import (
+        build_searchable_target_selector, short_target_row_label, style_flat_target_list, style_grouped_target_tree,
+    )
     from .ui_utility_activity_list import UtilityActivityList
     from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
 
@@ -5294,8 +5212,8 @@ def show_main_menu(
                 row = rows_by_target.get(item.data(Qt.ItemDataRole.UserRole))
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
-                on_select(item.data(Qt.ItemDataRole.UserRole))
-                _mark_current_target(item)
+                if on_select(item.data(Qt.ItemDataRole.UserRole)) is not False:
+                    _mark_current_target(item)
 
         target_list.itemClicked.connect(_on_target_selected)
         target_list.itemActivated.connect(_on_target_selected)
@@ -5323,21 +5241,7 @@ def show_main_menu(
         set_group_expanded=None,
     ) -> QTreeWidget:
         tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setAlternatingRowColors(True)
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 28px; padding: 1px; }"
-            " QTreeWidget::item:selected { color: palette(text); }"
-            " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
+        style_grouped_target_tree(tree)
 
         ordered_groups = list(group_order or [])
         groups: dict = {group: [] for group in ordered_groups}
@@ -5428,8 +5332,8 @@ def show_main_menu(
             if on_select is not None:
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
-                on_select(target_id)
-                _mark_current_target(item)
+                if on_select(target_id) is not False:
+                    _mark_current_target(item)
 
         def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
             role = item.data(0, Qt.ItemDataRole.UserRole)
@@ -5465,6 +5369,10 @@ def show_main_menu(
         expanded_groups: Optional[set] = None,
         set_group_expanded=None,
     ) -> QWidget:
+        skill, select = state["skill"], on_select
+        on_select = select and (
+            lambda target: not held_by_queue(player_data, held_targets, skill, select, target) and select(target)
+        )
         if len(rows) < 25 or not any(row.group for row in rows):
             return _build_flat_target_list(
                 sorted(rows, key=lambda r: r.sort_key or (r.label,)),
@@ -6947,6 +6855,7 @@ def show_main_menu(
                 "teleports_remaining",
             )
         )
+        refill_text = f"refills every {hood['world_day_cards']} answered cards"
         if hood["claimed"] and not hood["owned"]:
             guidance_text = "Reclaim the hood to restore its saved upgrades and allowances."
         elif not hood["operable"]:
@@ -6957,12 +6866,9 @@ def show_main_menu(
                 "your next trip there skips the walk"
             )
         elif allowances_exhausted:
-            guidance_text = "Allowances exhausted · refills every 240 answered cards"
+            guidance_text = f"Allowances exhausted · {refill_text}"
         else:
-            guidance_text = (
-                f"Ready · dispenses {hood['essence_item']} · "
-                "refills every 240 answered cards"
-            )
+            guidance_text = f"Ready · dispenses {hood['essence_item']} · {refill_text}"
         guidance = QLabel(guidance_text)
         guidance.setObjectName("wickedHoodGuidanceLabel")
         guidance.setWordWrap(True)
@@ -6984,7 +6890,7 @@ def show_main_menu(
         essence_button.setObjectName("wickedHoodEssenceButton")
         essence_button.setAccessibleName("Withdraw Wicked hood essence")
         essence_button.setToolTip(
-            "Fill free carried-pack slots from the remaining essence allowance."
+            "Send all the essence left in today's allowance to the Bank."
         )
         essence_button.setEnabled(
             on_wicked_hood_command is not None
@@ -7446,11 +7352,6 @@ def show_main_menu(
             layout.addWidget(rewards)
         return panel
 
-    def _combat_mode_text() -> str:
-        style_id = combat_attack_style_for_equipment_pure(player_data, EQUIPMENT_ITEM_DATA)
-        spec = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA.get(DEFAULT_COMBAT_ATTACK_STYLE, {}))
-        return str(spec.get("display_name", style_id)).replace("Ranged ", "Ranged ").title()
-
     def _combat_bank_run_text() -> str:
         bank_run_raw = player_data.get("combat_bank_run", {}) or {}
         bank_run_remaining = 0
@@ -7466,661 +7367,6 @@ def show_main_menu(
         )
 
     _combat_setup_refreshers: list = []
-
-    def _build_combat_setup_panel() -> QWidget:
-        panel = QWidget()
-        layout = QVBoxLayout(panel)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-
-        mode_label = QLabel(f"Combat mode: {_combat_mode_text()}")
-        mode_label.setObjectName("combatModeLabel")
-        mode_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        layout.addWidget(mode_label)
-
-        action_row = QWidget()
-        action_row_layout = QHBoxLayout(action_row)
-        action_row_layout.setContentsMargins(0, 0, 0, 0)
-        action_row_layout.setSpacing(8)
-        action_row_layout.addWidget(QLabel("Next review"))
-        action_combo = QComboBox()
-        action_combo.setObjectName("combatActionCombo")
-        action_row_layout.addWidget(action_combo, 1)
-        layout.addWidget(action_row)
-
-        def _refresh_combat_action() -> None:
-            hud = combat_hud_state_pure(player_data)
-            state = hud["finisher"]
-            action_combo.blockSignals(True)
-            action_combo.clear()
-            action_combo.addItem("Attack", "attack")
-            if state["required"]:
-                action_combo.addItem(state["action_label"], "finisher")
-                finisher_item = action_combo.model().item(1)
-                finisher_item.setEnabled(bool(state["available"]))
-                finisher_item.setToolTip(hud["finisher_tooltip"])
-                if (
-                    player_data.get("combat_action") == "finisher"
-                    and state["available"]
-                ):
-                    action_combo.setCurrentIndex(1)
-            action_combo.blockSignals(False)
-            action_row.setVisible(bool(state["required"]))
-
-        if on_set_combat_action is not None:
-            action_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_action(
-                    str(action_combo.currentData())
-                )
-            )
-        _refresh_combat_action()
-
-        # Attack-style picker. The valid styles depend on the equipped weapon's
-        # combat class (melee/ranged); a magic weapon has a single fixed style, so
-        # the combo is omitted and the mode label above already reads "Magic".
-        # The combo is rebuilt on refresh so swapping weapons re-scopes the options.
-        style_row = QWidget()
-        style_row_layout = QHBoxLayout(style_row)
-        style_row_layout.setContentsMargins(0, 0, 0, 0)
-        style_row_layout.setSpacing(8)
-        style_label = QLabel("Attack style")
-        style_label.setStyleSheet("color: palette(text);")
-        style_row_layout.addWidget(style_label)
-        layout.addWidget(style_row)
-        _style_combo_ref = {"combo": None}
-
-        def _rebuild_style_combo() -> None:
-            # D2: the options are the equipped weapon's actual AttackStyleData slots,
-            # each labeled with its attack type (stab/slash/crush). Selecting a row
-            # stores both the weapon_style and the style_type, so parity keys off the
-            # exact slot the player picked.
-            options = combat_weapon_style_options_pure(player_data, EQUIPMENT_ITEM_DATA)
-            old = _style_combo_ref["combo"]
-            if old is not None:
-                old.setParent(None)
-                old.deleteLater()
-                _style_combo_ref["combo"] = None
-            if len(options) <= 1:
-                # Magic (single fixed style) — no selector needed.
-                style_row.setVisible(False)
-                return
-            combo = QComboBox()
-            combo.setObjectName("combatStyleCombo")
-            current_index = 0
-            for index, option in enumerate(options):
-                # Spell out which skills each slot trains, so the choice of XP is
-                # visible at the point of selection (e.g. "Aggressive (Crush) —
-                # Attack + Strength + Defence + Constitution" for the 2h shared slot).
-                trains = " + ".join(option["trained_skills"])
-                combo.addItem(
-                    f"{option['display_name']} — {trains}",
-                    (option["weapon_style"], option["style_type"]),
-                )
-                if option["is_current"]:
-                    current_index = index
-            combo.setCurrentIndex(current_index)
-            if on_set_combat_style is not None:
-                combo.currentIndexChanged.connect(
-                    lambda _index, c=combo: on_set_combat_style(c.currentData())
-                )
-            style_row_layout.addWidget(combo, 1)
-            _style_combo_ref["combo"] = combo
-            style_row.setVisible(True)
-
-        _rebuild_style_combo()
-
-        spell_row = QWidget()
-        spell_layout = QHBoxLayout(spell_row)
-        spell_layout.setContentsMargins(0, 0, 0, 0)
-        spell_layout.setSpacing(8)
-        spell_label = QLabel("Autocast")
-        spell_label.setStyleSheet("color: palette(text);")
-        spell_combo = QComboBox()
-        spell_combo.setObjectName("combatSpellCombo")
-        current_spell = player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL)
-        selected_spell_index = 0
-        magic_level = int(player_data.get("magic_level", 1) or 1)
-        equipped_weapon = str((player_data.get("equipment", {}) or {}).get("weapon", "") or "")
-        for spell_id, spec in COMBAT_MAGIC_SPELL_DATA.items():
-            spell_combo.addItem(str(spec.get("display_name", spell_id)), spell_id)
-            spell_index = spell_combo.count() - 1
-            gate = str(spec.get("quest_gate", "") or "")
-            gate_done = True
-            if gate == "mage_arena":
-                gate_done = bool((player_data.get("mage_arena", {}) or {}).get("completed"))
-            elif gate:
-                gate_done = bool(((player_data.get("quests", {}) or {}).get(gate) or {}).get("completed"))
-            required_weapon = str(spec.get("required_weapon", "") or "")
-            unlocked = (
-                magic_level >= int(spec.get("required_magic_level", 1) or 1)
-                and gate_done
-                and (not required_weapon or equipped_weapon == required_weapon)
-            )
-            spell_combo.model().item(spell_index).setEnabled(unlocked)
-            if spell_id == current_spell:
-                selected_spell_index = spell_index
-        spell_combo.setCurrentIndex(selected_spell_index)
-        if on_set_combat_spell is not None:
-            spell_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_spell(
-                    spell_combo.currentData()
-                )
-            )
-        spell_layout.addWidget(spell_label)
-        spell_layout.addWidget(spell_combo, 1)
-        layout.addWidget(spell_row)
-        spell_row.setVisible(_combat_mode_text().lower().startswith("magic"))
-
-        borrowed_row = QWidget()
-        borrowed_row.setObjectName("combatBorrowedPowerRow")
-        borrowed_layout = QVBoxLayout(borrowed_row)
-        borrowed_layout.setContentsMargins(0, 0, 0, 0)
-        borrowed_layout.setSpacing(4)
-        borrowed_name = QLabel()
-        borrowed_name.setObjectName("combatBorrowedPowerSpell")
-        borrowed_name.setStyleSheet("color: palette(text);")
-        borrowed_layout.addWidget(borrowed_name)
-        borrowed_button = QPushButton()
-        borrowed_button.setObjectName("combatBorrowedPowerButton")
-        borrowed_button.setCheckable(True)
-        borrowed_button.setToolTip(
-            "The next Combat review performs one manual Borrowed Power cast, "
-            "then returns to the selected autocast."
-        )
-        borrowed_layout.addWidget(borrowed_button)
-        layout.addWidget(borrowed_row)
-        borrowed_spell_ref = {"id": ""}
-
-        def _set_borrowed_power_armed(checked: bool) -> None:
-            spell_id = borrowed_spell_ref["id"]
-            if on_set_combat_prayer_config is not None:
-                on_set_combat_prayer_config(
-                    "combat_borrowed_power_spell",
-                    spell_id if checked else "",
-                )
-            borrowed_button.setText(
-                "One cast armed"
-                if checked
-                else "Cast once next review"
-            )
-
-        borrowed_button.clicked.connect(_set_borrowed_power_armed)
-
-        def _refresh_borrowed_power_row() -> None:
-            current = arcane_capacitor_status_pure(player_data)
-            spell_id = str(current["spell_id"])
-            borrowed_spell_ref["id"] = spell_id
-            spell_name = str(
-                COMBAT_MAGIC_SPELL_DATA.get(
-                    spell_id,
-                    {},
-                ).get("display_name", spell_id)
-            )
-            charges = int(current["charges"])
-            borrowed_name.setText(
-                f"Borrowed Power · {spell_name} · {charges:,} charges"
-            )
-            borrowed_name.setToolTip(
-                f"{charges:,} Arcane capacitor charges remaining."
-            )
-            visible = bool(
-                current["equipped"]
-                and spell_id in BORROWED_POWER_COMBAT_SPELLS
-                and _combat_mode_text().lower().startswith("magic")
-            )
-            armed = bool(
-                visible
-                and player_data.get("combat_borrowed_power_spell") == spell_id
-            )
-            borrowed_button.blockSignals(True)
-            borrowed_button.setChecked(armed)
-            borrowed_button.setText(
-                "One cast armed"
-                if armed
-                else "Cast once next review"
-            )
-            borrowed_button.setEnabled(
-                visible and on_set_combat_prayer_config is not None
-            )
-            borrowed_button.blockSignals(False)
-            borrowed_row.setVisible(visible)
-
-        _refresh_borrowed_power_row()
-
-        casual_toggles = QWidget()
-        casual_toggles.setObjectName("combatMagicCasualControls")
-        casual_layout = QHBoxLayout(casual_toggles)
-        casual_layout.setContentsMargins(0, 0, 0, 0)
-        prayer_master = QCheckBox("Prayers/Curses")
-        prayer_master.setObjectName("combatPrayerMasterCheck")
-        prayer_master.setChecked(bool(player_data.get("combat_prayers_enabled", True)))
-        dream_thrift = QCheckBox("Dream thrift")
-        dream_thrift.setObjectName("combatDreamThriftCheck")
-        dream_thrift.setChecked(bool(player_data.get("combat_dream_thrift", False)))
-        auto_prayer_checks = []
-
-        def _set_auto_prayer_training(checked: bool) -> None:
-            for check in auto_prayer_checks:
-                check.blockSignals(True)
-                check.setChecked(bool(checked))
-                check.blockSignals(False)
-            if on_set_combat_prayer_config is not None:
-                on_set_combat_prayer_config(
-                    "combat_auto_prayer_training", bool(checked)
-                )
-
-        casual_auto_prayer = QCheckBox("Auto-bury bones")
-        casual_auto_prayer.setObjectName("combatCasualAutoPrayerTrainingCheck")
-        casual_auto_prayer.setChecked(
-            bool(player_data.get("combat_auto_prayer_training", False))
-        )
-        casual_auto_prayer.toggled.connect(_set_auto_prayer_training)
-        auto_prayer_checks.append(casual_auto_prayer)
-        dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
-        dream_thrift.setEnabled(
-            on_set_combat_prayer_config is not None and not dream_reasons
-        )
-        if dream_reasons:
-            dream_thrift.setToolTip(f"Requires {dream_reasons[0]}.")
-        if on_set_combat_prayer_config is not None:
-            prayer_master.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_prayers_enabled", bool(enabled)))
-            dream_thrift.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_dream_thrift", bool(enabled)))
-        casual_layout.addWidget(prayer_master)
-        casual_layout.addWidget(dream_thrift)
-        casual_layout.addWidget(casual_auto_prayer)
-        casual_layout.addStretch(1)
-        layout.addWidget(casual_toggles)
-
-        auto_eat_row = QWidget()
-        auto_eat_layout = QHBoxLayout(auto_eat_row)
-        auto_eat_layout.setContentsMargins(0, 0, 0, 0)
-        auto_eat_layout.setSpacing(8)
-        threshold_label = QLabel("Auto-eat")
-        threshold_label.setStyleSheet("color: palette(text);")
-        threshold_spin = QSpinBox()
-        threshold_spin.setObjectName("combatAutoEatThresholdSpin")
-        threshold_spin.setRange(1, 99)
-        threshold_spin.setSuffix("%")
-        try:
-            threshold_value = int(player_data.get("combat_auto_eat_threshold_percent", 40) or 40)
-        except (TypeError, ValueError):
-            threshold_value = 40
-        threshold_spin.setValue(max(1, min(threshold_value, 99)))
-        if on_set_combat_auto_eat_threshold is not None:
-            threshold_spin.valueChanged.connect(lambda value: on_set_combat_auto_eat_threshold(value))
-        auto_eat_layout.addWidget(threshold_label)
-        auto_eat_layout.addWidget(threshold_spin, 1)
-        layout.addWidget(auto_eat_row)
-
-        advanced_toggle = QToolButton()
-        advanced_toggle.setObjectName("combatAdvancedPresetToggle")
-        advanced_toggle.setText("Advanced preset editor")
-        advanced_toggle.setCheckable(True)
-        advanced_toggle.setChecked(False)
-        layout.addWidget(advanced_toggle)
-        advanced_panel = QWidget()
-        advanced_panel.setObjectName("combatAdvancedPresetPanel")
-        advanced_layout = QVBoxLayout(advanced_panel)
-        advanced_layout.setContentsMargins(0, 0, 0, 0)
-        advanced_layout.setSpacing(8)
-        advanced_panel.setVisible(False)
-        advanced_toggle.toggled.connect(advanced_panel.setVisible)
-        layout.addWidget(advanced_panel)
-
-        prayer_header = QLabel("Prayer")
-        prayer_header.setStyleSheet("color: palette(text); font-weight: 600;")
-        advanced_layout.addWidget(prayer_header)
-
-        prayer_controls = QWidget()
-        prayer_controls_layout = QHBoxLayout(prayer_controls)
-        prayer_controls_layout.setContentsMargins(0, 0, 0, 0)
-        prayer_controls_layout.setSpacing(8)
-        preset_combo = QComboBox()
-        preset_combo.setObjectName("combatPresetCombo")
-        presets = player_data.get("combat_presets", {}) or {}
-        active_preset = str(player_data.get("combat_active_preset", "Default"))
-        for name in presets if isinstance(presets, dict) else ("Default",):
-            preset_combo.addItem(str(name), str(name))
-        preset_combo.setCurrentText(active_preset)
-        if on_set_combat_prayer_config is not None:
-            preset_combo.currentTextChanged.connect(lambda name: on_set_combat_prayer_config("apply_preset", name))
-        prayer_controls_layout.addWidget(QLabel("Preset"))
-        prayer_controls_layout.addWidget(preset_combo, 1)
-        save_preset = QPushButton("Save current…")
-        save_preset.setObjectName("combatSavePresetButton")
-        if on_set_combat_prayer_config is not None:
-            def _save_current_preset() -> None:
-                name, accepted = QInputDialog.getText(save_preset, "Save combat preset", "Preset name")
-                if accepted and name.strip():
-                    on_set_combat_prayer_config("save_preset", name.strip())
-            save_preset.clicked.connect(_save_current_preset)
-        prayer_controls_layout.addWidget(save_preset)
-
-        book_combo = QComboBox()
-        book_combo.setObjectName("combatPrayerBookCombo")
-        book_combo.addItem("Standard prayers", "standard")
-        temple_done = bool(((player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {}).get("completed"))
-        book_combo.addItem("Ancient Curses", "curses")
-        curses_index = book_combo.findData("curses")
-        if curses_index >= 0:
-            book_combo.model().item(curses_index).setEnabled(temple_done)
-        book_combo.setCurrentIndex(max(0, book_combo.findData(player_data.get("combat_prayer_book", "standard"))))
-        if on_set_combat_prayer_config is not None:
-            book_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_book", book_combo.currentData()))
-        prayer_controls_layout.addWidget(book_combo)
-
-        uptime_combo = QComboBox()
-        uptime_combo.setObjectName("combatPrayerUptimeCombo")
-        for label, value in (("Off", "off"), ("Conservative 40%", "40"), ("Aggressive 70%", "70"), ("Always 100%", "100")):
-            uptime_combo.addItem(label, value)
-        uptime_combo.setCurrentIndex(max(0, uptime_combo.findData(player_data.get("combat_prayer_uptime", "off"))))
-        if on_set_combat_prayer_config is not None:
-            uptime_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_uptime", uptime_combo.currentData()))
-        prayer_controls_layout.addWidget(uptime_combo)
-        advanced_layout.addWidget(prayer_controls)
-
-        magic_advanced = QWidget()
-        magic_advanced_layout = QHBoxLayout(magic_advanced)
-        magic_advanced_layout.setContentsMargins(0, 0, 0, 0)
-        vengeance_check = QCheckBox("Vengeance")
-        vengeance_check.setObjectName("combatVengeanceCheck")
-        vengeance_check.setChecked(bool(player_data.get("combat_vengeance", False)))
-        swap_combo = QComboBox()
-        swap_combo.setObjectName("combatSpellbookSwapCombo")
-        swap_combo.addItem("No Spellbook Swap", "")
-        swap_combo.addItem("Swap autocast", str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL)))
-        swap_combo.addItem("Swap Vengeance", "vengeance")
-        swap_combo.addItem("Swap Dream", "dream")
-        swap_combo.setCurrentIndex(max(0, swap_combo.findData(str(player_data.get("combat_spellbook_swap", "") or ""))))
-        if on_set_combat_prayer_config is not None:
-            vengeance_check.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_vengeance", bool(enabled)))
-            swap_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_spellbook_swap", str(swap_combo.currentData() or "")))
-        magic_advanced_layout.addWidget(vengeance_check)
-        magic_advanced_layout.addWidget(QLabel("One off-book effect"))
-        magic_advanced_layout.addWidget(swap_combo, 1)
-        advanced_layout.addWidget(magic_advanced)
-
-        target_id = str(player_data.get("current_combat_target", ""))
-        target_pins = player_data.get("combat_target_presets", {}) or {}
-        target_overrides = (player_data.get("combat_target_overrides", {}) or {}).get(target_id, {}) or {}
-        preset_scope = QWidget()
-        preset_scope_layout = QHBoxLayout(preset_scope)
-        preset_scope_layout.setContentsMargins(0, 0, 0, 0)
-        pin_preset = QCheckBox("Pin preset to this target")
-        pin_preset.setObjectName("combatPinPresetCheck")
-        pin_preset.setChecked(target_pins.get(target_id) == active_preset)
-        override_prayers = QCheckBox("Override prayers")
-        override_prayers.setObjectName("combatOverridePrayersCheck")
-        override_prayers.setChecked("combat_selected_prayers" in target_overrides)
-        override_uptime = QCheckBox("Override uptime")
-        override_uptime.setObjectName("combatOverridePrayerUptimeCheck")
-        override_uptime.setChecked("combat_prayer_uptime" in target_overrides)
-        if on_set_combat_prayer_config is not None:
-            pin_preset.toggled.connect(lambda enabled: on_set_combat_prayer_config("pin_target_preset", enabled))
-            override_prayers.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_selected_prayers", enabled)))
-            override_uptime.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_prayer_uptime", enabled)))
-        preset_scope_layout.addWidget(pin_preset)
-        preset_scope_layout.addWidget(override_prayers)
-        preset_scope_layout.addWidget(override_uptime)
-        advanced_layout.addWidget(preset_scope)
-
-        hide_lower = QCheckBox("Hide lower-tier prayers")
-        hide_lower.setObjectName("combatPrayerHideLowerCheck")
-        advanced_layout.addWidget(hide_lower)
-        prayer_grid = QWidget()
-        prayer_grid.setObjectName("combatPrayerCheckboxGrid")
-        prayer_grid_layout = QGridLayout(prayer_grid)
-        prayer_grid_layout.setContentsMargins(0, 0, 0, 0)
-        selected_prayers = set(player_data.get("combat_selected_prayers", ()) or ())
-        prayer_level = int(player_data.get("prayer_level", 1) or 1)
-        defence_level = int(player_data.get("defense_level", 1) or 1)
-        knight_waves_done = bool((player_data.get("knight_waves", {}) or {}).get("completed"))
-        current_book = str(player_data.get("combat_prayer_book", "standard"))
-        prayer_checks = []
-
-        def _on_prayer_toggled(prayer_id: str, checked: bool) -> None:
-            selected = [str(pid) for pid in (player_data.get("combat_selected_prayers", ()) or ()) if str(pid) != prayer_id]
-            if checked:
-                selected.insert(0, prayer_id)
-            if on_set_combat_prayer_config is not None:
-                on_set_combat_prayer_config("combat_selected_prayers", selected)
-                active = set(player_data.get("combat_selected_prayers", ()) or ())
-                for prayer_check in prayer_checks:
-                    prayer_check.blockSignals(True)
-                    prayer_check.setChecked(str(prayer_check.property("prayerId")) in active)
-                    prayer_check.blockSignals(False)
-
-        visible_prayers = [prayer for prayer in COMBAT_PRAYERS if prayer.book == current_book]
-        for index, prayer in enumerate(visible_prayers):
-            level_copy = f"Lv {prayer.level} Prayer"
-            if prayer.defence_level > 1:
-                level_copy += f"; {prayer.defence_level} Defence"
-            check = QCheckBox(f"{prayer.display_name} ({level_copy})")
-            check.setObjectName(f"combatPrayerCheck::{prayer.id}")
-            check.setChecked(prayer.id in selected_prayers)
-            gate_done = True
-            if prayer.quest_gate == "the_temple_at_senntisten":
-                gate_done = temple_done
-            elif prayer.quest_gate == "knight_waves":
-                gate_done = knight_waves_done
-            check.setEnabled(
-                prayer.level <= prayer_level
-                and prayer.defence_level <= defence_level
-                and gate_done
-            )
-            if prayer.quest_gate == "knight_waves":
-                requirements = [f"{prayer.level} Prayer"]
-                if prayer.defence_level > 1:
-                    requirements.append(f"{prayer.defence_level} Defence")
-                check.setToolTip(
-                    f"Requires {', '.join(requirements)}, and Knight Waves completion."
-                )
-            check.setProperty("prayerLevel", prayer.level)
-            check.setProperty("prayerId", prayer.id)
-            check.toggled.connect(lambda checked, pid=prayer.id: _on_prayer_toggled(pid, checked))
-            prayer_grid_layout.addWidget(check, index // 3, index % 3)
-            prayer_checks.append(check)
-        hide_lower.toggled.connect(
-            lambda hidden: [check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= max(1, prayer_level - 15)) for check in prayer_checks]
-        )
-        advanced_layout.addWidget(prayer_grid)
-
-        auto_prayer = QCheckBox("Auto-bury/scatter combat drops (costs simulated ticks)")
-        auto_prayer.setObjectName("combatAutoPrayerTrainingCheck")
-        auto_prayer.setChecked(bool(player_data.get("combat_auto_prayer_training", False)))
-        auto_prayer.toggled.connect(_set_auto_prayer_training)
-        auto_prayer_checks.append(auto_prayer)
-        advanced_layout.addWidget(auto_prayer)
-
-        # ---- Loot from this enemy ----
-        # Deciding what to pick up belongs with the live combat controls, not the
-        # Bank tab. The default view is coarse: a value threshold plus a single
-        # "keep everything" toggle. Per-drop overrides are opt-in behind an
-        # "Advanced" disclosure, rendered as icon cells with a binary Keep | Drop
-        # pill (neither segment lit = follow the value threshold).
-        loot_header = QLabel("Loot")
-        loot_header.setObjectName("combatLootHeader")
-        loot_header.setStyleSheet("color: palette(text); font-weight: 600;")
-        layout.addWidget(loot_header)
-
-        loot_row = QWidget()
-        loot_row_layout = QHBoxLayout(loot_row)
-        loot_row_layout.setContentsMargins(0, 0, 0, 0)
-        loot_row_layout.setSpacing(8)
-        loot_label = QLabel("Leave loot under")
-        loot_label.setStyleSheet("color: palette(text);")
-        loot_spin = QSpinBox()
-        loot_spin.setObjectName("combatLootThresholdSpin")
-        loot_spin.setRange(0, 100000)
-        loot_spin.setSingleStep(5)
-        loot_spin.setSuffix(" gp value")
-        try:
-            _loot_threshold = int(player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD))
-        except (TypeError, ValueError):
-            _loot_threshold = inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD
-        loot_spin.setValue(max(0, _loot_threshold))
-        if on_set_loot_threshold is not None:
-            loot_spin.valueChanged.connect(lambda value: on_set_loot_threshold(int(value)))
-        loot_row_layout.addWidget(loot_label)
-        loot_row_layout.addWidget(loot_spin, 1)
-        layout.addWidget(loot_row)
-
-        if loot_override_rows:
-            _LOOT_MODES = ("auto", "keep", "leave")
-            loot_cell_state: dict = {}
-            loot_pill_refreshers: dict = {}
-
-            def _apply_loot_cell(item_name: str, mode: str) -> None:
-                loot_cell_state[item_name] = mode
-                refresh = loot_pill_refreshers.get(item_name)
-                if refresh is not None:
-                    refresh(mode)
-
-            keep_all_check = QCheckBox("Keep every drop from this enemy")
-            keep_all_check.setObjectName("combatLootKeepAllCheck")
-
-            def _sync_keep_all() -> None:
-                names = [str(r.get("item", "")) for r in loot_override_rows if str(r.get("item", ""))]
-                all_keep = bool(names) and all(loot_cell_state.get(n) == "keep" for n in names)
-                keep_all_check.blockSignals(True)
-                keep_all_check.setChecked(all_keep)
-                keep_all_check.blockSignals(False)
-
-            def _on_keep_all(checked: bool) -> None:
-                mode = "keep" if checked else "auto"
-                for _r in loot_override_rows:
-                    name = str(_r.get("item", ""))
-                    if not name:
-                        continue
-                    _apply_loot_cell(name, mode)
-                    if on_set_loot_override is not None:
-                        on_set_loot_override(name, mode)
-
-            keep_all_check.toggled.connect(_on_keep_all)
-            layout.addWidget(keep_all_check)
-
-            loot_adv_check = QCheckBox("Advanced: keep or drop specific drops")
-            loot_adv_check.setObjectName("combatLootAdvancedCheck")
-            layout.addWidget(loot_adv_check)
-
-            loot_grid_container = QWidget()
-            loot_grid_container.setObjectName("combatLootOverrideGrid")
-            loot_grid_layout = QGridLayout(loot_grid_container)
-            loot_grid_layout.setContentsMargins(0, 2, 0, 2)
-            loot_grid_layout.setSpacing(6)
-            _LOOT_GRID_COLS = 2
-
-            # Each drop gets a joined two-segment pill — Keep | Drop. Neither
-            # segment lit means "Auto": that drop follows the "Leave loot under N
-            # gp" threshold. Clicking a lit segment again clears back to Auto, so
-            # the binary switch still reaches all three backend modes the engine
-            # understands (auto / keep / leave).
-            def _seg_css(side: str, active: bool, accent: str) -> str:
-                radius = (
-                    "border-top-left-radius:6px;border-bottom-left-radius:6px;border-right:none;"
-                    if side == "left"
-                    else "border-top-right-radius:6px;border-bottom-right-radius:6px;"
-                )
-                if active:
-                    face = f"background:{accent};color:palette(text);font-weight:600;"
-                else:
-                    face = f"background:transparent;color:{dim_text_css(loot_grid_container)};"
-                return (
-                    f"QPushButton{{border:1px solid palette(mid);{radius}"
-                    f"padding:2px 12px;font-size:11px;{face}}}"
-                )
-
-            def _set_loot_mode(name: str, new_mode: str) -> None:
-                _apply_loot_cell(name, new_mode)
-                if on_set_loot_override is not None:
-                    on_set_loot_override(name, new_mode)
-                _sync_keep_all()
-
-            _cell_idx = 0
-            for _r in loot_override_rows:
-                item_name = str(_r.get("item", ""))
-                if not item_name:
-                    continue
-                mode = str(_r.get("mode", "auto"))
-                if mode not in _LOOT_MODES:
-                    mode = "auto"
-                cell = QWidget()
-                cell.setObjectName(f"combatLootCell{_cell_idx}")
-                cell_layout = QHBoxLayout(cell)
-                cell_layout.setContentsMargins(2, 2, 2, 2)
-                cell_layout.setSpacing(8)
-                icon_label = QLabel()
-                _def = _item_def_for(item_name)
-                _icon = _bank_icon_path(item_name, _def.asset_path if _def is not None else None)
-                if _icon:
-                    icon_label.setPixmap(QPixmap(_icon).scaled(22, 22, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-                icon_label.setFixedWidth(24)
-                name_label = QLabel(item_name)
-                name_label.setStyleSheet("color: palette(text); font-size: 11px;")
-                keep_btn = QPushButton("Keep")
-                keep_btn.setObjectName(f"lootOverrideKeep::{item_name}")
-                keep_btn.setFixedHeight(24)
-                drop_btn = QPushButton("Drop")
-                drop_btn.setObjectName(f"lootOverrideDrop::{item_name}")
-                drop_btn.setFixedHeight(24)
-                keep_btn.setEnabled(on_set_loot_override is not None)
-                drop_btn.setEnabled(on_set_loot_override is not None)
-
-                def _refresh_pill(new_mode: str, kb=keep_btn, db=drop_btn) -> None:
-                    kb.setStyleSheet(_seg_css("left", new_mode == "keep", "rgba(76,175,80,0.35)"))
-                    db.setStyleSheet(_seg_css("right", new_mode == "leave", "rgba(192,69,59,0.35)"))
-
-                loot_pill_refreshers[item_name] = _refresh_pill
-                keep_btn.clicked.connect(
-                    lambda _c=False, name=item_name: _set_loot_mode(
-                        name, "auto" if loot_cell_state.get(name) == "keep" else "keep"
-                    )
-                )
-                drop_btn.clicked.connect(
-                    lambda _c=False, name=item_name: _set_loot_mode(
-                        name, "auto" if loot_cell_state.get(name) == "leave" else "leave"
-                    )
-                )
-                pill = QWidget()
-                pill_layout = QHBoxLayout(pill)
-                pill_layout.setContentsMargins(0, 0, 0, 0)
-                pill_layout.setSpacing(0)
-                pill_layout.addWidget(keep_btn)
-                pill_layout.addWidget(drop_btn)
-                cell_layout.addWidget(icon_label)
-                cell_layout.addWidget(name_label, 1)
-                cell_layout.addWidget(pill)
-                _apply_loot_cell(item_name, mode)
-                loot_grid_layout.addWidget(cell, _cell_idx // _LOOT_GRID_COLS, _cell_idx % _LOOT_GRID_COLS)
-                _cell_idx += 1
-
-            loot_grid_container.setVisible(False)
-            loot_adv_check.toggled.connect(lambda checked: loot_grid_container.setVisible(bool(checked)))
-            layout.addWidget(loot_grid_container)
-            _sync_keep_all()
-
-        current_target_label = QLabel(
-            f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
-        )
-        current_target_label.setObjectName("combatCurrentTargetLabel")
-        current_target_label.setStyleSheet(
-            "color: palette(text); font-weight: 600; padding-top: 2px;"
-        )
-        layout.addWidget(current_target_label)
-
-        def _refresh_combat_setup_panel() -> None:
-            mode_label.setText(f"Combat mode: {_combat_mode_text()}")
-            _rebuild_style_combo()
-            _refresh_combat_action()
-            _refresh_borrowed_power_row()
-            current_target_label.setText(
-                f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
-            )
-
-        _combat_setup_refreshers.append(_refresh_combat_setup_panel)
-
-        layout.addStretch(1)
-        return panel
 
     def _build_combat_skill_bars() -> QWidget:
         # Per-skill XP progress, the same read-out the gathering/artisan skills
@@ -8306,6 +7552,339 @@ def show_main_menu(
         task_only.toggled.connect(_set_task_only)
         layout.addWidget(search, 1)
         return container
+
+    def _leave_running_activity(activity_id: str) -> bool:
+        return leave_running_activity(dialog, show_error_message, (
+            LeaveRule(
+                FLASH_POWDER_FACTORY_ACTIVITY_ID,
+                lambda: flash_powder_factory_view_pure(player_data)["active"],
+                "Leave Flash Powder Factory?",
+                "Switching activities cashes out the current factory score with the early-exit penalty.",
+                on_agility_command,
+                "leave_flash_powder_factory",
+                "Factory actions are unavailable.",
+                "Flash Powder Factory",
+                "Could not leave the factory.",
+            ),
+            LeaveRule(
+                PYRAMID_PLUNDER_ACTIVITY_ID,
+                lambda: pyramid_plunder_view_pure(player_data)["active"],
+                "Leave Pyramid Plunder?",
+                "Switching activities leaves the pyramid and banks the retained artefacts.",
+                on_agility_command,
+                "leave_pyramid_plunder",
+                "Pyramid Plunder actions are unavailable.",
+                "Pyramid Plunder",
+                "Could not leave the pyramid.",
+            ),
+            LeaveRule(
+                WEREWOLF_SKULLBALL_ACTIVITY_ID,
+                lambda: werewolf_skullball_view_pure(player_data)["active"],
+                "Leave Werewolf Skullball?",
+                "Switching activities leaves the current Skullball run.",
+                on_agility_command,
+                "leave_werewolf_skullball",
+                "Skullball actions are unavailable.",
+                "Werewolf Skullball",
+                "Could not leave the course.",
+            ),
+            LeaveRule(
+                GNOME_BALL_ACTIVITY_ID,
+                lambda: gnome_ball_view_pure(player_data)["active"],
+                "Leave Gnome Ball?",
+                "Switch activities? Scored XP stays; the unfinished goals and referee reward are forfeited.",
+                on_agility_command,
+                "leave_gnome_ball",
+                "Gnome Ball actions are unavailable.",
+                "Gnome Ball",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                FISH_FLINGERS_ACTIVITY_ID,
+                lambda: fish_flingers_view_pure(player_data)["active"],
+                "Leave Fish Flingers?",
+                "Switch activities? The entry ticket and unfinished event score are forfeited.",
+                on_fish_flingers_command,
+                "leave_fish_flingers",
+                "Fish Flingers actions are unavailable.",
+                "Fish Flingers",
+                "Could not leave the event.",
+            ),
+            LeaveRule(
+                FISHING_TRAWLER_ACTIVITY_ID,
+                lambda: fishing_trawler_view_pure(player_data)["active"],
+                "Leave Fishing Trawler?",
+                "Switch activities? Unused supplies return to the bank, but the unfinished haul is forfeited.",
+                on_fishing_trawler_command,
+                "leave_fishing_trawler",
+                "Fishing Trawler actions are unavailable.",
+                "Fishing Trawler",
+                "Could not leave the trip.",
+            ),
+            LeaveRule(
+                TROUBLE_BREWING_ACTIVITY_ID,
+                lambda: trouble_brewing_view_pure(player_data)["active"],
+                "Leave Trouble Brewing?",
+                "Switch activities? Unfinished rum, contribution, and match rewards are forfeited.",
+                on_trouble_brewing_command,
+                "leave",
+                "Trouble Brewing actions are unavailable.",
+                "Trouble Brewing",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                CASTLE_WARS_ACTIVITY_ID,
+                lambda: castle_wars_view_pure(player_data)["active"],
+                "Leave Castle Wars?",
+                "Switch activities? The unfinished score, contribution, and tickets are forfeited.",
+                on_castle_wars_command,
+                "leave",
+                "Castle Wars actions are unavailable.",
+                "Castle Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                PEST_CONTROL_ACTIVITY_ID,
+                lambda: pest_control_view_pure(player_data)["active"],
+                "Leave Pest Control?",
+                "Switch activities? The unfinished assault and all pending rewards are forfeited.",
+                on_pest_control_command,
+                "leave",
+                "Pest Control actions are unavailable.",
+                "Pest Control",
+                "Could not leave the game.",
+            ),
+            LeaveRule(
+                SOUL_WARS_ACTIVITY_ID,
+                lambda: soul_wars_view_pure(player_data)["active"],
+                "Leave Soul Wars?",
+                "Switch activities? The unfinished match, fragments, and pending Zeal are forfeited.",
+                on_soul_wars_command,
+                "leave",
+                "Soul Wars actions are unavailable.",
+                "Soul Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                SHADES_OF_MORTTON_ACTIVITY_ID,
+                lambda: shades_of_mortton_view_pure(player_data)["active"],
+                "Leave Shades of Mort'ton?",
+                "Switch activities? Temple repair, sanctity, and reward ledgers are preserved.",
+                on_shades_of_mortton_command,
+                "leave",
+                "Mort'ton actions are unavailable.",
+                "Shades of Mort'ton",
+                "Could not leave Mort'ton.",
+            ),
+            LeaveRule(
+                TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+                lambda: tzhaar_fight_pit_view_pure(player_data)["active"],
+                "Leave the TzHaar Fight Pit?",
+                "Switch activities? The safe match ends and pending TokKul is forfeited.",
+                on_tzhaar_fight_pit_command,
+                "leave",
+                "Fight Pit actions are unavailable.",
+                "TzHaar Fight Pit",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                DUEL_ARENA_ACTIVITY_ID,
+                lambda: duel_arena_view_pure(player_data)["active"],
+                "Forfeit the Duel Arena challenge?",
+                "Switch activities? The challenge ends safely and all combat stats are restored.",
+                on_duel_arena_command,
+                "abandon",
+                "Duel Arena actions are unavailable.",
+                "Duel Arena",
+                "Could not forfeit the challenge.",
+                lambda: "No Forfeit is enabled; finish the bounded duel through reviews."
+                if "no_forfeit" in duel_arena_view_pure(player_data)["selected_rule_ids"]
+                else "",
+            ),
+            LeaveRule(
+                CLAN_WARS_ACTIVITY_ID,
+                lambda: clan_wars_view_pure(player_data)["active"],
+                "Leave Clan Wars?",
+                "Switch activities? You will leave through the portal and end the bounded match.",
+                on_clan_wars_command,
+                "leave",
+                "Clan Wars actions are unavailable.",
+                "Clan Wars",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                TROLL_INVASION_ACTIVITY_ID,
+                lambda: troll_invasion_view_pure(player_data)["active"],
+                "Leave Troll Invasion?",
+                "Switch activities? The safe run ends and its current partial completion is cashed out.",
+                on_troll_invasion_command,
+                "leave",
+                "Troll Invasion actions are unavailable.",
+                "Troll Invasion",
+                "Could not leave the invasion.",
+            ),
+            LeaveRule(
+                MAGE_TRAINING_ARENA_ACTIVITY_ID,
+                lambda: mage_training_arena_view_pure(player_data)["active"],
+                "Leave the Mage Training Arena?",
+                "Switch activities and return to the Arena lobby?",
+                on_mage_training_arena_command,
+                "leave",
+                "Mage Training Arena actions are unavailable.",
+                "Mage Training Arena",
+                "Could not leave the Arena.",
+            ),
+            LeaveRule(
+                RANGING_GUILD_ACTIVITY_ID,
+                lambda: ranging_guild_view_pure(player_data)["active"],
+                "Leave the Ranging Guild competition?",
+                "Switch activities and forfeit the unfinished score?",
+                on_ranging_guild_command,
+                "leave",
+                "Ranging Guild actions are unavailable.",
+                "Ranging Guild",
+                "Could not leave the competition.",
+            ),
+            LeaveRule(
+                MOBILISING_ARMIES_ACTIVITY_ID,
+                lambda: mobilising_armies_view_pure(player_data)["active"],
+                "Forfeit the scenario?",
+                "Switch activities and forfeit the battle without rank or credits?",
+                on_mobilising_armies_command,
+                "forfeit",
+                "Mobilising Armies actions are unavailable.",
+                "Mobilising Armies",
+                "Could not forfeit the battle.",
+            ),
+            LeaveRule(
+                GNOME_RESTAURANT_ACTIVITY_ID,
+                lambda: gnome_restaurant_view_pure(player_data)["order"],
+                "Drop the gnome delivery?",
+                "Switch activities and hand the delivery box back?",
+                on_gnome_restaurant_command,
+                "leave",
+                "Gnome Restaurant actions are unavailable.",
+                "Gnome Restaurant",
+                "Could not hand the box back.",
+            ),
+            LeaveRule(
+                DOMINION_TOWER_ACTIVITY_ID,
+                lambda: dominion_tower_view_pure(player_data)["active"],
+                "Leave the Dominion Tower?",
+                "Switch activities and end the current tower run?",
+                on_dominion_tower_command,
+                "leave",
+                "Dominion Tower actions are unavailable.",
+                "Dominion Tower",
+                "Could not leave the tower.",
+            ),
+            LeaveRule(
+                TEMPLE_TREKKING_ACTIVITY_ID,
+                lambda: temple_trekking_view_pure(player_data)["active"],
+                "Abandon Temple Trekking?",
+                "Switch activities and abandon the active trek without a token?",
+                on_temple_trekking_command,
+                "abandon",
+                "Temple Trekking actions are unavailable.",
+                "Temple Trekking",
+                "Could not abandon the trek.",
+            ),
+            LeaveRule(
+                GOBLIN_RAIDS_ACTIVITY_ID,
+                lambda: goblin_raids_view_pure(player_data, speed=_game_speed())["active"],
+                "Leave Goblin Raids?",
+                lambda: "Switch activities and walk away from the goblins?"
+                + (
+                    " The spoils you have not claimed will be lost."
+                    if goblin_raids_view_pure(player_data, speed=_game_speed())["pending_spoils"]
+                    else ""
+                ),
+                on_goblin_raids_command,
+                "leave",
+                "Goblin Raids actions are unavailable.",
+                "Goblin Raids",
+                "Could not leave the goblins.",
+            ),
+            LeaveRule(
+                CRUCIBLE_ACTIVITY_ID,
+                lambda: crucible_view_pure(player_data)["active"],
+                "Leave the Crucible?",
+                lambda: "Switch activities? You abandon your bounty target, so the "
+                f"{crucible_view_pure(player_data)['fee']['abandon_component']} coin "
+                "abandonment part of your fee goes to the opponent.",
+                on_crucible_command,
+                "leave",
+                "Crucible actions are unavailable.",
+                "The Crucible",
+                "Could not leave the arena.",
+            ),
+            LeaveRule(
+                BARBARIAN_ASSAULT_ACTIVITY_ID,
+                lambda: barbarian_assault_view_pure(player_data)["active"],
+                "Leave Barbarian Assault?",
+                "Switch activities? The current wave restarts and its pending points are forfeited.",
+                on_barbarian_assault_command,
+                "leave",
+                "Barbarian Assault actions are unavailable.",
+                "Barbarian Assault",
+                "Could not leave the run.",
+            ),
+            LeaveRule(
+                GREAT_ORB_PROJECT_ACTIVITY_ID,
+                lambda: great_orb_project_view_pure(player_data)["active"],
+                "Leave Great Orb Project?",
+                "Switch activities? Pending tokens and saved essence are forfeited.",
+                on_great_orb_project_command,
+                "leave_great_orb_project",
+                "Great Orb Project actions are unavailable.",
+                "Great Orb Project",
+                "Could not leave the match.",
+            ),
+            LeaveRule(
+                COURT_CASES_ACTIVITY_ID,
+                lambda: court_cases_view_pure(player_data)["active"],
+                "Give up court case?",
+                "Switch activities? Preparation is lost and a consumed Court summons is not returned.",
+                on_court_cases_command,
+                "leave",
+                "Court Cases actions are unavailable.",
+                "Court Cases",
+                "Could not leave the case.",
+            ),
+            LeaveRule(
+                PHOENIX_LAIR_ACTIVITY_ID,
+                lambda: phoenix_lair_view_pure(player_data)["active"],
+                "Abandon Phoenix Lair run?",
+                "Switch activities? Unfinished guardian, twig, and pyre progress is lost. Earned drops and Combat XP remain, and today's allowance is not consumed.",
+                on_phoenix_lair_command,
+                "leave",
+                "Phoenix Lair actions are unavailable.",
+                "Phoenix Lair",
+                "Could not abandon the run.",
+            ),
+            LeaveRule(
+                SKELETAL_HORROR_ACTIVITY_ID,
+                lambda: skeletal_horror_view_pure(player_data)["active"],
+                "Leave the Skeletal Horror lair?",
+                "Switch activities? Current phase progress is lost, but the weekly entry is not consumed.",
+                on_skeletal_horror_command,
+                "leave",
+                "Skeletal Horror actions are unavailable.",
+                "Skeletal Horror",
+                "Could not leave the lair.",
+            ),
+            LeaveRule(
+                BORK_ACTIVITY_ID,
+                lambda: bork_view_pure(player_data)["active"],
+                "Leave Bork's chamber?",
+                "Switch activities? Bork heals to full, but the daily kill is not consumed.",
+                on_bork_command,
+                "leave",
+                "Bork actions are unavailable.",
+                "Bork",
+                "Could not leave the chamber.",
+            ),
+        ), activity_id)
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
@@ -9144,7 +8723,7 @@ def show_main_menu(
                 )
                 bonus_ticks = int(view["ore_bonus_ticks_remaining"])
                 star_detail.setText(
-                    f"Extra-ore bonus: {bonus_ticks:,} ticks remaining"
+                    f"Extra-ore bonus: {view['ore_bonus_left_text']}"
                     if bonus_ticks > 0
                     else "A communal star falls about every 20 answered cards."
                 )
@@ -9341,7 +8920,7 @@ def show_main_menu(
 
         def _refresh_fist_of_guthix_panel() -> None:
             syncing_fog["active"] = True
-            view = fist_of_guthix_view_pure(player_data)
+            view = fist_of_guthix_view_pure(player_data, speed=_game_speed())
             selected = (
                 player_data.get("current_utility")
                 == FIST_OF_GUTHIX_ACTIVITY_ID
@@ -9378,7 +8957,7 @@ def show_main_menu(
                     f"{opponent.get('display_name', 'Arena rival')} · "
                     f"you {int(match.get('player_charges', 0)):,} vs "
                     f"{int(match.get('opponent_charges', 0)):,} charges · "
-                    f"{int(match.get('round_ticks_remaining', 0))} ticks left"
+                    f"{match['round_left_text']}"
                 )
                 supplies = match.get("temporary_supplies", {}) or {}
                 fog_detail.setText(
@@ -11618,7 +11197,7 @@ def show_main_menu(
         tears_layout.addWidget(tears_actions)
 
         def _refresh_tears_of_guthix_panel() -> None:
-            view = tears_of_guthix_view_pure(player_data)
+            view = tears_of_guthix_view_pure(player_data, speed=_game_speed())
             active = bool(view["active"])
             selected = (
                 active
@@ -11683,7 +11262,7 @@ def show_main_menu(
                         )
                     )
                     tears_summary.setText(
-                        f"{int(view['collection_ticks'])} ticks of tears · "
+                        f"{view['collection_text']} of tears · "
                         f"{int(view['entry_beats'])} collection beats · "
                         f"{int(view['xp_per_tear'])} XP per tear into "
                         f"{reward_skill['display_name']}"
@@ -13355,7 +12934,7 @@ def show_main_menu(
             return result
 
         def _refresh_fish_flingers_panel() -> None:
-            view = fish_flingers_view_pure(player_data)
+            view = fish_flingers_view_pure(player_data, speed=_game_speed())
             active = bool(view["active"])
             fish_flingers_currency.setText(
                 f"{'ACTIVE' if active else 'READY'} · "
@@ -13380,7 +12959,7 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    f"{FISH_FLINGERS_EVENT_CATCHES} catches over 1,000 ticks · tackle discovery improves every catch · "
+                    f"{FISH_FLINGERS_EVENT_CATCHES} catches over {view['event_length_text']} · tackle discovery improves every catch · "
                     "stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])
@@ -19731,756 +19310,10 @@ def show_main_menu(
             selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
-            if (
-                activity_id != FLASH_POWDER_FACTORY_ACTIVITY_ID
-                and flash_powder_factory_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Flash Powder Factory?",
-                    "Switching activities cashes out the current factory score with the early-exit penalty.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_flash_powder_factory", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Factory actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Flash Powder Factory",
-                        str((result or {}).get("message", "Could not leave the factory.")),
-                    )
-                    return False
-            if (
-                activity_id != PYRAMID_PLUNDER_ACTIVITY_ID
-                and pyramid_plunder_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Pyramid Plunder?",
-                    "Switching activities leaves the pyramid and banks the retained artefacts.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_pyramid_plunder", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Pyramid Plunder actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Pyramid Plunder",
-                        str((result or {}).get("message", "Could not leave the pyramid.")),
-                    )
-                    return False
-            if (
-                activity_id != WEREWOLF_SKULLBALL_ACTIVITY_ID
-                and werewolf_skullball_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Werewolf Skullball?",
-                    "Switching activities leaves the current Skullball run.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_werewolf_skullball", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Skullball actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Werewolf Skullball",
-                        str((result or {}).get("message", "Could not leave the course.")),
-                    )
-                    return False
-            if (
-                activity_id != GNOME_BALL_ACTIVITY_ID
-                and gnome_ball_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Gnome Ball?",
-                    "Switch activities? Scored XP stays; the unfinished goals "
-                    "and referee reward are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_agility_command("leave_gnome_ball", {})
-                    if on_agility_command is not None
-                    else {"ok": False, "message": "Gnome Ball actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Gnome Ball",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != FISH_FLINGERS_ACTIVITY_ID
-                and fish_flingers_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Fish Flingers?",
-                    "Switch activities? The entry ticket and unfinished event score are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_fish_flingers_command("leave_fish_flingers", {})
-                    if on_fish_flingers_command is not None
-                    else {"ok": False, "message": "Fish Flingers actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Fish Flingers",
-                        str((result or {}).get("message", "Could not leave the event.")),
-                    )
-                    return False
-            if (
-                activity_id != FISHING_TRAWLER_ACTIVITY_ID
-                and fishing_trawler_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Fishing Trawler?",
-                    "Switch activities? Unused supplies return to the bank, but the unfinished haul is forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_fishing_trawler_command("leave_fishing_trawler", {})
-                    if on_fishing_trawler_command is not None
-                    else {"ok": False, "message": "Fishing Trawler actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Fishing Trawler",
-                        str((result or {}).get("message", "Could not leave the trip.")),
-                    )
-                    return False
-            if (
-                activity_id != TROUBLE_BREWING_ACTIVITY_ID
-                and trouble_brewing_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Trouble Brewing?",
-                    "Switch activities? Unfinished rum, contribution, and match rewards are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_trouble_brewing_command("leave", {})
-                    if on_trouble_brewing_command is not None
-                    else {"ok": False, "message": "Trouble Brewing actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Trouble Brewing",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != CASTLE_WARS_ACTIVITY_ID
-                and castle_wars_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Castle Wars?",
-                    "Switch activities? The unfinished score, contribution, and tickets are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_castle_wars_command("leave", {})
-                    if on_castle_wars_command is not None
-                    else {"ok": False, "message": "Castle Wars actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Castle Wars",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != PEST_CONTROL_ACTIVITY_ID
-                and pest_control_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Pest Control?",
-                    "Switch activities? The unfinished assault and all pending rewards are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_pest_control_command("leave", {})
-                    if on_pest_control_command is not None
-                    else {"ok": False, "message": "Pest Control actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Pest Control",
-                        str((result or {}).get("message", "Could not leave the game.")),
-                    )
-                    return False
-            if (
-                activity_id != SOUL_WARS_ACTIVITY_ID
-                and soul_wars_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Soul Wars?",
-                    "Switch activities? The unfinished match, fragments, and pending Zeal are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_soul_wars_command("leave", {})
-                    if on_soul_wars_command is not None
-                    else {"ok": False, "message": "Soul Wars actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Soul Wars",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != SHADES_OF_MORTTON_ACTIVITY_ID
-                and shades_of_mortton_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Shades of Mort'ton?",
-                    "Switch activities? Temple repair, sanctity, and reward ledgers are preserved.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_shades_of_mortton_command("leave", {})
-                    if on_shades_of_mortton_command is not None
-                    else {"ok": False, "message": "Mort'ton actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Shades of Mort'ton",
-                        str((result or {}).get("message", "Could not leave Mort'ton.")),
-                    )
-                    return False
-            if (
-                activity_id != TZHAAR_FIGHT_PIT_ACTIVITY_ID
-                and tzhaar_fight_pit_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the TzHaar Fight Pit?",
-                    "Switch activities? The safe match ends and pending TokKul is forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_tzhaar_fight_pit_command("leave", {})
-                    if on_tzhaar_fight_pit_command is not None
-                    else {"ok": False, "message": "Fight Pit actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "TzHaar Fight Pit",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            duel_view = duel_arena_view_pure(player_data)
-            if activity_id != DUEL_ARENA_ACTIVITY_ID and duel_view["active"]:
-                if "no_forfeit" in duel_view["selected_rule_ids"]:
-                    show_error_message(
-                        "Duel Arena",
-                        "No Forfeit is enabled; finish the bounded duel through reviews.",
-                    )
-                    return False
-                answer = QMessageBox.question(
-                    dialog,
-                    "Forfeit the Duel Arena challenge?",
-                    "Switch activities? The challenge ends safely and all combat stats are restored.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_duel_arena_command("abandon", {})
-                    if on_duel_arena_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Duel Arena actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Duel Arena",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not forfeit the challenge.",
-                            )
-                        ),
-                    )
-                    return False
-            clan_view = clan_wars_view_pure(player_data)
-            if activity_id != CLAN_WARS_ACTIVITY_ID and clan_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Clan Wars?",
-                    "Switch activities? You will leave through the portal and "
-                    "end the bounded match.",
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_clan_wars_command("leave", {})
-                    if on_clan_wars_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Clan Wars actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Clan Wars",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the match.",
-                            )
-                        ),
-                    )
-                    return False
-            troll_view = troll_invasion_view_pure(player_data)
-            if activity_id != TROLL_INVASION_ACTIVITY_ID and troll_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Troll Invasion?",
-                    "Switch activities? The safe run ends and its current partial completion is cashed out.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_troll_invasion_command("leave", {})
-                    if on_troll_invasion_command is not None
-                    else {"ok": False, "message": "Troll Invasion actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Troll Invasion",
-                        str((result or {}).get("message", "Could not leave the invasion.")),
-                    )
-                    return False
-            mage_training_view = mage_training_arena_view_pure(player_data)
-            if (
-                activity_id != MAGE_TRAINING_ARENA_ACTIVITY_ID
-                and mage_training_view["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Mage Training Arena?",
-                    "Switch activities and return to the Arena lobby?",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_mage_training_arena_command("leave", {})
-                    if on_mage_training_arena_command is not None
-                    else {"ok": False, "message": "Mage Training Arena actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Mage Training Arena",
-                        str((result or {}).get("message", "Could not leave the Arena.")),
-                    )
-                    return False
-            ranging_view = ranging_guild_view_pure(player_data)
-            if activity_id != RANGING_GUILD_ACTIVITY_ID and ranging_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Ranging Guild competition?",
-                    "Switch activities and forfeit the unfinished score?",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_ranging_guild_command("leave", {})
-                    if on_ranging_guild_command is not None
-                    else {"ok": False, "message": "Ranging Guild actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Ranging Guild",
-                        str((result or {}).get("message", "Could not leave the competition.")),
-                    )
-                    return False
-            if activity_id != MOBILISING_ARMIES_ACTIVITY_ID:
-                mobilising_view = mobilising_armies_view_pure(player_data)
-                if mobilising_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Forfeit the scenario?",
-                        "Switch activities and forfeit the battle without rank or credits?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_mobilising_armies_command("forfeit", {})
-                        if on_mobilising_armies_command is not None
-                        else {"ok": False, "message": "Mobilising Armies actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Mobilising Armies",
-                            str((result or {}).get("message", "Could not forfeit the battle.")),
-                        )
-                        return False
-            if activity_id != GNOME_RESTAURANT_ACTIVITY_ID:
-                gnome_view = gnome_restaurant_view_pure(player_data)
-                if gnome_view["order"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Drop the gnome delivery?",
-                        "Switch activities and hand the delivery box back?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_gnome_restaurant_command("leave", {})
-                        if on_gnome_restaurant_command is not None
-                        else {"ok": False, "message": "Gnome Restaurant actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Gnome Restaurant",
-                            str((result or {}).get("message", "Could not hand the box back.")),
-                        )
-                        return False
-            if activity_id != DOMINION_TOWER_ACTIVITY_ID:
-                tower_view = dominion_tower_view_pure(player_data)
-                if tower_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Leave the Dominion Tower?",
-                        "Switch activities and end the current tower run?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_dominion_tower_command("leave", {})
-                        if on_dominion_tower_command is not None
-                        else {"ok": False, "message": "Dominion Tower actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Dominion Tower",
-                            str((result or {}).get("message", "Could not leave the tower.")),
-                        )
-                        return False
-            if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
-                temple_view = temple_trekking_view_pure(player_data)
-                if temple_view["active"]:
-                    answer = QMessageBox.question(
-                        dialog,
-                        "Abandon Temple Trekking?",
-                        "Switch activities and abandon the active trek without a token?",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                        QMessageBox.StandardButton.No,
-                    )
-                    if answer != QMessageBox.StandardButton.Yes:
-                        return False
-                    result = (
-                        on_temple_trekking_command("abandon", {})
-                        if on_temple_trekking_command is not None
-                        else {"ok": False, "message": "Temple Trekking actions are unavailable."}
-                    )
-                    if not (result or {}).get("ok", False):
-                        show_error_message(
-                            "Temple Trekking",
-                            str((result or {}).get("message", "Could not abandon the trek.")),
-                        )
-                        return False
-            goblin_view = goblin_raids_view_pure(player_data, speed=_game_speed())
-            if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
-                question = "Switch activities and walk away from the goblins?"
-                if goblin_view["pending_spoils"]:
-                    question += " The spoils you have not claimed will be lost."
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Goblin Raids?",
-                    question,
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_goblin_raids_command("leave", {})
-                    if on_goblin_raids_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Goblin Raids actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Goblin Raids",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the goblins.",
-                            )
-                        ),
-                    )
-                    return False
-            crucible_view = crucible_view_pure(player_data)
-            if activity_id != CRUCIBLE_ACTIVITY_ID and crucible_view["active"]:
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Crucible?",
-                    "Switch activities? You abandon your bounty target, so the "
-                    f"{crucible_view['fee']['abandon_component']} coin "
-                    "abandonment part of your fee goes to the opponent.",
-                    QMessageBox.StandardButton.Yes
-                    | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_crucible_command("leave", {})
-                    if on_crucible_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Crucible actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "The Crucible",
-                        str(
-                            (result or {}).get(
-                                "message",
-                                "Could not leave the arena.",
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
-                and barbarian_assault_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Barbarian Assault?",
-                    "Switch activities? The current wave restarts and its pending points are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_barbarian_assault_command("leave", {})
-                    if on_barbarian_assault_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Barbarian Assault actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Barbarian Assault",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the run."
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
-                and great_orb_project_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Great Orb Project?",
-                    "Switch activities? Pending tokens and saved essence are forfeited.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_great_orb_project_command("leave_great_orb_project", {})
-                    if on_great_orb_project_command is not None
-                    else {"ok": False, "message": "Great Orb Project actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Great Orb Project",
-                        str((result or {}).get("message", "Could not leave the match.")),
-                    )
-                    return False
-            if (
-                activity_id != COURT_CASES_ACTIVITY_ID
-                and court_cases_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Give up court case?",
-                    "Switch activities? Preparation is lost and a consumed Court summons is not returned.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_court_cases_command("leave", {})
-                    if on_court_cases_command is not None
-                    else {"ok": False, "message": "Court Cases actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Court Cases",
-                        str((result or {}).get("message", "Could not leave the case.")),
-                    )
-                    return False
-            if (
-                activity_id != PHOENIX_LAIR_ACTIVITY_ID
-                and phoenix_lair_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Abandon Phoenix Lair run?",
-                    "Switch activities? Unfinished guardian, twig, and pyre progress is lost. "
-                    "Earned drops and Combat XP remain, and today's allowance is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_phoenix_lair_command("leave", {})
-                    if on_phoenix_lair_command is not None
-                    else {"ok": False, "message": "Phoenix Lair actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Phoenix Lair",
-                        str((result or {}).get("message", "Could not abandon the run.")),
-                    )
-                    return False
-            if (
-                activity_id != SKELETAL_HORROR_ACTIVITY_ID
-                and skeletal_horror_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave the Skeletal Horror lair?",
-                    "Switch activities? Current phase progress is lost, but the "
-                    "weekly entry is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_skeletal_horror_command("leave", {})
-                    if on_skeletal_horror_command is not None
-                    else {
-                        "ok": False,
-                        "message": "Skeletal Horror actions are unavailable.",
-                    }
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Skeletal Horror",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the lair."
-                            )
-                        ),
-                    )
-                    return False
-            if (
-                activity_id != BORK_ACTIVITY_ID
-                and bork_view_pure(player_data)["active"]
-            ):
-                answer = QMessageBox.question(
-                    dialog,
-                    "Leave Bork's chamber?",
-                    "Switch activities? Bork heals to full, but the daily kill "
-                    "is not consumed.",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
-                    return False
-                result = (
-                    on_bork_command("leave", {})
-                    if on_bork_command is not None
-                    else {"ok": False, "message": "Bork actions are unavailable."}
-                )
-                if not (result or {}).get("ok", False):
-                    show_error_message(
-                        "Bork",
-                        str(
-                            (result or {}).get(
-                                "message", "Could not leave the chamber."
-                            )
-                        ),
-                    )
-                    return False
+            if not activate and held_by_queue(player_data, held_targets, surface_name, lambda _target: None, activity_id):
+                return True
+            if not _leave_running_activity(activity_id):
+                return False
             if selection_callback(activity_id) is False:
                 return False
             player_data["current_utility"] = activity_id
@@ -20700,81 +19533,16 @@ def show_main_menu(
             },
         }
 
+        activity_queue_add = activity_queue_control(player_data, queue_command, lambda: visible_detail_id["id"])
         activity_change_button = QPushButton("‹ Choose another activity")
         activity_change_button.setObjectName("activityChooseAnotherButton")
         activity_change_button.setAccessibleName("Choose another activity")
 
-        # Keep the pass-3 detail-card star as a secondary route. The pass-4
-        # primary route is the tree-row context menu below.
-        activity_favourite_button = QToolButton()
-        activity_favourite_button.setObjectName("activityFavouriteButton")
-        activity_favourite_button.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        def _refresh_activity_favourite(activity_id: object, show_detail: bool) -> None:
-            view = dnd_favourite_detail_button_view_pure(
-                player_data,
-                activity_id,
-                show_detail=show_detail,
-                can_toggle=on_favourite_dnd is not None,
-            )
-            activity_favourite_button.setVisible(bool(view["visible"]))
-            activity_favourite_button.setEnabled(bool(view["enabled"]))
-            if not view["visible"]:
-                return
-            activity_favourite_button.setText(str(view["text"]))
-            activity_favourite_button.setToolTip(str(view["tooltip"]))
-            activity_favourite_button.setAccessibleName(str(view["tooltip"]))
-
-        def _toggle_activity_favourite(activity_id: object = "") -> None:
-            target = str(activity_id or visible_detail_id["id"] or "")
-            if on_favourite_dnd is None or not target:
-                return
-            result = on_favourite_dnd(target) or {}
-            if not result.get("ok", False):
-                show_error_message(
-                    "Reviewer badge",
-                    str(result.get("message", "That Distraction cannot be watched.")),
-                )
-            _refresh_activity_favourite(
-                target, target == str(visible_detail_id["id"] or "")
-            )
-
-        activity_favourite_button.clicked.connect(
-            lambda _checked=False: _toggle_activity_favourite()
+        dnd_favourite = DndFavouriteControls(
+            player_data, tree, on_favourite_dnd, lambda: visible_detail_id["id"], show_error_message
         )
-
-        def _build_activity_context_menu(activity_id: object) -> QMenu:
-            view = dnd_favourite_context_menu_view_pure(
-                player_data,
-                activity_id,
-                can_toggle=on_favourite_dnd is not None,
-            )
-            menu = QMenu(tree)
-            if not view["visible"]:
-                return menu
-            target = str(activity_id or "")
-            action = menu.addAction(str(view["label"]))
-            action.setObjectName("activityNotificationToggleAction")
-            action.setEnabled(bool(view["enabled"]))
-            action.triggered.connect(
-                lambda _checked=False: _toggle_activity_favourite(target)
-            )
-            return menu
-
-        def _activity_context_menu(pos: QPoint) -> None:
-            item = tree.itemAt(pos)
-            if item is None:
-                return
-            menu = _build_activity_context_menu(
-                item.data(0, Qt.ItemDataRole.UserRole)
-            )
-            if menu.isEmpty():
-                return
-            menu.exec(tree.viewport().mapToGlobal(pos))
-
         if is_activities:
-            tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            tree.customContextMenuRequested.connect(_activity_context_menu)
+            dnd_favourite.attach_row_menu()
 
         def _show_activity_detail(activity_id: object) -> None:
             selected = detail_cards.get(str(activity_id or ""))
@@ -20782,7 +19550,7 @@ def show_main_menu(
             show_detail = is_activities and selected_widget is not None
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
-            _refresh_activity_favourite(activity_id, show_detail)
+            dnd_favourite.refresh(activity_id, show_detail)
             activity_list.filter_bar.setVisible(not show_detail)
             tree.setVisible(not show_detail)
             if not show_detail and tree.currentItem() is not None:
@@ -20799,6 +19567,8 @@ def show_main_menu(
             visible_detail_id["id"] = (
                 str(activity_id or "") if show_detail else ""
             )
+            activity_queue_add.setVisible(show_detail)
+            activity_queue_add.refresh()
             world_events_refresher["call"]()
 
         def _show_activity_group(group: object) -> None:
@@ -20944,7 +19714,8 @@ def show_main_menu(
         activity_controls_layout.setContentsMargins(0, 0, 0, 0)
         activity_controls_layout.setSpacing(6)
         activity_controls_layout.addWidget(activity_change_button, 1)
-        activity_controls_layout.addWidget(activity_favourite_button)
+        activity_controls_layout.addWidget(activity_queue_add)
+        activity_controls_layout.addWidget(dnd_favourite.button)
         container_layout.addWidget(activity_controls)
         activity_change_button.clicked.connect(
             lambda _checked=False: _show_activity_detail("")
@@ -22019,13 +20790,7 @@ def show_main_menu(
         target_details_context["display_row"] = None
         # Drop stale references before rebuild; repopulated if Smithing/Crafting
         # is the visible panel so the live availability hook can re-enable them.
-        _MAIN_MENU_CTX["smith_btn"] = None
-        _MAIN_MENU_CTX["craft_btn"] = None
-        _MAIN_MENU_CTX["fletch_btn"] = None
-        _MAIN_MENU_CTX["firemaking_btn"] = None
-        _MAIN_MENU_CTX["hunter_btn"] = None
-        _MAIN_MENU_CTX["cooking_btn"] = None
-        _MAIN_MENU_CTX["runecrafting_btn"] = None
+        _MAIN_MENU_CTX.update(dict.fromkeys(_TRAIN_BUTTON_KEYS.values()))
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -22045,7 +20810,12 @@ def show_main_menu(
             else name
         )
         header = QWidget()
-        hl = LeadRowLayout(header)
+        header_rows = QVBoxLayout(header)
+        header_rows.setContentsMargins(0, 0, 0, 0)
+        header_rows.setSpacing(6)
+        title_row = QWidget()
+        header_rows.addWidget(title_row)
+        hl = LeadRowLayout(title_row)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
         if is_utility:
@@ -22118,44 +20888,19 @@ def show_main_menu(
                     f" QPushButton:disabled {{ color: {dim_text_css(train_btn)}; }}"
                 )
                 if not available:
-                    if name == "Smithing":
-                        train_btn.setToolTip("Mine ores until you can smelt a bar.")
-                    elif name == "Crafting":
-                        train_btn.setToolTip("Gather materials or level up to craft an item.")
-                    elif name == "Fletching":
-                        train_btn.setToolTip("Cut logs or level up to fletch an item.")
-                    elif name == "Firemaking":
-                        train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
-                    elif name == "Hunter":
-                        train_btn.setToolTip("Gather jars/materials, complete unlocks, or level up before training Hunter.")
-                    elif name == "Cooking":
-                        train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
-                    elif name == "Runecrafting":
-                        train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
-                    elif name == "Prayer":
-                        train_btn.setToolTip(prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"])
-                    elif name == "Thieving":
-                        train_btn.setToolTip("Choose an unlocked target before training Thieving.")
-                    elif name == "Agility":
-                        train_btn.setToolTip("Choose an unlocked course or activity before training Agility.")
-                    elif name == _COMBAT_HUB_NAME:
-                        train_btn.setToolTip("Select an available enemy.")
+                    train_btn.setToolTip(
+                        prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"]
+                        if name == "Prayer"
+                        else _TRAIN_UNAVAILABLE_TOOLTIPS.get(name, "")
+                    )
+                    # A greyed Train button says why on screen, on its own wrapping row so no width clips it.
+                    header_rows.addWidget(QLabel(train_btn.toolTip(), objectName="trainUnavailableReason", wordWrap=True,
+                                                 styleSheet=f"color: {dim_text_css()}; font-size: 11px;"))
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
-            if name == "Smithing":
-                _MAIN_MENU_CTX["smith_btn"] = train_btn
-            elif name == "Crafting":
-                _MAIN_MENU_CTX["craft_btn"] = train_btn
-            elif name == "Fletching":
-                _MAIN_MENU_CTX["fletch_btn"] = train_btn
-            elif name == "Firemaking":
-                _MAIN_MENU_CTX["firemaking_btn"] = train_btn
-            elif name == "Hunter":
-                _MAIN_MENU_CTX["hunter_btn"] = train_btn
-            elif name == "Cooking":
-                _MAIN_MENU_CTX["cooking_btn"] = train_btn
-            elif name == "Runecrafting":
-                _MAIN_MENU_CTX["runecrafting_btn"] = train_btn
+            header_rows.addWidget(surface_queue_control(player_data, queue_command, name, lambda: held_targets.get(name, (None, None))[1]))
+            if name in _TRAIN_BUTTON_KEYS:
+                _MAIN_MENU_CTX[_TRAIN_BUTTON_KEYS[name]] = train_btn
         panel_layout.addWidget(header)
 
         details_panel = QWidget()
@@ -22506,7 +21251,7 @@ def show_main_menu(
             elif name == "Dungeoneering":
                 built_panel._ankiscape_refresh_dungeoneering()
             panel_layout.addWidget(built_panel, 1)
-            built_panel.show()
+            show_settled(built_panel)
             if name == "Farming":
                 _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
             if name == _ACTIVITIES_HUB_NAME:
@@ -23495,12 +22240,10 @@ def show_main_menu(
         )
     )
     _refresh_ge()
-    tabs.addTab(ge_tab, "Grand Exchange")
-    _set_global_tab_icon(ge_tab, "grand_exchange_icon.png")
-    tabs.setTabToolTip(
-        tabs.indexOf(ge_tab),
-        "Place and manage review-paced Grand Exchange offers",
-    )
+    ge_page = vertical_scroll(ge_tab)
+    tabs.addTab(ge_page, "Grand Exchange")
+    _set_global_tab_icon(ge_page, "grand_exchange_icon.png")
+    tabs.setTabToolTip(tabs.indexOf(ge_page), "Place and manage review-paced Grand Exchange offers")
 
     def _choose_ironman_on_first_ge_open() -> bool:
         projection = ge_state["projection"]
@@ -23542,7 +22285,7 @@ def show_main_menu(
         close_review_status_popover()
         if not _choose_ironman_on_first_ge_open():
             return
-        tabs.setCurrentWidget(ge_tab)
+        tabs.setCurrentWidget(ge_page)
         dialog.raise_()
         dialog.activateWindow()
 
@@ -23853,7 +22596,6 @@ def show_main_menu(
             grid.addWidget(QLabel(exp_to_next_text), 2, 1)
         prog = QProgressBar()
         prog.setObjectName("statsSkillProgress")
-        prog.setMinimumWidth(240)
         prog.setMaximumWidth(320)
         prog.setValue(int(progress["percent"]))
         grid.addWidget(QLabel("Level Progress:"), 3, 0)
@@ -24009,7 +22751,8 @@ def show_main_menu(
         Qt.ScrollBarPolicy.ScrollBarAsNeeded
     )
     selector_scroll.setWidget(selector)
-    selector_scroll.setFixedWidth(344)
+    # As wide as its buttons ask, plus the scroll bar a short window shows.
+    selector_scroll.setFixedWidth(selector.sizeHint().width() + selector_scroll.verticalScrollBar().sizeHint().width())
     stats_body_layout.addWidget(selector_scroll)
     stats_body_layout.addWidget(details_container, 1)
 
@@ -24703,7 +23446,7 @@ def show_main_menu(
         bank_picker_layout.setAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
         )
-        bank_picker_scroll = _ResponsiveGridScrollArea()
+        bank_picker_scroll = ResponsiveGridScrollArea()
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
         bank_picker_scroll.setHorizontalScrollBarPolicy(
@@ -25096,7 +23839,7 @@ def show_main_menu(
     bank_tab_scroll.setWidget(bank_tab_host)
     bank_left_layout.addWidget(bank_tab_scroll)
 
-    bank_grid_scroll = _ResponsiveGridScrollArea()
+    bank_grid_scroll = ResponsiveGridScrollArea()
     bank_grid_scroll.setObjectName("bankGridScroll")
     bank_grid_scroll.setWidgetResizable(True)
     bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -25782,48 +24525,18 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
-    def _add_cooking_gauntlet_conversion_action(
-        menu: "QMenu",
-        item_name: str,
-        object_name: str,
-        warning_parent: QWidget,
-    ) -> None:
-        state = family_gauntlet_conversion_state_pure(player_data, item_name)
-        if not state["visible"]:
-            return
-        cost = int(state["cost"] or 0)
-        action = menu.addAction(
-            "Enchant for Cooking"
-            if cost == 0
-            else f"Re-enchant for Cooking ({cost:,} Coins)"
-        )
-        action.setObjectName(object_name)
-        action.setEnabled(
-            bool(state["enabled"])
-            and on_cooking_gauntlets_command is not None
-        )
-        action.setToolTip(str(state["reason"]))
-
-        def _convert(_checked: bool = False) -> None:
-            if on_cooking_gauntlets_command is None:
-                return
-            result = on_cooking_gauntlets_command(
-                "convert", {"item_name": item_name}
-            ) or {}
-            if result.get("ok"):
-                _refresh_equipment_views(refresh_visible_skill=True)
-            else:
-                QMessageBox.warning(
-                    warning_parent,
-                    "Cannot enchant gauntlets",
-                    str(result.get("message", "That conversion is unavailable.")),
-                )
-
-        action.triggered.connect(_convert)
-        menu.addSeparator()
-
     from functools import partial
-    from .ui_bank_menu import BankMenuContext, build_bank_item_menu, _add_wicked_hood
+    from .ui_bank_menu import (
+        BankMenuContext, build_bank_item_menu, _add_wicked_hood,
+        add_cooking_gauntlet_conversion_action,
+    )
+
+    _add_cooking_gauntlet_conversion_action = partial(
+        add_cooking_gauntlet_conversion_action,
+        player_data=player_data,
+        on_cooking_gauntlets_command=on_cooking_gauntlets_command,
+        refresh_equipment_views=_refresh_equipment_views,
+    )
 
     bank_menu_context = BankMenuContext(
         player_data=player_data,
@@ -25839,6 +24552,7 @@ def show_main_menu(
         on_open_item_pack=on_open_item_pack,
         on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
+        on_mix_dye=on_mix_dye,
         on_teleport_training_urn=on_teleport_training_urn,
         carried_mode_state=carried_mode_state,
         on_set_carried_layout_quantity=on_set_carried_layout_quantity,
@@ -26111,10 +24825,8 @@ def show_main_menu(
         special_points = max(
             0, int(summoning_state.get("special_move_points_current", 0) or 0)
         )
-        follower_resources.setText(
-            f"Summoning points: {current_points}/{level}  •  "
-            f"Special-move points: {special_points}/60"
-        )
+        # Summoning points already show in the point pools above worn equipment.
+        follower_resources.setText(f"Special-move points: {special_points}/60")
         restore_points_button.setEnabled(
             on_summoning_command is not None and current_points < level
         )
@@ -26234,7 +24946,7 @@ def show_main_menu(
             owned = max(0, int(inventory.get(pouch.pouch_name, 0) or 0))
             if owned > 0 or pouch.level <= level:
                 familiar_picker.addItem(
-                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} pouch(es)",
+                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} in Bank",
                     pouch.id,
                 )
         familiar_picker.blockSignals(False)
@@ -26493,7 +25205,22 @@ def show_main_menu(
     eq_left_layout.addWidget(_build_carried_pack_section(primary=True))
     eq_left_layout.addStretch(1)
 
-    combat_setup_panel = _build_combat_setup_panel()
+    from .ui_combat_setup_panel import build_combat_setup_panel
+
+    combat_setup_panel, refresh_combat_setup_panel = build_combat_setup_panel(
+        player_data,
+        loot_override_rows=loot_override_rows,
+        item_icon_path=_item_icon_path,
+        on_set_combat_action=on_set_combat_action,
+        on_set_combat_style=on_set_combat_style,
+        on_set_combat_spell=on_set_combat_spell,
+        on_set_combat_prayer_config=on_set_combat_prayer_config,
+        on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
+        on_set_loot_threshold=on_set_loot_threshold,
+        on_set_loot_override=on_set_loot_override,
+        on_changed=_refresh_equipment_views,
+    )
+    _combat_setup_refreshers.append(refresh_combat_setup_panel)
     combat_setup_panel.setObjectName("equipmentCombatSetupPanel")
     eq_content_layout.addWidget(eq_left, 2)
     eq_content_layout.addWidget(combat_setup_panel, 1)
@@ -26678,7 +25405,7 @@ def show_main_menu(
         blocks_row = QHBoxLayout()
         block_boxes = {}
         for entry in daily_challenges_view_pure(player_data)["skill_blocks"]:
-            box = QCheckBox(str(entry["label"]))
+            box = lay_out_whole(QCheckBox(str(entry["label"])))
             box.setObjectName(f"challengeBlock_{entry['skill_id']}")
             blocks_row.addWidget(box)
             block_boxes[str(entry["skill_id"])] = box
@@ -27274,6 +26001,8 @@ def show_main_menu(
     content_layout.addWidget(tabs, 1)
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
+    queue_panel = ActionQueuePanel(player_data, queue_command)
+    layout.addWidget(queue_panel)
 
     # Footer controls stay outside the tab strip so Help remains at the
     # bottom-right beside the dialog action.
@@ -27282,7 +26011,7 @@ def show_main_menu(
     f_layout = QHBoxLayout(footer)
     f_layout.setContentsMargins(0, 8, 0, 0)
     f_layout.setSpacing(8)
-    f_layout.addStretch(1)
+    f_layout.addWidget(queue_panel.empty_line, 1)
     f_layout.addWidget(help_button)
     close = QPushButton("Close")
     close.clicked.connect(dialog.accept)
@@ -27601,7 +26330,7 @@ def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> 
     """Skill selection dialog that returns the chosen skill or None if cancelled.
     Disables Smithing when no bars can be smelted (per provided boolean).
     """
-    dialog = QDialog(mw)
+    dialog = guard_wheel(QDialog(mw))
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Skill Selection")
     layout = QVBoxLayout()

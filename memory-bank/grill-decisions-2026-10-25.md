@@ -30,7 +30,8 @@ so a later source find replaces it.
 - When two period sources disagree with each other, the question still goes to the
   owner. A rule that the source dated nearest the cutoff wins was proposed and not
   approved. The owner chose option B, which keeps those disagreements with him, over
-  option A, which let Darkan pick between them.
+  option A, which let Darkan pick between them. For details of a quest or a quest
+  item, ruling 7 of `grill-decisions-2026-10-28.md` applies instead.
 - When a period source contradicts Darkan, the corroboration gate of
   `pre-eoc-source-verification-standard.md` still holds: the Darkan behavior is "a
   lead, not a fact".

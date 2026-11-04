@@ -407,6 +407,16 @@ _add({
 })
 
 
+_add({
+    **MAGIC_TARGETS["telegrab_wine_of_zamorak"],
+    "id": "telegrab_pickled_brain",
+    "display_name": "Telegrab Pickled brain",
+    "outputs": {"Pickled brain": 1},
+    "source": f"{TELEGRAB_WIKI}; RuneScape Wiki Pickled brain oldid=6174247; "
+              "Creature of Fenkenstrain oldid=6535792; retained existing Telegrab specification oldid=6587753",
+})
+
+
 # Lunar functional and pure-cast ledger. Authentic inventory-wide semantics are
 # represented by the named batch actions; their per-item secondary XP remains
 # separate from the single audited Magic XP award.
@@ -630,7 +640,7 @@ DREAM_HEAL_OLD_HP_PER_REVIEW = 5
 
 
 CASUAL_MAGIC_DIAL = {
-    "balanced": {"prayer_uptime": "40", "vengeance": False, "dream": False},
-    "max_output": {"prayer_uptime": "70", "vengeance": True, "dream": False},
-    "max_safety": {"prayer_uptime": "40", "vengeance": False, "dream": True},
+    "balanced": {"vengeance": False, "dream": False},
+    "max_output": {"vengeance": True, "dream": False},
+    "max_safety": {"vengeance": False, "dream": True},
 }

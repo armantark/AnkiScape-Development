@@ -18,6 +18,8 @@ from ...data.equipment_overrides.spirit_shield import (
     spirit_shield_equipment_data_as_dict as _spirit_shield_equipment_data_as_dict,
 )
 
+from ...data.quest.murder_mystery_silver import murder_mystery_silver_equipment_data_as_dict
+
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
@@ -262,6 +264,11 @@ for _item_name in _COOKING_ITEM_NAMES:
     if _path and os.path.exists(_path):
         COOKING_ITEM_IMAGES[_item_name] = _path
 
+COOKING_ITEM_IMAGES["Dirty blast"] = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "quest", "assets", "dirty_blast.png",
+))
+COOKING_ITEM_IMAGES["Fruit blast (9514)"] = COOKING_ITEM_IMAGES["Fruit blast"]
+
 RUNECRAFTING_EXTRA_ITEM_DATA = runecrafting_extra_items_as_dict()
 RUNECRAFTING_ITEM_IMAGES = {}
 for _item_name in set(RUNECRAFTING_OUTPUT_ITEMS) | set(RUNECRAFTING_ACCESS_ITEMS) | set(RUNECRAFTING_EXTRA_ITEM_DATA):
@@ -338,6 +345,8 @@ MAGIC_SPELL_IMAGES = {
     )
 }
 
+MAGIC_SPELL_IMAGES["telegrab_pickled_brain"] = MAGIC_SPELL_IMAGES["telegrab_wine_of_zamorak"]
+
 CONSTRUCTION_EXTRA_ITEM_DATA = construction_extra_items_as_dict()
 CONSTRUCTION_ASSET_ITEM_DATA = construction_asset_items_as_dict()
 CONSTRUCTION_ITEM_IMAGES = {}
@@ -390,8 +399,22 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
 SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Rune sq shield"]
 # activity_assets fills this shared map; its binding preserves facade export order.
-QUEST_ITEM_IMAGES = {}
+QUEST_ITEM_IMAGES = {
+    "Diary (Witch's House)": os.path.join(
+        current_dir, "data", "quest", "evidence", "witchs_house", "sources", "diary-20111205.png"
+    ),
+}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
+    'Silver necklace': os.path.join(current_dir, "data", "quest", "assets", 'silver_necklace.png'),
+    'Silver cup': os.path.join(current_dir, "data", "quest", "assets", 'silver_cup.png'),
+    'Silver bottle': os.path.join(current_dir, "data", "quest", "assets", 'silver_bottle.png'),
+    'Silver book': os.path.join(current_dir, "data", "quest", "assets", 'silver_book.png'),
+    'Silver needle': os.path.join(current_dir, "data", "quest", "assets", 'silver_needle.png'),
+    'Silver pot': os.path.join(current_dir, "data", "quest", "assets", 'silver_pot.png'),
+
+    "Bark sample": os.path.join(current_dir, "data", "quest", "assets", "bark_sample.png"),
+    "Translation book": os.path.join(current_dir, "data", "quest", "assets", "translation_book.png"),
+    "Hazelmere's scroll": os.path.join(current_dir, "data", "quest", "assets", "hazelmeres_scroll.png"),
     "Ragged book": os.path.join(current_dir, "data", "quest", "assets", "ragged_book.png"),
     "Lever": "temple_lever.png",
     "Kitten": "pet_kitten.png",
@@ -405,6 +428,7 @@ COMBAT_ENEMY_IMAGES = {}
 
 def _equipment_data_before_diaries():
     equipment_data = dict(_BASE_EQUIPMENT_DATA)
+    equipment_data.update(murder_mystery_silver_equipment_data_as_dict())
     equipment_data.update(barrows_equipment_data_as_dict())
     equipment_data.update(fish_flingers_equipment_data_as_dict())
     equipment_data.update(great_orb_project_equipment_data_as_dict())

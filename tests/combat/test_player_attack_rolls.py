@@ -30,7 +30,7 @@ def drain_player(combat_class, target=None, prayers=()):
         combat_auto_eat_food=[], equipment={"weapon": weapon},
         combat_attack_style=style, combat_attack_style_type="stab",
         combat_supply_loadout=supplies, prayer_level=99, combat_prayer_points=990,
-        combat_prayer_uptime="100", combat_selected_prayers=list(prayers),
+        combat_prayer_uptime="100", combat_selected_prayers=list(prayers), combat_prayers_enabled=bool(prayers),
         quests={"priest_in_peril": {"completed": True}},
     )
 

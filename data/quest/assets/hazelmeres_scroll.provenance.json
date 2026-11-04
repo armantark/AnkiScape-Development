@@ -1,0 +1,21 @@
+{
+  "timestamp": "2011-11-22T16:25:04Z",
+  "size": 3580,
+  "width": 31,
+  "height": 29,
+  "url": "https://runescape.wiki/images/archive/20140502064018%21Hazelmere%27s_scroll.png?ac24c",
+  "descriptionurl": "https://runescape.wiki/w/File:Hazelmere%27s_scroll.png",
+  "descriptionshorturl": "https://runescape.wiki/index.php?curid=48033",
+  "sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22",
+  "title": "File:Hazelmere's scroll.png",
+  "api_sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22",
+  "actual_sha1": "347546cbc5e407ab07f84481a241b6128d4d2a22",
+  "sha256": "cbc83acbd991d7329401730a14eff68cf54002f066afacee7fa9f95d54aff9f2",
+  "saved_path": "data/quest/assets/hazelmeres_scroll.png",
+  "proposed_registry_path": "data/quest/assets/hazelmeres_scroll.png",
+  "verification": "sha1 and size agree with historical imageinfo entry",
+  "file_page_url": "https://runescape.wiki/w/File:Hazelmere's_scroll.png",
+  "source_wiki": "rs3-period",
+  "license_string": "not stated by inspected imageinfo; Jagex game image",
+  "date_limit": "The URL’s 2014 archive-directory timestamp is not the image revision date. Independent period pixel consensus is unavailable."
+}

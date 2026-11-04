@@ -33,7 +33,7 @@ from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from ..logic.big_chinchompa_logic import apply_big_chinchompa_review_pure
 from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ..logic.shooting_star_logic import apply_shooting_star_review_pure
-from ..logic.review_strip_logic import record_review_event_pure
+from ..core.review_event_log import record_review_event_pure
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ..logic.tears_of_guthix_logic import apply_tears_of_guthix_review_pure
 from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID

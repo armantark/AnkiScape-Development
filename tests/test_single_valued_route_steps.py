@@ -154,12 +154,7 @@ def _record_required_actions(player_data, quest_id):
 
 
 class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
-    """Owner ruling 4.17.1: a one-value required_routes gate is a recorded auto-step.
-
-    Each case starts its quest normally and drives apply_quest_progress_pure through the
-    converted stage without ever touching quest_route_states, then asserts the route's
-    sourced text was recorded by the kernel.
-    """
+    """Single-valued routes record sourced steps without selecting route state."""
 
     def assert_route_stages_progress(self, quest_id, expected_by_stage):
         target_stage = max(expected_by_stage)
@@ -172,6 +167,9 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         while player_data["quests"][quest_id]["progress"] <= target_stage:
             stage = quest_current_stage_pure(player_data, quest_id, QUEST_DATA)
             rows = _stage_rows(quest_id, stage)
+            if quest_id == "witchs_house" and stage == 6:
+                from tests.quests.test_witchs_house import wear_leather
+                wear_leather(player_data)
             if stage in expected_by_stage:
                 self.assertTrue(rows, f"{quest_id} stage {stage} should have requirements")
                 route_blockers = tuple(
@@ -191,26 +189,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
             for requirement in rows:
                 record_quest_stage_action_proofs_pure(player_data, quest_id, requirement.get("required_actions", ()))
 
-            guard = 0
-            while guard < 20:
-                combat_blockers = tuple(
-                    blocker
-                    for blocker in quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-                    if blocker["kind"] == "combat_encounter"
-                )
-                if not combat_blockers:
-                    break
-                player_data, ok, result = apply_quest_combat_encounter_pure(
-                    player_data,
-                    quest_id,
-                    QUEST_DATA,
-                    combat_blockers[0]["encounter_id"],
-                    rng=lambda: 0.0,
-                    equipment_data=EQUIPMENT_DATA,
-                )
-                self.assertTrue(ok, f"{quest_id} stage {stage} combat should resolve: {result}")
-                guard += 1
-            self.assertLess(guard, 20, f"{quest_id} stage {stage} combat should terminate")
+            player_data = self._resolve_stage_combat(player_data, quest_id, stage)
 
             blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
             self.assertEqual(blockers, (), f"{quest_id} stage {stage} should be ready: {blockers}")
@@ -220,6 +199,27 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                 self.assertIn(expected_text, player_data["quest_action_proofs"])
 
         self.assertNotIn(quest_id, player_data.get("quest_route_states", {}))
+
+    def _resolve_stage_combat(self, player_data, quest_id, stage):
+        guard = 0
+        while guard < 20:
+            combat_blockers = tuple(
+                blocker
+                for blocker in quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+                if blocker["kind"] == "combat_encounter"
+            )
+            if not combat_blockers:
+                break
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data, quest_id, QUEST_DATA,
+                combat_blockers[0]["encounter_id"],
+                rng=lambda: 0.0,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, f"{quest_id} stage {stage} combat should resolve: {result}")
+            guard += 1
+        self.assertLess(guard, 20, f"{quest_id} stage {stage} combat should terminate")
+        return player_data
 
     def _drive_through_converted_stage(self, quest_id, target_stage, prerequisite_ids):
         player_data = _player_with_prerequisites(prerequisite_ids)
@@ -351,7 +351,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
     def test_witchs_house_patrol_avoidance_is_recorded(self):
         self.assert_route_stages_progress(
             "witchs_house",
-            {5: ("Avoid the witch's patrol through the house",)},
+            {9: ("Avoid the witch's patrol through the house",)},
         )
 
     def test_myths_of_the_white_lands_ice_cave_route_is_recorded(self):

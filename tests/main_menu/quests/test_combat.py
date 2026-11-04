@@ -216,7 +216,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
     def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"
-        pd["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
+        pd["quests"]["witchs_house"] = {"started": True, "progress": 12, "completed": False}
         pd["attack_level"] = 60
         pd["strength_level"] = 60
         pd["defense_level"] = 60

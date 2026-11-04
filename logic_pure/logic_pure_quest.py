@@ -10,22 +10,34 @@ from .quest.toktz_opening import (
     toktz_opening_phase_pure, toktz_opening_review_ready_pure,
     toktz_opening_next_event_pure, apply_toktz_opening_review_pure,
 )
-from .quest.completion_rewards import apply_completion_rewards_pure
+from .quest.another_cook import (
+    another_cook_requirement_pure, another_cook_review_ready_pure, apply_another_cook_review_pure,
+)
+from .quest.completion_rewards import apply_completion_rewards_pure, _apply_quest_xp_rewards
 from .quest.elemental_workshop import (
-    opening_blockers_pure, opening_review_ready_pure,
-    apply_opening_review_pure,
+    opening_blockers_pure, opening_review_ready_pure, apply_opening_review_pure,
+)
+from .quest.review_steps import (
+    apply_quest_review_step_pure, quest_review_requirement_pure,
+    quest_review_ready_pure, quest_review_blockers_pure,
 )
 from .quest.stage_items import (  # noqa: F401 (re-export)
     _quest_stage_item_pairs, _quest_stage_item_option_groups, _quest_stage_strings, _has_quest_tool,
+    apply_fenkenstrain_stage_two_items_pure, consume_stage_rows_pure,
+    _quest_item_requirement_text, _quest_item_option_reason,
 )
 from .quest.hazeel import hazeel_opening_choice_ready_pure, hazeel_opening_state_blockers_pure
-from .quest.review_steps import (apply_quest_review_step_pure, quest_review_requirement_pure,
-    quest_review_ready_pure, quest_review_blockers_pure)
 from .quest.enakhra import enakhra_opening_blockers_pure
+from .quest.witchs_house import (
+    witchs_house_stage_rows_pure, witchs_house_extra_blockers_pure, witchs_house_next_progress_pure,
+)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-from .quest.murder_mystery import apply_murder_mystery_opening_items_pure
+from .quest.murder_mystery import (
+    apply_murder_mystery_opening_items_pure, murder_mystery_silver_review_phase_pure,
+    murder_mystery_silver_review_ready_pure, apply_murder_mystery_silver_review_pure,
+)
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ANTIPOISON_POTION_DATA,
@@ -104,8 +116,13 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest_action_proofs import quest_action_proof_completed_pure
+from .quest import grand_tree
 from .quest.progress_state import (
+    _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS as _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS,
+    _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS,
+    _QUEST_ROUTE_INHERITANCE,  # noqa: F401 (re-export)
+    _quest_route_completed,
     _quest_combat_completed_count,
     _quest_combat_remaining_count,
     _quest_combat_total_quantity,
@@ -121,33 +138,14 @@ from .quest_runtime_rules import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
+
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
 
 
-def _quest_item_requirement_text(item_name, amount):
-    quantity = f" x{amount}" if amount > 1 else " x1"
-    return f"{item_name}{quantity}"
-
-def _quest_item_option_reason(options):
-    return "Needs " + " or ".join(_quest_item_requirement_text(item_name, amount) for item_name, amount in options)
-
-
-_QUEST_ROUTE_INHERITANCE = {
-    ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
-    ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
-}
-
-def _quest_route_completed(player_data, quest_id, route_id):
-    if _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
-        return True
-    for source_quest_id in _QUEST_ROUTE_INHERITANCE.get((quest_id, route_id), ()):
-        if _quest_flag_completed(player_data, "quest_route_states", source_quest_id, route_id):
-            return True
-    return False
-
 def _quest_choice_stage(choice):
     return _positive_int(choice.get("stage", 0), 0) if isinstance(choice, Mapping) else 0
+
 
 def _quest_choice_options(choice):
     if not isinstance(choice, Mapping):
@@ -169,6 +167,7 @@ def _quest_choice_options(choice):
         )
     return tuple(rows)
 
+
 def _quest_choice_current_stage(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if state["completed"]:
@@ -177,11 +176,13 @@ def _quest_choice_current_stage(player_data, quest_id, quest_data):
         return quest_current_stage_pure(player_data, quest_id, quest_data)
     return 0
 
+
 def _quest_choice_selected(player_data, quest_id, options):
     return tuple(
         option for option in options
         if _quest_route_completed(player_data, quest_id, option["route_id"])
     )
+
 
 def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
     if quest_id == "hazeel_cult" and not hazeel_opening_choice_ready_pure(player_data):
@@ -206,6 +207,7 @@ def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
             }
         )
     return tuple(rows)
+
 
 def quest_current_stage_choices_pure(player_data, quest_id, quest_data):
     """Return unresolved player choices for the visible quest stage."""
@@ -629,6 +631,7 @@ def _quest_requirement_combat_blockers(player_data, quest_id, requirement, stage
 
 def _quest_requirement_blockers(player_data, quest_id, requirement):
     requirement = quest_review_requirement_pure(player_data, quest_id, requirement)
+    requirement = another_cook_requirement_pure(player_data, quest_id, requirement)
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
     return tuple((
@@ -637,6 +640,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
         *_quest_stage_skill_blockers(player_data, stage, source, requirement.get("required_skills")),
         *_quest_requirement_contact_blockers(player_data, quest_id, requirement, stage, source),
         *_quest_requirement_combat_blockers(player_data, quest_id, requirement, stage, source),
+        *witchs_house_extra_blockers_pure(player_data, quest_id, requirement),
     ))
 
 
@@ -647,7 +651,9 @@ def _quest_current_stage_selected_requirements(player_data, quest_id, quest_data
     current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
     mandatory_rows = []
     variant_rows_by_id = {}
-    for requirement in _quest_current_stage_rows(quest, current_stage):
+    for requirement in witchs_house_stage_rows_pure(
+        player_data, quest_id, _quest_current_stage_rows(quest, current_stage),
+    ):
         variant = _quest_stage_requirement_variant(requirement)
         if variant:
             variant_rows_by_id.setdefault(variant, []).append(requirement)
@@ -695,7 +701,10 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return tuple()
-    service_blockers = enakhra_opening_blockers_pure(player_data, quest_id)
+    service_blockers = (
+        *enakhra_opening_blockers_pure(player_data, quest_id),
+        *grand_tree.grand_tree_opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
+    )
     choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
     if choice_blockers:
         return quest_review_blockers_pure(player_data, quest_id, (*choice_blockers, *service_blockers, *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)))
@@ -704,33 +713,11 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
         *blockers, *service_blockers,
         *hazeel_opening_state_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
         *opening_blockers_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure),
-    ))
+    ), quest_data)
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
     return tuple(str(blocker.get("reason")) for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data))
-
-
-_QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
-    "missing_item",
-    "missing_item_option",
-    "missing_skill",
-    "missing_tool",
-    "required_action",
-    "unmet_route",
-    "quest_choice",
-}
-
-
-_QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
-    "missing_item",
-    "missing_item_option",
-    "missing_skill",
-    "missing_tool",
-    "missing_weapon",
-    "unmet_route",
-    "quest_choice",
-}
 
 
 def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data):
@@ -867,14 +854,18 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
 def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
     if toktz_opening_phase_pure(player_data, quest_id) == "toktz_invalid_opening":
         return False
+    if murder_mystery_silver_review_phase_pure(player_data, quest_id, quest_data):
+        return murder_mystery_silver_review_ready_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)
     if can_progress_quest_pure(player_data, quest_id, quest_data):
         return True
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
     return (
         toktz_opening_review_ready_pure(player_data, quest_id, blockers)
+        or another_cook_review_ready_pure(player_data, quest_id, blockers)
         or quest_review_ready_pure(player_data, quest_id, blockers, quest_data=quest_data,
                                    eligibility_reasons=quest_eligibility_reasons_pure)
         or opening_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
+        or grand_tree.grand_tree_review_ready_pure(player_data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure)
         or bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
     )
 
@@ -929,26 +920,17 @@ def _produce_repeatable_quest_stage_items(data, quest_id, quest):
 
 
 def _consume_quest_current_stage_items(data, quest_id, quest):
-    inventory = data["inventory"]
     requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
     if blockers:
         return False
     if quest_id == "murder_mystery" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 1:
         return apply_murder_mystery_opening_items_pure(data)
-    for requirement in requirements:
-        record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
-        for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
-            inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
-        for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
-            selected = next(filter(lambda pair: _positive_int(inventory.get(pair[0], 0), 0) >= pair[1], options), None)
-            if selected is not None:
-                item_name, amount = selected
-                inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
-        if bool(requirement.get("repeatable_until_consumed")):
-            continue
-        for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
-            inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
-    return True
+    if quest_id == "creature_of_fenkenstrain" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 2:
+        return apply_fenkenstrain_stage_two_items_pure(data)
+    return consume_stage_rows_pure(
+        data, quest_id, requirements, _quest_stage_item_pairs,
+        _quest_stage_item_option_groups, _quest_stage_strings, _positive_int,
+    )
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):
@@ -1173,22 +1155,41 @@ def _quest_progress_start_state(player_data, quest_id, quest_data):
     return data, state
 
 
+def _grand_tree_progress_result(original, data, quest_id, quest_data, blockers):
+    opening = grand_tree.apply_grand_tree_review_pure(
+        data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,
+    )
+    if opening is None:
+        return None
+    opening_data, ok = opening
+    return (opening_data if ok else original, ok, False)
+
+
 def apply_quest_progress_pure(
     player_data, quest_id, quest_data, *, include_clue_refusal=False
 ):
     empty_refusal = ("",) if include_clue_refusal else ()
+    if murder_mystery_silver_review_phase_pure(player_data, quest_id, quest_data):
+        candidate, ok = apply_murder_mystery_silver_review_pure(player_data, quest_id, quest_data, quest_eligibility_reasons_pure)
+        return (candidate, ok, False, *empty_refusal)
     data, state = _quest_progress_start_state(player_data, quest_id, quest_data)
     if state is None:
         return (player_data, False, False, *empty_refusal)
     blockers = quest_current_stage_blockers_pure(data, quest_id, quest_data)
+    opening = _grand_tree_progress_result(player_data, data, quest_id, quest_data, blockers)
+    if opening is not None:
+        return (*opening, *empty_refusal)
     if toktz_opening_phase_pure(data, quest_id) is not None:
         event = toktz_opening_next_event_pure(data, quest_id)
         candidate, success = apply_toktz_opening_review_pure(data, quest_id, blockers, event)
         return (candidate if success else player_data, success, False, *empty_refusal)
+    data, opening_result = apply_another_cook_review_pure(data, quest_id, blockers)
+    if opening_result == "commissioned":
+        return (data, True, False, *empty_refusal)
     data, step_result = apply_quest_review_step_pure(
         data, quest_id, blockers, quest_data=quest_data, eligibility_reasons=quest_eligibility_reasons_pure,
     )
-    if step_result in ("pending", "partial"):
+    if step_result in ("pending", "partial", "deed_only"):
         return (data, True, False, *empty_refusal)
     data, opening_ok = apply_opening_review_pure(
         data, quest_id, quest_data, blockers, quest_eligibility_reasons_pure,
@@ -1209,7 +1210,7 @@ def apply_quest_progress_pure(
     if not _consume_quest_current_stage_items(data, quest_id, quest):
         return (player_data, False, False, *empty_refusal)
     total_stages = _positive_int(quest.get("stages", 1), 1)
-    state["progress"] = min(total_stages, current_stage + 1)
+    state["progress"] = witchs_house_next_progress_pure(data, quest_id, current_stage, total_stages)
     completed_now = state["progress"] >= total_stages
     clue_reward_refusal_reason = ""
     if completed_now:
@@ -1218,38 +1219,13 @@ def apply_quest_progress_pure(
             data, player_data, quest_id, quest, _apply_quest_xp_rewards,
         )
     data.setdefault("quests", {})[quest_id] = state
+    return _quest_progress_result(data, completed_now, clue_reward_refusal_reason, include_clue_refusal)
+
+
+def _quest_progress_result(data, completed_now, clue_refusal, include_clue_refusal):
     if include_clue_refusal:
-        return data, True, completed_now, clue_reward_refusal_reason
+        return data, True, completed_now, clue_refusal
     return data, True, completed_now
-
-
-def _apply_quest_xp_rewards(data, quest):
-    trainable_exp_keys = _trainable_exp_keys()
-    pending = data.get("pending_skill_exp_rewards", {})
-    if not isinstance(pending, Mapping):
-        pending = {}
-    clean_pending = dict(pending)
-    for reward in quest.get("xp_rewards", ()) or ():
-        if not isinstance(reward, Mapping):
-            continue
-        skill_id = reward.get("skill_id")
-        if not isinstance(skill_id, str):
-            continue
-        skill = get_skill(skill_id)
-        exp_key = skill.exp_key if skill is not None else f"{skill_id}_exp"
-        try:
-            amount = float(reward.get("amount", 0))
-        except (TypeError, ValueError):
-            amount = 0.0
-        if amount <= 0:
-            continue
-        if exp_key in trainable_exp_keys and skill is not None and skill.trainable:
-            data[exp_key] = data.get(exp_key, 0) + amount
-        else:
-            clean_pending[exp_key] = float(clean_pending.get(exp_key, 0) or 0) + amount
-    data["pending_skill_exp_rewards"] = {
-        key: value for key, value in clean_pending.items() if value > 0
-    }
 
 
 def _apply_skill_xp_reward(data, skill_id, amount):

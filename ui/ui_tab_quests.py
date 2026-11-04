@@ -5,19 +5,23 @@ the single largest widget population in the menu. See ui_menu_ctx.MainMenuCtx
 for the contract.
 """
 try:
+    from aqt import mw  # type: ignore
     from aqt.qt import (  # type: ignore
         Qt,
         QCheckBox,
         QComboBox,
         QHBoxLayout,
         QLabel,
+        QPalette,
         QPushButton,
         QScrollArea,
         QVBoxLayout,
         QWidget,
     )
+
+    from .ui_text_fit import lay_out_whole
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
-    pass
+    mw = None
 
 from ..core.constants import QUEST_DATA
 from ..core.search_match import match_rank
@@ -28,11 +32,84 @@ from ..logic_pure.logic_pure import (
     quest_catalog_sections_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_choices_pure,
-    quest_journal_rows_pure,
     quest_locked_reasons_pure,
     quest_state_pure,
 )
+from ..logic_pure.quest.card_view import (
+    quest_card_blocker_text_pure, quest_journal_view_rows_pure, quest_supply_step_text_pure,
+)
 from .ui import CatalogFilterBar, dim_text_css
+
+# Anki's profile config keeps the list's sort and filters across menus (owner,
+# Pass 19), as it keeps the queue box's fold.
+_VIEW_CONFIG_KEY = "ankiscape_quest_list_view"
+# The 2012 quest journal colours each name by its progress, and cyan marks the
+# quest that runs now (owner, Pass 19). The hues are the game's, softened because
+# its pure colours glare in a menu (owner, Pass 19); a light theme takes darker
+# shades, because yellow and cyan text vanish on white: (dark, light).
+_PROGRESS_COLOURS = {
+    "current": ("#66C0CC", "#1B737E"),
+    "completed": ("#6EC475", "#327638"),
+    "started": ("#DAC662", "#866913"),
+    "not_started": ("#E57676", "#B23434"),
+}
+# Only the card takes the frame, so its labels draw no box of their own; its
+# buttons take the frame of the "Add to queue" button beside them.
+_CARD_STYLE = (
+    "QWidget#questCard_{id} {{ border: 1px solid palette(mid); border-radius: 6px; background: palette(base); }}"
+    " QPushButton {{ padding: 4px 10px; border: 1px solid palette(mid); border-radius: 6px;"
+    " color: palette(text); background: palette(base); }}"
+    " QPushButton:hover {{ border-color: #4CAF50; }}"
+    " QPushButton:disabled {{ color: {dim}; }}"
+    " QPushButton#questToggle_{id} {{ padding: 4px 0; }}"
+)
+
+
+def _saved_view() -> dict:
+    col = getattr(mw, "col", None)
+    saved = col.get_config(_VIEW_CONFIG_KEY, {}) if col else {}
+    return saved if isinstance(saved, dict) else {}
+
+
+def _save_view(view: dict) -> None:
+    col = getattr(mw, "col", None)
+    if col:
+        col.set_config(_VIEW_CONFIG_KEY, view)
+
+
+def _keep_saved_view(combos: dict, checks: dict, on_change) -> None:
+    """Show the saved sort and filters, and save them again each time one changes, before ``on_change``."""
+    saved = _saved_view()
+    for key, combo in combos.items():
+        # A saved choice this list no longer offers falls back to the first one.
+        combo.setCurrentIndex(max(0, combo.findText(str(saved.get(key, "")))))
+    for key, check in checks.items():
+        check.setChecked(saved.get(key) is True)
+
+    def _changed() -> None:
+        _save_view({
+            **{key: combo.currentText() for key, combo in combos.items()},
+            **{key: check.isChecked() for key, check in checks.items()},
+        })
+        on_change()
+
+    for combo in combos.values():
+        combo.currentTextChanged.connect(lambda _text: _changed())
+    for check in checks.values():
+        check.toggled.connect(lambda _checked: _changed())
+
+
+def _title_style(title: "QLabel", q_state: dict, current: bool) -> str:
+    """A quest name's style: bold, in its progress colour for the theme it shows in."""
+    if current:
+        progress = "current"
+    elif q_state.get("completed"):
+        progress = "completed"
+    else:
+        progress = "started" if q_state.get("started") else "not_started"
+    dark, light = _PROGRESS_COLOURS[progress]
+    colour = light if title.palette().color(QPalette.ColorRole.Base).lightness() > 128 else dark
+    return f"font-weight: 700; color: {colour};"
 
 
 def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
@@ -47,6 +124,8 @@ def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
 
 def build_quests_tab(ctx) -> "QWidget":
     """Return the Quests page."""
+    from .ui_action_queue import QueueAddControl
+
     player_data = ctx.player_data
     state = ctx.selection
     warn = ctx.warn_label
@@ -104,9 +183,9 @@ def build_quests_tab(ctx) -> "QWidget":
     )
     quest_search = quest_filter_bar.search_input
 
-    hide_completed_cb = QCheckBox("Hide completed")
+    hide_completed_cb = lay_out_whole(QCheckBox("Hide completed"))
     hide_completed_cb.setObjectName("questHideCompletedCheck")
-    hide_locked_cb = QCheckBox("Hide unable to start")
+    hide_locked_cb = lay_out_whole(QCheckBox("Hide unable to start"))
     hide_locked_cb.setObjectName("questHideLockedCheck")
 
     access_filter_combo = QComboBox()
@@ -145,15 +224,6 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_content_layout.setContentsMargins(0, 0, 0, 0)
     quest_content_layout.setSpacing(8)
 
-    def _short_stage_blocker_text(reasons: tuple) -> str:
-        if not reasons:
-            return ""
-        shown = [str(reason) for reason in reasons[:3]]
-        extra = len(reasons) - len(shown)
-        if extra > 0:
-            shown.append(f"+{extra} more")
-        return "Blocked: " + ", ".join(shown)
-
     def _quest_choice_button_name(quest_id: str, route_id: str) -> str:
         safe_route = "".join(ch if ch.isalnum() else "_" for ch in str(route_id).lower()).strip("_")
         return f"questChoice_{quest_id}_{safe_route}"
@@ -174,11 +244,10 @@ def build_quests_tab(ctx) -> "QWidget":
         if state.get("completed"):
             return "Completed"
         if state.get("started"):
-            blocker_text = _short_stage_blocker_text(
-                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-            )
-            if blocker_text:
-                return blocker_text
+            stage_text = (quest_supply_step_text_pure(player_data, quest_id, QUEST_DATA)
+                          or quest_card_blocker_text_pure(player_data, quest_id, QUEST_DATA))
+            if stage_text:
+                return stage_text
             return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
         return "Not started"
 
@@ -272,7 +341,7 @@ def build_quests_tab(ctx) -> "QWidget":
         warn.setText("")
         _rebuild_quest_cards()
 
-    def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
+    def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel, title: QLabel) -> None:
         if quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA):
             return
         choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
@@ -291,13 +360,13 @@ def build_quests_tab(ctx) -> "QWidget":
         button.setText("Currently active")
         button.setEnabled(False)
         status_label.setText(_quest_status_text(quest_id, q_state, quest))
+        title.setStyleSheet(_title_style(title, q_state, True))
 
     def _add_quest_card(quest_id: str, quest: dict) -> None:
         q_state = quest_state_pure(player_data, quest_id)
         lock_reasons = () if q_state.get("completed") else quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
         lock_text = _short_lock_text(lock_reasons)
-        stage_blocker_reasons = () if q_state.get("completed") else quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-        stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
+        stage_blocker_text = quest_card_blocker_text_pure(player_data, quest_id, QUEST_DATA)
         choice_rows = () if q_state.get("completed") else quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA)
         choice_text = _short_choice_text(choice_rows)
         active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
@@ -306,7 +375,7 @@ def build_quests_tab(ctx) -> "QWidget":
 
         card = QWidget()
         card.setObjectName(f"questCard_{quest_id}")
-        card.setStyleSheet("border: 1px solid palette(mid); border-radius: 6px; background: palette(base);")
+        card.setStyleSheet(_CARD_STYLE.format(id=quest_id, dim=dim_text_css(card)))
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(10, 8, 10, 8)
         card_layout.setSpacing(6)
@@ -319,7 +388,8 @@ def build_quests_tab(ctx) -> "QWidget":
         toggle_btn.setFixedWidth(28)
         toggle_btn.setToolTip("Show or hide quest journal")
         title = QLabel(str(quest.get("display_name", quest_id)))
-        title.setStyleSheet("font-weight: 700; color: palette(text);")
+        title.setObjectName(f"questTitle_{quest_id}")
+        title.setStyleSheet(_title_style(title, q_state, active_this_quest))
         title.setToolTip(stage_blocker_text or lock_text or str(quest.get("source", "")))
         status = QLabel(_quest_status_text(quest_id, q_state, quest))
         status.setObjectName(f"questStatus_{quest_id}")
@@ -334,7 +404,7 @@ def build_quests_tab(ctx) -> "QWidget":
             and state["active"] != "Quests"
             and not lock_reasons
             and not choice_rows
-            and (not stage_blocker_reasons or quest_review_ready)
+            and (not stage_blocker_text or quest_review_ready)
         )
         if lock_text:
             quest_btn.setToolTip(lock_text)
@@ -345,11 +415,16 @@ def build_quests_tab(ctx) -> "QWidget":
         if active_this_quest:
             quest_btn.setText("Currently active")
             quest_btn.setEnabled(False)
-        quest_btn.clicked.connect(lambda _=False, qid=quest_id, btn=quest_btn, lbl=status: _set_quest_active(qid, btn, lbl))
+        quest_btn.clicked.connect(
+            lambda _=False, qid=quest_id, btn=quest_btn, lbl=status, name=title: _set_quest_active(qid, btn, lbl, name)
+        )
         header_layout.addWidget(toggle_btn)
         header_layout.addWidget(title)
         header_layout.addWidget(status, 1)
         header_layout.addWidget(quest_btn)
+        header_layout.addWidget(
+            QueueAddControl(player_data, ctx.on_action_queue_command, lambda: {"kind": "quest", "quest_id": quest_id})
+        )
         card_layout.addWidget(header)
 
         body = QWidget()
@@ -399,18 +474,13 @@ def build_quests_tab(ctx) -> "QWidget":
                     choice_btn.setObjectName(_quest_choice_button_name(quest_id, route_id))
                     choice_btn.setToolTip(str(option.get("description") or label))
                     choice_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-                    choice_btn.setStyleSheet(
-                        "QPushButton { padding: 4px 10px; border: 1px solid palette(mid);"
-                        " border-radius: 6px; color: palette(text); background: palette(base); }"
-                        " QPushButton:hover { border-color: #4CAF50; }"
-                    )
                     choice_btn.clicked.connect(
                         lambda _=False, qid=quest_id, rid=route_id: _set_quest_route_choice(qid, rid)
                     )
                     choice_row_layout.addWidget(choice_btn)
                 choice_row_layout.addStretch(1)
                 body_layout.addWidget(choice_row)
-            for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
+            for row in quest_journal_view_rows_pure(player_data, quest_id, QUEST_DATA):
                 stage_label = QLabel(f"Stage {row['stage']}")
                 stage_label.setStyleSheet("font-weight: 600; color: palette(text);")
                 body_layout.addWidget(stage_label)
@@ -469,12 +539,18 @@ def build_quests_tab(ctx) -> "QWidget":
         quest_filter_bar.set_count(visible_count, len(QUEST_DATA))
         quest_content_layout.addStretch(1)
 
-    quest_sort_combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
+    _keep_saved_view(
+        {
+            "sort": quest_sort_combo,
+            "access": access_filter_combo,
+            "difficulty": difficulty_filter_combo,
+            "length": length_filter_combo,
+            "timeline": timeline_filter_combo,
+        },
+        {"hide_completed": hide_completed_cb, "hide_locked": hide_locked_cb},
+        _rebuild_quest_cards,
+    )
     quest_search.textChanged.connect(lambda _text: _rebuild_quest_cards())
-    hide_completed_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
-    hide_locked_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
-    for combo in (access_filter_combo, difficulty_filter_combo, length_filter_combo, timeline_filter_combo):
-        combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
     _rebuild_quest_cards()
     quest_scroll.setWidget(quest_content)
     q_layout.addWidget(quest_scroll, 1)

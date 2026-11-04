@@ -1,0 +1,142 @@
+[
+  {
+    "id": "sals",
+    "title": "Quest: Witch's House | Sal's Realm of RuneScape",
+    "local": "sources/sals.html",
+    "sha256": "0b9bcadcb98ea7d2a85163c6b0b16a65c566d9097c1069e395e84f3a61f3392a",
+    "text_path": "sources/sals-text.txt",
+    "text_sha256": "e2e3776ca39bb5761e7ccfcdcdcfb5a352d17e8dcb48f43f501c2ec23b27372f",
+    "actual_capture_utc": "2012-05-16T13:01:45+00:00",
+    "cdx": {
+      "urlkey": "net,salmoneus,runescape)/quests/witchs-house.html",
+      "timestamp": "20120516130145",
+      "original": "http://runescape.salmoneus.net/quests/witchs-house.html",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "SBSSV7MBL7A6XLZ2E7QYEYZ4CH3CO3MH",
+      "length": "8434"
+    },
+    "payload_sha1_base32": "SBSSV7MBL7A6XLZ2E7QYEYZ4CH3CO3MH",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "runehq",
+    "title": "Witch's House - RuneScape Guide - RuneHQ",
+    "local": "sources/runehq.html",
+    "sha256": "a65277621e5c2268b2da4fb31c201488defe1649846bbd90d24f90077d7c86ec",
+    "text_path": "sources/runehq-text.txt",
+    "text_sha256": "0b3814d7f96c4a947a8eaeaca46c7794978f6cd5e1947e6d3e5a4e9b9f3c9d88",
+    "actual_capture_utc": "2012-02-17T15:31:48+00:00",
+    "cdx": {
+      "urlkey": "com,runehq)/quest/witchs-house",
+      "timestamp": "20120217153148",
+      "original": "http://www.runehq.com:80/quest/witchs-house",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "UGCDUHB3ZPQRJVOQ6UITZ4KXCNTHUDW3",
+      "length": "8755"
+    },
+    "payload_sha1_base32": "UGCDUHB3ZPQRJVOQ6UITZ4KXCNTHUDW3",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "official",
+    "title": "Witch's House",
+    "local": "sources/official.html",
+    "sha256": "f897eb49944effe1b7f23c3b32bfc0a4b3f9112f7fd94bc7c75d6f72a288c036",
+    "text_path": "sources/official-text.txt",
+    "text_sha256": "d8da6217bfd07632af55fd7a931ba2943ad57a2556f72c8a1f5b037827cb219d",
+    "actual_capture_utc": "2012-03-29T10:59:24+00:00",
+    "cdx": {
+      "urlkey": "com,runescape,services)/m=rswiki/en/witch's_house",
+      "timestamp": "20120329105924",
+      "original": "http://services.runescape.com:80/m=rswiki/en/Witch%27s_House",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "BUB5DNLXVVAHMPN6LVP4BVVOIF5K7LZK",
+      "length": "9378"
+    },
+    "payload_sha1_base32": "BUB5DNLXVVAHMPN6LVP4BVVOIF5K7LZK",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "tipit-20121119221131",
+    "title": "not stated",
+    "local": "sources/tipit-20121119221131.html",
+    "sha256": "e27c20b6eecc7ff2d834777a0c40d1cd07e7d8fa506951f381512de836537e35",
+    "text_path": "sources/tipit-20121119221131-text.txt",
+    "text_sha256": "2fb45398f63e79ad774e0e37ac5dfadfbafdb0a9ff1ad9e6d7110ec68589a176",
+    "actual_capture_utc": "2012-11-19T22:11:31+00:00",
+    "cdx": {
+      "urlkey": "it,tip)/runescape/index.php?rs2quest_id=39",
+      "timestamp": "20121119221131",
+      "original": "http://www.tip.it:80/runescape/index.php?rs2quest_id=39",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "QKH7WYGAKM2IGQN76SST7VEHO3GPWNVK",
+      "length": "7965"
+    },
+    "payload_sha1_base32": "QKH7WYGAKM2IGQN76SST7VEHO3GPWNVK",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "tipit-20120825005349",
+    "title": "Witch's House",
+    "local": "sources/tipit-20120825005349.html",
+    "sha256": "e3c6a8697c3ac80e89e81da1176a782afda97965bdb0d006ff8981619d7235ad",
+    "text_path": "sources/tipit-20120825005349-text.txt",
+    "text_sha256": "bfb5cc486a62446b16311a6105824ce858e56e73fc4ad41e6ed970100e9fc9ec",
+    "actual_capture_utc": "2012-08-25T00:53:49+00:00",
+    "cdx": {
+      "urlkey": "it,tip)/runescape/index.php?rs2quest_id=52",
+      "timestamp": "20120825005349",
+      "original": "http://www.tip.it:80/runescape/index.php?rs2quest_id=52",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "WU4XXGJ2TJTN56URZIMKAHZOX2NU5L2S",
+      "length": "7688"
+    },
+    "payload_sha1_base32": "WU4XXGJ2TJTN56URZIMKAHZOX2NU5L2S",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "sals-20121018060604",
+    "title": "Quest: Witch's House | Sal's Realm of RuneScape",
+    "local": "sources/sals-20121018060604.html",
+    "sha256": "5f74e6d81c3088b339907a53eb389e535739dbac18b69406b44182992919e5eb",
+    "text_path": "sources/sals-20121018060604-text.txt",
+    "text_sha256": "2d36bbb36126184661af923af811548a65f7d111d947a4a44e4e894723a6db9f",
+    "actual_capture_utc": "2012-10-18T06:06:04+00:00",
+    "cdx": {
+      "urlkey": "net,salmoneus,runescape)/quests/witchs-house.html",
+      "timestamp": "20121018060604",
+      "original": "http://runescape.salmoneus.net/quests/witchs-house.html",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "QNQ7MI7C4Z3O74KNERBPEJBZWZEWX4BE",
+      "length": "8439"
+    },
+    "payload_sha1_base32": "QNQ7MI7C4Z3O74KNERBPEJBZWZEWX4BE",
+    "cdx_digest_matches": true
+  },
+  {
+    "id": "runehq-20121103135007",
+    "title": "Witch's House - RuneScape Guide - RuneHQ",
+    "local": "sources/runehq-20121103135007.html",
+    "sha256": "0d5a80fc3360adc40ac64a6f981bfa8b09cf5737fd95a4896fbe34873593fa8a",
+    "text_path": "sources/runehq-20121103135007-text.txt",
+    "text_sha256": "0dc26aed2b31382c2c01199bf5b68d8a2fa216de70daad17f95fb3c39587fb1d",
+    "actual_capture_utc": "2012-11-03T13:50:07+00:00",
+    "cdx": {
+      "urlkey": "com,runehq)/quest/witchs-house",
+      "timestamp": "20121103135007",
+      "original": "http://www.runehq.com:80/quest/witchs-house",
+      "mimetype": "text/html",
+      "statuscode": "200",
+      "digest": "7ZP7MTUANN7URM4A4L2P7DTHENDUUJCM",
+      "length": "7495"
+    },
+    "payload_sha1_base32": "7ZP7MTUANN7URM4A4L2P7DTHENDUUJCM",
+    "cdx_digest_matches": true
+  }
+]

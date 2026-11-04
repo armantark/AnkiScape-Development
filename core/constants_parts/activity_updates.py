@@ -1,5 +1,6 @@
 import os
 
+from ...data.cooking_data import PICKABLES_DARKAN_SOURCE
 from ...data.quest_data import (
     BLUE_DYE_WIKI_SOURCE,
     BLUE_GOBLIN_MAIL_WIKI_SOURCE,
@@ -20,6 +21,10 @@ from .utility_sources import *
 from .equipment_sources import *
 from .registry_sources import *
 from .paths import *
+
+# Dyes: "Two primary colours (red, blue or yellow) can be mixed with each other to produce a
+# secondary colour (orange, green or purple)." Green and purple are not quest items.
+_DYES_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/5953125"
 
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 UTILITY_ACTIVITY_DATA = {
@@ -94,7 +99,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_wool.png"),
         "group": "gathering",
-        "source": "Material source for OSRS Ball of wool > Creation",
+        "source": "https://runescape.wiki/w/Wool?oldid=5942277",
     },
     "gather_flax": {
         "display_name": "Gather flax",
@@ -104,7 +109,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_flax.png"),
         "group": "gathering",
-        "source": "OSRS Bow string > Strategy > Manual Spinning",
+        "source": f"https://runescape.wiki/w/Flax?oldid=6564477; {PICKABLES_DARKAN_SOURCE}",
     },
     "gather_swamp_toads": {
         "display_name": "Gather swamp toads",
@@ -123,11 +128,7 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 1,
         "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "nettles.png"),
         "group": "gathering",
-        "source": (
-            "https://runescape.wiki/w/Nettles?oldid=6579371; "
-            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
-            "darkan-world-server/src/main/java/com/rs/game/content/world/Pickables.kt:24,60-66"
-        ),
+        "source": f"https://runescape.wiki/w/Nettles?oldid=6579371; {PICKABLES_DARKAN_SOURCE} lines 24, 60-66",
     },
     "gather_snape_grass": {
         "display_name": "Gather snape grass",
@@ -140,8 +141,7 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": (
             "https://runescape.wiki/w/Snape_grass?oldid=6269500; "
-            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
-            "darkan-world-server/data/items/spawns/spawns.json at commit "
+            "Darkan darkan-world-server data/items/spawns/spawns.json at commit "
             "7387f34cff5c638d1c29d024329a9f80667add5f (itemId 231, Hobgoblin Peninsula)"
         ),
     },
@@ -198,6 +198,94 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {GOBLIN_MAIL_WIKI_SOURCE}",
     },
+    # PLACEHOLDER(gathering.pick_regrowth): a review trip picks its whole batch
+    # at once, so no regrowth wait is modelled. Only Darkan gives regrowth
+    # times (Pickables.kt), and the redberry pages disagree on theirs.
+    "pick_cabbages": {
+        "display_name": "Pick cabbages",
+        "description": "Pick cabbages from the fields north of Lumbridge.",
+        "requirements": {},
+        "output_item": "Cabbage",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "cabbage.png"),
+        "group": "gathering",
+        "source": f"https://runescape.wiki/w/Cabbage?oldid=6174079; {PICKABLES_DARKAN_SOURCE}",
+    },
+    "pick_potatoes": {
+        "display_name": "Pick potatoes",
+        "description": "Pick potatoes from the fields north of the Lumbridge chicken farm.",
+        "requirements": {},
+        "output_item": "Potato",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "potato.png"),
+        "group": "gathering",
+        "source": f"https://runescape.wiki/w/Raw_potato?oldid=6510109; {PICKABLES_DARKAN_SOURCE}",
+    },
+    "pick_onions": {
+        "display_name": "Pick onions",
+        "description": "Pick onions in Fred the Farmer's yard.",
+        "requirements": {},
+        "output_item": "Onion",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "onion.png"),
+        "group": "gathering",
+        "source": f"https://runescape.wiki/w/Onion?oldid=6454587; {PICKABLES_DARKAN_SOURCE}",
+    },
+    "pick_redberries": {
+        "display_name": "Pick redberries",
+        "description": "Pick two berries from each of the two bushes south-east of Varrock.",
+        "requirements": {},
+        "output_item": "Redberries",
+        "output_qty": 1,
+        "batch_size": 4,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "redberries.png"),
+        "group": "gathering",
+        "source": (
+            "https://runescape.wiki/w/Redberries?oldid=6563826; "
+            "https://runescape.wiki/w/Redberry_bush?oldid=6021052"
+        ),
+    },
+    "pick_cadava_berries": {
+        "display_name": "Pick cadava berries",
+        "description": "Pick cadava berries from the bush south of Varrock, just west of the East Varrock Mine.",
+        "requirements": {},
+        "output_item": "Cadava berries",
+        "output_qty": 1,
+        # PLACEHOLDER(gathering.cadava_yield): the period page names the bush
+        # but not how many berries it gives; Darkan lets a bush be picked twice.
+        "batch_size": 2,
+        "icon_path": os.path.join(COMBAT_ITEMS_FOLDER, "cadava_berries.png"),
+        "group": "gathering",
+        "source": f"https://runescape.wiki/w/Cadava_berries?oldid=6357137; {PICKABLES_DARKAN_SOURCE}",
+    },
+    "pick_bananas": {
+        "display_name": "Pick bananas",
+        "description": "Pick bananas from the plantation at Musa Point.",
+        "requirements": {},
+        "output_item": "Banana",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(COMBAT_ITEMS_FOLDER, "banana.png"),
+        "group": "gathering",
+        "source": (
+            "https://runescape.wiki/w/Banana?oldid=6436240; "
+            "https://runescape.wiki/w/Musa_Point?oldid=6487976"
+        ),
+    },
+    "pick_pineapples": {
+        "display_name": "Pick pineapples",
+        "description": "Pick a pineapple from the plants at the Brimhaven Dungeon entrance.",
+        "requirements": {},
+        "output_item": "Pineapple",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "pineapple.png"),
+        "group": "gathering",
+        "source": f"https://runescape.wiki/w/Pineapple?oldid=6454592; {PICKABLES_DARKAN_SOURCE}",
+    },
     "aggie_make_red_dye": {
         "display_name": "Ask Aggie to make red dye",
         "requirements": {"Redberries": 3, "Coins": 5},
@@ -227,6 +315,26 @@ UTILITY_ACTIVITY_DATA = {
         "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "orange_dye.png"),
         "group": "material_processing",
         "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_DYE_WIKI_SOURCE}",
+    },
+    "mix_green_dye": {
+        "display_name": "Mix green dye",
+        "requirements": {"Blue dye": 1, "Yellow dye": 1},
+        "output_item": "Green dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "green_dye.png"),
+        "group": "material_processing",
+        "source": _DYES_WIKI_SOURCE,
+    },
+    "mix_purple_dye": {
+        "display_name": "Mix purple dye",
+        "requirements": {"Blue dye": 1, "Red dye": 1},
+        "output_item": "Purple dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "purple_dye.png"),
+        "group": "material_processing",
+        "source": _DYES_WIKI_SOURCE,
     },
     "aggie_make_blue_dye": {
         "display_name": "Ask Aggie to make blue dye",

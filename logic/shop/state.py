@@ -14,8 +14,8 @@ from ...data.shop_data import (
     SHOP_SERVICES,
     SHOP_VENDOR_ACTIONS,
 )
-from ...data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 from ...core.constants import EXTRA_ITEM_DATA
+from ...core.legacy_item_names import renamed_item
 from ...logic_pure.shop_diary_transactions import (
     SHOP_DIARY_TRANSACTION_KEYS,
     shop_diary_transaction_counter_key_pure,
@@ -154,7 +154,7 @@ def _clean_optional_int(value: Any) -> int | None:
 def _canonical_saved_shop_item_name(item_name: str, row_id: str = "", temporary: bool = False) -> str:
     if not temporary and row_id in _CANONICAL_SHOP_ROW_NAMES:
         return _CANONICAL_SHOP_ROW_NAMES[row_id]
-    return LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
+    return renamed_item(item_name)
 
 
 def _migrate_item_delta_names(raw: Any) -> Any:
@@ -297,6 +297,14 @@ def _quest_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str,
     return f"Requires {label}"
 
 
+def _all_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    for child in rule.get("rules", ()):
+        reason = shop_access_lock_reason_pure(player_data, {"access": child})
+        if reason:
+            return reason
+    return None
+
+
 def _quest_points_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
     required = int(rule.get("quest_points", 0) or 0)
     if int(player_data.get("quest_points", 0) or 0) >= required:
@@ -321,6 +329,7 @@ def _skill_total_access_lock_reason(player_data: Mapping[str, Any], rule: Mappin
 
 _ACCESS_LOCK_REASONS: Dict[str, Callable[[Mapping[str, Any], Mapping[str, Any], str], Optional[str]]] = {
     "quest": _quest_access_lock_reason,
+    "all": _all_access_lock_reason,
     "quest_points": _quest_points_access_lock_reason,
     "skill": _skill_access_lock_reason,
     "skill_total": _skill_total_access_lock_reason,

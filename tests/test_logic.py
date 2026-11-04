@@ -277,7 +277,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
     "back_to_my_roots": frozenset({("Jade vine seed", 1)}),
-    "biohazard": frozenset({}),
+    "biohazard": frozenset({}), "nature_spirit": frozenset(),
     "cabin_fever": frozenset({("Book o' piracy", 1)}),
     "carnillean_rising": frozenset({("Coins", 5000), ("Mahogany plank", 10), ("Oak plank", 100), ("Philipe's sweets", 1), ("Teak plank", 30), ("Treasure chest (Carnillean Rising)", 1)}),
     "catapult_construction": frozenset({("Adamant halberd", 1), ("Coins", 2000), ("Sailor's hat", 1), ("Teak plank", 30)}),
@@ -7082,147 +7082,6 @@ class TestLogic(unittest.TestCase):
             ),
         )
 
-    def test_witchs_house_stage_gates_items_route_combat_and_reward(self):
-        quest_id = "witchs_house"
-        actions = (
-            "Enter the Witch's house with the door key",
-            "Use cheese on the mouse hole and attach the magnet to the mouse",
-            "Avoid the witch's patrol through the house",
-            "Unlock the Witch's shed door with the backroom key",
-            "Return the ball to Harvey",
-        )
-        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-
-        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertEqual(player_data["inventory"]["Door key"], 1)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:1])
-        self.assertEqual(player_data["inventory"]["Door key"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
-        self.assertEqual(player_data["inventory"]["Magnet"], 1)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Needs Cheese x1",),
-        )
-
-        player_data["inventory"]["Cheese"] = 1
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
-        self.assertEqual(player_data["inventory"]["Cheese"], 0)
-        self.assertEqual(player_data["inventory"]["Magnet"], 1)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:2])
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:3])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Needs Leather gloves",),
-        )
-
-        player_data["inventory"]["Leather gloves"] = 1
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
-        self.assertEqual(player_data["inventory"]["Backroom key"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:4])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            (
-                "Battle required: Witch's experiment (Skavid form) level 19",
-                "Battle required: Witch's experiment (Spider form) level 30",
-                "Battle required: Witch's experiment (Bear form) level 42",
-                "Battle required: Witch's experiment (Wolf form) level 53",
-            ),
-        )
-
-        player_data["attack_level"] = 60
-        player_data["strength_level"] = 60
-        player_data["defense_level"] = 60
-        player_data["constitution_level"] = 60
-        resolved_encounters = []
-        for expected_remaining in (3, 2, 1, 0):
-            player_data, ok, result = apply_quest_combat_encounter_pure(
-                player_data,
-                quest_id,
-                QUEST_DATA,
-            )
-            self.assertTrue(ok)
-            self.assertEqual(result["reason"], "combat_resolved")
-            resolved_encounters.append(result["encounter_id"])
-            self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
-            blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-            self.assertEqual(len(blockers), expected_remaining)
-        self.assertEqual(
-            resolved_encounters,
-            [
-                "witchs_house_witchs_experiment_first_form",
-                "witchs_house_witchs_experiment_second_form",
-                "witchs_house_witchs_experiment_third_form",
-                "witchs_house_witchs_experiment_fourth_form",
-            ],
-        )
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 10)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"][quest_id]["progress"], 11)
-        self.assertEqual(player_data["inventory"]["Ball"], 1)
-
-        constitution_before_reward = player_data["constitution_exp"]
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"][quest_id]["completed"])
-        self.assertEqual(player_data["quest_points"], 4)
-        self.assertEqual(player_data["inventory"]["Ball"], 0)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
-        self.assertEqual(player_data["constitution_exp"] - constitution_before_reward, 6325.0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quest_points"], 4)
-        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
-
     def test_merlins_crystal_completes_from_a_normal_start(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
@@ -8316,10 +8175,10 @@ class TestLogic(unittest.TestCase):
     def test_early_darkan_quests_progress_through_source_backed_stage_gates(self):
         goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         goblin["quests"]["goblin_diplomacy"] = {"started": True, "progress": 1, "completed": False}
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA),
-            ("Needs Orange goblin mail x1",),
-        )
+        self.assertEqual(quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA), (
+            "Needs Redberries x3 for Aggie's red dye", "Needs Coins x5 for Aggie's red dye",
+            "Needs Onion x2 for Aggie's yellow dye", "Needs Coins x5 for Aggie's yellow dye",
+        ))
 
         goblin["inventory"].update({"Orange goblin mail": 1, "Blue goblin mail": 1, "Goblin mail": 1})
         goblin, ok, completed_now = apply_quest_progress_pure(goblin, "goblin_diplomacy", QUEST_DATA)
@@ -10666,7 +10525,7 @@ class TestLogic(unittest.TestCase):
 
     def test_witchs_house_experiment_forms_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
+        player_data["quests"]["witchs_house"] = {"started": True, "progress": 12, "completed": False}
         player_data["attack_level"] = 60
         player_data["strength_level"] = 60
         player_data["defense_level"] = 60
@@ -10692,7 +10551,7 @@ class TestLogic(unittest.TestCase):
             resolved["quest_combat_encounters"],
             {"witchs_house": ["witchs_house_witchs_experiment_first_form"]},
         )
-        self.assertEqual(resolved["quests"]["witchs_house"]["progress"], 9)
+        self.assertEqual(resolved["quests"]["witchs_house"]["progress"], 12)
 
         blockers = quest_current_stage_blockers_pure(resolved, "witchs_house", QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",) * 3)
@@ -11619,7 +11478,7 @@ class TestLogic(unittest.TestCase):
             "back_to_my_roots": {
                 "Jade vine seed": 1,
             },
-            "biohazard": {},
+            "biohazard": {}, "nature_spirit": {},
             "black_knights_fortress": {"Coins": 2500},
             "catapult_construction": {
                 "Adamant halberd": 1,
@@ -11905,24 +11764,22 @@ class TestLogic(unittest.TestCase):
                 }
 
                 self.assertTrue(progressed)
-                self.assertTrue(completed)
+                self.assertEqual(completed, quest_id != "murder_mystery")  # Bedroom searches preserve active legacy progress.
                 self.assertTrue(
                     prohibited_reward_names.isdisjoint(granted),
                     f"{quest_id} granted non-item rewards: "
                     f"{sorted(prohibited_reward_names.intersection(granted))}",
                 )
-                if quest_id in expected_rewards:
-                    self.assertEqual(granted, expected_rewards[quest_id])
+                self.assertEqual(granted, expected_rewards.get(quest_id, granted))
                 if quest_id == "missing_my_mummy":
                     for skill_id, amount in expected_missing_mummy_xp.items():
                         self.assertEqual(
                             completed_data[f"{skill_id}_exp"] - xp_before[skill_id],
                             amount,
                         )
-                if quest_id == "nomads_requiem":
-                    # The 70 Zeal points are a Soul Wars currency, not an
-                    # inventory item; they land on the existing zeal wallet.
-                    self.assertEqual(completed_data["soul_wars_zeal"], 70)
+                # Nomad's 70 Zeal points land on the wallet; other quests preserve it.
+                self.assertEqual(completed_data["soul_wars_zeal"],
+                                 {"nomads_requiem": 70}.get(quest_id, player_data["soul_wars_zeal"]))
 
     def test_quest_replacement_guards_pin_all_replaced_items_lamps_and_unlocks(self):
         """Pin every item and lamp replacement, and only quests with unlock replacements."""

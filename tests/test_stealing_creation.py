@@ -265,7 +265,7 @@ class StealingCreationSessionTests(unittest.TestCase):
             # the boolean above is the flag the engine actually reads.
             self.assertFalse(temp["combat_dream_thrift"])
             self.assertFalse(temp["combat_vengeance"])
-            self.assertEqual(temp["combat_selected_prayers"], [])
+            self.assertFalse(temp["combat_prayers_enabled"])
             self.assertEqual(temp["combat_supply_loadout"]["food"], {})
             return copy.deepcopy(temp), True, {"fled": True}
 

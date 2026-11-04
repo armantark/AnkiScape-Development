@@ -17,6 +17,10 @@ def _xp_reward_dict(reward: QuestXpReward) -> Dict[str, object]:
     return {"skill_id": reward.skill_id, "amount": reward.amount}
 
 
+def _supply_recipe_dict(recipe: QuestSupplyRecipe) -> Dict[str, object]:
+    return {"utility_id": recipe.utility_id, "step": recipe.step}
+
+
 def _lamp_reward_dict(reward: QuestLampReward) -> Dict[str, object]:
     return {
         "display_name": reward.display_name,
@@ -118,6 +122,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "journal_stages": {stage.stage: stage.journal for stage in quest.journal_stages},
             "stage_requirements": tuple(_stage_requirement_dict(req) for req in quest.stage_requirements),
             "choices": tuple(_quest_choice_dict(choice) for choice in quest.choices),
+            "supply_recipes": tuple(map(_supply_recipe_dict, quest.supply_recipes)),
         }
         for quest in QUESTS
     }

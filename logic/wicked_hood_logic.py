@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
-from .pace.world_clock import world_day_index_pure
+from .pace.world_clock import world_day_index_pure, world_day_length_pure
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.quest.serializers import quest_unlock_rules_as_dict
 from ..logic_pure.quest_runtime_rules import quest_unlock_locked_reasons_pure
@@ -343,6 +343,7 @@ def wicked_hood_projection_pure(
         "owned": wicked_hood_owned_pure(data),
         "operable": wicked_hood_operable_pure(data, target_id),
         "essence_item": "Pure essence" if state.get("omni_fed") else "Rune essence",
+        "world_day_cards": world_day_length_pure(data),
         "essence_remaining": state["essence_remaining"],
         "essence_cap": caps["essence"],
         "rune_withdrawals_remaining": state["rune_withdrawals_remaining"],
@@ -468,24 +469,18 @@ def _feed_wicked_hood(data: dict[str, Any], item: str) -> tuple[dict[str, Any], 
     return data, True, {"message": f"{item} fed to the Wicked hood.", "feed_xp": 0.0 if extra_withdrawal_only else WICKED_HOOD_FEED_XP}
 
 
-def _withdraw_hood_essence(data, stackable_items):
+def _withdraw_hood_essence(data):
+    # Banked, not carried: the Bank refills the Runecrafting pack on its own,
+    # so the whole allowance does not depend on free pack slots.
     state = data["wicked_hood"]
-    target_id = str(data.get("current_runecrafting", "") or "")
-    carried_root = dict(data.get("carried_inventory", {}) or {})
-    view = dict(carried_root.get(target_id, {}) or {})
-    inventory = data.setdefault("inventory", {})
-    remaining = state["essence_remaining"]
-    free_slots = max(0, CARRIED_CAPACITY - carried_slots_used(view, stackable_items))
-    quantity = min(remaining, free_slots)
+    quantity = state["essence_remaining"]
     if quantity <= 0:
-        return data, False, {"reason": "No carried-pack space or essence allowance remains."}
+        return data, False, {"reason": "No essence allowance remains."}
     item = "Pure essence" if state.get("omni_fed") else "Rune essence"
+    inventory = data.setdefault("inventory", {})
     inventory[item] = _non_negative_int(inventory.get(item)) + quantity
-    view[item] = _non_negative_int(view.get(item)) + quantity
-    carried_root[target_id] = view
-    data["carried_inventory"] = carried_root
-    state["essence_remaining"] -= quantity
-    return data, True, {"message": f"Withdrew {quantity} {item}.", "quantity": quantity, "item": item}
+    state["essence_remaining"] = 0
+    return data, True, {"message": f"Sent {quantity} {item} to the Bank.", "quantity": quantity, "item": item}
 
 
 def _withdraw_hood_runes(data, altar_id, altar, stackable_items):
@@ -602,7 +597,7 @@ def apply_wicked_hood_command_pure(
         }
 
     if action_id == "essence":
-        return _withdraw_hood_essence(data, stackable_items)
+        return _withdraw_hood_essence(data)
 
     altar_id = str(payload.get("altar_id", "") or "")
     accessible = wicked_hood_accessible_altars_pure(state, list(altars))

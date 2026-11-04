@@ -60,14 +60,14 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
         self.assertEqual(calls[-1], ("essence", {}))
-        self.assertEqual(pd["carried_inventory"]["craft_air_runes"]["Rune essence"], 28)
+        self.assertEqual(pd["inventory"]["Rune essence"], 100)
         refreshed = dialog.findChild(QLabel, "wickedHoodRemainingLabel")
         self.assertEqual(
             refreshed.text(),
-            "72/100 essence · 1/1 rune withdrawals · 2/2 teleports",
+            "0/100 essence · 1/1 rune withdrawals · 2/2 teleports",
         )
         feedback = dialog.findChild(QLabel, "wickedHoodFeedbackLabel")
-        self.assertEqual(feedback.text(), "Withdrew 28 Rune essence.")
+        self.assertEqual(feedback.text(), "Sent 100 Rune essence to the Bank.")
 
         teleport = dialog.findChild(QPushButton, "wickedHoodTeleportButton")
         teleport.click()
@@ -92,13 +92,14 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             "rune_withdrawals_remaining": 0,
             "teleports_remaining": 0,
         }
+        pd["world_clock"] = {"day": 0, "day_start_card": 0, "day_length": 100, "in_day_ticks": 0}
         dialog = self._open(pd, on_wicked_hood_command=lambda *_args: {})
         _goto_runecrafting(dialog)
 
         guidance = dialog.findChild(QLabel, "wickedHoodGuidanceLabel")
         self.assertEqual(
             guidance.text(),
-            "Allowances exhausted · refills every 240 answered cards",
+            "Allowances exhausted · refills every 100 answered cards",
         )
 
     def test_wicked_hood_card_hides_before_claim(self) -> None:

@@ -31,6 +31,7 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (
+    _at_most,
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,
@@ -119,7 +120,8 @@ def _consume_construction_nails(inventory, amount, nail_data, rng):
     return True
 
 
-def apply_construction_action_pure(player_data, target_id, construction_data, servant_data, nail_data, rng):
+def apply_construction_action_pure(player_data, target_id, construction_data, servant_data, nail_data, rng, build_limit=None):
+    """Build the target once, or a servant's batch of at most ``build_limit`` builds."""
     spec = construction_data.get(target_id)
     if not isinstance(spec, Mapping):
         return player_data, {}, False
@@ -128,7 +130,7 @@ def apply_construction_action_pure(player_data, target_id, construction_data, se
     servant = str(data.get("house_servant", ""))
     requirements = spec.get("requirements", {}) or {}
     servant_assisted = bool(servant and requirements) and not target_id.startswith("tablet_")
-    batch_size = _positive_int(servant_data.get(servant, {}).get("batch_size", 1), 1) if servant_assisted else 1
+    batch_size = _at_most(_positive_int(servant_data.get(servant, {}).get("batch_size", 1), 1) if servant_assisted else 1, build_limit)
     if servant_assisted:
         wage = _positive_int(servant_data.get(servant, {}).get("wage", 0), 0)
         if _non_negative_int(inventory.get("Coins", 0), 0) < wage:

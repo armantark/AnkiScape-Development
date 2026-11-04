@@ -23,7 +23,6 @@ from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
 from ..data.crafting_data import (
     DEFAULT_CRAFTING_TARGET,
     CRAFTING_RECIPES_BY_ID,
-    LEGACY_CRAFTING_ITEM_MIGRATIONS,
     LEGACY_CRAFTING_TARGETS,
 )
 from .item_registry import ItemDefinition
@@ -91,7 +90,12 @@ from .constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
-from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states
+from ..data.quest_data import DEFAULT_QUEST_TARGET, default_claim_states
+from .legacy_item_names import (
+    migrate_legacy_item_inventory as _migrate_legacy_item_inventory,
+    migrate_legacy_item_references as _migrate_legacy_item_references,
+    renamed_item as _renamed_item,
+)
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
 from ..logic.wicked_hood_logic import (
@@ -269,7 +273,7 @@ from ..logic.troll_invasion_logic import (
     sanitize_troll_invasion_state_pure,
 )
 from ..logic.dnd_favourites_logic import sanitize_dnd_favourites_pure
-from ..logic.review_strip_logic import sanitize_review_event_log_pure
+from .review_event_log import sanitize_review_event_log_pure
 from ..logic.shattered_heart_logic import (
     default_shattered_heart_state_pure,
     sanitize_shattered_heart_state_pure,
@@ -358,7 +362,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 125
+CURRENT_CONFIG_VERSION = 126
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -442,13 +446,7 @@ _EQUIPMENT_SLOT_IDS = {
     "feet",
     "ring",
 }
-# Older builds granted quest rewards under their source spellings before the
-# catalog resolved them onto storage keys, so saves can still hold names such as
-# "Amulet of ghostspeak" that no quest stage or action reads.
-_LEGACY_ITEM_NAME_MIGRATIONS = {
-    **LEGACY_CRAFTING_ITEM_MIGRATIONS,
-    **QUEST_REWARD_ITEM_NAME_OVERRIDES,
-}
+
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:
     if item_definitions is None:
@@ -1153,21 +1151,6 @@ def _migrate_legacy_bar_inventory(inventory: Dict[str, int]) -> None:
         inventory.pop(legacy_key, None)
 
 
-def _migrate_legacy_item_inventory(inventory: Any) -> None:
-    if not isinstance(inventory, dict):
-        return
-    for legacy_key, new_key in _LEGACY_ITEM_NAME_MIGRATIONS.items():
-        if legacy_key not in inventory:
-            continue
-        try:
-            amount = int(inventory.get(legacy_key, 0))
-        except (TypeError, ValueError):
-            amount = 0
-        if amount:
-            inventory[new_key] = inventory.get(new_key, 0) + amount
-        inventory.pop(legacy_key, None)
-
-
 def _migrate_toolbelt(data: Dict[str, Any]) -> None:
     toolbelt = data.get("toolbelt")
     if not isinstance(toolbelt, dict):
@@ -1257,38 +1240,6 @@ def _merge_renamed_item_quantity(store: Any, old_name: str, new_name: str) -> No
         existing = 0
     store[new_name] = existing + amount
     store.pop(old_name, None)
-
-
-def _renamed_item(item_name: Any) -> Any:
-    return _LEGACY_ITEM_NAME_MIGRATIONS.get(item_name, item_name) if isinstance(item_name, str) else item_name
-
-
-def _migrate_grave_item_names(state: Any) -> None:
-    if not isinstance(state, dict):
-        return
-    if isinstance(state.get("items"), list):
-        state["items"] = [_renamed_item(item_name) for item_name in state["items"]]
-    if isinstance(state.get("loadout"), dict):
-        state["loadout"] = {slot: _renamed_item(item_name) for slot, item_name in state["loadout"].items()}
-
-
-def _migrate_legacy_item_references(data: Dict[str, Any]) -> None:
-    for collection_key in ("carried_inventory", "carried_layout"):
-        collection = data.get(collection_key)
-        for item_store in collection.values() if isinstance(collection, dict) else ():
-            _migrate_legacy_item_inventory(item_store)
-
-    overrides = data.get("loot_overrides")
-    if isinstance(overrides, dict):
-        for old_name, new_name in _LEGACY_ITEM_NAME_MIGRATIONS.items():
-            if old_name in overrides:
-                overrides.setdefault(new_name, overrides.pop(old_name))
-
-    for state_key in ("combat_grave", "death_office"):
-        _migrate_grave_item_names(data.get(state_key))
-
-    if "magic_alchemy_item" in data:
-        data["magic_alchemy_item"] = _renamed_item(data["magic_alchemy_item"])
 
 
 def _migrate_plain_urn_item_stores(data: Dict[str, Any]) -> None:

@@ -10,6 +10,8 @@ except Exception:  # pragma: no cover - non-Qt environment keeps imports safe
 
 from ..core.constants import EQUIPMENT_ITEM_DATA, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
 from ..core.tool_belt import tool_on_belt
+from ..core.menu_bank_items import dye_mix_options_pure
+from ..logic.cooking_gauntlets_logic import family_gauntlet_conversion_state_pure
 from ..data.flash_powder_factory_data import ROGUE_KIT_OUTPUTS
 from ..data.great_orb_project_data import GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM
 from ..data.impling_jar_data import IMPLING_JAR_DATA
@@ -36,6 +38,7 @@ class BankMenuContext:
     on_open_item_pack: Callable | None
     on_open_impling_jar: Callable | None
     on_convert_rogue_kit: Callable | None
+    on_mix_dye: Callable | None
     on_teleport_training_urn: Callable | None
     carried_mode_state: dict
     on_set_carried_layout_quantity: Callable | None
@@ -147,7 +150,7 @@ def _add_wicked_hood(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> Non
     if item_name != WICKED_HOOD_ITEM:
         return
     hood = wicked_hood_view_pure(ctx.player_data)
-    essence = menu.addAction(f"Withdraw essence ({hood['essence_remaining']} left)")
+    essence = menu.addAction(f"Withdraw all essence to Bank ({hood['essence_remaining']} left)")
     rune_menu = menu.addMenu(f"Withdraw runes ({hood['rune_withdrawals_remaining']} left)")
     teleport_menu = menu.addMenu(f"Teleport ({hood['teleports_remaining']} left)")
     rune_menu.setToolTipsVisible(True)
@@ -376,6 +379,70 @@ def _add_rogue_kit(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
         menu.addSeparator()
 
 
+def add_cooking_gauntlet_conversion_action(
+    menu: "QMenu",
+    item_name: str,
+    object_name: str,
+    warning_parent: QWidget,
+    *,
+    player_data: dict,
+    on_cooking_gauntlets_command: Callable | None,
+    refresh_equipment_views: Callable,
+) -> None:
+    state = family_gauntlet_conversion_state_pure(player_data, item_name)
+    if not state["visible"]:
+        return
+    cost = int(state["cost"] or 0)
+    action = menu.addAction(
+        "Enchant for Cooking"
+        if cost == 0
+        else f"Re-enchant for Cooking ({cost:,} Coins)"
+    )
+    action.setObjectName(object_name)
+    action.setEnabled(
+        bool(state["enabled"])
+        and on_cooking_gauntlets_command is not None
+    )
+    action.setToolTip(str(state["reason"]))
+
+    def _convert(_checked: bool = False) -> None:
+        if on_cooking_gauntlets_command is None:
+            return
+        result = on_cooking_gauntlets_command(
+            "convert", {"item_name": item_name}
+        ) or {}
+        if result.get("ok"):
+            refresh_equipment_views(refresh_visible_skill=True)
+        else:
+            QMessageBox.warning(
+                warning_parent,
+                "Cannot enchant gauntlets",
+                str(result.get("message", "That conversion is unavailable.")),
+            )
+
+    action.triggered.connect(_convert)
+    menu.addSeparator()
+
+
+def _add_dye_mixing(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
+    options = dye_mix_options_pure(ctx.player_data, item_name)
+    if not options:
+        return
+    mix_menu = menu.addMenu("Mix with")
+    mix_menu.setEnabled(ctx.on_mix_dye is not None)
+    for row in options:
+        action = mix_menu.addAction(f"{row['partner']} → {row['output_item']}")
+
+        def mix(_checked=False, activity_id=row["activity_id"]):
+            if ctx.on_mix_dye is None:
+                return
+            if ctx.on_mix_dye(activity_id):
+                ctx.refresh_equipment_views()
+
+        action.triggered.connect(mix)
+    menu.addSeparator()
+
+
 def _add_urn_teleport(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
     urn_info = full_urn_teleport_info_pure(ctx.player_data, item_name)
     if urn_info is not None:
@@ -490,6 +557,7 @@ def build_bank_item_menu(ctx: BankMenuContext, item_name: str) -> "QMenu":
     _add_item_pack(menu, ctx, item_name)
     _add_impling_jar(menu, ctx, item_name)
     _add_rogue_kit(menu, ctx, item_name)
+    _add_dye_mixing(menu, ctx, item_name)
     _add_urn_teleport(menu, ctx, item_name)
     _add_carried_quantity(menu, ctx, item_name)
     _add_discard(menu, ctx, item_name)

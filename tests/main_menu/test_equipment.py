@@ -340,7 +340,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(len(empties), len(EQUIPMENT_SLOTS))
         self.assertTrue(all("(empty)" in t for t in empties))
         # Slot placeholder art is fetched into equipment_slots/, so empty rows
-        # should carry the greyed OSRS slot icon (graceful text-only if absent).
+        # should carry the 2012 slot icon (graceful text-only if absent).
         from ankiscape.ui import ui as _ui
         if _ui.equipment_slot_icon_path("head"):
             head_row = _equip_slot_row(equip_list, "head")
@@ -394,7 +394,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(prayer.text(), "Prayer points  12 / 70")
         self.assertEqual(summoning.text(), "Summoning points  9 / 55")
 
-    def test_equipment_tab_shows_the_current_target_under_loot(self) -> None:
+    def test_equipment_tab_heads_the_combat_settings_with_the_current_target(self) -> None:
         player_data = _make_player_data()
         player_data["current_combat_target"] = "giant_rat"
         dialog = self._open(player_data)
@@ -404,12 +404,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         for _ in range(4):
             QApplication.processEvents()
 
-        loot_header = dialog.findChild(QLabel, "combatLootHeader")
         target = dialog.findChild(QLabel, "combatCurrentTargetLabel")
-        self.assertIsNotNone(loot_header)
-        self.assertIsNotNone(target)
+        max_hit = dialog.findChild(QLabel, "combatMaxHitLabel")
         self.assertEqual(target.text(), "Current target: Giant rat")
-        self.assertGreater(target.mapTo(dialog, QPoint(0, 0)).y(), loot_header.mapTo(dialog, QPoint(0, 0)).y())
+        self.assertRegex(max_hit.text(), r"^Max hit: \d+ LP · Accuracy: \d+%$")
+        self.assertLess(target.mapTo(dialog, QPoint(0, 0)).y(), max_hit.mapTo(dialog, QPoint(0, 0)).y())
 
     def test_empty_slot_text_is_dark_mode_safe_not_palette_mid(self) -> None:
         # Regression guard for the recurring "greyed text vanishes in dark mode"

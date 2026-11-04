@@ -21,7 +21,7 @@ QUEST = QuestDefinition(
         point_reward=5,
         rewards=(("Gold bar", 1),),
         start_point="Talk to General Bentnoze or General Wartface in Goblin Village.",
-        requirements=("Used during quest: Orange goblin mail x1, Blue goblin mail x1, Goblin mail x1",),
+        requirements=("Used during quest: Redberries x3, Onion x2, Woad leaf x2, Coins x15",),
         required_items=(),
         combat="None.",
         source=f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
@@ -32,6 +32,17 @@ QUEST = QuestDefinition(
         length="Short to Medium",
         timeline="Fifth Age",
         xp_rewards=(QuestXpReward("crafting", 200),),
+        # The 2012 guide lists the mails as "can be obtained during quest" and
+        # the dyes by their supplies, so the quest makes each one it lacks.
+        supply_recipes=(
+            QuestSupplyRecipe("gather_goblin_mail", "goblin mail from the crates"),
+            QuestSupplyRecipe("aggie_make_red_dye", "Aggie's red dye"),
+            QuestSupplyRecipe("aggie_make_yellow_dye", "Aggie's yellow dye"),
+            QuestSupplyRecipe("mix_orange_dye", "orange dye"),
+            QuestSupplyRecipe("aggie_make_blue_dye", "Aggie's blue dye"),
+            QuestSupplyRecipe("dye_goblin_mail_orange", "orange goblin mail"),
+            QuestSupplyRecipe("dye_goblin_mail_blue", "blue goblin mail"),
+        ),
     )
 
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {

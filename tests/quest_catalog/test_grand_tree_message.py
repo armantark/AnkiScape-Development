@@ -103,7 +103,7 @@ class GrandTreeMessageTest(unittest.TestCase):
                 if progress >= 2:
                     stage_two = next(row for row in rows if row["stage"] == 2)
                     self.assertEqual(stage_two["current"], progress == 2)
-                    self.assertEqual(stage_two["completed"], progress > 2)
+                    self.assertFalse(stage_two["completed"])  # Legacy progress supplies no performed opening proofs.
 
     def test_saved_reopen_preserves_progress_and_proofs(self):
         unrelated = QUEST_DATA["the_eyes_of_glouphrie"]["stage_requirements"]

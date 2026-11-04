@@ -176,7 +176,7 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         result = self.command("essence", {})
 
         self.assertTrue(result["ok"], result)
-        self.assertEqual(addon._state.player_data["inventory"]["Rune essence"], 28)
+        self.assertEqual(addon._state.player_data["inventory"]["Rune essence"], 100)
         self.assertEqual(col.entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._state.direct_action_undo_stack), before_stack_depth + 1)
         self.assertEqual(len(self.saves), 1, "a committed change must persist")
@@ -191,10 +191,8 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
 
     def test_refused_command_reports_the_refusal_and_writes_nothing(self):
         addon = self.addon
-        # Fill every free carried-pack slot so `essence` is refused by the pure
-        # function for lack of space.
-        addon._state.player_data["inventory"]["Shark"] = 28
-        addon._state.player_data["carried_inventory"]["craft_air_runes"] = {"Shark": 28}
+        # An emptied allowance makes the pure function refuse `essence`.
+        addon._state.player_data["wicked_hood"]["essence_remaining"] = 0
 
         # A WORKING recording col, not a raising one: if a broken migration
         # commits a refused change, the corruption must be visible as an undo
@@ -213,7 +211,7 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         result = self.command("essence", {})
 
         self.assertFalse(result["ok"])
-        self.assertIn("No carried-pack space", result["message"])
+        self.assertEqual(result["message"], "No essence allowance remains.")
         self.assertEqual(
             addon._state.player_data,
             before,

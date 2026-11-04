@@ -206,6 +206,13 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             ("gather_black_mushrooms", "Black mushroom", 1),
             ("gather_doogle_leaves", "Doogle leaves", 2),
             ("gather_goblin_mail", "Goblin mail", 3),
+            ("pick_cabbages", "Cabbage", 28),
+            ("pick_potatoes", "Potato", 28),
+            ("pick_onions", "Onion", 28),
+            ("pick_redberries", "Redberries", 4),
+            ("pick_cadava_berries", "Cadava berries", 2),
+            ("pick_bananas", "Banana", 28),
+            ("pick_pineapples", "Pineapple", 1),
         )
         for action_id, output_item, output_qty in cases:
             with self.subTest(action_id=action_id):

@@ -238,7 +238,7 @@ GUARD_DROPS = {
                 {"item": "Iron dagger", "quantity": 1, "slots": 6},
                 {"item": "Body talisman", "quantity": 1, "slots": 2},
                 {"item": "Law talisman", "quantity": 1, "slots": 1},
-                {"item": "Grain", "quantity": 1, "slots": 1},
+                {"item": "Wheat", "quantity": 1, "slots": 1},
                 {"item": "Iron ore", "quantity": 1, "slots": 1},
                 {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
                 {"slots": 8},

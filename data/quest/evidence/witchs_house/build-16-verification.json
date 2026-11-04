@@ -1,0 +1,234 @@
+{
+  "cause": "Main moved; merge conflicts in logic_pure/quest/review_services.py and runtime/runtime_actions_quest.py.",
+  "resolution": "Preserve Witch recovery readiness, deed_only transactions and both recovery notices alongside main Watchtower phases, transactions, requirement and journal projections. Preserve Enakhra, Oronwen, One Small Favour, Murder Mystery and Cold War dispatch. Remove duplicate dispatcher definition and its recursive delegation path.",
+  "resource_claim": "build-16-resources-95e489653a3da75d.json; loop-owned claims retained without new claim or release.",
+  "changed_prior_pins": [
+    "core/constants_parts/activity_assets.py",
+    "core/item_registry.py",
+    "data/quest/catalog.py",
+    "data/quest/catalog_overrides.py",
+    "data/quest/reward_items.py",
+    "data/quest_action_proof_data.py",
+    "logic_pure/quest/journal.py",
+    "logic_pure/quest/review_services.py",
+    "logic_pure/quest/review_steps.py",
+    "runtime/runtime_actions_quest.py",
+    "tests/quest_catalog/test_period_start_gates.py",
+    "tests/test_cold_war_greeting.py",
+    "tests/test_quest_action_proofs.py"
+  ],
+  "verification_policy": "Retain all earlier passing receipts and original pins. Fresh product checks required for merged inputs. Native Anki check, commit, independent review and promotion belong to the loop after build.",
+  "checks": {
+    "audit_docs": {
+      "command": "python3 tools/audit_docs.py --json",
+      "exit": 0,
+      "exact_result": {
+        "markdown_files": 1058,
+        "html_files": 2,
+        "issues": []
+      },
+      "rechecked_same_inputs": true,
+      "exact_stdout": "{\n  \"markdown_files\": 1058,\n  \"html_files\": 2,\n  \"issues\": []\n}\n"
+    },
+    "docs_audit": {
+      "count_command": "python3 run_tests.py --count test_docs_audit",
+      "command": "python3 run_tests.py test_docs_audit",
+      "tests": 20,
+      "skipped": 0,
+      "exit": 0
+    },
+    "capture_probe": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B /tmp/sol-loop-source-capture-probe.py \"$PWD/tools/audit_docs.py\"",
+      "exit": 0,
+      "exact_stdout": "{\"case\": \"indexed capture\", \"ok\": true, \"issues\": []}\nPASS: captured bytes preserved; authored and changed inputs refused\n"
+    },
+    "local_quest_regressions": {
+      "command": "python3 run_tests.py test_witchs_house test_witchs_house_storage WitchsHouseRuntimeTest test_watchtower_opening WatchtowerReviewTest enakhra oronwen murder_mystery",
+      "tests": 121,
+      "skipped": 0,
+      "seconds": 254.475,
+      "result": "OK",
+      "exit": 0
+    },
+    "source_custody": {
+      "packet_files": 105,
+      "result": "All packet files match original bytes; indexed sha256 and saved_bytes match. No source fetch or rewrite."
+    },
+    "structural": {
+      "result": "Both resolved modules parse, have unique top-level function names and no conflict markers. review_services.py: 86 lines, 8 imports; runtime_actions_quest.py: 216 lines, 13 imports."
+    },
+    "capture_red_receipt": {
+      "path": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/repairs/ankiscape-1792996353/capture-red.log",
+      "sha256": "974ba9ded3b5fc6280fd3c855bb45159749dd556cc534cfea57364b39e26a17d",
+      "result": "Retained actual old-code failure: indexed capture refused with missing_final_newline, trailing_whitespace, missing_doctype and broken_html_target."
+    },
+    "focused_plain": {
+      "run_id": "plain-1793038212-628e767e",
+      "tests": 233,
+      "expected_tests": 233,
+      "skipped": 0,
+      "seconds": 156.035,
+      "runner_exit": 0,
+      "result": "OK; existing runner count, no-skip, cleanup, archive and pending-record checks passed.",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793038212-628e767e.log": {
+          "sha256": "08f14bcef0e2662d7e7c6fddc2b66686467567410a871ccf0cc529703ee9e819",
+          "bytes": 101
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793038212-628e767e.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2,
+          "body": "0\n"
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793038212-628e767e.skips.json": {
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2,
+          "body": "[]"
+        }
+      }
+    },
+    "full_plain": {
+      "run_id": "plain-1793069119-5bf3f0ad",
+      "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" plain",
+      "tests": 6207,
+      "skipped": 703,
+      "active_tests": 5504,
+      "seconds": 806.321,
+      "runner_exit": 0,
+      "result": "OK; unchanged runner validation, baseline and cleanup checks passed. Full lanes do not request a separate skip report.",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793069119-5bf3f0ad.log": {
+          "sha256": "70ef649c64a53ad5a4900834b4505855d9ad1339515bdd887826efe05a4cc842",
+          "bytes": 117
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1793069119-5bf3f0ad.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2,
+          "body": "0\n"
+        }
+      }
+    },
+    "full_qt": {
+      "run_id": "qt-1793069941-ccc3fd85",
+      "command": "/opt/homebrew/bin/python3 tools/run_remote_tests.py \"$PWD\" qt",
+      "tests": 6207,
+      "skipped": 5,
+      "active_tests": 6202,
+      "seconds": 869.911,
+      "runner_exit": 0,
+      "result": "OK; unchanged runner validation, baseline and cleanup checks passed.",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793069941-ccc3fd85.log": {
+          "sha256": "a878a3c9e27b4fadd5df04ba9ce2955f78ea13476670ed700a47d2c302575e03",
+          "bytes": 115
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793069941-ccc3fd85.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2,
+          "body": "0\n"
+        }
+      }
+    },
+    "focused_qt": {
+      "run_id": "qt-1793070827-383b6ad4",
+      "selectors": [
+        "witchs_house",
+        "watchtower",
+        "enakhra",
+        "quest_action_proof",
+        "single_valued_route_steps",
+        "test_quest_catalog",
+        "combat_stat",
+        "oronwen",
+        "murder_mystery",
+        "test_quest_combat_placeholders",
+        "test_quest_combat_gate_fallback"
+      ],
+      "expected_tests": 250,
+      "tests": 250,
+      "skipped": 0,
+      "seconds": 51.698,
+      "runner_exit": 0,
+      "result": "OK; exact expected count and zero skips validated by unchanged runner. Includes real Collection Undo/replay, reopen and offscreen controls. Runner cleanup completed.",
+      "artifacts": {
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793070827-383b6ad4.log": {
+          "sha256": "4e5125d3b9fbe77a2f544c75474eedee1243ebc1b196f21dfcca52669fa935c9",
+          "bytes": 1299
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793070827-383b6ad4.report": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2,
+          "body": "0\n"
+        },
+        "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1793070827-383b6ad4.skips.json": {
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2,
+          "body": "[]"
+        }
+      }
+    }
+  },
+  "attempt_notes": [
+    "Initial count refused unknown selector test_quest_combat_stat_qualification; corrected to existing combat_stat selectors.",
+    "Initial focused runner syntax refused multiple selectors after one --select before launch; corrected to repeated --select flags.",
+    "Full plain receipt collection initially requested a focused-only skips.json artifact; file was absent as expected for full lanes. Recorded the existing passing log and report without repeating tests."
+  ],
+  "status": "Build complete. Focused plain 233/233 and Qt 250/250 passed without skips; full plain and Qt each passed 6207 tests (703 and 5 skips). Existing docs-audit 20/20 and independent capture probe receipts preserved with matching input hashes. Exact normal documentation audit passed. No commit or native Anki launch performed. Loop commit, independent review, native verification and promotion remain mandatory.",
+  "self_hash": "Excluded from current_file_sha256; final SHA-256 emitted in build result.",
+  "input_pins": {
+    "path": "data/quest/evidence/witchs_house/build-16-input-pins.json",
+    "files": 1372,
+    "sha256": "6ce29b077ba381ed28e6f999bdf9ab5286d9379af748ca33c6422618fe4b7e86"
+  },
+  "bookkeeping": "Prior build-decisions.json restored byte-for-byte from this build runner snapshot; all earlier entries preserved. Separate permitted evidence JSON files prevent oversized-file growth.",
+  "prior_build_record_sha256": "6a295b8da6cf4a30c479fd398bd9ab2b49ea3ea35b1c4e9bd8c1d9373f57d2a3",
+  "snapshot_custody": {
+    "files_per_snapshot": 1372,
+    "matching_queued_runner_snapshots": [
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-tlq8r0w5/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-tdaacuyl/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-ug893iw2/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-_4xpz5ew/source"
+    ],
+    "result": "Every recorded product input matches every listed immutable runner snapshot; metadata-only verification records excluded."
+  },
+  "resume_verification": {
+    "cause": "Previous build-16 process ended after focused plain success. Preserve its matching verification and finish outstanding lanes.",
+    "input_files": 1372,
+    "all_input_hashes_match": true,
+    "product_edits_this_resume": false,
+    "count_plain": {
+      "command": "python3 run_tests.py --count",
+      "tests": 6207,
+      "exit": 0
+    },
+    "count_focused_qt": {
+      "command": "QT_QPA_PLATFORM=offscreen .venv-qt/bin/python3 run_tests.py --count witchs_house watchtower enakhra quest_action_proof single_valued_route_steps test_quest_catalog combat_stat oronwen murder_mystery test_quest_combat_placeholders test_quest_combat_gate_fallback",
+      "tests": 250,
+      "exit": 0
+    },
+    "matching_runner_snapshots": [
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-tlq8r0w5/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-5mrpr6sp/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-ug893iw2/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-md3w5q9r/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-_4xpz5ew/source",
+      "/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-remote-sync-3evw_fsc/source"
+    ],
+    "source_custody": {
+      "packet_files": 105,
+      "indexed_captures": 60,
+      "all_bytes_and_lengths_match": true
+    }
+  },
+  "final_binding": {
+    "all_input_hashes_match": true,
+    "input_files": 1372,
+    "resolved_file_sha256": {
+      "logic_pure/quest/review_services.py": "137f056c809913ad769806d51c184fbb3017f26c5e636d1821c6376805b73f20",
+      "runtime/runtime_actions_quest.py": "766f118f704ba9af8b15700ee225cfd14385878e64b7b7cefc1693cd5a7efd26"
+    },
+    "prior_build_record_unchanged": true,
+    "product_inputs_unchanged_during_verification": true
+  }
+}

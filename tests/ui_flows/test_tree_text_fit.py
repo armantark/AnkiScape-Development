@@ -4,9 +4,9 @@ The owner saw Collections family names cut short ("Boss/monste…") and the
 Pets log's Acquisition text running off its edge. Both are checked at 720
 and 980 logical pixels wide and 560 tall, the size Anki gives the dialog on
 a laptop, by comparing each cell with the room its text needs. At a 1.5x
-font each tree must give way without hiding text: the family list elides past
-its share of the page and tooltips the whole name, and the Pets log keeps a
-readable Acquisition column and scrolls sideways.
+font each tree must give way without hiding text: the family list still
+widens to its longest name, and the Pets log keeps a readable Acquisition
+column and scrolls sideways.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from tests.main_menu import fixtures as _main_menu_fixtures
 from tests.ui_flows.test_pets_visible_rows import assert_pet_rows_visible
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QApplication, QEvent, QHelpEvent, QPushButton, QRect, QStyle, Qt, QToolTip, QTreeWidget
+    from aqt.qt import QApplication, QPushButton, QRect, QStyle, Qt, QTreeWidget, QWidget
 
 
 def _pump() -> None:
@@ -82,34 +82,27 @@ class TreeTextFitTest(unittest.TestCase):
                 self.assertEqual(cut, [])
             dialog.close()
 
-    def test_the_family_list_is_wider_than_its_longest_name_and_within_its_share_of_the_page(self) -> None:
-        from ankiscape.ui.ui_tab_collections import NAVIGATION_MAX_SHARE
-
+    def test_the_family_list_is_wider_than_its_longest_name_and_leaves_the_detail_pane_its_size(self) -> None:
         for width in (720, 980):
             dialog = self._tab(_main_menu._make_player_data(), "Collections", width)
             navigation = dialog.findChild(QTreeWidget, "collectionsFamilyTree")
+            detail = dialog.findChild(QWidget, "collectionsDetailPanel")
             longest = max(navigation.fontMetrics().horizontalAdvance(index.data()) for index in _rows(navigation))
             with self.subTest(width=width):
                 self.assertGreater(navigation.width(), longest)
-                self.assertLessEqual(navigation.width(), NAVIGATION_MAX_SHARE * navigation.parentWidget().width())
+                self.assertGreaterEqual(detail.width(), detail.sizeHint().width())
             dialog.close()
 
-    def test_past_its_share_the_family_list_elides_a_name_and_shows_it_whole_in_a_tooltip(self) -> None:
-        from ankiscape.ui.ui_tab_collections import NAVIGATION_MAX_SHARE
-
+    def test_at_a_larger_font_the_family_list_still_shows_every_name_whole_at_720(self) -> None:
         self._enlarge_font()
         dialog = self._tab(_main_menu._make_player_data(), "Collections", 720)
         navigation = dialog.findChild(QTreeWidget, "collectionsFamilyTree")
-        self.assertEqual(navigation.width(), int(NAVIGATION_MAX_SHARE * navigation.parentWidget().width()))
         cut = [
-            index for index in _rows(navigation)
+            index.data()
+            for index in _rows(navigation)
             if navigation.sizeHintForIndex(index).width() > navigation.visualRect(index).width()
         ]
-        self.assertNotEqual(cut, [])
-        viewport = navigation.viewport()
-        point = navigation.visualRect(cut[0]).center()
-        QApplication.sendEvent(viewport, QHelpEvent(QEvent.Type.ToolTip, point, viewport.mapToGlobal(point)))
-        self.assertEqual(QToolTip.text(), cut[0].data())
+        self.assertEqual(cut, [])
         dialog.close()
 
     def _pets_log(self, width: int):

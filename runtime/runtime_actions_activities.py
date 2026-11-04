@@ -349,7 +349,7 @@ from ..logic.shooting_star_logic import (
     apply_shooting_star_review_pure,
     shooting_star_event_mineable_pure,
 )
-from ..logic.review_strip_logic import record_review_event_pure
+from ..core.review_event_log import record_review_event_pure
 from ..data.fist_of_guthix_data import FIST_OF_GUTHIX_ACTIVITY_ID
 from ..logic.fist_of_guthix_logic import (
     apply_fist_of_guthix_review_pure,

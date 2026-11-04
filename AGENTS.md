@@ -22,6 +22,8 @@ open multiple dialogs, and serve stale code or assets.
   `tools/maintenance/run_mutation_probe.py`, never in an rsync scratch copy.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.
 - Do not change an existing user interface without explicit owner approval, except a text- or number-only change inside an existing panel (owner ruling, `memory-bank/grill-decisions-2026-10-25.md`); require a frontend-taste model review before promotion of each new interface.
+- Menu text is elegant and minimal: a label where a label serves, and no sentence that explains what a control already shows (owner, 2026-10-27, after the Pass 17 hill-climb copy).
+- Numbered passes come only from the owner's own play notes; other settled work goes into the Sol loop queue as harvest briefs (owner, 2026-10-28).
 - When the owner explicitly pauses the implementation goal, wrap up with a results artifact of what the run completed at gameplay level, plus any high-level architectural change that supported it, because the owner reads the game, not the code (grill decision 10, 2026-09-21).
 - For AnkiScape goal updates, state the user-visible change, what landed and the exact remaining check; give no whole-goal percentage without a measured denominator.
 - Preserve successful product verification when bookkeeping fails; repair the failing record without replaying product checks or adding process machinery unless the current slice has a demonstrated blocker.
@@ -30,7 +32,7 @@ open multiple dialogs, and serve stale code or assets.
 
 For native Anki checks, use a dedicated Codex task in `/Users/armantarkhanian/Documents/ankiscape-testing` on the connected MacBook, with the exact source revision, check requirements and isolation rules; never reuse an unrelated task. Use Screen Sharing only if that route is unavailable.
 
-Local tests: `python3 run_tests.py <selectors>`; selectors are positional, `--count` prints the selection count N. Remote: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain|qt --select <selectors> --expected-tests <N>`.
+Local tests: `python3 run_tests.py <selectors>`, which re-runs under `.venv-qt/bin/python` offscreen when present (`ANKISCAPE_PLAIN_LANE=1` keeps the calling interpreter); selectors are positional, `--count` prints the selection count N. Remote: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain|qt --select <selectors> --expected-tests <N>`.
 The commit hook is `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py`. `python3 tools/maintenance/function_metrics.py --output <path outside the worktrees> <file> <functions...>` measures functions with the hook's instruments. Run `python3 tools/audit_docs.py` only in a git checkout, never on the MacBook mirror. Scratch imports: `import pkg_alias`, then `ankiscape.*`. Bounded search: `python3 tools/repo_search.py`. Memory Bank index: `memory-bank/README.md`.
 A remote run that prints "Remote mirror busy; waiting" is queued behind other runs; let it wait.
 

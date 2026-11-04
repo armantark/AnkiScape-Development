@@ -26,6 +26,8 @@ from aqt.qt import (
     QStyleOptionButton,
     QStyleOptionViewItem,
     QStyledItemDelegate,
+    QTextLayout,
+    QTextOption,
     QTreeView,
     Qt,
 )
@@ -136,13 +138,34 @@ def _cell_text_clipped(view, option, index) -> bool:
     style = view.style()
     text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, cell, view)
     width = text_rect.width() - 2 * (style.pixelMetric(QStyle.PixelMetric.PM_FocusFrameHMargin, cell, view) + 1)
-    wraps = cell.features & QStyleOptionViewItem.ViewItemFeature.WrapText
-    flags = Qt.TextFlag.TextWordWrap if wraps else Qt.TextFlag.TextSingleLine
-    needed = cell.fontMetrics.boundingRect(QRect(0, 0, width, 1 << 20), flags, cell.text)
+    if cell.features & QStyleOptionViewItem.ViewItemFeature.WrapText:
+        return _wrapped_text_overruns(cell, width, text_rect.height())
+    needed = cell.fontMetrics.boundingRect(QRect(0, 0, width, 1 << 20), Qt.TextFlag.TextSingleLine, cell.text)
     return needed.width() > width or needed.height() > text_rect.height()
 
 
-def _item_view_defects(root) -> list[str]:
+def _wrapped_text_overruns(cell, width: int, height: int) -> bool:
+    """Lay the wrapped lines out as QCommonStyle does to size and paint them.
+
+    QFontMetrics.boundingRect rounds each line's ascent and descent up, so at a
+    fractional point size it puts two lines a pixel taller than the lines Qt
+    paints, and would call a row that holds them exactly clipped.
+    """
+    option = QTextOption()
+    option.setWrapMode(QTextOption.WrapMode.WordWrap)
+    layout = QTextLayout(cell.text, cell.font)
+    layout.setTextOption(option)
+    layout.beginLayout()
+    used_height = widest = 0.0
+    while (line := layout.createLine()).isValid():
+        line.setLineWidth(width)
+        used_height += line.height()
+        widest = max(widest, line.naturalTextWidth())
+    layout.endLayout()
+    return widest > width or used_height > height
+
+
+def item_view_defects(root) -> list[str]:
     """Name each tree, list or table cell whose text its cell cuts short.
 
     Rows scrolled out of view count too: a column is as wide for them as for
@@ -188,7 +211,7 @@ def text_fit_defects(root) -> list[str]:
     """Name each visible label, control or item-view row whose text is clipped, leaves root, or overlaps another."""
     widgets = _shown_text_widgets(root)
     rects = [QRect(widget.mapTo(root, QPoint(0, 0)), widget.size()) for widget in widgets]
-    defects = _item_view_defects(root)
+    defects = item_view_defects(root)
     for widget, rect in zip(widgets, rects):
         if not root.rect().contains(rect):
             defects.append(f"{_text(widget)!r} at {rect} leaves {root.rect()}")

@@ -3,18 +3,21 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Batch-fetch the 11 OSRS worn-slot placeholder icons for the Equipment tab.
+"""Batch-fetch the 11 pre-EoC worn-slot placeholder icons for the Equipment tab.
 
 The Equipment tab renders every ``EQUIPMENT_SLOTS`` row even when empty, showing
-the greyed OSRS slot silhouette (e.g. ``File:Head slot.png``) as a placeholder.
-This script pulls each slot's wiki image into ``equipment_slots/<slot_id>.png``
+the 2012 RuneScape slot icon (e.g. ``File:Head slot.png``) as a placeholder.
+This script pulls each slot's last pre-EoC wiki revision into
+``equipment_slots/<slot_id>.png``
 so the runtime can show it with a plain ``QIcon(path)`` and degrade to a
 text-only row when a file is missing. Developer-only; never runs inside Anki.
 
 Why an explicit (slot id -> wiki File title) manifest instead of slug inference:
 the slot ids are AnkiScape's internal keys (``ammunition``, ``weapon``) while the
-wiki titles are the interface sprite names (``Ammunition slot.png``,
-``Weapon slot.png``). Pinning the pair keeps the fetched files aligned with
+wiki titles are the interface sprite names (``Ammo slot.png``,
+``Main hand slot.png``). In 2018 the RuneScape wiki renamed the cape, weapon,
+body and shield files to the post-EoC slot names; their upload history moved
+with them, so the 2012 art lives under the new titles. Pinning the pair keeps the fetched files aligned with
 ``ui.equipment_slot_icon_path`` and with ``equipment_data.EQUIPMENT_SLOTS``. The
 manifest is cross-checked against EQUIPMENT_SLOTS at startup so a future slot
 addition fails loudly here rather than silently shipping without art.
@@ -43,22 +46,24 @@ from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
+    PRE_EOC_CUTOFF,
+    RS3_WIKI,
     fetch_asset,
     wiki_title_for_item,
 )
 
 PROVENANCE = Path("assets_provenance.json")
 
-# slot_id -> OSRS wiki File title for the greyed interface placeholder. Output
+# slot_id -> RuneScape wiki File title for the interface placeholder. Output
 # lands in equipment_slots/<slot_id>.png to match ui.equipment_slot_icon_path.
 SLOT_WIKI_TITLES: Dict[str, str] = {
     "head": "Head slot.png",
-    "cape": "Cape slot.png",
+    "cape": "Back slot.png",
     "neck": "Neck slot.png",
     "ammunition": "Ammo slot.png",
-    "weapon": "Weapon slot.png",
-    "body": "Body slot.png",
-    "shield": "Shield slot.png",
+    "weapon": "Main hand slot.png",
+    "body": "Torso slot.png",
+    "shield": "Off-hand slot.png",
     "legs": "Legs slot.png",
     "hands": "Hands slot.png",
     "feet": "Feet slot.png",
@@ -98,7 +103,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"error: {exc}")
         return 2
 
-    client = HttpWikiClient()
+    client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
     ok = skipped = failed = 0
     failures: List[str] = []
     for slot_id, wiki_title, out_rel in manifest:
@@ -109,7 +114,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             provenance_path=PROVENANCE,
         )
         try:
-            outcome = fetch_asset(request, client, size=None, force=args.force, dry_run=args.dry_run)
+            outcome = fetch_asset(
+                request, client, size=None, force=args.force, dry_run=args.dry_run, sources=(RS3_WIKI,)
+            )
         except AssetFetchError as exc:
             failed += 1
             failures.append(f"{slot_id}: {exc}")

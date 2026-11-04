@@ -1,4 +1,4 @@
-"""Quest flag and encounter quantities shared by progress and combat admission."""
+"""Quest stage flags, routes and encounter quantities shared by progress and combat admission."""
 
 from typing import Iterable, Mapping
 
@@ -59,3 +59,49 @@ def quest_combat_prerequisites_completed_pure(player_data, quest_id, quest_data,
         ) > 0:
             return False
     return True
+
+
+_QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
+    "missing_item",
+    "missing_item_option",
+    "missing_skill",
+    "missing_tool",
+    "required_action",
+    "unmet_route",
+    "quest_choice",
+}
+
+
+_QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
+    "missing_item",
+    "missing_item_option",
+    "missing_skill",
+    "missing_tool",
+    "missing_weapon",
+    "unmet_route",
+    "quest_choice",
+}
+
+
+def _quest_stage_strings(requirement, key):
+    raw_values = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
+    if isinstance(raw_values, str):
+        return (raw_values,)
+    if isinstance(raw_values, Iterable):
+        return tuple(str(value) for value in raw_values if str(value))
+    return tuple()
+
+
+_QUEST_ROUTE_INHERITANCE = {
+    ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
+    ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
+}
+
+
+def _quest_route_completed(player_data, quest_id, route_id):
+    if _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
+        return True
+    for source_quest_id in _QUEST_ROUTE_INHERITANCE.get((quest_id, route_id), ()):
+        if _quest_flag_completed(player_data, "quest_route_states", source_quest_id, route_id):
+            return True
+    return False

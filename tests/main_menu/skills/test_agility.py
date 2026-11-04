@@ -351,7 +351,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             pd["agility_activity_state"].pop("brimhaven")
             pd["current_utility"] = "bankstanding"
             self._agility_command_calls.append(("abandon", {}))
-            return True
+            return "Utilities"
 
         dialog = self._open(
             pd,

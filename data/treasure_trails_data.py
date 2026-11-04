@@ -256,6 +256,85 @@ TREASURE_TRAILS_EASY_STEPS: dict[str, dict[str, Any]] = {
             "simple",
             "Search the crate near a cart in Port Khazard.",
         ),
+        # Wiki Simple clues oldid=6579176: clue 161, note 162–163, level 164.
+        # RuneHQ capture 20121103160103: 1306–1307, upstairs, first chest from east.
+        # Wiki note says ground-floor northeast room after the Al Kharid update
+        # and speculates about an oversight. Preserve the upstairs literal;
+        # neither that speculation nor the floor disagreement is a runtime rule.
+        _step("simple_al_kharid_palace_chests", "simple", "Search the chests upstairs in Al Kharid palace."),
+        # Wiki Simple clues oldid=6579176: clue 206, note 207, level 208;
+        # note: northwest Al Kharid house with a range. RuneHQ 20121103160103:
+        # 1336–1337 most northern, west of silk stall; 1371–1372 northwesternmost,
+        # south of gem trader; both say southwest crate. Locator equivalence is
+        # unestablished. One identity: Darkan SIMPLE_S_13/SIMPLE_S_29 duplicates
+        # supply no second period identity or extra selection weight.
+        _step("simple_al_kharid_northernmost_house_crates", "simple", "Search the crates in the northernmost house in Al Kharid."),
+        # Wiki Simple clues oldid=6579176: clue 218, note 219, level 220;
+        # note: southeast of Varrock Palace, south of the tree farming patch.
+        # RuneHQ 20121103160103: 1386–1387, cart northeast of double-loop path,
+        # outside inner courtyard. These descriptions establish no spatial rule.
+        _step("simple_varrock_cart_crates", "simple", "Search the crates near a cart in Varrock."),
+        # Treasure Trails/Guide/Simple clues, RuneScape Wiki oldid=6579176,
+        # https://runescape.wiki/w/index.php?title=Treasure_Trails/Guide/Simple_clues&oldid=6579176
+        # revision UTC 2012-11-18T16:48:49Z: explicit level 1 cells.
+        # Treasure Trails — RuneHQ, actual Wayback capture 20121103160103,
+        # https://web.archive.org/web/20121103160103id_/http://www.runehq.com:80/minigame/treasure-trails
+        # UTC 2012-11-03T16:01:03Z: identity/destination corroboration, no tier labels.
+        # Darkan TreasureTrailsManager.java, modern supplying commit
+        # 172b2cbce5db978e9e8e73905721b091c408a337 (2026-09-27T07:28:10Z),
+        # lines 647, 656, 661, 671, 673, 676, 678: EASY/SIMPLE/OBJECT cross-check
+        # for seven rows; no qualified Falador ground-floor counterpart.
+        # Family: Treasure Trails oldid=6473708 (2012-10-26T00:01:09Z);
+        # Clue scroll (easy) oldid=6333359 (2012-10-02T09:39:55Z), line 24: level 1 = Easy.
+        # Wiki 13–16; RuneHQ 956–957.
+        # East Ardougne church tower, explicitly not Kandarin Monastery. Wiki: stairs; RuneHQ: southwest ladder.
+        _step(
+            'simple_east_ardougne_church_tower_crate', "simple",
+            'A crate found in the tower of a church is your next location.',
+        ),
+        # Wiki 53–55; RuneHQ 1162–1163.
+        # House east of Falador east bank, ground floor. RuneHQ: first crate on right.
+        _step(
+            'simple_falador_east_bank_house_crates', "simple",
+            'Look in the ground floor crates of houses in Falador.',
+        ),
+        # Wiki 102–104; RuneHQ 1316–1317.
+        # Upstairs food shop. Wiki: southwest of Entrana boat and west of void-knight recruitment boat; RuneHQ: eastern chest.
+        _step(
+            'simple_port_sarim_food_shop_upstairs_chests', "simple",
+            'Search chests found in the upstairs of shops in Port Sarim.',
+        ),
+        # Wiki 122–125; RuneHQ 1256–1257.
+        # Wiki: tent south of Ali Morrisane's stall and west of cactus patch.
+        # RuneHQ: tent east from Silk trader. Equivalence is not asserted.
+        _step(
+            'simple_al_kharid_tent_boxes', "simple",
+            'Search the boxes in one of the tents in Al Kharid.',
+        ),
+        # Wiki 166–168; RuneHQ 1331–1332.
+        # Southern entrance tower, not inside castle. RuneHQ: upstairs in front guard tower.
+        _step(
+            'simple_lumbridge_left_hand_tower_crate', "simple",
+            'Search the crate in the left-hand tower of Lumbridge castle.',
+        ),
+        # Wiki 174–176; RuneHQ 1346–1347.
+        # Wiki: north of Wizards' Guild. RuneHQ: first building entering from east, adjacent to north wall.
+        _step(
+            'simple_yanille_piano_house_crates', "simple",
+            'Search the crates in a house in Yanille that has a piano.',
+        ),
+        # Wiki 190–192; RuneHQ 1351–1352.
+        # General store directly south of church.
+        _step(
+            'simple_east_ardougne_general_store_crates', "simple",
+            "Search the crates in East Ardougne's general store.",
+        ),
+        # Wiki 198–200; RuneHQ 1376–1377.
+        # Peksa's helmet shop. RuneHQ: Barbarian Village Helmet Shop, southern-most crate.
+        _step(
+            'simple_gunnarsgrunn_helmet_shop_crates', "simple",
+            'Search the crates in Gunnarsgrunn (Barbarian Village) helmet shop.',
+        ),
     )
 }
 

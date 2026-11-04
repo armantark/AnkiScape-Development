@@ -57,6 +57,11 @@ def _non_negative_int(value, default=0):
     return parsed if parsed >= 0 else default
 
 
+def _at_most(count, limit):
+    """``count``, cut down to ``limit`` when a limit is given."""
+    return count if limit is None else min(count, limit)
+
+
 def _non_negative_float(value, default=0.0):
     if isinstance(value, bool):
         return default
@@ -396,3 +401,35 @@ def sanitize_quest_combat_active_encounters_pure(raw_state):
         if clean_encounters:
             clean[quest_id] = clean_encounters
     return clean
+
+
+COMBAT_ENEMY_ATTACK_STYLES = ("melee", "ranged", "magic", "magic_melee")
+
+
+def _combat_enemy_attack_style(enemy, player_combat_class=None):
+    if not isinstance(enemy, Mapping):
+        return "melee"
+    by_player_class = enemy.get("attack_style_by_player_class")
+    if isinstance(by_player_class, Mapping):
+        resolved = by_player_class.get(player_combat_class)
+        if resolved in COMBAT_ENEMY_ATTACK_STYLES:
+            return resolved
+    style = enemy.get("attack_style", "melee")
+    return style if style in COMBAT_ENEMY_ATTACK_STYLES else "melee"
+
+
+def _combat_enemy_attack_class(enemy, player_combat_class=None):
+    """The style the ENEMY attacks with. Determines which of its attack bonuses
+    drives its accuracy and which of the player's defence bonuses resists it.
+    Magic-based melee rolls against Magic defence while retaining melee damage
+    and protection-prayer semantics. Unknown values fall back to melee."""
+    style = _combat_enemy_attack_style(enemy, player_combat_class)
+    if style == "magic_melee":
+        return "magic"
+    return style
+
+
+def _combat_enemy_protection_class(enemy, player_combat_class=None):
+    if _combat_enemy_attack_style(enemy, player_combat_class) == "magic_melee":
+        return "melee"
+    return _combat_enemy_attack_class(enemy, player_combat_class)

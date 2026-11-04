@@ -479,6 +479,7 @@ class EncounterMenuSelectionTest(unittest.TestCase):
             )
             self.assertTrue(ok, reason)
             self.assertEqual(updated["combat_encounter"], player["combat_encounter"])
+            player.update(updated)
             return ok
 
         dialog = self.menu._open(

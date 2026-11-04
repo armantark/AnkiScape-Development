@@ -3,6 +3,7 @@
 from typing import NamedTuple
 
 from ...logic_pure.logic_pure_combat_food import _combat_auto_eat_food_available, combat_max_lifepoints_pure
+from ...logic_pure.logic_pure_prayer import active_prayer_selection_pure
 from ...logic_pure.logic_pure_state import _non_negative_int, _positive_int
 
 
@@ -11,7 +12,7 @@ class CardDangerState(NamedTuple):
     stunned: bool
     poisoned: bool
     prayer_points: int
-    prayers_selected: bool
+    prayers_running: bool
     bank_trip: bool
 
 
@@ -32,7 +33,7 @@ def card_danger_state_pure(data) -> CardDangerState:
         bool(data.get("thieving_stunned") or data.get("card_tick_debt")),
         bool((data.get("combat_status_effects") or {}).get("poison")),
         _non_negative_int(data.get("combat_prayer_points", 0), 0),
-        bool(data.get("combat_selected_prayers")),
+        bool(active_prayer_selection_pure(data)),
         bool(data.get("skilling_bank_run")),
     )
 
@@ -40,7 +41,7 @@ def card_danger_state_pure(data) -> CardDangerState:
 def card_danger_stop_pure(before: CardDangerState, after: CardDangerState) -> str:
     if after.low_lp_no_food:
         return "low_lp_no_food"
-    if before.prayer_points > 0 and after.prayer_points == 0 and before.prayers_selected:
+    if before.prayer_points > 0 and after.prayer_points == 0 and before.prayers_running:
         return "prayer_empty"
     transitions = (
         (before.stunned, after.stunned, "stun"),

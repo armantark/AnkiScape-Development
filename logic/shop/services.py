@@ -107,12 +107,23 @@ def apply_shop_vendor_action_pure(player_data: Mapping[str, Any], action_id: str
     return _apply_service_like(data, action, "vendor_action", 1)
 
 
+def _service_lock_reason(player_data: Mapping[str, Any], service: Mapping[str, Any]):
+    reason = shop_access_lock_reason_pure(player_data, service)
+    if reason:
+        return reason
+    if service.get("refuses_held_output") and any(
+        _inventory_count(player_data, item["item_name"]) > 0 for item in service.get("outputs", ())
+    ):
+        return "already_held"
+    return None
+
+
 def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, Any], quantity: int) -> Dict[str, Any]:
     data = ensure_shop_state_pure(player_data)
     requested = max(1, int(quantity))
     if service.get("visibility") != "visible":
         return _denied(service.get("lock_reason") or "service_not_visible", requested_quantity=requested, service_id=service["id"])
-    access_lock = shop_access_lock_reason_pure(data, service)
+    access_lock = _service_lock_reason(data, service)
     if access_lock:
         return _denied(
             access_lock,

@@ -34,8 +34,28 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 - **Action** — the one skill, activity, or utility that reviews advance for
   the player. The player has exactly one action at a time. Combat is the action
   "attack" against a chosen target.
+- **Action queue** — an ordered list of up to five actions, each with a count
+  in that action's own unit (bars made, logs cut, kills), that reviews work
+  through once from top to bottom. An add starts the queue at once, in place
+  of whatever runs, unless the queue already runs. An entry makes exactly its
+  count; the rest of that card's play goes to the next entry. A finished or
+  stopped entry leaves the queue, and an entry that cannot continue gives a
+  notice. An empty queue, or a cleared one, ends at Bankstanding. Avoid:
+  "loop", "task list".
 - **Bankstanding** — the neutral action every ended session lands on. An
   automatic switch to Bankstanding notifies the player; a manual Stop does not.
+- **Supply step** — one quest card in which the quest makes, picks up or buys
+  an item it needs, as the player would during the 2012 quest (asking Aggie for
+  a dye, mixing it, dyeing goblin mail). It pays the period price, gives the
+  period XP and never starts a fight. A supply step whose product the player
+  already holds is skipped; one the player lacks the coins, level or equipment
+  for stops the quest and names what is missing.
+- **Free pickup** — an action that gives an item and needs no input item and no
+  tool, such as picking bananas or searching the Goblin Village crates.
+- **Coming soon** — the state of a quest that a player cannot finish from a new
+  save yet, and of content that needs such a quest. It cannot be started.
+- **Review HUD** — the compact box under each card in the reviewer that shows
+  the current action, its progress and its buttons. Avoid: "activity widget".
 - **Encounter** — one fight against one enemy that persists between reviews:
   the enemy's remaining life points and the attack countdowns carry from card
   to card. An encounter lives only while the action stays combat against the
