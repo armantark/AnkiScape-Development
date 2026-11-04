@@ -4,7 +4,7 @@
 
 **Blocked by:** 10
 
-**Status:** open
+**Status:** built; the orchestrator copies the 131 briefs after Pass 20 reaches MacBook main
 
 - [ ] A count check shows 131 briefs, one per quest.
 - [ ] Each brief cites its rows and rulings 7 to 18, and it asks the loop for no owner question of a settled class.
