@@ -71,7 +71,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 4,
@@ -91,7 +93,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 5,
@@ -136,7 +140,9 @@
           "required_encounters": []
         }
       ],
-      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 6,
@@ -156,7 +162,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823"
+      "source": "https://runescape.wiki/w/The_Grand_Tree?oldid=6450823",
+      "wear_slot": "",
+      "wear_items": []
     }
   ],
   "journal_stages": {

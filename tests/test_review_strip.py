@@ -739,14 +739,14 @@ class ReviewStripTest(unittest.TestCase):
 
         # Active combat travel: it replaces combat's presentation entirely.
         state["combat_bank_run"] = {
-            "reviews_remaining": 2,
+            "ticks_remaining": 100,
             "target_id": "chicken",
         }
         hud.set_data(state, "Combat")
         for _ in range(3):
             QApplication.processEvents()
         self.assertEqual(hud.title_lbl.text(), "Bank run")
-        self.assertIn("0/2 travel reviews", hud.progress_lbl.text())
+        self.assertIn("17 reviews remaining", hud.progress_lbl.text())
         self.assertFalse(hud.combat_resources.isVisible())
         self.assertFalse(hud.enemy_progress.isVisible())
         self.assertFalse(hud.chips_lbl.isVisible())

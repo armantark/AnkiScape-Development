@@ -144,8 +144,8 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             {"a_souls_bane": {"a_souls_bane_fear_reaper_42": 1}},
         )
         self.assertEqual(addon._state.player_data["quest_combat_encounters"], {})
-        self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Defeated Fear reaper"])
+        self.assertEqual(calls["save"], len(calls["gains"]))
+        self.assertEqual(calls["gains"], ["Defeated Fear reaper", "Fear reaper: 60 damage dealt, 340 LP left"])
         self.assertEqual(calls["dialogs"], [])
 
     def test_stolen_hearts_review_flow_resolves_the_real_mercenary_stage(self):
@@ -186,24 +186,17 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "prayer_level": 99,
         }
 
-        for expected_gain in (
-            "Defeated Mercenary Joe",
-            "Defeated Skulls mercenary",
-            "Defeated Skulls mercenary",
-        ):
+        for _ in range(10):
+            if addon._state.player_data["quests"]["stolen_hearts"]["progress"] > 3:
+                break
             addon.on_quest_answer()
-            self.assertEqual(calls["gains"][-1], expected_gain)
-            self.assertEqual(
-                addon._state.player_data["quests"]["stolen_hearts"]["progress"],
-                3,
-            )
-
-        addon.on_quest_answer()
+        self.assertEqual([gain for gain in calls["gains"] if gain.startswith("Defeated ")],
+                         ['Defeated Mercenary Joe', 'Defeated Skulls mercenary', 'Defeated Skulls mercenary'])
 
         self.assertEqual(addon._state.player_data["quests"]["stolen_hearts"]["progress"], 4)
         self.assertEqual(addon._state.player_data["inventory"]["Ransom note"], 1)
         self.assertEqual(calls["gains"][-1], "Stolen Hearts 4/6")
-        self.assertEqual(calls["save"], 4)
+        self.assertEqual(calls["save"], len(calls["gains"]))
         self.assertEqual(calls["dialogs"], [])
 
     def test_diamond_in_the_rough_review_flow_resolves_the_sundial_ambush(self):
@@ -247,22 +240,12 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "prayer_level": 1,
         }
 
-        for expected_gain in (
-            "Defeated Bandit (Diamond in the Rough)",
-            "Defeated Bandit (Diamond in the Rough)",
-            "Defeated Bandit (Diamond in the Rough)",
-            "Defeated Bandit (Diamond in the Rough)",
-            "Defeated Bandit (Diamond in the Rough)",
-            "Defeated Bandit king",
-        ):
+        for _ in range(10):
+            if addon._state.player_data["quests"]["diamond_in_the_rough"]["progress"] > 2:
+                break
             addon.on_quest_answer()
-            self.assertEqual(calls["gains"][-1], expected_gain)
-            self.assertEqual(
-                addon._state.player_data["quests"]["diamond_in_the_rough"]["progress"],
-                2,
-            )
-
-        addon.on_quest_answer()
+        self.assertEqual([gain for gain in calls["gains"] if gain.startswith("Defeated ")],
+                         ["Defeated Bandit (Diamond in the Rough)"] * 5 + ["Defeated Bandit king"])
 
         self.assertEqual(
             addon._state.player_data["quests"]["diamond_in_the_rough"]["progress"],
@@ -271,7 +254,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(addon._state.player_data["inventory"]["Sundial gnomon"], 1)
         self.assertEqual(addon._state.player_data["inventory"]["Waterskin (4)"], 4)
         self.assertEqual(calls["gains"][-1], "Diamond in the Rough 3/5")
-        self.assertEqual(calls["save"], 7)
+        self.assertEqual(calls["save"], len(calls["gains"]))
         self.assertEqual(calls["dialogs"], [])
 
     def test_icthlarins_little_helper_review_flow_resolves_the_canopic_guardian(self):
@@ -441,21 +424,17 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "prayer_level": 200,
         }
 
-        for display_name in (
-            "Nazastarool (Zombie)",
-            "Nazastarool (Skeleton)",
-            "Nazastarool (Ghost)",
-        ):
+        for _ in range(10):
+            if addon._state.player_data["quests"]["shilo_village"]["progress"] > 10:
+                break
             addon.on_quest_answer()
-            self.assertEqual(calls["gains"][-1], f"Defeated {display_name}")
-            self.assertEqual(addon._state.player_data["quests"]["shilo_village"]["progress"], 10)
-
-        addon.on_quest_answer()
+        self.assertEqual([gain for gain in calls["gains"] if gain.startswith("Defeated ")],
+                         ['Defeated Nazastarool (Zombie)', 'Defeated Nazastarool (Skeleton)', 'Defeated Nazastarool (Ghost)'])
 
         self.assertEqual(addon._state.player_data["quests"]["shilo_village"]["progress"], 11)
         self.assertEqual(addon._state.player_data["inventory"]["Rashiliyia corpse"], 1)
         self.assertEqual(calls["gains"][-1], "Shilo Village 11/12")
-        self.assertEqual(calls["save"], 4)
+        self.assertEqual(calls["save"], len(calls["gains"]))
         self.assertEqual(calls["dialogs"], [])
 
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):

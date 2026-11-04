@@ -462,26 +462,16 @@ class TestCombatQuestRuntime(unittest.TestCase):
 
         self.assertEqual(hits, [2, 1, 1, 1, 1])
 
-    def test_delrith_needs_silverlight_wielded_not_carried(self):
+    def test_delrith_wields_carried_silverlight_before_the_fight(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = _delrith_player(inventory={"Silverlight": 1}, equipment={"weapon": "Bronze sword"})
 
-        self.assertFalse(_live_quest_review(player_data, calls, ()))
-
-        title, message = calls["errors"][0]
-        self.assertEqual(title, "Quest blocked")
-        self.assertIn("Wield Silverlight to damage Delrith", message)
-        self.assertTrue(calls["deactivated"])
-        self.assertNotIn("combat_last_result", player_data)
-
-        inventory, equipment, ok = equip_item_pure(
-            "Silverlight", player_data["inventory"], player_data["equipment"], EQUIPMENT_DATA
-        )
-        self.assertTrue(ok)
-        player_data.update(inventory=inventory, equipment=equipment)
         self.assertTrue(_live_quest_review(player_data, calls, (0.5,) * 1000))
         self.assertEqual(player_data["combat_last_result"]["weapon"], "Silverlight")
-        self.assertEqual(inventory["Bronze sword"], 1)
+        self.assertEqual(player_data["equipment"]["weapon"], "Silverlight")
+        self.assertEqual(player_data["inventory"]["Bronze sword"], 1)
+        self.assertEqual(player_data["inventory"]["Silverlight"], 0)
+        self.assertEqual(calls["errors"], [])
 
 
 if __name__ == "__main__":

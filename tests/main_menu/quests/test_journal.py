@@ -130,7 +130,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
         self.assertEqual(self._quest_choice_calls[-1], ("shield_of_arrav", "Join the Black Arm Gang"))
 
-    def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
+    def test_quests_tab_shows_demon_slayer_automatic_bucket_step(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "demon_slayer"
         pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
@@ -138,14 +138,14 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Needs Bucket of water x1"
+        expected = "Next: Take the castle kitchen bucket"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_demon_slayer")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Bucket of water x1", action.toolTip())
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Bucket of water x1", action.toolTip())
 
-    def test_quests_tab_shows_ernest_machine_part_stage_blocker(self) -> None:
+    def test_quests_tab_shows_ernest_automatic_fish_food_step(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "ernest_the_chicken"
         pd["quests"]["ernest_the_chicken"] = {"started": True, "progress": 3, "completed": False}
@@ -153,12 +153,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Needs Fish food x1, Needs Poison x1"
+        expected = "Next: Take fish food upstairs"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_ernest_the_chicken")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Fish food x1", action.toolTip())
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Fish food x1", action.toolTip())
 
     def test_quests_tab_shows_dragon_slayer_oracle_item_option_blocker(self) -> None:
         pd = _make_player_data()
@@ -180,7 +180,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertFalse(action.isEnabled())
         self.assertIn("Crayfish cage x1 or Lobster pot x1", action.toolTip())
 
-    def test_quests_tab_shows_fishing_contest_current_stage_blocker(self) -> None:
+    def test_quests_tab_shows_fishing_contest_automatic_bait_step(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Fishing rod": 1}
         pd["current_quest"] = "fishing_contest"
@@ -189,12 +189,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Needs Red vine worm x1 or Fishing bait x1"
+        expected = "Next: Dig red vine worms"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fishing_contest")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Red vine worm x1 or Fishing bait x1", action.toolTip())
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Red vine worm x1 or Fishing bait x1", action.toolTip())
 
     def test_quests_tab_shows_another_slice_stage_blocker_overflow(self) -> None:
         pd = _make_player_data()
@@ -228,12 +228,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         # The pestle and mortar is on the tool belt, so only the ingredients block.
-        expected = "Blocked: Needs Chocolate dust x1, Needs Snape grass x1"
+        expected = "Blocked: Needs Coins x20 for buy chocolate from Wydin, Needs Snape grass x1"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_plague_city")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Needs Chocolate dust x1", action.toolTip())
+        self.assertIn("Needs Coins x20", action.toolTip())
         self.assertIn("Needs Snape grass x1", action.toolTip())
 
     def test_quests_tab_shows_biohazard_guidor_disguise_blocker(self) -> None:
@@ -347,7 +347,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Excalibur", action.toolTip())
 
-    def test_quests_tab_shows_cooks_assistant_container_stage_blocker(self) -> None:
+    def test_quests_tab_shows_cooks_assistant_automatic_bucket_step(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "cooks_assistant"
         pd["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
@@ -372,13 +372,13 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn(
-            "Blocked: Needs Bucket x1",
+            "Next: Take the bucket beside the prized cow",
             labels,
         )
         action = dialog.findChild(QPushButton, "questAction_cooks_assistant")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Bucket x1", action.toolTip())
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Bucket x1", action.toolTip())
 
     def test_quests_tab_shows_witchs_house_mouse_stage_blocker(self) -> None:
         pd = _make_player_data()
@@ -397,7 +397,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertIn("Needs Cheese x1", action.toolTip())
         self.assertNotIn("Use cheese on the mouse hole", action.toolTip())
 
-    def test_quests_tab_shows_merlins_crystal_wax_stage_blocker(self) -> None:
+    def test_quests_tab_shows_merlins_crystal_automatic_repellent_step(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Bucket": 1}
         pd["current_quest"] = "merlins_crystal"
@@ -406,12 +406,12 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Needs Insect repellent x1"
+        expected = "Next: Take insect repellent in Catherby"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_merlins_crystal")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Insect repellent x1", action.toolTip())
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Insect repellent x1", action.toolTip())
 
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
         from ankiscape.ui import ui_tab_quests

@@ -157,6 +157,9 @@ def _animated_armour_fighter() -> dict:
     return data
 
 
+_RUNE_ARMOUR = {"body": "Rune platebody", "legs": "Rune platelegs", "head": "Rune full helm"}
+
+
 # For each handler key: the lowest-level, the middle and the highest route by
 # (catalog level, id), then that key's rate_limited routes. Where the route at
 # a position pays no XP or cannot start for any player, the nearest route
@@ -275,7 +278,11 @@ SAMPLE: dict[str, tuple[Route, ...]] = {
     # Activities carry no catalog level: the first, the middle and the last
     # XP-paying activity by id, each on its own suite's entered player.
     "utility": (
-        activity("fight_caves", _fight_caves_entered),
+        activity("fight_caves", lambda: _fight_caves_entered(
+            equipment={"weapon": "Rune scimitar", "shield": "Rune kiteshield", **_RUNE_ARMOUR},
+            inventory={"Shark": 28}, combat_auto_eat_food=["Shark"],
+            combat_supply_loadout={"food": {"Shark": 28}},
+        )),
         activity("sorceress_garden", _sorceress_garden_player),
         activity("warriors_guild_animated_armour", _animated_armour_fighter),
         activity("livid_farm", lambda: _livid_farm_player(rune_quantity=10_000_000)),
@@ -283,7 +290,6 @@ SAMPLE: dict[str, tuple[Route, ...]] = {
 }
 
 
-_RUNE_ARMOUR = {"body": "Rune platebody", "legs": "Rune platelegs", "head": "Rune full helm"}
 # Sol's setups and pairs (combat-kill-cap-measurement-sol-2026-10-15.md, sections 2 and 3).
 COMBAT_SETUPS = {
     20: {"weapon": "Mithril scimitar", "body": "Mithril platebody", "legs": "Mithril platelegs"},

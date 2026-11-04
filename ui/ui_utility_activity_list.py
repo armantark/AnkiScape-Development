@@ -29,6 +29,7 @@ try:
 
     # Flat activity rows have no group parent, so each row carries its group.
     _ACTIVITY_GROUP_ROLE = int(Qt.ItemDataRole.UserRole) + 1
+    _NAME_ROLE = _ACTIVITY_GROUP_ROLE + 1
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
@@ -118,7 +119,7 @@ class UtilityActivityList:
         self.tree.style().unpolish(self.tree)
         self.tree.style().polish(self.tree)
         if self._marked is not None:
-            label = self._marked.text(0).removeprefix("✓ ")
+            label = self._marked.data(0, _NAME_ROLE)
             self._marked.setText(0, f"✓ {label}" if held else label)
             font = self._marked.font(0)
             font.setBold(held)
@@ -338,6 +339,7 @@ def _group_row_item(row, group: str) -> "QTreeWidgetItem":
 
 def _row_item(label: str, row_id: str, tooltip: str, icon_path=None) -> "QTreeWidgetItem":
     item = QTreeWidgetItem([label])
+    item.setData(0, _NAME_ROLE, label)
     item.setData(0, Qt.ItemDataRole.UserRole, row_id)
     item.setToolTip(0, tooltip)
     icon = _pixel_path_icon(icon_path, 28) if icon_path else None
@@ -594,7 +596,7 @@ def _ranked(rows: list, query: str) -> list:
 
 
 def _rank_branch(item, query: str, context: tuple) -> int:
-    rank = match_rank(query, item.text(0), *context)
+    rank = match_rank(query, item.data(0, _NAME_ROLE) or item.text(0), *context)
     tier = 5 if rank is None else rank
     if item.childCount():
         group = _group_id(item)
@@ -615,7 +617,7 @@ def _filter_branch(filter_bar, item, context: tuple, filtering: bool) -> tuple:
     group name finds every row in the group.
     """
     if not item.childCount():
-        hit = filter_bar.matches_text(item.text(0), *context)
+        hit = filter_bar.matches_text(item.data(0, _NAME_ROLE) or item.text(0), *context)
         item.setHidden(not hit)
         return int(hit), 1
     group = _group_id(item)

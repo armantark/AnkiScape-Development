@@ -77,7 +77,7 @@ class NestAndRodContractTest(unittest.TestCase):
         general = next(row["id"] for row in shop.SHOP_DATA.values()
                        if row["visibility"] == "visible" and row["general_store"])
         self.assertEqual(len(ge.PERIOD_GE_GUIDE_PRICES), 1447)
-        self.assertEqual(len(ge.PERIOD_GE_BUY_LIMITS), 1842)
+        self.assertEqual(len(ge.PERIOD_GE_BUY_LIMITS), 1862)
         for name, item_id in NESTS:
             with self.subTest(item=name):
                 for catalog in (constants.WOODCUTTING_EXTRA_ITEM_DATA, constants.EXTRA_ITEM_DATA):

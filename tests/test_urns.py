@@ -315,7 +315,7 @@ class UrnRecoveryTest(unittest.TestCase):
                 if holder == "combat_grave":
                     waiting, started = start_combat_grave_walk_pure(waiting)
                     self.assertTrue(started)
-                    recovered = advance_combat_grave_review_pure(waiting)
+                    recovered = advance_combat_grave_review_pure(waiting, ticks=300)
                 else:
                     waiting["inventory"]["Coins"] = combat_death_office_reclaim_cost_pure(waiting)
                     recovered, reclaimed, reason = reclaim_death_office_items_pure(waiting)
@@ -710,7 +710,7 @@ class UrnStorageAndCombatLayoutTest(unittest.TestCase):
         self.assertEqual(result["reason"], "combat_bank_run")
         self.assertTrue(result["bank_run_started"])
 
-        second, ok, result = apply_combat_burst_pure(first, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=lambda: 0.5)
+        second, ok, result = apply_combat_burst_pure(first, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=first["combat_bank_run"]["ticks_remaining"], rng=lambda: 0.5)
         self.assertTrue(ok)
         self.assertTrue(result["bank_run_completed"])
         self.assertEqual(second["carried_inventory"][target], {"Bonecrusher": 1})

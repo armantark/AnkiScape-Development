@@ -5013,11 +5013,8 @@ def show_main_menu(
     ctx.refreshers["active_label"] = _refresh_active_label
 
     def _set_active(display_name: str) -> None:
-        # A target picked while the queue ran this panel's action applies only now.
-        apply_pick, pick = held_targets.pop(display_name, (lambda _target: None, ""))
-        apply_pick(pick)
-        # Mirror the original gating: never let users train a skill they cannot
-        # actually progress, and explain why instead of silently selecting it.
+        apply_pick, pick = held_targets.get(display_name, (lambda _target: None, ""))
+        # Validate availability before committing a held pick.
         if display_name == "Smithing" and not _smithing_available():
             warn.setText("You don't have enough ores to smelt any bars. Mine some ores first!")
             return
@@ -5051,6 +5048,7 @@ def show_main_menu(
         if display_name in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}:
             start = activity_start_transition.get(display_name)
             if callable(start) and start(pick):
+                held_targets.pop(display_name, None)
                 warn.setText("")
                 state["active"] = display_name
                 _refresh_active_label()
@@ -5059,6 +5057,8 @@ def show_main_menu(
             target_label = "activity" if display_name == _ACTIVITIES_HUB_NAME else "utility"
             warn.setText(f"Select an available {target_label} first.")
             return
+        held_targets.pop(display_name, None)
+        apply_pick(pick)
         warn.setText("")
         state["active"] = display_name
         on_save_skill(display_name)

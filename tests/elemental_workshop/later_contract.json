@@ -59,7 +59,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 3,
@@ -79,7 +81,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 4,
@@ -99,7 +103,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 5,
@@ -119,7 +125,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 6,
@@ -167,7 +175,9 @@
           "required_encounters": []
         }
       ],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     },
     {
       "stage": 7,
@@ -187,7 +197,9 @@
       "auto_actions": [],
       "required_routes": [],
       "combat_encounters": [],
-      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817"
+      "source": "https://runescape.wiki/w/Elemental_Workshop_III?oldid=6448817",
+      "wear_slot": "",
+      "wear_items": []
     }
   ]
 }

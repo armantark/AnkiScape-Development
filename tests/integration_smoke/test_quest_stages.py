@@ -396,7 +396,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertIn("Needs Cheese x1", calls["dialogs"][0][1])
         self.assertNotIn("Use cheese on the mouse hole", calls["dialogs"][0][1])
 
-    def test_quest_answer_blocks_merlins_crystal_wax_without_repellent(self):
+    def test_quest_answer_fetches_merlins_crystal_repellent_before_wax(self):
         addon = _load_addon_as_package("ankiscape_merlins_crystal_wax_gate_integration")
 
         calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
@@ -425,18 +425,20 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon._state.current_skill, "Utilities")
+        self.assertEqual(addon._state.current_skill, "Quests")
         self.assertFalse(addon._state.player_data["quests"]["merlins_crystal"]["completed"])
         self.assertEqual(addon._state.player_data["quests"]["merlins_crystal"]["progress"], 4)
         self.assertEqual(addon._state.player_data["inventory"]["Bucket"], 1)
         self.assertEqual(addon._state.player_data["inventory"].get("Bucket of wax", 0), 0)
         self.assertEqual(addon._state.player_data["quest_points"], 0)
         self.assertEqual(addon._state.player_data["pending_skill_exp_rewards"], {})
-        self.assertEqual(calls["save"], 0)
-        self.assertEqual(calls["gains"], [])
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Insect repellent"], 1)
         self.assertEqual(calls["xp"], [])
-        self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
-        self.assertIn("Needs Insect repellent x1", calls["dialogs"][0][1])
+        self.assertEqual(calls["dialogs"], [])
+        addon.on_quest_answer()
+        self.assertEqual(addon._state.player_data["inventory"]["Bucket of wax"], 1)
+        self.assertEqual(addon._state.player_data["quests"]["merlins_crystal"]["progress"], 5)
 
     def test_quest_answer_blocks_fight_arena_statless_combat(self):
         addon = _load_addon_as_package("ankiscape_fight_arena_missing_stats_integration")

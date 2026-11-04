@@ -29,7 +29,7 @@ class OpeningCatalogTest(unittest.TestCase):
             variant="", required_inventory={}, required_inventory_options=(), consumed_inventory={},
             consumed_inventory_options=(), produced_inventory={}, repeatable_until_consumed=False,
             required_skills=(), required_tools={}, required_actions=(READ_PROOF,), auto_actions=(),
-            required_routes=(), combat_encounters=(), source=OPENING_SOURCE,
+            wear_slot="", wear_items=(), required_routes=(), combat_encounters=(), source=OPENING_SOURCE,
         ))
         self.assertIn("6448817:53", row["source"])
         self.assertIn("20120825005143", row["source"])

@@ -119,7 +119,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(surfaces[0]["target_id"], "chicken")
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
         self.assertEqual(surfaces[-1]["bank_run"], addon._state.player_data["combat_bank_run"])
         self.assertEqual(len(addon.mw.col.custom_undo_entries), 1)

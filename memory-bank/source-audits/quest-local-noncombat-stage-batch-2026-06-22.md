@@ -147,7 +147,7 @@ python3 -m unittest \
 ```
 
 ```bash
-QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_current_stage_blocker
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.main_menu.quests.test_journal.MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_automatic_bait_step
 ```
 
 Required full-suite verification after this batch:

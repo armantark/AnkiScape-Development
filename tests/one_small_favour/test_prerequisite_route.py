@@ -125,30 +125,15 @@ class EarnedRoute:
 
     def jungle_potion(self):
         self.data['current_quest'] = 'jungle_potion'
-        self.quest('jungle_potion')
-        # Stock the first herb through its repeatable search before any clean handoff.
+        self.finish('jungle_potion')
+        # The quest cleans its own herbs; train the later prerequisite with its unlocked search.
         target = c.HERBLORE_DATA['clean_snake_weed']
         quantity = math.ceil(c.EXP_TABLE[17] / target['exp']) + 2
         self.until(lambda: self.data['inventory']['Grimy snake weed'] >= quantity,
-                   lambda: self.quest('jungle_potion'))
+                   lambda: self.utility('search_marshy_jungle_vines'))
         self.until(lambda: not self.data['inventory']['Grimy snake weed'],
                    lambda: self.answer(actions.handle_herblore_answer, 'current_herblore', 'clean_snake_weed'))
-        self.quest('jungle_potion')
-        for target in ('clean_ardrigal', 'clean_sito_foil', 'clean_volencia_moss', 'clean_rogues_purse'):
-            self._jungle_herb(target)
         self.case.assertTrue(self.data['quests']['jungle_potion']['completed'])
-
-    def _jungle_herb(self, target):
-        clean = c.HERBLORE_DATA[target]['output_item']
-        grimy = next(iter(c.HERBLORE_DATA[target]['requirements']))
-        self.until(lambda: self.data['inventory'][clean] > 0,
-                   lambda: self._search_and_clean(target, grimy))
-        self.quest('jungle_potion')
-
-    def _search_and_clean(self, target, grimy):
-        self.quest('jungle_potion')
-        self.case.assertGreater(self.data['inventory'][grimy], 0)
-        self.answer(actions.handle_herblore_answer, 'current_herblore', target)
 
     def equip(self, item):
         allowed, reasons = can_equip_item_pure(item, c.EQUIPMENT_DATA, self.data)

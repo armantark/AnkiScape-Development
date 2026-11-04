@@ -287,7 +287,7 @@ class EncounterMethodChangeIntegrationTest(unittest.TestCase):
         self.assertTrue(result["bank_run_triggered"])
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
 
         self.assertEqual(addon._state.player_data["combat_encounter"], {})
@@ -310,7 +310,7 @@ class EncounterMethodChangeIntegrationTest(unittest.TestCase):
         self.assertTrue(result["bank_run_triggered"])
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
-            {"reviews_remaining": 2, "target_id": "chicken"},
+            {"ticks_remaining": 100, "target_id": "chicken"},
         )
 
         addon._on_state_did_undo(

@@ -59,9 +59,9 @@ class TargetClickTest(QueueProfile):
         self.addCleanup(dialog.close)
         dialog.show()
         dialog.resize(900, 560)
-        category = "Artisan" if surface == "Herblore" else surface
+        category = "Artisan" if surface in {"Herblore", "Smithing"} else surface
         next(b for b in dialog.findChildren(QPushButton) if b.text() == category).click()
-        if surface == "Herblore":
+        if surface in {"Herblore", "Smithing"}:
             skills = _find_artisan_skill_list(dialog)
             skills.setCurrentRow(next(i for i in range(skills.count()) if skills.item(i).text() == surface))
         self._settle()
@@ -244,6 +244,60 @@ class TargetClickTest(QueueProfile):
         self._settle()
         self.assertEqual(save["current_utility"], "search_marshy_jungle_vines")
         self.assertEqual(self._queue_lines(addon), [("Search marshy jungle vines", "current", 0)])
+
+    def test_a_refused_header_start_preserves_the_running_target_and_held_pick(self):
+        addon = self._herblore_addon("refused", (_SNAKE_WEED, 20))
+        save = addon._state.player_data
+        dialog = self._menu(addon)
+        self._click_row(dialog, "clean_ardrigal")
+        save["inventory"].clear()
+        self._start_ahead_of_queue(dialog)
+        self.assertEqual(save["current_herblore"], "clean_snake_weed")
+        self.assertFalse(self._view(addon)["suspended"])
+        self.assertEqual(self._count(dialog).suffix(), " Clean ardrigal")
+        save["inventory"].update(_HERBS)
+        self._start_ahead_of_queue(dialog)
+        self.assertEqual(save["current_herblore"], "clean_ardrigal")
+        self.assertTrue(self._view(addon)["suspended"])
+
+    def test_utility_prefix_search_keeps_its_order_while_a_pick_is_held(self):
+        addon = self._herblore_addon("search_held", (_VINES, 500))
+        dialog = self._menu(addon, "Utilities")
+        tree = _find_tree_with_user_role(dialog, "search_marshy_jungle_vines")
+        search = self._visible(dialog, QWidget, "utilityActivityTargetSearchInput")
+
+        def order():
+            parent = _tree_row(tree, "search_marshy_jungle_vines").parent()
+            return [parent.child(i).data(0, Qt.ItemDataRole.UserRole) for i in range(parent.childCount())]
+
+        search.setText("search")
+        self._settle()
+        before = order()
+        self._click_row(dialog, "search_jungle_palm_trees")
+        search.setText("")
+        search.setText("search")
+        self._settle()
+        self.assertEqual(order(), before)
+
+    def test_up_and_down_between_smithing_targets_refresh_the_skill_panel(self):
+        from tests.action_queue.test_queue_reviews import _SMELT_IRON, _SMITH_PLATEBODY
+
+        addon = self._herblore_addon("smith_move", (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1),
+                                     inventory={"Iron ore": 50, "Iron bar": 50})
+        save = addon._state.player_data
+        dialog = self._menu(addon, "Smithing")
+        for control, target, suffix in (
+            ("actionQueueMoveUp", "forge_iron_platebody", " Iron platebody"),
+            ("actionQueueMoveDown", "smelt_iron_bar", " Iron bar"),
+        ):
+            panel = dialog.findChild(QWidget, "actionQueuePanel")
+            next(b for b in panel.findChildren(QToolButton, control) if b.isVisible() and b.isEnabled()).click()
+            self._settle()
+            self.assertEqual(save["current_smith"], target)
+            self.assertEqual(self._count(dialog).suffix(), suffix)
+            self.assertEqual(self._header(dialog).text(), "Currently training")
+            tree = _find_tree_with_user_role(dialog, target)
+            self.assertIn("✓", _tree_row(tree, target).text(0))
 
     def test_the_default_count_adds_earlier_entries_to_the_bank_and_is_never_below_one(self):
         addon = self._herblore_addon("default", inventory={})

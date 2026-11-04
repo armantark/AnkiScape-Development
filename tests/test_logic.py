@@ -10018,7 +10018,7 @@ class TestLogic(unittest.TestCase):
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "demon_slayer", QUEST_DATA),
-            ("Wield Silverlight to damage Delrith", "Battle required: Delrith level 27"),
+            ("Battle required: Delrith level 27",),
         )
         inventory, equipment, _ = equip_item_pure("Silverlight", player_data["inventory"], {}, EQUIPMENT_DATA)
         player_data.update(inventory=inventory, equipment=equipment)
