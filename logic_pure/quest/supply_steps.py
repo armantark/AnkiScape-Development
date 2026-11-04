@@ -36,9 +36,7 @@ def _makes(blocker, recipes):
 
 
 def _run(recipe, inventory):
-    made, _, ok, _ = apply_utility_activity_pure(
-        "supply", inventory, {"supply": recipe["action"]}, batch_limit=1,
-    )
+    made, _, ok, _ = apply_utility_activity_pure("supply", inventory, {"supply": recipe["action"]})
     if not ok:
         raise ValueError(f"Supply recipe {recipe['step']} refused its planned inputs")
     return made
