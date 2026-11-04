@@ -11,7 +11,7 @@ Every Pass 20 implementer reads this file, then its ticket. The orchestrator sea
 </context>
 
 <worktree>
-1. From the canonical checkout `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork`, run `python3 tools/worktree_guard.py audit`, then `python3 tools/worktree_guard.py add goal/pass20-<NN>-<slug> --name pass20-<NN> --start-point goal/pass20-integration`.
+1. From the canonical checkout `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork`, run `python3 tools/worktree_guard.py audit`, then `python3 tools/worktree_guard.py add goal/pass20-<NN> --name pass20-<NN> --start-point goal/pass20-integration`.
 2. Work only in the new worktree. Never edit, stage or test inside the canonical checkout, which Anki loads as the live add-on, the `pass20-integration` worktree, another ticket's worktree or any pool worktree.
 3. Run `python3 tools/worktree_guard.py audit` again after the add.
 </worktree>
