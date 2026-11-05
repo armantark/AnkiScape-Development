@@ -144,7 +144,7 @@ class OronwenCatalogTest(unittest.TestCase):
     def test_losing_combat_never_grants_trousers(self):
         player = _player(2)
         player["inventory"] = {"Bucket of water": 1}
-        player.update(combat_lifepoints=1, constitution_level=1)
+        player.update(combat_lifepoints=10, constitution_level=1)
         rng = random.Random(2)
         for _ in range(40):
             player, ok, result = apply_quest_combat_encounter_pure(

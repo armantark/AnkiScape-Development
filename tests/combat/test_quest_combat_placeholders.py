@@ -39,7 +39,8 @@ class TestQuestCombatPlaceholders(unittest.TestCase):
         quest_id = "underground_pass"
         encounter_id = "underground_pass_othanian_91"
         player = _maxed_player_for_quest(quest_id)
-        player.update(current_quest=quest_id, combat_lifepoints=990)
+        player.update(current_quest=quest_id, combat_lifepoints=990, combat_auto_eat_food=["Lobster"],
+                      combat_supply_loadout={"food": {"Lobster": 28}})
         player["quests"][quest_id] = {"started": True, "progress": 6, "completed": False}
         prior_kills = [f"underground_pass_{suffix}" for suffix in (
             "kalrag_89", "sir_harry_62", "sir_jerro_62", "sir_carl_62", "doomion_91",

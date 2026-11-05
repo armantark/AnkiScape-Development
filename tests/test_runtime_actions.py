@@ -1744,7 +1744,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         player_data.clear()
         player_data.update(started)
-        runtime_actions.advance_shared_review_state_for_review(
+        runtime_actions.spend_card_on_grave_walk(
             _context(player_data, calls, random_values=(0.5,), review_action_multiplier=50)
         )
 

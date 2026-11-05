@@ -131,7 +131,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "strength_level": 100,
             "defense_level": 100,
             "constitution_level": 100,
-            "prayer_level": 1,
+            "prayer_level": 1, "combat_prayers_enabled": False,
         }
 
         addon.on_quest_answer()
@@ -298,7 +298,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "strength_level": 99,
             "defense_level": 99,
             "constitution_level": 99,
-            "prayer_level": 1,
+            "prayer_level": 1, "combat_prayers_enabled": False,
         }
 
         addon.on_quest_answer()

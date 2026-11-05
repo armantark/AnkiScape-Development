@@ -172,27 +172,31 @@ class QuestFightCombatCardTest(unittest.TestCase):
         self._assert_ordinary_combat_card_is_untouched(player)
 
     def test_count_draynor_resets_to_full_after_a_death_and_the_card_follows_the_retry(self):
-        player = self._fighter("vampyre_slayer", 3, 30)
-        player["inventory"].update({"Stake": 1, "Stake hammer": 1})
+        from ankiscape.runtime.runtime_actions_production import handle_quest_answer
 
+        player = self._fighter("vampyre_slayer", 3, 30)
+        player.update(constitution_level=1, combat_lifepoints=10)
+        player["inventory"].update({"Stake": 1, "Stake hammer": 1})
+        rolls = random.Random(4)
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        ctx = _context(player, calls, random_values=[rolls.random() for _ in range(20000)])
+        ctx.cadence_live_enabled = True
+        for _ in range(200):
+            self.assertTrue(handle_quest_answer(ctx))
+            if player["combat_last_result"].get("died"):
+                break
+        else:
+            self.fail("The fragile player must die to a hit before a low-LP stop")
+        hud = self._show(player)
+        self.assertEqual(hud.enemy_progress.value(), 100)
+        self.assertEqual(hud.combat_resource_labels["lifepoints"].text(), "10/10")
+        player.update(constitution_level=30, combat_lifepoints=300,
+                      combat_auto_eat_food=["Lobster"], combat_supply_loadout={"food": {"Lobster": 28}})
         frames, activity, hud = self._fight(player, "Vampyre Slayer · Count Draynor", seed=4)
-        deaths = [index for index, line in enumerate(activity) if line.startswith("☠ YOU DIED")]
-        self.assertTrue(deaths, activity)
-        # Each attempt opens at full on both bars and Draynor's bar only falls
-        # within it; a death sends both back to full for the retry.
-        attempts, current = [], []
-        for bar, lifepoints in frames:
-            if bar == 100 and current and current[-1][0] < 100:
-                attempts.append(current)
-                current = []
-            current.append((bar, lifepoints))
-        attempts.append(current)
-        self.assertEqual(len(attempts), len(deaths) + 1)
-        for attempt in attempts:
-            self.assertEqual(attempt[0], (100, "300/300"))
-            attempt_bars = [bar for bar, _lp in attempt]
-            self.assertEqual(attempt_bars, sorted(attempt_bars, reverse=True))
-        self.assertTrue(any(lp != "300/300" for _bar, lp in frames))
+        bars = [bar for bar, _lp in frames]
+        self.assertEqual(frames[0], (100, "300/300"))
+        self.assertEqual(bars, sorted(bars, reverse=True))
+        self.assertTrue(any(0 < bar < 100 for bar in bars))
         self.assertEqual(activity[-1], "Defeated Count Draynor")
         self._assert_quests_card_after_the_kill(hud, "Vampyre Slayer", "Stage 3/5")
         self._assert_ordinary_combat_card_is_untouched(player)

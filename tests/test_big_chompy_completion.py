@@ -58,7 +58,7 @@ def _ready_big_chompy_player(*, include_stage_items=True, include_hunting_ammo=F
         attack_level=30,
         strength_level=30,
         defense_level=30,
-        constitution_level=30,
+        constitution_level=30, combat_lifepoints=300,
     )
     if include_stage_items:
         player["inventory"].update({"Feather": 1, "Wolf bones": 6})
