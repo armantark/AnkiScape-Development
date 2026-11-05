@@ -77,7 +77,7 @@ class SkillGuideLocksTest(unittest.TestCase):
                 dialog.show()
                 _skills.SkillsPanelTextFitTest._select(dialog, "Artisan", "Fletching")
                 item = _main_menu._fletching_row(_main_menu._find_fletching_tree(dialog), target)
-                self.assertEqual(bool(item.flags() & Qt.ItemFlag.ItemIsEnabled), bool(spikes))
+                self.assertTrue(item.flags() & Qt.ItemFlag.ItemIsEnabled)
                 self.assertNotIn("Chisel", item.toolTip(0))
                 self.assertEqual(guide.graphicsEffect() is None, bool(spikes))
 

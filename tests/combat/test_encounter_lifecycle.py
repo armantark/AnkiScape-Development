@@ -312,7 +312,7 @@ class EncounterLifecycleTest(unittest.TestCase):
             equipment={**{"weapon": "Rune scimitar"}, 'ammunition': "Bronze arrows"},
             inventory={'Shark': 30, 'Air rune': 5},
             combat_auto_eat_food=["Shark"],
-            combat_supply_loadout={}, equipment_ammunition_count=5, carried_inventory={'chicken': {"Air rune": 5}},
+            combat_supply_loadout={"stat_potions": {"Magic potion (4)": 1}}, equipment_ammunition_count=5, carried_inventory={'chicken': {"Air rune": 5}},
             combat_encounter=encounter,
         )
 
@@ -345,7 +345,7 @@ class EncounterLifecycleTest(unittest.TestCase):
                     "player_attack_ticks_remaining": 2,
                     "enemy_attack_ticks_remaining": 4,
                 },
-                "combat_supply_loadout": {}, 'carried_inventory': {"chicken": {"Air rune": 5, "Mind rune": 5}},
+                "combat_supply_loadout": {"stat_potions": {"Magic potion (4)": 1}}, 'carried_inventory': {"chicken": {"Air rune": 5, "Mind rune": 5}},
             }
         )
 
