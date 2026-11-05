@@ -21,3 +21,19 @@ These answers settle `open-questions.md`. The ammo return rate stays open and is
 6. **Gray row click.** One click selects a gray row in every list that takes plan rows. Add and Start are off for it. Add must not stay on the earlier target. A row with materials in the Bank does not change.
 7. **Queue edits.** Removing or moving an earlier entry so that a later plan row loses its supply must leave no entry that stops with a surprise. Use the existing queue stop behavior if it covers this, and record what happens.
 8. **Diary tiers.** A tier is claimable when all of its live rows are done, and it stays claimed when dormant rows wake up later.
+
+## Ammo return, 2026-11-05
+
+Owner's words:
+
+- 08:54: "Well for balance I'd like either this or the pickup button. I'm leaning toward the pickup button. The button should only show if you're using a ranged weapon with ammo tho"
+- 08:54: "If you click the button you get 100% of what's available back; some might despawn by the time 10x ticks happen"
+- 09:00: "No, if we have the pickup button then there's no automatic pickup besides Ava's devices"
+- Earlier: "to simulate how annoying it is to manually pick up the ammo", and of bones: "I guess it is already balanced". Bones do not change. The laziness curve and the low-coin rule are not built, because the owner chose the button over them.
+
+Contract:
+
+9. **Each shot.** 20% of shots break, with or without a device. With no device, every unbroken shot lands in a ground pile, and nothing returns by itself. A worn Ava's device keeps its 60% or 72% in the slot, and the rest of its unbroken shots land in the pile. This replaces the flat 50% rule.
+10. **Ground pile.** The pile persists in the save and is covered by the existing review undo. Each landed arrow disappears a fixed count of game ticks after it lands. Use 350 ticks: Darkan's `World.addGroundItem` uses 60 seconds hidden and 150 seconds visible, which is 210 seconds. Because the ticks of a card advance together (60 at 10x), some arrows can disappear on the card that reaches their time. A target change does not clear the pile.
+11. **Button.** The review HUD shows "Pick up ammo (N)" only while the worn weapon is a ranged weapon that uses ammo. N is the count in the pile. A click returns 100% of the pile, costs no card and no ticks, and adds to the worn stack when the type matches and to the Bank otherwise. The button is off when N is 0. No sentence explains the button.
+12. **Event log.** Use one existing-style line per card with counts of fired, broken and landed arrows, and a line for each pickup with its count. Change no other panel.
