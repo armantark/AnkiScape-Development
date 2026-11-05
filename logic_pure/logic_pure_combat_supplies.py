@@ -754,11 +754,11 @@ def _combat_enemy_supply_bank_run_needed(data, enemy):
 
 
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
-    # Supplies and loot share one 28-slot inventory. Eating food frees loot room.
-    # Only loot is deposited, so a full supply-only pack cannot be relieved by
-    # banking. Required runes remain supplies even when they occupy every slot.
+    # A supply-only pack cannot be relieved by depositing loot. Reserve runes
+    # for the next encounter even after this encounter's supplemental casts.
     rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
-    carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id, rune_cost)
+    supply_runes = _combat_required_rune_cost_pure({**data, "combat_encounter": {}}, combat_class, spell_spec, equipment_data)
+    carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id, supply_runes)
     if loot_slots > 0 and _combat_supply_slots_used(data) + carried_slots >= CARRIED_CAPACITY:
         return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:

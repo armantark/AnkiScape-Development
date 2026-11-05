@@ -189,11 +189,15 @@ class AmmunitionPackTests(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(_combat_supply_slots_used(player) + carried_slots_used(
             player["carried_inventory"]["chicken"], STACKABLE_ITEM_NAMES), 28)
+        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 100000}
         ctx = _context(player, review_action_multiplier=1)
         ctx.cadence_live_enabled = True
         ctx.random_random = random.Random(50).random
-        for _card in range(40):
-            self.assertTrue(handle_combat_answer(ctx))
+        enemy = {**COMBAT_ENEMY_DATA["chicken"], "stats": {**COMBAT_ENEMY_DATA["chicken"]["stats"], "hitpoints": 100000000}}
+        with patch.dict(combat_runtime.COMBAT_ENEMY_DATA, {"chicken": enemy}):
+            for _card in range(40):
+                self.assertTrue(handle_combat_answer(ctx))
+                self.assertNotEqual(ctx.player_data["combat_last_result"]["reason"], "combat_bank_run")
         self.assertGreater(ctx.player_data["magic_exp"], 0)
         self.assertLess(ctx.player_data["inventory"]["Air rune"], 1000)
 
