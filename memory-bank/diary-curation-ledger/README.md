@@ -22,7 +22,7 @@ The 342 curation rows classify as 46 `active`, 142 `translated`, 42 `invented`, 
 
 ## Authored rows
 
-A period family with fewer than 48 deeds leaves its twelve-task tiers short. A row with `source_id` at or above 900000 fills such a slot: it has no cache identity, and the generator takes its place in the tier, its name, its sentence, its wiring and its access gates from the ledger. The owner ruled on 2026-11-04 that no diary row is a bare level milestone (`memory-bank/specs/pass21-owner-notes/spec.md`). Each authored row starts from the 2012 deed that held its old level, and `notes` names that deed.
+A period family with fewer than 48 deeds leaves its twelve-task tiers short. A row with `source_id` at or above 900000 fills such a slot: it has no cache identity, and the generator takes its place in the tier, its name, its sentence, its wiring and its access gates from the ledger. The owner ruled on 2026-11-04 that no diary row is a bare level milestone (`memory-bank/specs/done/pass21-owner-notes/spec.md`). Each authored row starts from the 2012 deed that held its old level, and `notes` names that deed.
 
 An authored `task_id` keeps its earlier `reach_level` form because saves store it, so a player who completed the row keeps the tier progress. Never rename one.
 

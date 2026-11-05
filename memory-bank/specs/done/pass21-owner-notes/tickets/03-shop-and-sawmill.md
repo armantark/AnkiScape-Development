@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Shop and Utilities look waits for the orchestrator
+**Status:** done
 
 - [x] Real widget flow: a new query returns both result lists to the top; a purchase keeps the position.
 - [x] A new shop row resets quantity to 1, by tile and by search result; a refresh keeps a typed quantity.

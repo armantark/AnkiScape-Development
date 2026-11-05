@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Equipment inspection and frontend-taste review wait for the orchestrator
+**Status:** done
 
 - [x] Played at 10x: Shortbow, 840 Bronze arrows in the Bank; a fight puts the stack in the slot; the Equipment tab shows the count; the count falls and recovered arrows return at the stated rate; running out starts a bank run or a danger stop as ammunition does today.
 - [x] With Ava's attractor and accumulator, over a seeded sample, the rates match `ammo-facts.md`; without a device the rate is 50%; the toggle saves and changes only the incidental items.
