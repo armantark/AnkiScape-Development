@@ -788,3 +788,6 @@
 - 2026-11-04 12:32:00 PST — A delegated Opus worker ended its turn with "The neighbor test job is running, and the commit follows its result", leaving uncommitted work; a send to its thread finished it. Briefs now say not to end a turn while a job runs.
 - 2026-11-04 11:46:00 PST — Fleet commit refused: "Protected loop path: scripts/sol-loop/tests/test_usage_credits.py. Record owner approval for these exact file bytes."; the checks stay at `~/Documents/ankiscape-pass20/loop/test_usage_credits-with-burn-checks.py`.
 - 2026-11-04 11:30:00 PST — A worker's scratch script copied under `memory-bank/specs/` failed the commit hook's PEP 8 and complexity checks; scan scripts stay outside the repository.
+- 2026-11-04 17:37:00 PST — `tools/run_remote_tests.py` locks with `~/Library/Caches/ankiscape-remote-test-host.lock`, a file per Mac, so a Studio run and the MacBook loops overwrite one mirror; gate-4a85cf631 failed with "No module named 'ankiscape_undo_seam.ui.ui_catalog_search'".
+- 2026-11-04 18:36:00 PST — The Studio gate's plain lane is hard-coded to `/opt/homebrew/bin/python3`, which lacks Pillow: `ImportError: cannot import name '_imaging' from 'PIL'` until both 3.13 and 3.15 builds sat in `/tmp/pass20-pillow`.
+

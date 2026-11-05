@@ -41,3 +41,7 @@ Quest fight carry, 64 seeds, 12 quests, levels 20, 40 and 60, speeds 10x and 20x
 - Dragon and gilded pickaxes have no acquisition route.
 - Dropped from the item stops: Defender of Varrock, Hazeel Cult and Dealing with Scabaras, whose quests stop elsewhere; their briefs go to the Sol loop.
 - `tests.native.test_session_bootstrap` fails on the Mac Studio with 16 failures at this branch and at base `85156cdc0`: `/Users/ArmanTarkhanian1/Library/Application: bad interpreter: Permission denied`, because a test shebang splits on the space in `Application Support`.
+
+## Landing
+
+Gate on the Mac Studio at `a2f4a5c04`: plain lane `Ran 6900 tests in 595.743s`, `OK (skipped=828)`; Qt lane `Ran 6900 tests in 711.780s`, `OK (skipped=21)`. Studio main and MacBook main are at `a2f4a5c04`. The 131 briefs entered the loop's queue on 2026-11-04 at 20:14 as orders 6000 to 7300. The gate's Homebrew Python needed `PYTHONPATH=/tmp/pass20-pillow`, because it has no Pillow.

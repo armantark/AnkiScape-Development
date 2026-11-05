@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 20 results</title>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body>
+<header>
+  <h1>Pass 20 notes in the game</h1>
+  <doc-changes new="87" changed="158"></doc-changes>
+  <div class="tldr">Pass 20 is on main on both Macs at a2f4a5c04; restart Anki to play it. Five choices from the build wait for you, and the checked answers are what I built.</div>
+  <details class="thread"><summary>Why · your Pass 20 notes</summary>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">Jungle Potion gets stuck on stage 1 without any notice as to why, presumably because you have to clean the herb. But like the other quests, I want it to automatically proceed</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">The queue should let you reorder</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">If you select a skill to train ahead of the queue (by clicking train this skill), it should fall back to the queue right after it's done</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">Clicking on different targets particularly with the (REALLY ANNOYING) jungle potion flow is glitchy.</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">Where are adamant boots?</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 20 notes">Also, why is combat so slow in general?</doc-quote>
+    <doc-quote via="prompt" from="owner" at="grill Q7">I don't think it should give a popup when the queue changes activities, tbh. The whole point of the queue is to lower interruptions and clicking around</doc-quote>
+    <doc-quote via="prompt" from="owner" at="grill Q12">Why is it not just a simple 10x of what it was before? A bank run would fit inside the 10x with time scaled automatically</doc-quote>
+  </details>
+</header>
+<main>
+<doc-plan>
+
+<doc-claim id="queue">
+  <p><b>Held.</b> The queue reorders, and it returns after anything you start ahead of it.</p>
+  <doc-mock frame="terminal" title="Real Anki · one card at 10x after two clicks on Up" w="470"><template><span class="dim">queue</span>  1 Pick potatoes  2 Pick onions  3 Pick cabbages
+<span class="g">+5</span> Potato  <span class="g">+5</span> Onion  <span class="g">+5</span> Cabbage
+<span class="dim">start ahead</span>  Pick redberries  <span class="g">+40</span> Redberries
+<span class="dim">Stop</span>  the next card runs the queue's top entry, not Bankstanding</template></doc-mock>
+  <doc-note tone="info">A manual pause and a hand-started action were one flag, so a detour ended at Bankstanding. They are now two states. Only Clear or an empty queue ends at Bankstanding, and a finished quest leaves the queue in the same review.</doc-note>
+  <doc-ask id="move">
+    <p>Should a move in a paused queue start it?</p>
+    <p>Up and Down in a paused or set-aside queue change the order and start nothing. A move in a running queue starts the new top entry at once.</p>
+    <label><input type="radio" name="move" value="order" checked> Change the order only <small>Resume starts the new top</small></label>
+    <label><input type="radio" name="move" value="start"> Start the new top <small>a move always means run it</small></label>
+  </doc-ask>
+  <doc-claim>
+    <p>A move starts the new top entry only when the queue is running.</p>
+    <doc-code src="core/action_queue.py" ref="a2f4a5c04" lines="455-470"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="click">
+  <p><b>Held.</b> A row click never changes what runs, and counts stop showing 0.</p>
+  <doc-mock frame="terminal" title="Real Anki · Utilities while Pick wheat runs" w="470"><template><span class="dim">queue</span>     1 Now  Pick wheat  0 / 28
+<span class="dim">click</span>     Pick redberries  <span class="g">selected, count 28, Start utility enabled</span>
+<span class="dim">training</span>  unchanged until you press Start</template></doc-mock>
+  <doc-note tone="info">The click used to change the Add record but not training, with the button stuck on "Currently training". The count now follows supplies until you type, and a failed add is not remembered.</doc-note>
+  <doc-ask id="herb">
+    <p>Should a row with no input be selectable?</p>
+    <p>A Herblore row with no herbs stays disabled, so an empty Bank cannot pick a later step even when an earlier queue entry would produce its herb. This can be part of your "not update even after you select it" note.</p>
+    <label><input type="radio" name="herb" value="keep" checked> Keep it disabled <small>a clear signal that the input is missing</small></label>
+    <label><input type="radio" name="herb" value="open"> Allow it for the queue <small>plan a chain from an empty Bank</small></label>
+  </doc-ask>
+  <doc-ask id="activities">
+    <p>How should a held Activities row start ahead?</p>
+    <p>The Activities panel has no header Start button, so a row selected during a queue entry there has no button that starts it ahead of the queue.</p>
+    <label><input type="radio" name="activities" value="keep" checked> Leave it <small>add it to the queue, or stop first</small></label>
+    <label><input type="radio" name="activities" value="add"> Add a Start button <small>same as the other panels</small></label>
+  </doc-ask>
+</doc-claim>
+
+<doc-claim id="popup">
+  <p><b>Held.</b> A queue change shows no popup, only a log line and a HUD line.</p>
+  <doc-mock frame="terminal" title="Real Anki · Jungle Potion, then Pick onions" w="470"><template><span class="dim">card 15</span>  Jungle Potion complete. Next: Pick onions.
+<span class="dim">card 16</span>  <span class="g">+3</span> Onion
+<span class="y">Switched to Bankstanding</span>  <span class="dim">the queue is empty, so this popup stays (Q17)</span></template></doc-mock>
+  <doc-note tone="info">An entry that cannot start is skipped with a line. The Wilderness confirmation with its kept and lost preview now runs when you add the entry, and a gear change before it starts skips the entry.</doc-note>
+</doc-claim>
+
+<doc-claim id="pace">
+  <p><b>Held.</b> Bank runs now take 2012 play time, so 10x is exactly ten times 1x.</p>
+  <doc-mock frame="terminal" title="XP per card, 12,000 ticks each, one seed, stocked test character" w="520"><template>                 <span class="dim">old 10x   new 10x   new 1x x 10</span>
+Level  1 Man        24.0      25.3        25.1
+Level 20 Hill giant 75.9      76.4        80.7
+Level 40 Moss giant 164.9    <span class="g">194.3</span>       194.3
+Level 70 Fire giant 468.9     493.4       493.8</template></doc-mock>
+  <doc-note tone="info">A bank run takes 100 ticks (60 seconds of 2012 play), a Placeholder with no period source, and Agility takes off about 7% at 99. Rest takes 180 ticks and grave recovery 300. 1x now costs about 17 cards per bank run. The gain at 10x is modest, because the old two cards were close to a real trip. Only your play can answer how combat feels.</doc-note>
+  <doc-claim>
+    <p>Each delay is one fixed number of ticks at every speed.</p>
+    <doc-code src="logic/pace/combat_delays.py" ref="a2f4a5c04" lines="1-10"></doc-code>
+    <doc-note tone="info">The pace test now runs with Combat banking on, and the daily-share test still passes, so dailies keep the weight of a 2.4-hour player.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="fights">
+  <p><b>Changed.</b> Quest fights carry leftover ticks forward, and now stop at the danger tick.</p>
+  <doc-mock frame="terminal" title="Your 'unless it's dangerous' check · 64 seeds, 12 quests" w="470"><template>             <span class="dim">deaths per fight</span>
+carry off    297 of 18,239
+carry on     294 of 18,122   <span class="g">no rise</span>
+<span class="dim">fights in that run stop at the danger tick</span></template></doc-mock>
+  <doc-note tone="info">The review found that a quest fight kept going after a danger tick, for example Prayer empty on tick 1 and the fight running to tick 60. This gap was older than Pass 20 and not in the grill. Fixing it cut deaths from about 4.8% to 1.6% per fight in that test. These are test characters, so the numbers compare the rules and do not predict your own deaths.</doc-note>
+  <doc-claim>
+    <p>The quest handler spends the card's ticks across consecutive fights.</p>
+    <doc-code src="runtime/runtime_actions_quest.py" ref="a2f4a5c04" lines="133-150"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="wear">
+  <p><b>Held.</b> Witch's House and Demon Slayer put on what they need by themselves.</p>
+  <doc-mock frame="terminal" title="Real Anki · Demon Slayer" w="470"><template><span class="dim">before</span>       Weapon: Rune scimitar
+<span class="dim">first card</span>   Weapon: <span class="g">Silverlight</span>
+<span class="dim">quest end</span>    Weapon: Rune scimitar   <span class="dim">Silverlight in the Bank</span></template></doc-mock>
+  <doc-note tone="info">The old item returns at the first bank run after the quest stops needing the slot, or at once if the quest ends or stops. A change of that slot by hand cancels the return. Witch's House gloves ran only offscreen, so your play is their first real check.</doc-note>
+  <doc-claim>
+    <p>The switch uses the normal equipment transaction and a small saved record.</p>
+    <doc-code src="logic_pure/logic_pure_equipment.py" ref="a2f4a5c04" lines="503-520"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="steps">
+  <p><b>Changed.</b> 35 item stops became automatic quest steps, including Jungle Potion's five.</p>
+  <doc-mock frame="terminal" title="Real Anki · Jungle Potion" w="470"><template>15 cards, no action switch, no dialog
+search, clean, hand in, five times
+<span class="g">+2.5</span> Herblore XP per cleaning, 12.5 in all, plus the 775 reward</template></doc-mock>
+  <doc-note tone="info">Jungle Potion's 5 stops, 17 of the other 18 clear stops and 13 of the 17 route-checked stops folded in, across 21 quests. Cook's Assistant now takes 6 cards, with what you must still bring. 30 rows stay as items the player brings. Defender of Varrock, Hazeel Cult and Dealing with Scabaras were dropped, because those quests stop elsewhere.</doc-note>
+  <doc-claim>
+    <p>A supply recipe can now be a Utility row, a Herblore row or a quest-local step.</p>
+    <doc-code src="logic_pure/quest/supply_steps.py" ref="a2f4a5c04" lines="56-80"></doc-code>
+  </doc-claim>
+  <doc-claim>
+    <p>The other 131 quests are in the Sol loop's queue as briefs.</p>
+    <doc-note tone="info">94 are follow-ups to items the loop already had. Each brief names the new step kinds and quest wear, and asks no owner question that rulings 7 to 18 settle.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="small">
+  <p><b>Held.</b> Adamant boots exist, search behaves, and Grand Exchange offers keep their slots.</p>
+  <doc-mock frame="terminal" title="Real Anki" w="470"><template><span class="dim">Combat search</span>  bat   Showing 2/198: Giant bat, Guard (battleaxe)
+<span class="dim">double click</span>   selects the whole phrase, in all 27 boxes
+<span class="dim">Exchange</span>       Adamant boots, with an icon and a price</template></doc-mock>
+  <doc-note tone="info">All 21 missing equipment items are registered; 20 trade, and 19 have period icons. "bat" was not too short: every Combat tooltip said "combat level". A Grand Exchange claim ran only offscreen, so your play is its first real check.</doc-note>
+  <doc-ask id="stats">
+    <p>Should I fix the two stat conflicts the item check found?</p>
+    <p>Black mask (10) has Defence and Strength swapped against its period page. Shade robe shows Prayer 9, the set's value on that page. Both predate Pass 20, and I left them.</p>
+    <label><input type="radio" name="stats" value="fix" checked> Fix both <small>period page wins; next harvest</small></label>
+    <label><input type="radio" name="stats" value="leave"> Leave them <small>keep the current values</small></label>
+  </doc-ask>
+  <doc-claim>
+    <p>One search line edit selects its phrase on a double click.</p>
+    <doc-code src="ui/ui_catalog_search.py" ref="a2f4a5c04" lines="15-30"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim aux="scope">
+  <p>What did not change, and what I found outside the tickets.</p>
+  <doc-note tone="info">2012 XP values, enemy stats and skilling trip lengths did not change. Not fixed: Barrows, Void knight, Ghostly, Penance and Flame gloves are absent from the equipment data; five grimy herbs and two poisoned ammunition items have no icons; Dragon and gilded pickaxes have no route; Adamant boots do not drop from Mutated bloodvelds or Giant frogs. A run from the Studio does not share a mirror lock with the loops on the MacBook, which ruined two lanes. Full record: memory-bank/specs/done/pass20-owner-notes/run-record.md.</doc-note>
+</doc-claim>
+
+</doc-plan>
+</main>
+</body></html>
