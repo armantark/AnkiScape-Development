@@ -230,7 +230,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
             add = dialog.findChild(QWidget, f"questCard_{quest_id}").findChild(QPushButton, "queueAddButton")
             self.assertEqual((add.isEnabled(), add.toolTip()), (False, reason))
 
-    def test_each_entry_that_is_not_running_has_a_remove_control(self):
+    def test_each_entry_has_a_remove_control(self):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure
 
         queue = action_queue_pure({})
@@ -240,12 +240,12 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         panel = dialog.findChild(QWidget, "actionQueuePanel")
         removes = panel.findChildren(QToolButton, "actionQueueRemove")
 
-        self.assertEqual([button.isVisibleTo(panel) for button in removes[:2]], [False, True])
+        self.assertEqual([button.isVisibleTo(panel) for button in removes[:3]], [True, True, False])
         self.assertEqual(
             [label.text() for label in panel.findChildren(QLabel, "actionQueueRowState")][:2], ["1. Now", "2. Next"]
         )
         removes[1].click()
-        self.assertEqual(self.commands[-1], ("remove", {"position": 1}))
+        self.assertEqual(self.commands[-1], ("remove", {"position": 1, "entry": queue["entries"][1]}))
 
     def test_a_target_picked_while_the_queue_runs_that_skill_is_held_for_the_queue(self):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure

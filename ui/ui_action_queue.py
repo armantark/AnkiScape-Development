@@ -12,6 +12,7 @@ from ..core.action_queue import MAX_QUEUE_ENTRIES, action_queue_pure, queue_noti
 from ..core.menu_action_queue import (
     activity_started_by_add_pure,
     activity_started_by_move_pure,
+    activity_started_by_remove_pure,
     menu_action_record_pure,
     queue_add_view_pure,
     queue_panel_view_pure,
@@ -92,16 +93,18 @@ if HAS_QT:
     class MenuQueue(QObject):
         """The menu's queue command and what the menu does around it.
 
-        An add or move that starts an activity at once first asks to leave a
-        running session, as Start does. ``typed`` keeps a count the player typed
-        through a panel rebuild until the target changes, ``remembered`` keeps
-        one the queue took, and each result goes to the menu's follow-up. For
-        ``_CONFIRM_MS`` after an add, ``confirmed`` names the action and the
-        entry total its Add button confirms, also on a control the follow-up
-        rebuilt, and ``added`` tells the queue box which line is new.
+        An add, move or removal that starts an activity at once first asks to
+        leave a running session, as Start does. ``typed`` keeps a count the
+        player typed through a panel rebuild until the target changes,
+        ``remembered`` keeps one the queue took, and each result goes to the
+        menu's follow-up. For ``_CONFIRM_MS`` after an add, ``confirmed`` names
+        the action and the entry total its Add button confirms, also on a
+        control the follow-up rebuilt. ``added`` and ``moved`` tell the queue
+        box which line to flash.
         """
 
         added = pyqtSignal(int)
+        moved = pyqtSignal(int)
 
         def __init__(self, player_data: dict, current_skill, on_command, on_result, leave_running_activity):
             super().__init__()
@@ -119,24 +122,41 @@ if HAS_QT:
             self._confirm_timer.timeout.connect(self._end_confirmation)
 
         def __call__(self, command: str, payload: dict, remember: bool = False) -> None:
-            if command == "move":
-                activity = activity_started_by_move_pure(
-                    self._player_data, self._current_skill(), payload["position"], payload["new_index"]
-                )
-                if activity and not self._leave_running_activity(activity):
-                    return
-            if command == "add":
-                activity = activity_started_by_add_pure(
-                    self._player_data, self._current_skill(), payload["action"], payload["count"]
-                )
-                if activity and not self._leave_running_activity(activity):
-                    return
+            if command == "remove":
+                # Named before any session ends, because ending one can pass this entry on its own.
+                entries = action_queue_pure(self._player_data)["entries"]
+                payload = {**payload, "entry": entries[payload["position"]]}
+            activity = self._activity_started(command, payload)
+            if activity and not self._leave_running_activity(activity):
+                return
+            entries_before = len(action_queue_pure(self._player_data)["entries"])
             result = self._on_command(command, payload)
             if command == "add" and result["ok"]:
                 if remember:
                     self.remembered[_record_key(payload["action"])] = payload["count"]
                 self._confirm(payload["action"])
             self._on_result(result)
+            if command == "move" and result["ok"]:
+                self._confirm_move(payload["new_index"], entries_before)
+
+        def _activity_started(self, command: str, payload: dict) -> str:
+            if command == "move":
+                return activity_started_by_move_pure(
+                    self._player_data, self._current_skill(), payload["position"], payload["new_index"]
+                )
+            if command == "add":
+                return activity_started_by_add_pure(
+                    self._player_data, self._current_skill(), payload["action"], payload["count"]
+                )
+            if command == "remove":
+                return activity_started_by_remove_pure(self._player_data, self._current_skill(), payload["position"])
+            return ""
+
+        def _confirm_move(self, new_index: int, entries_before: int) -> None:
+            # A new first entry that could not start already left, and each one that left moved the line up one.
+            row = new_index - (entries_before - len(action_queue_pure(self._player_data)["entries"]))
+            if row >= 0:
+                self.moved.emit(row)
 
         def _confirm(self, action) -> None:
             entries = len(action_queue_pure(self._player_data)["entries"])
@@ -408,6 +428,7 @@ if HAS_QT:
             self._title.toggled.connect(self._fold)
             if queue is not None:
                 queue.added.connect(self._flash)
+                queue.moved.connect(self._flash)
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
 
@@ -426,16 +447,16 @@ if HAS_QT:
             remove.setFixedSize(text.fontMetrics().lineSpacing(), text.fontMetrics().lineSpacing())
             remove.setEnabled(self._queue is not None)
             remove.clicked.connect(lambda _=False: self._queue("remove", {"position": position}))
-            up = self._move_button("Up", position, position - 1)
-            down = self._move_button("Down", position, position + 1)
+            up = self._move_button("Up", "∧", position, position - 1)
+            down = self._move_button("Down", "∨", position, position + 1)
             state.setContentsMargins(0, 1, 12, 1)
             text.setContentsMargins(0, 1, 0, 1)
             for column, widget in enumerate((state, text, up, down, remove)):
                 layout.addWidget(widget, position, column)
             return state, text, up, down, remove
 
-        def _move_button(self, label: str, position: int, new_index: int):
-            button = QPushButton(label)
+        def _move_button(self, label: str, chevron: str, position: int, new_index: int):
+            button = QPushButton(chevron)
             button.setObjectName(f"actionQueueMove{label}")
             button.setAccessibleName(f"Move entry {position + 1} {label.lower()}")
             button.setStyleSheet(_MOVE_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}")
@@ -460,9 +481,8 @@ if HAS_QT:
             self._lines.setVisible(self._title.isChecked())
             for position, (state, text, up, down, remove) in enumerate(self._rows):
                 row = view["rows"][position] if position < len(view["rows"]) else None
-                for widget in (state, text, up, down):
+                for widget in (state, text, up, down, remove):
                     widget.setVisible(row is not None)
-                remove.setVisible(row is not None and row["removable"])
                 if row is not None:
                     up.setEnabled(row["can_move_up"] and self._queue is not None)
                     down.setEnabled(row["can_move_down"] and self._queue is not None)

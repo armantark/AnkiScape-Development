@@ -1,11 +1,14 @@
 """Queue changes are visible in the log and HUD while study continues."""
 from __future__ import annotations
 
+import types
 from unittest.mock import patch
 
 from tests.action_queue.test_queue_reviews import _MINE_IRON, QueueProfile
 
 _PIRATE = {"kind": "quest", "quest_id": "pirates_treasure"}
+_RUNE_MYSTERIES = {"kind": "quest", "quest_id": "rune_mysteries"}
+_COOKS_ASSISTANT = {"kind": "quest", "quest_id": "cooks_assistant"}
 _WILD = {"kind": "combat", "target": "earth_warrior", "combat_action": "attack"}
 
 
@@ -32,6 +35,64 @@ class QueueNoticeTest(QueueProfile):
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
         self.assertEqual(self._notice(addon), "")
+
+    def test_a_queue_change_from_the_menu_takes_the_line_off_the_hud_and_the_event_log_keeps_it(self):
+        from ankiscape.core.action_queue import action_queue_pure, apply_action_queue_command, stop_action
+
+        def remove(addon, position):
+            entry = action_queue_pure(addon._state.player_data)["entries"][position]
+            return {"position": position, "entry": entry}
+
+        def pause(addon):
+            stop_action(addon)
+            return {}
+
+        line = "Pirate's Treasure complete. Next: Mining."
+        for case, (command, payload_for) in enumerate((
+            ("move", lambda addon: {"position": 1, "new_index": 0}),
+            ("remove", lambda addon: remove(addon, 0)),
+            ("remove", lambda addon: remove(addon, 1)),
+            ("add", lambda addon: {"action": _MINE_IRON, "count": 5}),
+            ("clear", lambda addon: {}),
+            ("resume", pause),
+        )):
+            with self.subTest(command=command, case=case):
+                addon = self._pirate(f"ankiscape_queue_stale_{case}", (_MINE_IRON, 30), (_RUNE_MYSTERIES, None))
+                for _card in range(3):
+                    self._answer(addon)
+                self.assertEqual(self._notice(addon), line)
+
+                self.assertTrue(apply_action_queue_command(addon, command, payload_for(addon))["ok"])
+
+                self.assertEqual(self._notice(addon), "")
+                self.assertEqual(self._log(addon).count(line), 1)
+
+    def test_a_refused_change_keeps_the_line_and_undo_brings_it_back(self):
+        from ankiscape.core.action_queue import apply_action_queue_command
+
+        line = "Pirate's Treasure complete. Next: Mining."
+        addon = self._pirate("ankiscape_queue_stale_undo", (_MINE_IRON, 30), (_RUNE_MYSTERIES, None))
+        for _card in range(3):
+            self._answer(addon)
+
+        self.assertFalse(apply_action_queue_command(addon, "move", {"position": 1, "new_index": 2})["ok"])
+        self.assertEqual(self._notice(addon), line)
+
+        self.assertTrue(apply_action_queue_command(addon, "move", {"position": 1, "new_index": 0})["ok"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(self._notice(addon), line)
+
+    def test_an_entry_a_move_passes_still_shows_its_own_line(self):
+        from ankiscape.core.action_queue import apply_action_queue_command
+
+        addon = self._pirate("ankiscape_queue_stale_passes", (_MINE_IRON, 30), (_COOKS_ASSISTANT, None))
+        for _card in range(3):
+            self._answer(addon)
+        addon._state.player_data["quests"]["cooks_assistant"] = {"completed": True}
+
+        self.assertTrue(apply_action_queue_command(addon, "move", {"position": 1, "new_index": 0})["ok"])
+
+        self.assertEqual(self._notice(addon), "Queue: Cook's Assistant stopped · it could not start")
 
     def test_pirates_treasure_without_a_successor_keeps_the_old_popup(self):
         addon = self._pirate("ankiscape_queue_pirate_last")

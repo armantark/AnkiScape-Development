@@ -28,6 +28,7 @@ from .action_queue import (
     queue_entry_unit_pure,
     queue_move_takes_over_pure,
     queue_runs_pure,
+    remove_queue_entry_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
 from .constants import UTILITY_ACTIVITY_DATA
@@ -77,6 +78,10 @@ def surface_trains_pick_pure(player_data: Mapping[str, Any], surface: str, activ
     )
 
 
+def _activity_id(action: Mapping[str, Any]) -> str:
+    return str(action["utility_id"]) if action.get("kind") == "utility" else ""
+
+
 def activity_started_by_add_pure(
     player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any], count: Any
 ) -> str:
@@ -93,8 +98,7 @@ def activity_started_by_add_pure(
     if queue_runs_pure(player_data, current_skill):
         return ""
     entry = current_queue_entry_pure(queue)
-    starting = entry["action"] if entry is not None else action
-    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
+    return _activity_id(entry["action"] if entry is not None else action)
 
 
 def activity_started_by_move_pure(
@@ -104,8 +108,16 @@ def activity_started_by_move_pure(
     queue, ok = move_queue_entry_pure(action_queue_pure(player_data), position, new_index)
     if not ok or not queue_move_takes_over_pure(player_data, current_skill, position, new_index):
         return ""
-    starting = current_queue_entry_pure(queue)["action"]
-    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
+    return _activity_id(current_queue_entry_pure(queue)["action"])
+
+
+def activity_started_by_remove_pure(player_data: Mapping[str, Any], current_skill: Any, position: int) -> str:
+    """Where removing the running entry lands, so it first asks to leave a running session: the next activity or Bankstanding."""
+    queue, ok = remove_queue_entry_pure(action_queue_pure(player_data), position)
+    if not ok or position or not queue_runs_pure(player_data, current_skill):
+        return ""
+    entry = current_queue_entry_pure(queue)
+    return _activity_id(entry["action"]) if entry is not None else "bankstanding"
 
 
 def utility_action_record_pure(utility_id: str) -> dict[str, Any]:
@@ -231,7 +243,6 @@ def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "state": labels[row["state"]],
                 "text": _row_text(row),
                 "current": row["state"] == "current",
-                "removable": row["removable"],
                 "can_move_up": position > 0,
                 "can_move_down": position + 1 < count,
             }
