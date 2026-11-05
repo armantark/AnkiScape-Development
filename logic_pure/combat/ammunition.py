@@ -46,10 +46,18 @@ def refill_ammo(data, weapon_spec, equipment_data):
     inventory = dict(data.get("inventory") or {})
     compatible = weapon_spec.get("compatible_ammo", ())
     current = equipment.get("ammunition")
-    name = current if current in compatible and equipped_ammo(data).get(current, 0) > 0 else best_ammo(data, compatible, equipment_data)
+    count = equipped_ammo(data).get(current, 0)
+    stock = dict(inventory)
+    if current:
+        stock[current] = stock.get(current, 0) + count
+    available = {**data, "inventory": stock}
+    manual = data.get("equipment_ammunition_manual", "")
+    name = best_ammo(available, (manual,) if manual in compatible else (), equipment_data)
+    if not name:
+        data["equipment_ammunition_manual"] = ""
+        name = best_ammo(available, compatible, equipment_data)
     if not name:
         return
-    count = equipped_ammo(data).get(current, 0)
     if current and current != name:
         inventory[current] = inventory.get(current, 0) + count
         count = 0
@@ -145,8 +153,10 @@ def migrate_ammunition(data, equipment_data, version):
 
 def sanitize_ammunition_state(data):
     count = data.get("equipment_ammunition_count", int(bool((data.get("equipment") or {}).get("ammunition"))))
+    manual = data.get("equipment_ammunition_manual")
     return {
         "equipment_ammunition_count": _non_negative_int(count, 0),
+        "equipment_ammunition_manual": manual if isinstance(manual, str) and manual in COMBAT_RANGED_AMMO_DATA else "",
         "combat_ava_incidental_items": bool(data.get("combat_ava_incidental_items", True)),
         "combat_ava_incidental_ticks": _non_negative_int(data.get("combat_ava_incidental_ticks", 0), 0),
     }
@@ -154,7 +164,8 @@ def sanitize_ammunition_state(data):
 
 def equipment_slot_text(data, slot, name):
     count = f" ×{equipped_ammo(data).get(name, 0):,}" if slot.id == "ammunition" else ""
-    return f"{slot.label}: {name}{count}"
+    manual = " Manual" if slot.id == "ammunition" and data.get("equipment_ammunition_manual") else ""
+    return f"{slot.label}: {name}{count}{manual}"
 
 
 def return_legacy_items(inventory, items):

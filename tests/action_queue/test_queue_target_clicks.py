@@ -346,7 +346,7 @@ class TargetClickTest(TargetClickFlow):
 
     def test_a_typed_count_stays_through_a_panel_redraw_until_the_target_changes(self):
         addon = self._herblore_addon("redraw", (_ARDRIGAL, 1), (_ARDRIGAL, 1))
-        addon._state.player_data["inventory"]["Grimy snake weed"] = 2
+        addon._state.player_data["inventory"]["Grimy snake weed"] = 20
         dialog = self._menu(addon)
         self._click_row(dialog, "clean_snake_weed")
         self._count(dialog).setValue(6)
@@ -360,11 +360,11 @@ class TargetClickTest(TargetClickFlow):
 
         self._click_row(dialog, "clean_ardrigal")
         self._click_row(dialog, "clean_snake_weed")
-        self.assertEqual(self._count(dialog).value(), 2)
+        self.assertEqual(self._count(dialog).value(), 20)
 
     def test_only_an_accepted_add_is_remembered(self):
         addon = self._herblore_addon("remember", (_ARDRIGAL, 1))
-        addon._state.player_data["inventory"]["Grimy snake weed"] = 2
+        addon._state.player_data["inventory"]["Grimy snake weed"] = 20
         dialog = self._menu(addon)
 
         self._click_row(dialog, "clean_snake_weed")
@@ -373,7 +373,7 @@ class TargetClickTest(TargetClickFlow):
         self.assertEqual(self._queue_lines(addon), [("Herblore: Clean ardrigal", "current", 0)])
         self._click_row(dialog, "clean_ardrigal")
         self._click_row(dialog, "clean_snake_weed")
-        self.assertEqual(self._count(dialog).value(), 2)
+        self.assertEqual(self._count(dialog).value(), 20)
 
         self._count(dialog).setValue(6)
         self._add(dialog)

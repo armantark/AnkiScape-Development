@@ -335,7 +335,8 @@ def _group_row_item(row, group: str) -> "QTreeWidgetItem":
     item = _row_item(row.label, row.target_id, row.tooltip, row.icon_path)
     item.setData(0, _ACTIVITY_GROUP_ROLE, group)
     if row.plan_only:
-        item.setForeground(0, dim_text_color())
+        if not row.plan_ready:
+            item.setForeground(0, dim_text_color())
     elif not row.navigation_enabled:
         item.setDisabled(True)
     return item

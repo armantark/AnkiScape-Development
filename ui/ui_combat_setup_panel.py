@@ -1,4 +1,4 @@
-"""ui_combat_setup_panel.py - the Equipment tab's combat setup column.
+"""The Equipment tab's worn slots and combat setup column.
 
 The current target and the max hit the next fight rolls against it, then every
 setting that fight reads, in sight and grouped: Prayer, Attack, Food and loot,
@@ -832,3 +832,25 @@ def _loot_cell(container, cell_idx, item_name, icon_path, *, enabled, on_click):
     cell_layout.addWidget(name_label, 1)
     cell_layout.addWidget(pill)
     return cell, refresh_pill
+
+
+def equipment_list_widget():
+    from aqt.qt import QListWidget, QSize, QStyleOptionViewItem
+    from .ui_tab_shop_widgets import WrappedRowDelegate
+
+    class SlotDelegate(WrappedRowDelegate):
+        def initStyleOption(self, option, index):
+            super().initStyleOption(option, index)
+            if index.data(Qt.ItemDataRole.UserRole) == "ammunition":
+                option.features |= QStyleOptionViewItem.ViewItemFeature.WrapText
+                option.textElideMode = Qt.TextElideMode.ElideNone
+
+    slots = QListWidget()
+    slots.setObjectName("equipmentList")
+    slots.setIconSize(QSize(28, 28))
+    slots.setAlternatingRowColors(True)
+    slots.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+    slots.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    slots.setResizeMode(QListWidget.ResizeMode.Adjust)
+    slots.setItemDelegate(SlotDelegate(slots, 0))
+    return slots

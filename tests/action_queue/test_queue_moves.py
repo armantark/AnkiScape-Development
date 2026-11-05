@@ -48,13 +48,13 @@ class QueueMoveTest(QueueProfile):
                 self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Mining: Iron."])
 
     def test_a_move_between_two_targets_of_one_skill_changes_the_target(self):
-        addon = self._queue_addon("ankiscape_move_same_skill", (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1))
+        addon = self._queue_addon("ankiscape_move_same_skill", (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1), inventory={"Iron ore": 5, "Iron bar": 5})
         self.assertEqual(self._move(addon, 1, 0)["active"], "Smithing")
         self.assertEqual(addon._state.player_data["current_smith"], "forge_iron_platebody")
         self.assertEqual(self._rows(addon)[0], ("Smithing: Iron platebody", "current", 0))
 
     def test_a_move_below_the_top_leaves_the_running_entry_and_its_progress_alone(self):
-        addon = self._queue_addon("ankiscape_move_below", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1))
+        addon = self._queue_addon("ankiscape_move_below", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1), inventory={"Iron bar": 5})
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
         self.assertTrue(self._move(addon, 2, 1)["ok"])
@@ -80,7 +80,7 @@ class QueueMoveTest(QueueProfile):
     def test_a_set_aside_queue_only_changes_its_order_and_stop_returns_to_the_new_top(self):
         from ankiscape.core.action_queue import action_queue_pure, stop_action
 
-        addon = self._queue_addon("ankiscape_move_set_aside", (_MINE_IRON, 30), (_SMELT_IRON, 5))
+        addon = self._queue_addon("ankiscape_move_set_aside", (_MINE_IRON, 30), (_SMELT_IRON, 5), inventory={"Iron ore": 5})
         addon._set_value("current_utility", "pick_onions")
         addon.save_skill("Utilities", None)
         self.assertTrue(action_queue_pure(addon._state.player_data)["suspended"])

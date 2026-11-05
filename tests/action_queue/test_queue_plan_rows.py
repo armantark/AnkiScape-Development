@@ -24,7 +24,7 @@ from tests.action_queue.test_queue_target_clicks import TargetClickFlow
 from tests.test_main_menu_widget import HAS_AQT, _find_list_with_user_role
 
 if HAS_AQT:
-    from aqt.qt import QLabel, QListWidget, Qt
+    from aqt.qt import QLabel, QListWidget, QPushButton, Qt
     from PyQt6.QtTest import QTest
 
 _ARROWTIPS = {"kind": "skill", "skill": "Smithing", "target": "forge_bronze_arrowtips"}
@@ -88,6 +88,23 @@ class PlanRowClickTest(TargetClickFlow):
         self.assertEqual(self._queue_lines(addon), [])
         self.assertEqual((save["inventory"]["Bronze arrows"], save["inventory"].get("Bronze arrowtips", 0)), (840, 0))
 
+    def test_partial_arrow_supply_bounds_the_count_and_a_gray_pick_moves_add_off_arrows(self):
+        addon = self._plan_addon("partial", (_ARROWTIPS, 60), fletching_level=10,
+                                 inventory={"Bronze bar": 4, "Headless arrows": 35})
+        dialog = self._menu(addon, "Fletching")
+        tree, row = self._click_row(dialog, "bronze_arrows")
+        self.assertEqual((self._count(dialog).value(), self._count(dialog).maximum()), (30, 30))
+        self.assertTrue(self._visible(dialog, QPushButton, "queueAddButton").isEnabled())
+        self.assertFalse(self._header(dialog).isEnabled())
+        self._count(dialog).setValue(100)
+        self.assertEqual(self._count(dialog).value(), 30)
+        self._click_row(dialog, "headless_arrows")
+        self.assertFalse(self._visible(dialog, QPushButton, "queueAddButton").isEnabled())
+        self.assertFalse(self._header(dialog).isEnabled())
+        self.assertEqual(self._count(dialog).suffix(), " Headless arrows")
+        self._add(dialog)
+        self.assertEqual(len(addon._state.player_data["action_queue"]["entries"]), 1)
+
     def test_a_bowl_without_clay_takes_one_click_during_a_running_entry_and_start_waits_for_clay(self):
         addon = self._plan_addon("bowl", (_SAPPHIRE, 100), crafting_level=20, inventory={"Uncut sapphire": 100})
         save = addon._state.player_data
@@ -100,8 +117,9 @@ class PlanRowClickTest(TargetClickFlow):
         self.assertEqual((self._header(dialog).text(), self._header(dialog).isEnabled()), ("Train this skill", False))
         # The off button keeps none of the green it wore while it read "Currently training".
         self.assertNotIn("76, 175, 80", self._header(dialog).styleSheet())
+        self.assertFalse(self._visible(dialog, QPushButton, "queueAddButton").isEnabled())
         self._add(dialog)
-        self.assertEqual(save["action_queue"]["entries"][1], {"action": _BOWL, "count": 1})
+        self.assertEqual(len(save["action_queue"]["entries"]), 1)
         self.assertEqual(save["current_craft"], "cut_sapphire")
 
         save["inventory"]["Soft clay"] = 5
@@ -118,6 +136,7 @@ class PlanRowClickTest(TargetClickFlow):
         self.assertEqual(tree.selectedItems(), [row])
         self.assertEqual(self._count(dialog).suffix(), " Bowl (unfired)")
         self.assertFalse(self._header(dialog).isEnabled())
+        self.assertFalse(self._visible(dialog, QPushButton, "queueAddButton").isEnabled())
         self._press_header(dialog)
         self.assertEqual((save["current_craft"], addon._state.current_skill), ("cut_sapphire", "Utilities"))
 

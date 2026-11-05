@@ -50,18 +50,70 @@ def sample_recovery(cape, enabled, cards=500):
 
 
 class AmmunitionPackTests(unittest.TestCase):
+    def _bank_run(self, player):
+        from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
+
+        player, ok, reason = request_combat_bank_run_now_pure(player)
+        self.assertTrue(ok, reason)
+        player, ok, result = apply_combat_burst_pure(
+            player, equipment_data=EQUIPMENT_DATA, ticks=player["combat_bank_run"]["ticks_remaining"],
+        )
+        self.assertTrue(ok, result)
+        self.assertTrue(result["bank_run_completed"])
+        return player
+
     def test_speed_ten_review_equips_the_840_arrow_stack(self):
         player = _player(equipment={"weapon": "Shortbow"}, inventory={"Bronze arrows": 840},
                          combat_prayers_enabled=False, combat_auto_flee=False)
         ctx = _context(player, random_values=(0.99,) * 1000, review_action_multiplier=10)
         ctx.cadence_live_enabled = True
         self.assertTrue(handle_combat_answer(ctx))
-        self.assertTrue(handle_combat_answer(ctx))
         fired = sum(ctx.player_data["combat_last_result"]["ammo_used"].values())
         self.assertGreater(fired, 0)
         self.assertEqual(equipped_ammo(ctx.player_data), {"Bronze arrows": 840 - fired})
         self.assertEqual(ctx.player_data["inventory"]["Bronze arrows"], 0)
         self.assertNotIn("ammo", ctx.player_data["combat_supply_loadout"])
+
+    def test_a_bank_run_upgrades_automatic_ammo_and_respects_weapon_and_level(self):
+        player = _player(equipment={"weapon": "Shortbow", "ammunition": "Bronze arrows"},
+                         equipment_ammunition_count=40, ranged_level=15,
+                         inventory={"Iron arrows": 100, "Steel arrows": 200, "Rune arrows": 300})
+        player = self._bank_run(player)
+        self.assertEqual(equipped_ammo(player), {"Iron arrows": 100})
+        self.assertEqual(player["inventory"]["Bronze arrows"], 40)
+        self.assertEqual(player["inventory"]["Steel arrows"], 200)
+
+    def test_manual_ammo_survives_reload_and_a_bank_run_then_falls_back_when_spent(self):
+        player = _player(equipment={"weapon": "Shortbow"}, inventory={"Bronze arrows": 1, "Iron arrows": 100},
+                         combat_auto_flee=False, combat_prayers_enabled=False)
+        player, ok = equip_item_save_pure(player, "Bronze arrows")
+        self.assertTrue(ok)
+        player = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+        player["inventory"]["Bronze arrows"] = 1
+        player = self._bank_run(player)
+        self.assertEqual(equipped_ammo(player), {"Bronze arrows": 2})
+        self.assertTrue(player["equipment_ammunition_manual"])
+        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 10000}
+        ctx = _context(player, random_values=(0.99,) * 1000, review_action_multiplier=10)
+        ctx.cadence_live_enabled = True
+        self.assertTrue(handle_combat_answer(ctx))
+        self.assertEqual(ctx.card.stop_reason, "out_of_ammo")
+        restocked, ok, reason = refill_combat_supply_loadout_pure(ctx.player_data, EQUIPMENT_DATA)
+        self.assertTrue(ok, reason)
+        self.assertEqual(equipped_ammo(restocked), {"Iron arrows": 100})
+        self.assertFalse(restocked["equipment_ammunition_manual"])
+
+    def test_manual_removal_and_an_unmarked_save_choose_automatically(self):
+        player = _player(equipment={"weapon": "Shortbow"}, inventory={"Bronze arrows": 40, "Iron arrows": 100})
+        player, _ = equip_item_save_pure(player, "Bronze arrows")
+        player, _ = unequip_slot_save_pure(player, "ammunition")
+        self.assertFalse(player["equipment_ammunition_manual"])
+        player, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+        self.assertTrue(ok, reason)
+        self.assertEqual(equipped_ammo(player), {"Iron arrows": 100})
+        player.pop("equipment_ammunition_manual")
+        player = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertFalse(player["equipment_ammunition_manual"])
 
     def test_seeded_review_recovery_and_global_incidental_toggle(self):
         for cape, rate in ((None, 0.50), ("Ava's attractor", 0.60), ("Ava's accumulator", 0.72)):

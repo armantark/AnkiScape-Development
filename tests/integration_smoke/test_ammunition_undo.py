@@ -8,6 +8,19 @@ from tests.test_integration_smoke import types
 
 
 class AmmunitionUndoTest(ReviewedProfile):
+    def test_selecting_a_target_equips_ammo_before_its_first_card_and_undo_restores_the_bank(self):
+        addon = self._addon("ankiscape_starting_ammo")
+        self._new_save(addon, equipment={"weapon": "Shortbow"}, inventory={"Bronze arrows": 840},
+                       combat_prayers_enabled=False, combat_auto_flee=False, combat_auto_eat_food=[])
+        before = copy.deepcopy(addon._state.player_data)
+        self.assertTrue(addon._set_combat_target("cow"))
+        save = addon._state.player_data
+        self.assertEqual((save["equipment"]["ammunition"], save["equipment_ammunition_count"]), ("Bronze arrows", 840))
+        self.assertEqual(save["inventory"]["Bronze arrows"], 0)
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        for key in ("equipment", "equipment_ammunition_count", "equipment_ammunition_manual", "inventory", "current_combat_target"):
+            self.assertEqual(addon._state.player_data.get(key), before.get(key))
+
     def test_review_undo_and_reload_restore_ammunition_and_carried_runes(self):
         cases = (
             ("Shortbow", {"ammunition": "Bronze arrows"}, {}, {}, 840),

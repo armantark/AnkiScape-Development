@@ -64,7 +64,7 @@ from .logic_pure.logic_pure import (
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
     reconcile_combat_method_pure,
-    refill_combat_supply_loadout_pure,
+    refill_combat_supply_loadout_pure, combat_start_ammo_values_pure,
     request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
     repair_combat_supply_loadout_class_pure,
@@ -4321,7 +4321,7 @@ def _set_combat_attack_style(selection):
 
 
 def _combat_target_values(current, target) -> dict:
-    values = {
+    values = {**combat_start_ammo_values_pure(current, target),
         "combat_action": "attack",
         "current_combat_target": target,
     }

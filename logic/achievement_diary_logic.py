@@ -388,8 +388,9 @@ def tier_claim_state_pure(
     state = _state(player_data)
     completed = set(state["completed_tasks"])
     claimed = set(state["claimed_tiers"])
-    done = sum(1 for task in tier.tasks if not task.dormant and task.id in completed)
-    total = tier.total_tasks
+    live = tuple(task for task in tier.tasks if not task.dormant)
+    done = len(completed.intersection(task.id for task in live))
+    total = len(live)
     predecessor = None
     for index, candidate in enumerate(family.tiers):
         if candidate.id == tier.id and index:
@@ -400,12 +401,12 @@ def tier_claim_state_pure(
         if predecessor is not None and predecessor.id not in claimed
         else ""
     )
-    if not total:
+    if tier.id in claimed:
+        status = "Claimed"
+    elif not total:
         # Defensive migration guard: an empty tier is never a finished one and
         # must not fall through to "Ready to Claim".
         status = "Roster pending harvest"
-    elif tier.id in claimed:
-        status = "Claimed"
     elif done < total:
         status = "In progress"
     elif blocked_by:
@@ -417,7 +418,7 @@ def tier_claim_state_pure(
         "done": done,
         "total": total,
         "latent": sum(1 for task in tier.tasks if task.dormant),
-        "source_gap": total - len(tier.tasks),
+        "source_gap": tier.total_tasks - len(tier.tasks),
         "claimed": tier.id in claimed,
         "ready": bool(total) and done >= total and not blocked_by and tier.id not in claimed,
         "blocked_by": blocked_by,

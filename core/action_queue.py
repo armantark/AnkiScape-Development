@@ -52,6 +52,8 @@ from typing import Any, Mapping
 from uuid import uuid4
 
 from .action_products import (
+    funded_queue_entry_pure,
+    queue_plan_refusal_pure,
     action_product_items_pure,
     action_target_spec_pure,
     action_use_size_pure,
@@ -357,15 +359,34 @@ def _apply_in_transaction(addon, updated: Mapping[str, Any], review_action: str 
         addon.update_review_hud(player_data, addon._state.current_skill)
 
 
-def _commit_queue(addon, queue: dict[str, Any], **commit_options: Any) -> bool:
+def _queue_edit_values(current: Mapping[str, Any], queue: dict[str, Any]) -> dict[str, Any]:
+    updated = {**current, **_cleared_queue_notice_pure(current)}
+    kept = {**queue, "entries": []}
+    original = current_queue_entry_pure(action_queue_pure(current))
+    for position, entry in enumerate(queue["entries"]):
+        if position == 0 and entry == original:
+            kept["entries"].append(entry)
+            continue
+        progress = queue["done"] if position == 0 else 0
+        funded, reason = funded_queue_entry_pure(updated, entry, kept, progress)
+        if funded is not None:
+            kept["entries"].append(funded)
+            continue
+        updated = record_review_event_pure(updated, "queue", _entry_line(entry["action"], reason))
+        if position == 0:
+            kept["done"] = 0
+    return {**updated, ACTION_QUEUE_KEY: kept}
+
+
+def _commit_queue(addon, queue: dict[str, Any], *, reconcile=False, **commit_options: Any) -> bool:
     """Save a changed queue as one undoable menu action, with no change to what runs unless the options ask."""
     return addon.commit_direct_action(
-        lambda current: ({**current, **_cleared_queue_notice_pure(current), ACTION_QUEUE_KEY: queue}, True),
+        lambda current: (_queue_edit_values(current, queue) if reconcile else {**current, **_cleared_queue_notice_pure(current), ACTION_QUEUE_KEY: queue}, True),
         **commit_options,
     )
 
 
-def _commit_run(addon, queue: dict[str, Any], no_entry_reason: str | None = None) -> bool:
+def _commit_run(addon, queue: dict[str, Any], no_entry_reason: str | None = None, *, reconcile=False) -> bool:
     """Run the queue's current entry as one undoable menu action.
 
     When no entry can run, what runs now carries on, or with ``no_entry_reason`` stops for it at Bankstanding.
@@ -374,7 +395,8 @@ def _commit_run(addon, queue: dict[str, Any], no_entry_reason: str | None = None
 
     def _change(current):
         nonlocal review_action
-        updated, review_action = _run_current_entry(addon, {**current, **_cleared_queue_notice_pure(current)}, queue)
+        edited = _queue_edit_values(current, queue) if reconcile else {**current, **_cleared_queue_notice_pure(current), ACTION_QUEUE_KEY: queue}
+        updated, review_action = _run_current_entry(addon, edited, edited[ACTION_QUEUE_KEY])
         return updated, True
 
     def _select():
@@ -422,7 +444,7 @@ def queue_add_refusal_pure(player_data: Mapping[str, Any], action: Mapping[str, 
     if not valid_action_record_pure(action):
         return "This action cannot be queued."
     if action["kind"] != "quest":
-        return ""
+        return queue_plan_refusal_pure(player_data, action, action_queue_pure(player_data))
     if quest_state_pure(player_data, action["quest_id"]).get("completed"):
         return "This quest is complete."
     locked = quest_locked_reasons_pure(player_data, action["quest_id"], QUEST_DATA)
@@ -487,8 +509,8 @@ def remove_action_queue_entry(addon, position: int, entry: Mapping[str, Any], ex
     if not ok or before["entries"][position] != entry:
         return False
     if position == 0 and queue_runs_pure(player_data, addon._state.current_skill):
-        return _commit_run(addon, queue, no_entry_reason="The queue is empty.")
-    return _commit_queue(addon, queue)
+        return _commit_run(addon, queue, no_entry_reason="The queue is empty.", reconcile=True)
+    return _commit_queue(addon, queue, reconcile=True)
 
 
 def queue_move_takes_over_pure(player_data: Mapping[str, Any], current_skill: Any, position: int, new_index: int) -> bool:
@@ -503,8 +525,8 @@ def move_action_queue_entry(addon, position: int, new_index: int) -> bool:
     if not ok:
         return False
     if queue_move_takes_over_pure(player_data, addon._state.current_skill, position, new_index):
-        return _commit_run(addon, queue)
-    return _commit_queue(addon, queue)
+        return _commit_run(addon, queue, no_entry_reason="The queue is empty.", reconcile=True)
+    return _commit_queue(addon, queue, reconcile=True)
 
 
 def resume_action_queue(addon) -> bool:

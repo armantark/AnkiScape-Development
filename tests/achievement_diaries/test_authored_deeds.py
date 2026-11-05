@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 import itertools
 import json
 import unittest
@@ -176,6 +177,26 @@ class AuthoredDeedTriggerTest(unittest.TestCase):
 
 
 class AuthoredDeedSaveTest(unittest.TestCase):
+    def test_live_rows_allow_a_claim_and_a_waking_row_cannot_revoke_it(self):
+        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "fremennik")
+        tier = family.tiers[0]
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["achievement_diaries"]["completed_tasks"] = [task.id for task in tier.tasks if not task.dormant]
+        self.assertTrue(any(task.dormant for task in tier.tasks))
+        self.assertTrue(tier_claim_state_pure(player, family, tier)["ready"])
+        player, ok, info = claim_diary_tier_pure(player, tier.id)
+        self.assertTrue(ok, info)
+        waking = next(task for task in tier.tasks if task.dormant)
+        awake_tier = replace(tier, tasks=tuple(replace(task, conditions=tier.tasks[0].conditions) if task == waking else task for task in tier.tasks))
+        state = tier_claim_state_pure(player, family, awake_tier)
+        self.assertEqual(state["status"], "Claimed")
+        self.assertFalse(state["ready"])
+        self.assertNotIn(waking.id, player["achievement_diaries"]["completed_tasks"])
+        before = copy.deepcopy(player)
+        player, ok, info = claim_diary_tier_pure(player, tier.id)
+        self.assertFalse(ok)
+        self.assertEqual(player, before)
+
     def test_a_save_that_completed_a_former_milestone_keeps_its_claimable_tier(self):
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "falador")
         tier = family.tiers[0]

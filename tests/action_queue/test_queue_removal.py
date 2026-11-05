@@ -95,7 +95,7 @@ class QueueRemovalTest(QueueProfile):
     def test_a_set_aside_queue_only_changes_its_list_and_the_hand_started_action_runs_on(self):
         from ankiscape.core.action_queue import action_queue_pure, stop_action
 
-        addon = self._queue_addon("ankiscape_remove_set_aside", (_MINE_IRON, 30), (_SMELT_IRON, 5))
+        addon = self._queue_addon("ankiscape_remove_set_aside", (_MINE_IRON, 30), (_SMELT_IRON, 5), inventory={"Iron ore": 5})
         addon._set_value("current_utility", "pick_onions")
         addon.save_skill("Utilities", None)
         self.assertTrue(action_queue_pure(addon._state.player_data)["suspended"])

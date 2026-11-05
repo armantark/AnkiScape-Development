@@ -25001,12 +25001,9 @@ def show_main_menu(
     eq_left_layout = QVBoxLayout(eq_left)
     eq_left_layout.setContentsMargins(0, 0, 0, 0)
     eq_left_layout.setSpacing(8)
-    equip_list = QListWidget()
-    equip_list.setObjectName("equipmentList")
-    equip_list.setIconSize(QSize(28, 28))
-    equip_list.setAlternatingRowColors(True)
-    equip_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-    equip_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    from .ui_combat_setup_panel import equipment_list_widget
+
+    equip_list = equipment_list_widget()
     eq_left_layout.addWidget(equip_list)
 
     totals_label = QLabel("")

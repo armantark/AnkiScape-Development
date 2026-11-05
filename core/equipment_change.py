@@ -15,23 +15,30 @@ def equip_item_save_pure(player_data, item_name):
         inventory = dict(player_data.get("inventory") or {})
         count = int(player_data.get("equipment_ammunition_count", 1)) + inventory.get(item_name, 0)
         inventory[item_name] = 0
-        return {**player_data, "inventory": inventory, "equipment_ammunition_count": count}, True
-    return save_equipment_move_pure(
+        return {**player_data, "inventory": inventory, "equipment_ammunition_count": count,
+                "equipment_ammunition_manual": item_name}, True
+    updated, moved = save_equipment_move_pure(
         player_data,
         equip_item_pure(item_name, player_data.get("inventory", {}) or {},
                         player_data.get("equipment", {}) or {}, EQUIPMENT_DATA),
         EQUIPMENT_DATA,
     )
+    if moved and (updated.get("equipment") or {}).get("ammunition") == item_name:
+        updated["equipment_ammunition_manual"] = item_name
+    return updated, moved
 
 
 def unequip_slot_save_pure(player_data, slot):
     """Return `(save, unequipped)` after moving a worn item or ammunition stack back to the Bank."""
-    return save_equipment_move_pure(
+    updated, moved = save_equipment_move_pure(
         player_data,
         unequip_item_pure(slot, player_data.get("inventory", {}) or {},
                           player_data.get("equipment", {}) or {}),
         EQUIPMENT_DATA,
     )
+    if moved and slot == "ammunition":
+        updated["equipment_ammunition_manual"] = ""
+    return updated, moved
 
 
 def prepare_quest_equipment_pure(player_data, quest_id, quest_data):

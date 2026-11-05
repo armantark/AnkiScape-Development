@@ -45,8 +45,7 @@ class QueueExactCountTest(QueueProfile):
         self.assertEqual(self.bankstanding_dialogs, ["Queue finished after Pick onions."])
 
     def test_one_platebody_makes_one_and_the_rest_of_the_card_runs_the_next_entry(self):
-        addon = self._queue_addon("ankiscape_queue_exact_platebody", (_SMITH_PLATEBODY, 1), (_MINE_IRON, 5))
-        addon._state.player_data["inventory"]["Iron bar"] = 10
+        addon = self._queue_addon("ankiscape_queue_exact_platebody", (_SMITH_PLATEBODY, 1), (_MINE_IRON, 5), inventory={"Iron bar": 10})
 
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)
@@ -66,8 +65,7 @@ class QueueExactCountTest(QueueProfile):
 
     def test_a_count_inside_one_whole_lot_keeps_the_lot_and_the_rest_of_the_card_runs_the_next_entry(self):
         # One log always whittles 15 shafts; taking 5 back after the log is spent would lose what the player paid for.
-        addon = self._queue_addon("ankiscape_queue_exact_lot", (_WHITTLE_SHAFTS, 10), (_MINE_IRON, 5))
-        addon._state.player_data["inventory"]["Logs"] = 3
+        addon = self._queue_addon("ankiscape_queue_exact_lot", (_WHITTLE_SHAFTS, 10), (_MINE_IRON, 5), inventory={"Logs": 3})
 
         with patch.object(addon.random, "random", lambda: 0.5):
             self._answer(addon)

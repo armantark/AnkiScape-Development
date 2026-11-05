@@ -85,7 +85,6 @@ from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     _combat_missing_loaded_runes,
     _combat_pick_potion_for_skill,
     _combat_progress_or_start_bank_run,
-    _combat_bank_window,
     _combat_ranged_strength_bonus,
     _combat_recover_current_levels,
     _combat_refill_antipoison_loadout,
@@ -356,7 +355,6 @@ from .logic_pure_combat_supplies import (
     _combat_consume_ranged_ammo,
     _combat_locks_can_bank_run,
     _combat_progress_or_start_bank_run,
-    _combat_bank_window,
     _combat_ranged_strength_bonus,
     _combat_recover_current_levels,
     _combat_refill_antipoison_loadout,
@@ -493,7 +491,7 @@ from .logic_pure_combat_outcome import (
     _combat_settle_wilderness_ambush,
 )
 from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
-from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_target_loadout
+from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_target_loadout, _combat_bank_window, combat_start_ammo_values_pure
 from .logic_pure_combat_setup import (
     _combat_enemy_start_lifepoints,
     _combat_prayer_request,
@@ -1022,6 +1020,7 @@ def apply_combat_burst_pure(
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     data = _combat_prepare_target_loadout(data, target_id)
+    data.update(combat_start_ammo_values_pure(data, target_id, allow_bank_run=allow_bank_run))
     preset_reasons = combat_magic_preset_locked_reasons_pure(data)
     if preset_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": preset_reasons}

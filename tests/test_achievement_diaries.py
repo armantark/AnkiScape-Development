@@ -1545,8 +1545,8 @@ class ClaimTest(unittest.TestCase):
         self._tier_patch.start()
         self.addCleanup(self._tier_patch.stop)
 
-    def test_burthorpe_bundle_waits_for_the_full_55_task_pool(self):
-        """The authentic set reward exists, but dormant tasks keep it closed."""
+    def test_burthorpe_bundle_is_claimable_when_its_live_rows_are_done(self):
+        """Dormant tasks do not withhold the reward for completed live deeds."""
 
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "burthorpe")
         tier = family.tiers[0]
@@ -1555,9 +1555,9 @@ class ClaimTest(unittest.TestCase):
 
         player, ok, info = claim_diary_tier_pure(player, tier.id)
 
-        self.assertFalse(ok)
-        self.assertIn("outstanding", info["reason"])
-        self.assertEqual(player["inventory"], before)
+        self.assertTrue(ok, info)
+        self.assertNotEqual(player["inventory"], before)
+        self.assertIn(tier.id, player["achievement_diaries"]["claimed_tiers"])
         self.assertFalse(tier.reward_item)
         self.assertTrue(tier.reward_bundle)
         self.assertEqual(tier.total_tasks, 55)

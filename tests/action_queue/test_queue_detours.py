@@ -31,7 +31,7 @@ class QueueDetourTest(QueueProfile):
         self.assertEqual(self.bankstanding_dialogs, [])
 
     def test_hand_started_mining_returns_when_its_pickaxe_is_unavailable(self):
-        addon = self._queue_addon("ankiscape_detour_mining", (_PICKUP, 600), (_SMELT_IRON, 5))
+        addon = self._queue_addon("ankiscape_detour_mining", (_PICKUP, 600), (_SMELT_IRON, 5), inventory={"Iron ore": 5})
         addon._set_value("current_ore", "iron")
         addon.save_skill("Mining", None)
         addon._state.player_data["toolbelt"]["mining"] = []

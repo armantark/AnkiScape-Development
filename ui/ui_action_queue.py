@@ -239,6 +239,8 @@ if HAS_QT:
                     self._typed.pop(_record_key(self._record), None)
                 self._record = record
             key = _record_key(record)
+            with QSignalBlocker(self.count_box):
+                self.count_box.setMaximum(view["maximum"])
             self._show_count(self._typed.get(key, self._remembered.get(key, view["count"])))
             self._has_count = view["has_count"]
             self.materials.setText(_without_widow(view["materials"]))

@@ -15,6 +15,7 @@ class TargetRowMetadata:
     navigation_enabled: bool = False
     # Locked only for lack of what its run uses up: it takes a click for planning a queue, not a start.
     plan_only: bool = False
+    plan_ready: bool = False
     current: bool = False
     icon_path: Optional[str] = None
     group: str = ""

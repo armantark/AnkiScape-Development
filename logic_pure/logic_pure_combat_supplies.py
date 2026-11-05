@@ -1596,23 +1596,3 @@ def _combat_supply_slots_used(data):
     if _non_negative_int(loadout.get("cannonballs", 0), 0) > 0:
         slots += 1
     return slots
-
-
-def _combat_bank_window(
-    data, target_id, combat_class, ranged_weapon_spec, spell_spec,
-    equipment_data, enemy_data, ticks, allow_bank_run, locked_reasons,
-):
-    ticks = _positive_int(ticks, COMBAT_BURST_TICKS)
-    if not allow_bank_run or not _combat_locks_can_bank_run(locked_reasons):
-        return 0, ticks, None, locked_reasons
-    result = _combat_progress_or_start_bank_run(
-        data, target_id, combat_class, ranged_weapon_spec, spell_spec,
-        equipment_data, enemy_data, ticks=ticks,
-    )
-    if result is None:
-        return 0, ticks, None, locked_reasons
-    spent = result["ticks_elapsed"]
-    if not result["bank_run_completed"] or spent >= ticks:
-        return spent, ticks, result, ()
-    reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
-    return spent, ticks - spent, None, reasons

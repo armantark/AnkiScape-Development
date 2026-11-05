@@ -17,10 +17,14 @@ from dataclasses import replace
 from typing import Any, Mapping
 
 from .action_products import (
+    _action_locks,
+    _inputs_and_yield,
+    _projected_stock,
+    _used_items,
+    action_supply_limit_pure as _action_supply_limit,
+    queue_plan_refusal_pure as _queue_plan_refusal,
     action_product_items_pure,
-    action_target_spec_pure,
     action_used_input_pure,
-    spec_field_pure,
 )
 from .action_queue import (
     MAX_QUEUE_ENTRIES,
@@ -36,16 +40,10 @@ from .action_queue import (
     remove_queue_entry_pure,
 )
 from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action, utility_review_surface_for_target
-from .constants import QUEST_UNLOCK_RULES, UTILITY_ACTIVITY_DATA
 from .last_action import last_action_record_pure
-from .skill_guide_locks import target_lock_reasons_pure
 from .skill_registry import get_skill
 from .target_row import TargetRowMetadata
-from ..data.construction_data import NAIL_DATA
 from ..logic.inventory_pure import CARRIED_CAPACITY
-from ..logic.summoning_logic import summoning_action_requirements_pure
-from ..logic_pure.logic_pure import _runecrafting_multiplier_info, utility_activity_locked_reasons_pure
-from ..logic_pure.logic_pure_magic import magic_used_items_pure
 
 
 # More than any recipe uses, so a supposed Bank never locks a row by quantity.
@@ -137,54 +135,6 @@ def utility_action_record_pure(utility_id: str) -> dict[str, Any]:
     return {"kind": "utility", "utility_id": utility_id} if utility_id else {}
 
 
-def _action_spec(action: Mapping[str, Any]) -> Any:
-    if action["kind"] == "utility":
-        return UTILITY_ACTIVITY_DATA.get(action["utility_id"], {})
-    return action_target_spec_pure(action)
-
-
-def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[dict[str, tuple[str, ...]], dict[str, int], int]:
-    """What one run uses, as alternatives per input and an amount, and the products it makes."""
-    spec = _action_spec(action)
-    made = int(spec_field_pure(spec, "output_qty") or spec_field_pure(spec, "output_quantity") or 1)
-    if action.get("skill") == "Summoning":
-        needs = summoning_action_requirements_pure(player_data, str(action["target"]))
-        return {item: (item,) for item in needs}, needs, made
-    if action.get("skill") == "Runecrafting" and spec_field_pure(spec, "kind") == "standard":
-        level = int(player_data.get("runecrafting_level") or 1)
-        return {"essence": tuple(spec_field_pure(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
-    needs = dict(spec_field_pure(spec, "requirements") or {})
-    options = {"Nails": tuple(NAIL_DATA), **dict(spec_field_pure(spec, "material_options") or {})}
-    return {item: tuple(options.get(item) or (item,)) for item in needs}, needs, made
-
-
-def _used_items(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> set[str]:
-    """Every item a run of the action can use up; never a tool, an access item or a wage, so those locks stay."""
-    alternatives, _needs, _made = _inputs_and_yield(player_data, action)
-    items = {item for options in alternatives.values() for item in options}
-    spec = _action_spec(action)
-    for field in ("bait_options", "any_requirements", "openable_items"):
-        items.update(spec_field_pure(spec, field) or ())
-    if rune := spec_field_pure(spec, "component_rune"):
-        items.update(("Pure essence", rune, spec_field_pure(spec, "consumed_talisman")))
-    if action.get("skill") == "Magic":
-        items.update(magic_used_items_pure(spec))
-    if "Nails" in items:
-        items.update(NAIL_DATA)
-    return items
-
-
-def _action_locks(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[str, ...]:
-    """What the action's target row says locks it now; empty for an action no row list locks."""
-    if action.get("kind") == "skill":
-        return target_lock_reasons_pure(player_data, get_skill(action["skill"]).id, action["target"])
-    if action.get("utility_id") in UTILITY_ACTIVITY_DATA:
-        return utility_activity_locked_reasons_pure(
-            player_data, action["utility_id"], UTILITY_ACTIVITY_DATA, QUEST_UNLOCK_RULES
-        )
-    return ()
-
-
 def pick_can_start_pure(player_data: Mapping[str, Any], surface: str, picked: Any) -> bool:
     """Whether the panel's Start can run this target now, so a pick without its inputs leaves Start off."""
     return not _action_locks(player_data, menu_action_record_pure(player_data, surface, picked))
@@ -204,7 +154,13 @@ def plan_rows_pure(
     player_data: Mapping[str, Any], surface: str, rows: tuple[TargetRowMetadata, ...]
 ) -> tuple[TargetRowMetadata, ...]:
     """The panel's rows, with each row that lacks only what its run uses up marked plan-only."""
-    return tuple(replace(row, plan_only=_plan_only(player_data, surface, row)) for row in rows)
+    planned = []
+    for row in rows:
+        only = _plan_only(player_data, surface, row)
+        action = menu_action_record_pure(player_data, surface, row.target_id)
+        ready = only and not queue_plan_refusal_pure(player_data, action)
+        planned.append(replace(row, plan_only=only, plan_ready=ready))
+    return tuple(planned)
 
 
 def _bank_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
@@ -213,37 +169,16 @@ def _bank_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
 
 
 def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[tuple[int, int]]:
-    """What the queue's entries will still make of ``items``: (entry number, amount)."""
-    queue = action_queue_pure(player_data)
-    makes = []
-    for position, entry in enumerate(queue["entries"]):
-        done = queue["done"] if position == 0 else 0
-        if entry["count"] is not None and set(items) & set(action_product_items_pure(entry["action"])):
-            makes.append((position + 1, max(0, entry["count"] - done)))
-    return makes
-
-
-def _supply_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
-    return _bank_count(player_data, items) + sum(amount for _entry, amount in _queued_makes(player_data, items))
+    return [(position, count) for position, bank in enumerate(_projected_stock(player_data, action_queue_pure(player_data)))
+            if position and (count := sum(bank.get(item, 0) for item in items))]
 
 
 def action_supply_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> int | None:
-    """The most of the entry's unit the Bank and earlier entries supply inputs for; None when no Bank item limits it.
+    return _action_supply_limit(player_data, action, action_queue_pure(player_data))
 
-    An entry that counts reviews has no such limit: one review can use several
-    inputs, so its count in reviews is unknown.
-    """
-    unit = queue_entry_unit_pure(action)
-    if unit not in {"items", "uses"}:
-        return None
-    alternatives, needs, made = _inputs_and_yield(player_data, action)
-    if not needs:
-        return None
-    if unit == "uses":
-        return sum(_supply_count(player_data, items) for items in alternatives.values())
-    return min(
-        _supply_count(player_data, alternatives[need]) // max(1, int(amount)) for need, amount in needs.items()
-    ) * made
+
+def queue_plan_refusal_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
+    return _queue_plan_refusal(player_data, action, action_queue_pure(player_data))
 
 
 def _materials_text(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> str:
@@ -278,7 +213,8 @@ def queue_add_view_pure(player_data: Mapping[str, Any], action: Mapping[str, Any
         else ""
     )
     return {
-        "enabled": not refusal,
+        "enabled": not refusal and limit != 0,
+        "maximum": max(1, limit) if limit is not None else 2_147_483_647,
         "has_count": has_count,
         "count": CARRIED_CAPACITY if limit is None else max(1, limit),
         "unit": unit,

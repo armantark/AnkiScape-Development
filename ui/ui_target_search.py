@@ -180,7 +180,8 @@ def short_target_row_label(label: str) -> str:
 def show_row_lock(item, row, *column) -> None:
     """A plan-only row reads dim and still takes clicks; any other locked row is disabled. A tree item names its ``column``."""
     if row.plan_only:
-        item.setForeground(*column, dim_text_color())
+        if not row.plan_ready:
+            item.setForeground(*column, dim_text_color())
     elif not row.enabled:
         item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
 
