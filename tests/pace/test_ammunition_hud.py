@@ -1,6 +1,7 @@
 """The real review strip exposes pickup only for ammunition weapons."""
 
 import unittest
+from itertools import product
 
 from tests import test_review_strip as strip_fixtures
 
@@ -16,6 +17,56 @@ class AmmunitionHudTest(unittest.TestCase):
         self.strip.setUp()
         self.addCleanup(self.strip.tearDown)
         self.ui = self.strip.ui
+
+    def test_combat_title_fits_with_and_without_pickup_at_laptop_size(self):
+        from aqt.qt import QApplication, QColor, QFont, QPalette
+
+        app = self.strip.app
+        original_font, original_palette = app.font(), app.palette()
+        original_style = app.style().objectName()
+        self.addCleanup(app.setFont, original_font)
+        self.addCleanup(app.setPalette, original_palette)
+        self.addCleanup(app.setStyle, original_style)
+        app.setStyle("Fusion")
+        # A larger Mac font exposes compression that offscreen's small
+        # default font hides inside the fixed-height reviewer strip.
+        app.setFont(QFont("Helvetica Neue", 13))
+        state = self.strip._state()
+        for skill in ("attack", "strength", "defense", "ranged", "magic", "constitution"):
+            state[skill + "_level"] = 45
+        state.update(combat_lifepoints=450, current_combat_target="chicken")
+        themes = (("light", "#f0f0f0", "#101010"), ("dark", "#202020", "#f0f0f0"))
+        sizes = ((1000, 700), (667, 602), (720, 560))
+        for (theme, background, text), (width, height), weapon in product(themes, sizes, ("Shortbow", "Iron sword")):
+            palette = app.style().standardPalette()
+            for role in (QPalette.ColorRole.Window, QPalette.ColorRole.Base, QPalette.ColorRole.Button):
+                palette.setColor(role, QColor(background))
+            for role in (QPalette.ColorRole.WindowText, QPalette.ColorRole.Text, QPalette.ColorRole.ButtonText):
+                palette.setColor(role, QColor(text))
+            app.setPalette(palette)
+            with self.subTest(theme=theme, size=(width, height), weapon=weapon):
+                state["equipment"] = {"weapon": weapon}
+                self.ui.update_review_hud(state, "Combat")
+                self.ui.update_review_bank_run_button(state, "combat", ammo_pickup_action=lambda: None)
+                self.strip.parent.resize(width, height)
+                for _ in range(5):
+                    QApplication.processEvents()
+                hud = self.ui._REVIEW_HUD
+                title, button = hud.title_lbl, hud.ammo_pickup_button
+                self.assertTrue(hud.isVisible())
+                self.assertEqual(title.text(), "Combat — Lv 51")
+                self.assertGreaterEqual(title.height(), title.sizeHint().height())
+                self.assertGreaterEqual(title.height(), title.fontMetrics().height())
+                self.assertGreaterEqual(title.width(), title.sizeHint().width())
+                self.assertTrue(hud.rect().contains(title.geometry()))
+                self.assertLess(title.geometry().bottom(), hud.progress.y())
+                self.assertEqual(hud.height(), self.ui.REVIEW_STRIP_HEIGHT)
+                self.assertEqual(button.isVisible(), weapon == "Shortbow")
+                if button.isVisible():
+                    self.assertLess(title.geometry().right(), button.x())
+                    self.assertEqual(button.geometry().right(), hud.progress.geometry().right())
+                    self.assertLessEqual(title.y(), button.geometry().center().y())
+                    self.assertLessEqual(button.geometry().center().y(), title.geometry().bottom())
 
     def test_ammo_pickup_only_shows_for_weapons_that_use_ammo_and_click_refreshes(self):
         state = self.strip._state()

@@ -136,6 +136,8 @@ else:
 
 
 def add_review_ammo_title(hud, info, title):
+    # The fixed-height HUD can compress a nested row below its font metrics.
+    title.setMinimumHeight(title.sizeHint().height())
     title_row = QHBoxLayout()
     title_row.setContentsMargins(0, 0, 0, 0)
     title_row.addWidget(title, 1)

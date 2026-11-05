@@ -50,6 +50,56 @@ def sample_recovery(cape, enabled, cards=500):
 
 
 class AmmunitionPackTests(unittest.TestCase):
+    def test_native_seed_banks_for_food_then_loot_with_ammo_already_worn(self):
+        from ankiscape.logic_pure import logic_pure_combat_supplies as supplies
+
+        seed = _player(
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 500, "Iron arrows": 200, "Lobster": 60},
+            combat_auto_eat_food=["Lobster"], combat_lifepoints=450,
+            **{skill + "_level": 45 for skill in ("attack", "strength", "defense", "ranged", "magic", "constitution")},
+        )
+        triggers = []
+        bank_needed = supplies._combat_bank_run_needed
+
+        def record_trigger(data, target, *args, **kwargs):
+            needed = bank_needed(data, target, *args, **kwargs)
+            if needed:
+                triggers.append((
+                    equipped_ammo(data), supplies._combat_loaded_food_count(data),
+                    supplies._combat_supply_slots_used(data),
+                    supplies._combat_carried_slot_counts(data, target),
+                ))
+            return needed
+
+        player = copy.deepcopy(seed)
+        with patch.object(supplies, "_combat_bank_run_needed", side_effect=record_trigger):
+            for card in range(10):
+                ctx = _context(player, random_values=(0.5,) * 1000, review_action_multiplier=10)
+                ctx.cadence_live_enabled = True
+                self.assertTrue(handle_combat_answer(ctx))
+                if card == 0:
+                    self.assertEqual(player["combat_last_result"]["reason"], "combat_bank_run")
+                    self.assertEqual(player["combat_last_result"]["ammo_used"], {})
+                    self.assertEqual(player["combat_bank_run"]["ticks_remaining"], 40)
+                if card == 1:
+                    self.assertEqual(player["combat_last_result"]["ammo_used"], {"Iron arrows": 5})
+        self.assertEqual(triggers[0], ({"Iron arrows": 200}, 0, 0, (0, 0)))
+        self.assertGreater(len(triggers), 1)
+        for ammo, food, supply_slots, (carried_slots, loot_slots) in triggers[1:]:
+            self.assertGreater(ammo["Iron arrows"], 0)
+            self.assertGreater(food, 0)
+            self.assertGreater(loot_slots, 0)
+            self.assertGreaterEqual(supply_slots + carried_slots, 28)
+
+        # Removing only the banked food isolates the initial trip's cause.
+        seed["inventory"]["Lobster"] = 0
+        ctx = _context(seed, random_values=(0.5,) * 1000, review_action_multiplier=10)
+        ctx.cadence_live_enabled = True
+        self.assertTrue(handle_combat_answer(ctx))
+        self.assertGreater(ctx.player_data["combat_last_result"]["ammo_used"]["Iron arrows"], 0)
+        self.assertFalse(ctx.player_data["combat_bank_run"])
+
     def _bank_run(self, player):
         from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
 

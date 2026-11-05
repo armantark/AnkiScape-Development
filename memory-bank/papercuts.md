@@ -802,3 +802,9 @@
 - 2026-11-05T18:31:36+00:00 — The follow-up commit hook refused `_inputs_and_yield`: cyclomatic `18 (was 13)` and cognitive `16 (was 12)`, both above `15`. Moved complete batch output quantities and alternative/simultaneous output rules into one shared batch projection used by yield calculation and stock projection.
 - 2026-11-05T18:37:50+00:00 — The post-hook 176-test selection observed the same unseeded Fletching `29 != 30` failure (`Ran 176 tests in 88.693s`, `FAILED (failures=1)`). RNG `0.99` passed the isolated case; RNG `0.0` failed `28 != 30` and exposed both Strange Rock replacements in its Event log. The reservation-only fixture now uses RNG `0.5`; gameplay is unchanged.
 - 2026-11-05T13:00:00-08:00 — Papercut cleanup startup: combined Memory Bank and incident reads exceeded tool output budgets (71045, 36782 and 10591 original token counts); subsequent inspection uses bounded source excerpts and cause-specific projections. No closure uses omitted output.
+
+- 2026-11-05T11:06:10: Pass 21 native-defect investigation: initial search assumed nonexistent ui/review_hud.py; screenshot view also used an incorrectly transcribed path and returned No such file or directory. Resolved with discovered ui/ui.py and exact supplied evidence path.
+
+- 2026-11-05T11:11:22: Pass 21 probes: package imports require import pkg_alias before ankiscape; one inline probe omitted it and raised ModuleNotFoundError: No module named 'ankiscape'. Native-title test also overconstrained button/title centres (AssertionError: 2 not less than 2); replaced with row containment to preserve the original button position.
+
+- 2026-11-05T11:14:45: Pass 21 commit hook blocked verification matrix helpers: slop-gate: cognitive complexity above 15 was introduced; AmmunitionHudTest::test_combat_title_fits_with_and_without_pickup_at_laptop_size 19 (new), capture_hud 20 (new). Flattened independent matrix axes with itertools.product.
