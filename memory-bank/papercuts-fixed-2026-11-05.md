@@ -33,3 +33,11 @@ Disposition: fixed.
 Evidence: Current tools/fetch_assets.py::_download_source_bytes constructs a unique cache_bust on every attempt and accepts bytes only when their SHA-1 matches the API revision. tools/reresearch_period_art.py::_download_matching_sha1 also retries each URL with an uncached query. python3 run_tests.py tests.historical_assets.test_fetch_assets_source_urls tests.test_fetch_assets passed: Ran 29 tests, OK (skipped=3 Pillow-only checks). The active local HTTP regressions test recompressed first responses, query preservation, distinct retries and rejection after three mismatches. No asset was fetched from the Internet or written to the repository.
 
 - 2026-10-29T23:10:46-07:00 — Pass 19 renamed icons: tools/reresearch_period_art.py reported sha_mismatch for `File:White candle.png` on one asset and replaced the same revision on another; Cloudflare Polish ("cf-polished: ok, orig_size=394") serves recompressed bytes a41a2dd318bd18072587c7fe513dc7f31ed1a93e on a cache hit, while a never-cached query string returns the uploaded bytes dab5404b4da5e9f8eb2441509bf47ce58acc40f9. The tool now retries each URL uncached; tools/fetch_assets.py downloads do not.
+
+## Dye menu fixtures preserve runtime aliases while restoring real Qt
+
+Disposition: fixed.
+
+Evidence: Current tests/main_menu/bank/test_dye_mixing.py::DyeMixingMenuTest.setUp snapshots sys.modules before the undo seam, retains the ankiscape_undo_seam modules needed by lazy imports, then restores real Qt before constructing menu widgets. python3 run_tests.py tests.main_menu.bank.test_dye_mixing passed: Ran 4 tests, OK, including opening and clicking the Bank mix menu, undo, and the Utility dye search. Neither reported import error recurred. Only simulated test players were used.
+
+- 2026-10-28T00:25:18-07:00 — Pass 18 ticket 05: a mixed Qt and runtime test harness raised "ImportError: cannot import name 'ActionQueuePanel' from 'ankiscape.ui.ui_action_queue'" and then "ModuleNotFoundError: No module named 'ankiscape_undo_seam'" until the test kept runtime-package modules for lazy imports and restored real Qt and stable-alias modules before building widgets (tests/main_menu/bank/test_dye_mixing.py).
