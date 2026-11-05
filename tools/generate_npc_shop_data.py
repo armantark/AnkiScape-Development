@@ -33,7 +33,7 @@ if __package__:
     )
     from .npc_shop_generation.service_rows import SERVICE_ROWS, VENDOR_ACTIONS
     from .npc_shop_generation.source_inputs import (
-        DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
+        default_2011_items, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
         DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
         CapturedShopInputs, capture_source_inputs, collect_source_shop_item_ids, load_darkan_shop_price_inputs,
     )
@@ -49,7 +49,7 @@ else:
     )
     from npc_shop_generation.service_rows import SERVICE_ROWS, VENDOR_ACTIONS
     from npc_shop_generation.source_inputs import (
-        DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
+        default_2011_items, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
         DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
         CapturedShopInputs, capture_source_inputs, collect_source_shop_item_ids, load_darkan_shop_price_inputs,
     )
@@ -1207,7 +1207,7 @@ def main() -> None:
     parser.add_argument("--darkan-java-home", type=Path, default=DEFAULT_DARKAN_JAVA_HOME)
     parser.add_argument("--darkan-core-jar", type=Path, default=DEFAULT_DARKAN_CORE_JAR)
     parser.add_argument("--darkan-dependency-jar", type=Path, action="append", default=None)
-    parser.add_argument("--items-2011", type=Path, default=DEFAULT_2011_ITEMS)
+    parser.add_argument("--items-2011", type=Path, default=default_2011_items())
     parser.add_argument("--existing-shop-data", type=Path, default=SHOP_DATA_PATH)
     parser.add_argument("--existing-ledger", type=Path, default=LEDGER_PATH)
     parser.add_argument("--shop-data-out", type=Path, default=SHOP_DATA_PATH)

@@ -123,15 +123,17 @@ class ShopSources:
         rows = json.loads((cache_path / "main_file_cache.dat2").read_text(encoding="utf-8"))
         return {int(key): value for key, value in rows.items() if int(key) in self.calls[-1]["ids"]}
 
-    def invoke(self, *extra, decoder=None, default_dependencies=False):
+    def invoke(self, *extra, decoder=None, default_dependencies=False, default_items=False):
         argv = [
             "generate_npc_shop_data.py", "--darkan-shops", str(self.shops),
-            "--darkan-cache", str(self.cache), "--items-2011", str(self.items),
+            "--darkan-cache", str(self.cache),
             "--darkan-core-jar", str(self.core), "--darkan-java-home", str(self.raw / "jdk"),
             "--existing-shop-data", str(self.catalog), "--existing-ledger", str(self.ledger),
             "--shop-data-out", str(self.catalog), "--ledger-out", str(self.ledger),
             "--summary-out", str(self.summary),
         ]
+        if not default_items:
+            argv.extend(("--items-2011", str(self.items)))
         if not default_dependencies:
             for path in self.dependencies:
                 argv.extend(("--darkan-dependency-jar", str(path)))
@@ -197,6 +199,14 @@ class TestNpcShopSourceInputs(unittest.TestCase):
             self.assertEqual(
                 str(error), f"Source changed for {OUTPUT_NAME}: {', '.join(sorted(changed))}; pass --accept-source-change",
             )
+
+    def test_items_default_uses_configured_game_root_and_explicit_items_take_precedence(self):
+        fixture = self.fixture()
+        with patch.dict(os.environ, {"ANKISCAPE_GAME_MAIN": str(fixture.items.parents[2])}):
+            self.assert_success(fixture.invoke(default_items=True))
+        self.assertEqual(json.loads(fixture.manifest.read_text())[OUTPUT_NAME], fixture.digests())
+        with patch.dict(os.environ, {"ANKISCAPE_GAME_MAIN": str(self.root / "absent")}):
+            self.assert_success(fixture.invoke("--check"))
 
     def test_existing_full_command_refuses_changed_source_before_publication(self):
         fixture = self.fixture()

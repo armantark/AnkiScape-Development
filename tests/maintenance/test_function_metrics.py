@@ -186,8 +186,10 @@ class FunctionMetricsTests(unittest.TestCase):
         self.source.write_text(
             "class Example:\n    def choose(self, value):\n        if value:\n            return value + 1\n        return 0\n", encoding="utf-8",
         )
-        result = self._run("choose")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(json.loads(self.output.read_text(encoding="utf-8"))["functions"]["choose"], {
-            "ccn": 2, "cognitive": 1, "halstead_difficulty": 0.5, "violations": {},
-        })
+        for name in ("choose", "Example.choose"):
+            with self.subTest(name=name):
+                result = self._run(name)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(json.loads(self.output.read_text(encoding="utf-8"))["functions"][name], {
+                    "ccn": 2, "cognitive": 1, "halstead_difficulty": 0.5, "violations": {},
+                })

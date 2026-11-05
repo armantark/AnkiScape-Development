@@ -109,6 +109,7 @@ def _dark_palette():
     for role, color in (
         (QPalette.ColorRole.Window, QColor(40, 40, 40)),
         (QPalette.ColorRole.Base, QColor(24, 24, 24)),
+        (QPalette.ColorRole.AlternateBase, QColor(40, 40, 40)),
         (QPalette.ColorRole.Button, QColor(48, 48, 48)),
         (QPalette.ColorRole.Text, QColor(238, 238, 238)),
         (QPalette.ColorRole.WindowText, QColor(238, 238, 238)),
@@ -146,6 +147,13 @@ class PaceDialogFitTests(PaceQtCase):
         self.addCleanup(QApplication.setStyle, QApplication.style().objectName())
         self.addCleanup(QApplication.setPalette, QApplication.palette())
         QApplication.setStyle("Fusion")
+
+    def test_dark_capture_palette_keeps_both_row_backgrounds_dark(self):
+        palette = _dark_palette()
+        for group in (QPalette.ColorGroup.Active, QPalette.ColorGroup.Inactive):
+            with self.subTest(group=group):
+                self.assertLess(palette.color(group, QPalette.ColorRole.Base).lightness(), 64)
+                self.assertLess(palette.color(group, QPalette.ColorRole.AlternateBase).lightness(), 64)
 
     def test_every_text_and_control_has_room_with_or_without_the_hint_and_the_reasons(self):
         from ankiscape.logic.pace.onboarding import pace_onboarding_plan_pure
