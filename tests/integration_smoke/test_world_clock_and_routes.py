@@ -101,11 +101,12 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         addon._state.player_data = {"combat_encounter": {}}
         surfaces = []
         addon.update_review_bank_run_button = (
-            lambda data, handler, callback, target_id=None: surfaces.append(
+            lambda data, handler, callback, target_id=None, *, ammo_pickup_action=None: surfaces.append(
                 {
                     "handler": handler,
                     "target_id": target_id,
                     "callback": callback,
+                    "ammo_pickup_action": ammo_pickup_action,
                     "bank_run": copy.deepcopy(data.get("combat_bank_run")),
                 }
             )
@@ -117,6 +118,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertTrue(committed)
         self.assertEqual(surfaces[0]["handler"], "combat")
         self.assertEqual(surfaces[0]["target_id"], "chicken")
+        self.assertIs(surfaces[0]["ammo_pickup_action"], addon.on_pickup_review_ammo)
         self.assertEqual(
             addon._state.player_data["combat_bank_run"],
             {"ticks_remaining": 100, "target_id": "chicken"},

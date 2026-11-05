@@ -109,25 +109,28 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(_words(dialog.findChild(QLabel, "actionQueueEmptyLine")), "Queue: empty")
 
         count.setValue(100)
+        self.assertEqual(count.value(), 37)
+        count.setValue(12)
         self._visible(dialog, QPushButton, "queueAddButton").click()
         QApplication.processEvents()
 
-        self.assertEqual(self.commands, [("add", {"action": _SMELT_IRON, "count": 100})])
+        self.assertEqual(self.commands, [("add", {"action": _SMELT_IRON, "count": 12})])
         self.assertTrue(panel.isVisible())
-        self.assertEqual(self._rows(dialog), ["Smithing: Iron bar · 0 / 100 Iron bar"])
+        self.assertEqual(self._rows(dialog), ["Smithing: Iron bar · 0 / 12 Iron bar"])
         # Smithing started, so the panel was rebuilt; the new box keeps the count.
-        self.assertEqual(self._visible(dialog, QSpinBox, "queueCountBox").value(), 100)
+        self.assertEqual(self._visible(dialog, QSpinBox, "queueCountBox").value(), 12)
 
         # Another target re-reads the Bank, and the queued bars count as its input.
         pd["current_smith"] = "forge_iron_platebody"
         update_review_hud(pd, "Smithing")
         count = self._visible(dialog, QSpinBox, "queueCountBox")
-        # Five bars make a platebody, so the 100 queued bars offer 20.
-        self.assertEqual((count.value(), count.suffix()), (20, " Iron platebody"))
-        self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron bar: 0 in Bank, 100 from entry 1")
+        # Five bars make a platebody, so the 12 queued bars offer two.
+        self.assertEqual((count.value(), count.suffix()), (2, " Iron platebody"))
+        self.assertEqual(_words(self._visible(dialog, QLabel, "queueMaterials")), "Iron bar: 0 in Bank, 12 from entry 1")
 
     def test_the_fifth_entry_fills_the_queue_and_clear_empties_it(self):
-        _pd, dialog = self._smithing_menu(**{"Iron ore": 3})
+        _pd, dialog = self._smithing_menu(**{"Iron ore": 15})
+        self._visible(dialog, QSpinBox, "queueCountBox").setValue(3)
         for _ in range(5):
             self._visible(dialog, QPushButton, "queueAddButton").click()
             QApplication.processEvents()
@@ -197,6 +200,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
 
     def test_an_add_confirms_on_its_button_and_marks_its_new_line_for_a_moment(self):
         _pd, dialog = self._smithing_menu(**{"Iron ore": 37})
+        self._visible(dialog, QSpinBox, "queueCountBox").setValue(10)
         # The first add starts Smithing and rebuilds the panel; the new button still confirms it.
         for entries in (1, 2):
             self._visible(dialog, QPushButton, "queueAddButton").click()

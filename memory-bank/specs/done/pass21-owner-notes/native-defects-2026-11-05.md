@@ -85,3 +85,59 @@ OK
 
 New behavior coverage proves the food/full-pack diagnosis, the ammo-only
 counterfactual, and complete title geometry across the requested variants.
+
+## Promotion-gate follow-up
+
+The supplied `gate-fbd17ce8e.log` failures reproduce in a focused run:
+`Ran 27 tests in 19.825s`, `FAILED (failures=5, errors=1)`. All are test
+maintenance under the settled contract; no further product change was needed.
+
+- The integration HUD stub omitted `ammo_pickup_action`. It now accepts and
+  records that callback, and verifies it is the real pickup action.
+- `test_an_add_confirms_on_its_button_and_marks_its_new_line_for_a_moment`
+  spent all 37 ore on its first entry. It now queues two funded ten-bar entries
+  so it can still verify the second confirmation and highlight.
+- `test_the_count_box_starts_at_what_the_bank_allows_and_keeps_a_typed_count`
+  expected 100 bars from 37 ore. It now proves the cap at 37, retains a valid
+  typed count of 12, and projects those 12 bars into two platebodies.
+- `test_the_fifth_entry_fills_the_queue_and_clear_empties_it` now supplies
+  15 ore for five three-bar entries. The five-entry cap and Clear assertions
+  remain; repeated entries cannot reuse the same three ore.
+- `test_clicks_move_rows_and_the_top_click_changes_what_the_next_card_runs`
+  and `test_a_move_flashes_the_row_at_its_new_place_and_never_says_added`
+  moved a platebody ahead of its only bar producer. Each now banks five bars,
+  preserving the move and highlight scenarios without an unfunded entry. The
+  first test verifies ten bars after smelting five more.
+
+The repaired focused selection reports `Ran 27 tests in 20.418s`, `OK`.
+An additional thirteen-test queue/Bork/diary selection passes and supports the
+papercut closures. The first attempt to select the Bork regression used its
+retired name and was refused before execution; the current test ID was listed
+before the successful selection.
+
+`tools/memory_bank/move_papercuts.py` moved thirteen repaired entries verbatim
+to `memory-bank/papercuts-fixed-2026-11-05.md`, with repair revisions and checks
+beside each group. Its `check 309289ed7c21651a55ca8e8684d78fa8e0ab4f4b`
+reports no lost line and no entry both open and fixed. Two new lookup incidents
+remain open. The open file has 799 lines; no entry was deleted.
+
+Required expanded command:
+
+```sh
+python3 run_tests.py tests.integration_smoke.test_world_clock_and_routes tests.main_menu
+```
+
+Output from `/tmp/pass21-added-required-tests.log`:
+
+```text
+Ran 487 tests in 255.519s
+
+OK
+```
+
+`python3 tools/audit_docs.py` reports:
+
+```text
+Audited 1153 Markdown and 2 HTML files.
+Documentation audit passed.
+```

@@ -22,13 +22,13 @@ _PICKUP = {"kind": "utility", "utility_id": "pick_onions"}
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
-    def _played(self, name, *entries):
+    def _played(self, name, *entries, **save):
         """A real add-on on a fake Anki, whose queue command the real menu widgets call."""
         real_qt = {module: sys.modules.get(module) for module in _REAL_QT_MODULES}
         self.profile = QueueProfile()
         self.profile.setUp()
         self.addCleanup(self.profile.tearDown)
-        addon = self.profile._queue_addon(name, *entries)
+        addon = self.profile._queue_addon(name, *entries, **save)
         sys.modules.update({module: loaded for module, loaded in real_qt.items() if loaded is not None})
         return addon
 
@@ -65,7 +65,7 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
         QApplication.processEvents()
 
     def test_clicks_move_rows_and_the_top_click_changes_what_the_next_card_runs(self):
-        addon = self._played("ankiscape_move_widget", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1))
+        addon = self._played("ankiscape_move_widget", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1), inventory={"Iron bar": 5})
         with patch.object(addon.random, "random", lambda: 0.5):
             self.profile._answer(addon)
         dialog = self._menu(addon)
@@ -89,7 +89,7 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
         addon._state.player_data["inventory"]["Iron ore"] = 5
         with patch.object(addon.random, "random", lambda: 0.5):
             self.profile._answer(addon)
-        self.assertEqual(addon._state.player_data["inventory"]["Iron bar"], 5)
+        self.assertEqual(addon._state.player_data["inventory"]["Iron bar"], 10)
         dialog.close()
 
     def test_a_move_that_would_end_a_running_session_asks_first_and_no_keeps_the_order(self):
@@ -132,7 +132,7 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
         return lines._band.text() if running else None
 
     def test_a_move_flashes_the_row_at_its_new_place_and_never_says_added(self):
-        addon = self._played("ankiscape_move_flash", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1))
+        addon = self._played("ankiscape_move_flash", (_MINE_IRON, 30), (_SMELT_IRON, 5), (_SMITH_PLATEBODY, 1), inventory={"Iron bar": 5})
         dialog = self._menu(addon)
         platebody = "Smithing: Iron platebody · 0 / 1 Iron platebody"
         self.assertIsNone(self._flashed(dialog))

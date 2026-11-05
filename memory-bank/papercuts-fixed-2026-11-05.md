@@ -81,3 +81,65 @@ Disposition: fixed.
 Evidence: The first source-root commit was refused for growing tools/generate_npc_shop_data.py from 1257 to 1261 lines. Resolution moved into tools/npc_shop_generation/source_inputs.py::default_2011_items. wc -l tools/generate_npc_shop_data.py now reports 1257; the normal unmodified commit hook accepted commit 906d2872d. The revised python3 run_tests.py tests.shops.test_source_inputs check passed 33 tests, OK. No hook, guard or limit changed.
 
 - 2026-11-05T08:54:55-08:00 — Papercut cleanup source-root commit refused: slop-gate reported code files above 1000 lines were grown: tools/generate_npc_shop_data.py: 1261 lines (was 1257). Move environment resolution into the existing tools/npc_shop_generation/source_inputs.py boundary; keep the gate and limits unchanged.
+
+## Pass 21 initial fixture and module-boundary repairs
+
+Disposition: fixed.
+
+Evidence: e3e904a54f5be974ad78993898dd7e6afc11fc09 corrects the Iron-arrow fixture to ranged_level=15, derives diary dormancy through conditions, moves startup/loadout handling into logic_pure_combat_loadout.py and keeps shared queue supply below its callers. The present ammo selection passed 77 tests; the live-row/waking-row diary regression passed in the 13-test closure selection. The current imports use the repaired module boundaries and successful commits retain the hook.
+
+- 2026-11-05 08:53:19 PST — Pass 21 follow-up fixtures assumed level 1 Iron arrows and a writable DiaryTask.dormant field; catalog requires ranged 15 and dormant derives from empty conditions ("TypeError: DiaryTask.__init__() got an unexpected keyword argument 'dormant'").
+- 2026-11-05 09:13:48 PST — Pass 21 follow-up commit refused new complexity, oversized-file growth, and an action_queue/menu_action_queue import cycle; it reported "core/action_queue.py: _queue_edit_values 21 (new)" and "logic/achievement_diary_logic.py: tier_claim_state_pure 20 (was 18)". Moved shared supply logic below both callers and extracted ammunition row rendering and combat start/bank-window preparation.
+- 2026-11-05 09:23:31 PST — The next Pass 21 follow-up commit refused "ui/ui.py: fan-out 176 (was 175)", "ui: 43 code files (was 42)" and "logic_pure/logic_pure_combat_engine.py: unused import 'combat_start_ammo_values_pure' (90% confidence)"; kept slots in the existing Equipment panel module and made combat dispatch use the shared startup helper directly.
+
+## Ammo pickup row, device identity and hook repairs
+
+Disposition: fixed.
+
+Evidence: f8a2ab84521212838055c70b74b7b333a954eb2a places pickup beside the title in ui/review_hud_buttons.py, retains the device-flow player dictionary with update(picked), and moves lifecycle/rendering into the existing loadout/button modules and tools/maintenance. 309289ed7c21651a55ca8e8684d78fa8e0ab4f4b protects full title height. The 77-test ammo/HUD/strip selection and twelve shown offscreen geometry cases pass; both successful commits ran the hook.
+
+- 2026-11-05: Offscreen ammo HUD check caught `Pick up ammo (840)` at 79px with 119px of text in the existing bottom action row; the added button belongs beside the title, with its own size hint, to preserve the chip and Bank run widths.
+- 2026-11-05: The device-flow test cleared a no-op pickup result that was the same object as its input; combat then stopped firing and the unbounded test loop stalled. Stopped recorded PID `48099`; kept fixture identity with `update` and bounded the card loop.
+- 2026-11-05: Ammo return commit hook refused oversized-file growth in `__init__.py`, `logic_pure/logic_pure_combat_engine.py`, `logic_pure/logic_pure_combat_model.py`, `tests/test_review_strip.py` and `ui/ui.py`; import fan-out `121 (was 120)` and `27 (was 26)`; `tools: 149 code files (was 148)`; and new `E303`/`E306` spacing. Moved lifecycle and HUD glue into existing modules, the supply summary into the loadout module, and the renderer into `tools/maintenance/`.
+
+## Registered IDs and activity-command payloads
+
+Disposition: fixed.
+
+Evidence: 15d4321931f17090ab6cd715effcb1835eb42bf0 corrects the registered craft_air_runes/craft_nature_runes/cook_shrimps IDs, validates queue recipe specs and passes the Pest Control command payload mapping. Current tests/action_queue/test_queue_followup.py and tests/pace/test_ground_ammunition.py contain these repairs. The queue closure selection passes 13 tests; the ammo selection passes 77 tests.
+
+- 2026-11-05T18:27:57+00:00 — Initial follow-up regressions used `air_rune`/`nature_rune` instead of `craft_air_runes`/`craft_nature_runes`, and passed Pest Control policy as keywords instead of its payload argument (`TypeError: enter_pest_control_pure() got an unexpected keyword argument 'automation_mode'`). Corrected the synthetic fixtures from the registered data and signature.
+- 2026-11-05T18:27:57+00:00 — The mixed-fish regression used `cook_shrimp`; the registry key is `cook_shrimps`, so its supply limit was `None` instead of exercising the recipe. Corrected the key and added registry validation to the queue fixture before its assertions.
+
+## Bork follows the live diary-tier claim rule
+
+Disposition: fixed.
+
+Evidence: b12a756fb fixes Bork elite reward eligibility for the live-row diary contract. The renamed current regression tests.test_bork.BorkRewardTests.test_varrock_elite_live_rows_give_the_elite_payout_with_dormant_rows_open passes in the 13-test closure selection on this branch. The historical twelve-task expectation is retired.
+
+- 2026-11-05T18:27:57+00:00 — The 697-test activity combat selection failed `tests.test_bork.BorkRewardTests.test_known_varrock_elite_rows_do_not_bypass_the_twelve_task_gate` at `tests/test_bork.py:420`, `AssertionError: True is not false`, before its combat call. Bork diary-gate code is untouched by the three review fixes.
+
+## Batch projection complexity repair
+
+Disposition: fixed.
+
+Evidence: 15d4321931f17090ab6cd715effcb1835eb42bf0 extracts shared batch outputs. Re-measuring _inputs_and_yield with tools/maintenance/function_metrics.py gives cyclomatic 13 and cognitive 14, no violations (/tmp/pass21-yield-metrics.json). Queue projection regressions pass in the 13-test closure selection.
+
+- 2026-11-05T18:31:36+00:00 — The follow-up commit hook refused `_inputs_and_yield`: cyclomatic `18 (was 13)` and cognitive `16 (was 12)`, both above `15`. Moved complete batch output quantities and alternative/simultaneous output rules into one shared batch projection used by yield calculation and stock projection.
+
+## Reservation fixture excludes unrelated Strange Rock rolls
+
+Disposition: fixed.
+
+Evidence: 15d4321931f17090ab6cd715effcb1835eb42bf0 pins test_removing_a_producer_keeps_only_the_count_still_funded to random 0.5. The current test retains that pin and passes in the 13-test closure selection. This closes the nondeterministic fixture only; the separate Strange Rock planning issue in another open entry remains open.
+
+- 2026-11-05T18:37:50+00:00 — The post-hook 176-test selection observed the same unseeded Fletching `29 != 30` failure (`Ran 176 tests in 88.693s`, `FAILED (failures=1)`). RNG `0.99` passed the isolated case; RNG `0.0` failed `28 != 30` and exposed both Strange Rock replacements in its Event log. The reservation-only fixture now uses RNG `0.5`; gameplay is unchanged.
+
+## Native-title probe imports and matrix complexity
+
+Disposition: fixed.
+
+Evidence: 309289ed7c21651a55ca8e8684d78fa8e0ab4f4b imports pkg_alias before ankiscape in the repeatable probe, checks button containment in the title row without moving the button and traverses the independent matrix with itertools.product. The 77-test selection passes; the probe captures twelve cases. Re-measured cognitive scores are 10 for the HUD regression and 11 for capture_hud, with no violations (/tmp/pass21-hud-test-metrics.json and /tmp/pass21-capture-metrics.json).
+
+- 2026-11-05T11:11:22: Pass 21 probes: package imports require import pkg_alias before ankiscape; one inline probe omitted it and raised ModuleNotFoundError: No module named 'ankiscape'. Native-title test also overconstrained button/title centres (AssertionError: 2 not less than 2); replaced with row containment to preserve the original button position.
+- 2026-11-05T11:14:45: Pass 21 commit hook blocked verification matrix helpers: slop-gate: cognitive complexity above 15 was introduced; AmmunitionHudTest::test_combat_title_fits_with_and_without_pickup_at_laptop_size 19 (new), capture_hud 20 (new). Flattened independent matrix axes with itertools.product.
