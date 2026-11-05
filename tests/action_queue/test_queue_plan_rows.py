@@ -98,6 +98,8 @@ class PlanRowClickTest(TargetClickFlow):
 
         self.assertEqual((self._count(dialog).value(), self._count(dialog).suffix()), (1, " Bowl (unfired)"))
         self.assertEqual((self._header(dialog).text(), self._header(dialog).isEnabled()), ("Train this skill", False))
+        # The off button keeps none of the green it wore while it read "Currently training".
+        self.assertNotIn("76, 175, 80", self._header(dialog).styleSheet())
         self._add(dialog)
         self.assertEqual(save["action_queue"]["entries"][1], {"action": _BOWL, "count": 1})
         self.assertEqual(save["current_craft"], "cut_sapphire")

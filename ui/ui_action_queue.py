@@ -340,7 +340,8 @@ if HAS_QT:
             self.setStyleSheet(
                 _TRAINING_BUTTON_STYLE
                 if training
-                else _START_BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}"
+                # The application's palette, because the button's own still holds the training style's green.
+                else _START_BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css()}; }}"
             )
 
     def _queue_box_folded() -> bool:

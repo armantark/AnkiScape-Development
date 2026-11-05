@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** claimed by claude-opus-5-5 on goal/pass21-02
+**Status:** done
 
-- [ ] Real widget flow: queue Smithing Bronze arrowtips, click Fletching Bronze arrows with zero arrowtips; the row takes one click, the count shows the promised output, the add succeeds, and the queue plays both to the real products.
-- [ ] Unfired bowl with no Soft clay takes one click, and Add follows it.
-- [ ] The start control stays off for a row whose real inputs are missing, and it refuses without changing the saved target.
-- [ ] A level, quest, tool or equipment lock still locks the row, in a census over every skill's target rows.
-- [ ] Offscreen captures of a plan-only row against an enabled row, dark and light; legible in both.
+- [x] Real widget flow: queue Smithing Bronze arrowtips, click Fletching Bronze arrows with zero arrowtips; the row takes one click, the count shows the promised output, the add succeeds, and the queue plays both to the real products.
+- [x] Unfired bowl with no Soft clay takes one click, and Add follows it.
+- [x] The start control stays off for a row whose real inputs are missing, and it refuses without changing the saved target.
+- [x] A level, quest, tool or equipment lock still locks the row, in a census over every skill's target rows.
+- [x] Offscreen captures of a plan-only row against an enabled row, dark and light; legible in both.
