@@ -11,8 +11,9 @@ membership, and encoded ordinary skill/quest requirements. Regional families
 are curated into four twelve-row AnkiScape tiers while keeping stable source
 identity and recording any cross-tier placement. If a period family contains
 fewer than 48 deeds, deeds authored in the curation ledger fill the remaining
-one-to-three slots per tier. Ordinary requirements are access gates, never deed triggers. An un-curated deed remains
-visible as dormant until its honest runtime predicate ships.
+one-to-three slots per tier. Ordinary requirements are access gates, never deed
+triggers. An un-curated deed remains visible as dormant until its honest runtime
+predicate ships.
 """
 
 from __future__ import annotations

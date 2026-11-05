@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- [ ] Main menu > Achievements, light and dark, at the default size and 560 points tall: set Family to Fremennik and Tier to Easy. "Tuna In, Drop Out" and "Beard Snatcher" show where the two "Reach Level 35" rows were, with Level 35 Fishing and Level 45 Thieving as their gates and no "Progression anchor" label. Raising a level alone completes neither; catching a tuna completes the first. A row your save already completed keeps its tick and its tier count.
+
 - [ ] Main menu > Skills > Artisan > Herblore, light and dark, at 10x or 1x, with a Herblore cleaning entry running first in the queue: click another cleaning row. Training stays on the green ticked row, the clicked row turns blue, the count box shows that herb's Bank count plus what earlier entries make (hover it: "Starts at your Bank plus earlier entries."), and the header reads "Train this skill". Add to queue adds your pick with no typing; "Train this skill" starts it, and the queue returns when its herbs run out. Skills > Utilities does the same with "Start utility". (Pass 20 ticket 03, after promotion)
 
 - [ ] Main menu > Grand Exchange, light and dark, with Offer safety collapsed: collect the middle of three offers; the outside offers stay in slots 1 and 3, and a new offer fills slot 2. Reopen the menu and repeat after reload; hover Sell all to see its existing quantity hint. No game-speed setting changes this behavior. (Pass 20 ticket 13, after promotion)
