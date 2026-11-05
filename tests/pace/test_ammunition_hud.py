@@ -66,7 +66,12 @@ class AmmunitionHudTest(unittest.TestCase):
                 self.assertEqual(hud.height(), self.ui.REVIEW_STRIP_HEIGHT)
                 self.assertEqual(button.isVisible(), weapon == "Shortbow")
                 if button.isVisible():
-                    self.assertEqual(button.text(), f"Pick up ammo ({count})")
+                    self.assertEqual(button.text(), str(count))
+                    self.assertEqual(button.toolTip(), "Pick up ammo")
+                    self.assertFalse(button.icon().isNull())
+                    self.assertEqual(button.isEnabled(), count > 0)
+                    self.assertFalse(hud.chips_lbl.geometry().intersects(button.geometry()))
+                    self.assertLess(button.width(), self.ui._BANK_RUN_BUTTON.width())
                     self.assertFalse(title.geometry().intersects(button.geometry()))
                     self.assertLess(title.geometry().bottom(), button.y())
                     self.assertTrue(hud.rect().contains(button.geometry()))
@@ -100,10 +105,28 @@ class AmmunitionHudTest(unittest.TestCase):
         button = self.ui._REVIEW_HUD.ammo_pickup_button
         self.assertFalse(button.isHidden())
         self.assertTrue(button.isEnabled())
-        self.assertEqual(button.text(), "Pick up ammo (42)")
+        self.assertEqual(button.text(), "42")
         button.click()
         self.assertEqual(clicks, [True])
         self.assertEqual(state["equipment_ammunition_count"], 49)
-        self.assertEqual(button.text(), "Pick up ammo (0)")
+        self.assertEqual(button.text(), "0")
         self.assertFalse(button.isEnabled())
         self.assertFalse(button.isHidden())
+
+    def test_icon_uses_pile_then_worn_ammo_and_existing_arrow_fallback(self):
+        from unittest.mock import patch
+
+        lookup = self.ui._pixel_item_icon
+        state = self.strip._state()
+        state["equipment"] = {"weapon": "Shortbow", "ammunition": "Iron arrows"}
+        self.ui.update_review_hud(state, "Combat")
+        button = self.ui._REVIEW_HUD.ammo_pickup_button
+        for pile, expected in (([{"name": "Steel arrows", "count": 42}], "Steel arrows"),
+                               ([], "Iron arrows"),
+                               ([{"name": "Unknown ammo", "count": 42}], "Bronze arrows")):
+            state["ground_ammunition"] = pile
+            with self.subTest(pile=pile), patch.object(self.ui, "_pixel_item_icon", wraps=lookup) as icons:
+                self.ui.update_review_bank_run_button(state, "combat", ammo_pickup_action=lambda: None)
+                self.assertFalse(button.icon().isNull())
+                self.assertEqual(icons.call_args.args, (expected, 16))
+                self.assertEqual(button.icon().cacheKey(), lookup(expected, 16).cacheKey())

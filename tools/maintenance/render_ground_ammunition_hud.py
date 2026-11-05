@@ -13,7 +13,8 @@ from pathlib import Path
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from aqt.qt import QApplication, QFont, QStyle, QStyleOptionButton
+from aqt.qt import QApplication, QFont, QPoint, QStyle, QStyleOptionButton, Qt
+from PyQt6.QtTest import QTest
 from tests.test_review_strip import ReviewStripTest
 from tools.render_skill_panel_ui import _dark_palette, _light_palette
 
@@ -29,7 +30,13 @@ def capture_hud(case, output: Path, theme: str, width: int, height: int, count: 
     button.initStyleOption(option)
     contents = button.style().subElementRect(QStyle.SubElement.SE_PushButtonContents, option, button)
     text_width = button.fontMetrics().horizontalAdvance(button.text())
-    path = output / f"hud-fix-{theme}-{width}x{height}-ammo-{count}.png"
+    content_width = text_width + button.iconSize().width() + 4
+    assert button.toolTip() == "Pick up ammo"
+    assert not button.icon().isNull()
+    assert button.text() == str(count)
+    assert button.isEnabled() == (count > 0)
+    assert contents.width() >= content_width
+    path = output / f"hud-icon-{theme}-{width}x{height}-ammo-{count}.png"
     window_path = path.with_stem(path.stem + "-window")
     for widget, image_path in ((hud, path), (case.parent, window_path)):
         if not widget.grab().save(str(image_path)):
@@ -41,6 +48,8 @@ def capture_hud(case, output: Path, theme: str, width: int, height: int, count: 
     assert hud.combat_resources.height() >= hud.combat_resources.sizeHint().height()
     assert hud.chips_lbl.width() >= hud.chips_lbl.sizeHint().width()
     assert not title.geometry().intersects(button.geometry())
+    assert not hud.chips_lbl.geometry().intersects(button.geometry())
+    assert button.width() < case.ui._BANK_RUN_BUTTON.width()
     assert hud.rect().contains(button.geometry()), button.geometry()
     assert hud.rect().contains(case.ui._BANK_RUN_BUTTON.geometry())
     assert not button.geometry().intersects(case.ui._BANK_RUN_BUTTON.geometry())
@@ -49,12 +58,40 @@ def capture_hud(case, output: Path, theme: str, width: int, height: int, count: 
              "title": title.text(), "title_hint": [title.sizeHint().width(), title.sizeHint().height()],
              "title_rect": list(title.geometry().getRect()),
              "pickup_rect": list(button.geometry().getRect()),
+             "kills_rect": list(hud.chips_lbl.geometry().getRect()),
+             "tooltip": button.toolTip(), "icon_null": button.icon().isNull(),
+             "icon_source": case.ui._item_icon_path("Bronze arrows"),
+             "enabled": button.isEnabled(),
              "bank_rect": list(case.ui._BANK_RUN_BUTTON.geometry().getRect()),
              "title_pickup_intersect": title.geometry().intersects(button.geometry()),
              "button_width": button.width(), "text_width": text_width,
-             "contents_width": contents.width(), "cut_text": text_width > contents.width(),
+             "contents_width": contents.width(), "cut_text": content_width > contents.width(),
              "hud_width": hud.width(), "image": str(path), "window_image": str(window_path)}
     return probe
+
+
+def capture_button_states(case, output: Path, theme: str, width: int, height: int) -> list[str]:
+    button = case.ui._REVIEW_HUD.ammo_pickup_button
+    normal = button.grab().toImage()
+    QTest.mouseMove(button, button.rect().center())
+    QApplication.processEvents()
+    assert button.underMouse()
+    hover = button.grab().toImage()
+    assert hover != normal, "Hover state is invisible"
+    QTest.mousePress(button, Qt.MouseButton.LeftButton)
+    QApplication.processEvents()
+    assert button.isDown()
+    pressed = button.grab().toImage()
+    assert pressed != hover, "Pressed state is invisible"
+    paths = []
+    for state, image in (("hover", hover), ("pressed", pressed)):
+        path = output / f"hud-icon-{theme}-{width}x{height}-ammo-42-{state}.png"
+        assert image.save(str(path)), path
+        paths.append(str(path))
+    QTest.mouseRelease(button, Qt.MouseButton.LeftButton)
+    QTest.mouseMove(case.parent, QPoint(0, 0))
+    QApplication.processEvents()
+    return paths
 
 
 def render(output: Path) -> None:
@@ -80,10 +117,13 @@ def render(output: Path) -> None:
                 case.ui.update_review_hud(state, "Combat")
                 case.ui.update_review_status_badge(state)
                 case.ui.update_review_bank_run_button(state, "combat", lambda: None, ammo_pickup_action=lambda: None)
-                probes.append(capture_hud(case, output, theme, width, height, count))
+                probe = capture_hud(case, output, theme, width, height, count)
+                if count:
+                    probe["interaction_images"] = capture_button_states(case, output, theme, width, height)
+                probes.append(probe)
         finally:
             case.tearDown()
-    (output / "hud-fix-geometry.json").write_text(json.dumps(probes, indent=2) + "\n")
+    (output / "hud-icon-geometry.json").write_text(json.dumps(probes, indent=2) + "\n")
     print(json.dumps(probes, indent=2))
     if any(row["cut_text"] for row in probes):
         raise RuntimeError("Pickup button text is cut")

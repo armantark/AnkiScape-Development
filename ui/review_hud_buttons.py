@@ -5,9 +5,10 @@ from __future__ import annotations
 from ..logic_pure.combat.ammunition import ammo_pickup_button_view_pure
 from ..core.last_action import resume_button_view_pure
 from ..logic.review_strip_logic import REVIEW_BANK_RUN_LABEL, REVIEW_BANK_RUN_TOOLTIP
+from .ui_palette import dim_text_css
 
 try:
-    from aqt.qt import QHBoxLayout, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout  # type: ignore
+    from aqt.qt import QHBoxLayout, QLabel, QPushButton, QSize, QSizePolicy, Qt, QVBoxLayout  # type: ignore
 
     HAS_QT = True
 except Exception:
@@ -44,11 +45,29 @@ if HAS_QT:
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setObjectName("reviewAmmoPickupButton")
-            self.setStyleSheet("QPushButton { color: palette(text); background: palette(base); font-size: 10px; padding: 1px 6px; }")
+            self.setIconSize(QSize(16, 16))
+            self.setAccessibleName("Pick up ammo")
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
             self.hide()
 
-        def set_player_data(self, data, action_callback=None):
-            self.set_data(ammo_pickup_button_view_pure(data), action_callback)
+        def set_player_data(self, data, action_callback=None, *, item_icon):
+            view = ammo_pickup_button_view_pure(data)
+            self.set_data(view, action_callback)
+            self.setIcon(item_icon(view["icon_item"], 16) or item_icon("Bronze arrows", 16))
+            self.setStyleSheet(f"""
+                QPushButton {{
+                    color: palette(text); background: palette(base);
+                    border: 1px solid palette(mid); border-radius: 3px;
+                    font-size: 10px; padding: 1px 6px;
+                }}
+                QPushButton:hover:enabled {{
+                    background: palette(alternate-base); border-color: palette(highlight);
+                }}
+                QPushButton:pressed {{
+                    background: palette(alternate-base); border: 1px inset palette(highlight);
+                }}
+                QPushButton:disabled {{ color: {dim_text_css(self)}; }}
+            """)
             self.setFixedSize(self.sizeHint())
 
     class ReviewResumeButton(QPushButton):
@@ -131,7 +150,7 @@ else:
             pass
 
     class ReviewAmmoPickupButton(ReviewBankRunButton):
-        def set_player_data(self, data, action_callback=None):
+        def set_player_data(self, data, action_callback=None, *, item_icon):
             pass
 
 

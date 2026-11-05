@@ -3991,7 +3991,7 @@ def update_review_bank_run_button(
             ),
             action_callback,
         )
-    _REVIEW_HUD.ammo_pickup_button.set_player_data(player_data, ammo_pickup_action)
+    _REVIEW_HUD.ammo_pickup_button.set_player_data(player_data, ammo_pickup_action, item_icon=_pixel_item_icon)
     _sync_review_strip_layout()
 
 

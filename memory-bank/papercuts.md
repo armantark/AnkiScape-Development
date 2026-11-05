@@ -797,3 +797,7 @@
 
 - 2026-11-05T11:19:21 — Pass 21 gate follow-up source inspection: git show --stat 33b084f used an unverified revision and exited 128 (stderr was redirected). Source comparisons use revisions from git log; no source change was based on that failed lookup.
 - 2026-11-05 — Pass 21 gate follow-up closure proof selected the historical Bork test ID from the failure log, but the fix had renamed it; run_tests.py refused No unambiguous unittest ID matched before execution. Re-list current BorkRewardTests IDs before selecting the renamed live-row payout test.
+
+- 2026-11-05T12:00:55-0800 — Ammo HUD icon inspection: guessed ui/icon*, ui/review_strip*.py and ui/review_strip_widgets.py paths did not exist; the combined core-memory read also exceeded its output budget. Use discovered paths and bounded reads.
+
+- 2026-11-05T12:03:59-08:00 — Ammo HUD enlarged inspection: .venv-qt/bin/python could not import PIL (ModuleNotFoundError: No module named 'PIL'); the dependent image view then found no file. Used installed magick to inspect the capture instead.

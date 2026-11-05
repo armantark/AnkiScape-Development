@@ -161,7 +161,10 @@ def ammo_pickup_button_view_pure(data):
     weapon = (data.get("equipment") or {}).get("weapon")
     uses_ammo = bool(COMBAT_RANGED_WEAPON_DATA.get(weapon, {}).get("compatible_ammo"))
     count = ground_ammo_count(data)
-    return {"visible": uses_ammo, "enabled": uses_ammo and count > 0, "text": f"Pick up ammo ({count:,})", "tooltip": ""}
+    worn = (data.get("equipment") or {}).get("ammunition")
+    icon_item = next((row["name"] for row in data.get("ground_ammunition", []) if row["count"] > 0), worn)
+    return {"visible": uses_ammo, "enabled": uses_ammo and count > 0,
+            "text": f"{count:,}", "tooltip": "Pick up ammo", "icon_item": icon_item or "Bronze arrows"}
 
 
 def pickup_ground_ammo_pure(player_data):
