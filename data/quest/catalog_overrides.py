@@ -359,6 +359,36 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
         if quest_row["id"] == "dream_mentor"
         for journal_row in quest_row["journal_stages"]
     ),
+    # Authored paraphrases, not recovered in-game journal transcriptions.
+    # Do No Evil oldid 6587790, 2012-11-19T14:55:38Z:
+    # https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790
+    # Literal-body SHA-256:
+    # d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf
+    # Retained source-to-display mapping, corroboration limits and disputes:
+    # tests/quest_catalog/fixtures/do_no_evil_opening_journal_sources.json
+    "do_no_evil": tuple(
+        QuestStage(
+            stage=journal_row["stage"],
+            journal=(
+                # W31.
+                "Before starting, Senliten must be restored to 100%.",
+                # W32/70.
+                "Speak to Leela in Draynor Village and accompany her to Senliten's tomb at Uzer Mastaba.",
+                # W70.
+                "Speak to Senliten and Leela. Ask the queen how you can help, and listen to her story about the desert monkeys.",
+                # W70/76.
+                "Travel to Sophanem to investigate Apmeken with Jex and the Sphinx. You may visit them in either order.",
+                # W76.
+                "Ask Jex at the wrecked temple about minor gods, then ask him all the questions about Apmeken.",
+                # W74/76.
+                "Have a cat or kitten out when speaking to the Sphinx. Ask her about minor gods, then Apmeken.",
+                # W78.
+                "After speaking to both, return to Senliten to hear her request to return the monkeys to their rightful place in the desert.",
+            ) if journal_row["stage"] == 1 else tuple(journal_row["journal"]),
+        )
+        for quest_row in PRE_EOC_QUEST_CATALOG if quest_row["id"] == "do_no_evil"
+        for journal_row in quest_row["journal_stages"]
+    ),
     # Primary: https://runescape.wiki/w/index.php?title=Desert_Treasure&oldid=6563639
     # Revision 2012-11-16T08:24:12Z; literal-body SHA-256:
     # 927f963a829d508fe8b869f4cadf8a27061ea54fc1754ada6608f7de507cfeca
