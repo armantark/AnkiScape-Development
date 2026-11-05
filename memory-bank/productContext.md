@@ -30,7 +30,7 @@ Canonical scope: `memory-bank/future-work-kanban.md`.
 
 - Melvor Idle is conceptual overlap only, never a content, balance, or UI source.
 - No persistent world map or transport network.
-- No modern RS3/OSRS substitution for missing pre-EOC proof.
+- No modern RS3/OSRS substitution for missing pre-EOC proof. Art alone has an exception: when no genuine picture exists, OSRS or RS3 art fills the gap ([ruling 22](grill-decisions-2026-11-04.md)).
 - Game speed sets the foreground card budget. The world-day clock controls background and economy cadence; neither uses elapsed wall time.
 - Daemonheim resources stay inside the Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list; only explicit persistent rewards leave a floor.
 - Any public release is a separately named, independently maintained derivative
