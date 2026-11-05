@@ -20,6 +20,7 @@ from .action_products import (
     _action_locks,
     _inputs_and_yield,
     _projected_stock,
+    _stock_count,
     _used_items,
     action_supply_limit_pure as _action_supply_limit,
     queue_plan_refusal_pure as _queue_plan_refusal,
@@ -170,7 +171,7 @@ def _bank_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
 
 def _queued_makes(player_data: Mapping[str, Any], items: tuple[str, ...]) -> list[tuple[int, int]]:
     return [(position, count) for position, bank in enumerate(_projected_stock(player_data, action_queue_pure(player_data)))
-            if position and (count := sum(bank.get(item, 0) for item in items))]
+            if position and (count := _stock_count([bank], items))]
 
 
 def action_supply_limit_pure(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> int | None:

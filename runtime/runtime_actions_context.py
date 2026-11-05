@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 from typing import Any, Callable, Mapping, Optional
 
-from ..logic_pure.combat.ammunition import advance_ground_ammo, pickup_ground_ammo_pure
+from ..logic_pure.combat.ammunition import advance_ground_ammo, count_card_shots, pickup_ground_ammo_pure
 from ..core.activity_feedback import fish_flingers_card_feedback
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 from ..logic.pace.short_timers import STEP_TICKS, card_ticks_pure
@@ -213,7 +213,11 @@ def activity_session_cleared(
 
 def _step_with_danger_stop(ctx: RuntimeActionContext, step: Callable[[RuntimeActionContext], Any]) -> Any:
     before = card_danger_state_pure(ctx.player_data)
-    result = step(ctx)
+    with count_card_shots() as shots:
+        result = step(ctx)
+    ctx.card.ammo_fired += shots["fired"]
+    ctx.card.ammo_broken += shots["broken"]
+    ctx.card.ammo_landed += shots["landed"]
     danger = card_danger_stop_pure(before, card_danger_state_pure(ctx.player_data))
     if danger and not ctx.card.stop_reason:
         stop_card(ctx, danger)

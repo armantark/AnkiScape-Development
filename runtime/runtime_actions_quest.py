@@ -75,9 +75,6 @@ def _answer_quest_fight(ctx: RuntimeActionContext, quest_id: str, quest: dict[st
             f"{quest.get('display_name', quest_id)} cannot resolve this battle yet.",
         )
         return None
-    ctx.card.ammo_fired += sum(result.get("ammo_used", {}).values())
-    ctx.card.ammo_broken += result.get("ammo_broken", 0)
-    ctx.card.ammo_landed += result.get("ammo_landed", 0)
     player_data.update(release_quest_equipment_pure(new_data, quest_id, QUEST_DATA))
     _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))

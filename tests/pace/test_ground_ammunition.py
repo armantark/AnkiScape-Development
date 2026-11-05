@@ -13,6 +13,7 @@ from ankiscape.logic_pure.combat.ammunition import (
 from ankiscape.runtime.runtime_actions_combat import handle_combat_answer
 from tests.test_combat_logic import _player
 from tests.test_runtime_actions import _context
+from tests.integration_smoke import fixtures
 
 
 class GroundAmmunitionTests(unittest.TestCase):
@@ -111,3 +112,78 @@ class GroundAmmunitionTests(unittest.TestCase):
         self.assertEqual(picked["inventory"]["Bronze arrows"], pile)
         self.assertEqual(equipped_ammo(picked), {"Iron arrows": 7})
         self.assertEqual(ground_ammo_count(migrate_loaded_data({}, ORE_DATA, ITEM_DEFINITIONS)), 0)
+
+
+class ActivityAmmunitionLogTests(fixtures.ReviewedProfile):
+    def _ranged_addon(self, name, speed=1):
+        addon = self._addon(name)
+        addon.mw.col.set_config("ankiscape_review_action_multiplier", speed)
+        self._new_save(addon, attack_level=40, strength_level=40, defense_level=40,
+                       constitution_level=40, ranged_level=40, combat_lifepoints=400,
+                       equipment={"weapon": "Shortbow", "ammunition": "Bronze arrows"},
+                       equipment_ammunition_count=100, combat_auto_flee=False,
+                       combat_prayers_enabled=False, combat_auto_eat_food=[])
+        return addon
+
+    def test_pest_control_assault_logs_the_two_arrows_fired_by_a_one_speed_card(self):
+        addon = self._ranged_addon("ankiscape_pest_control_ammo_log")
+        from ankiscape.logic.pest_control_logic import enter_pest_control_pure
+        data, ok, info = enter_pest_control_pure(addon._state.player_data, {"automation_mode": "advanced", "duty": "assault"})
+        self.assertTrue(ok, info)
+        addon._state.player_data.update(data)
+        addon._state.current_skill = "Activities"
+        with patch.object(addon.random, "random", return_value=0.75):
+            self._answer(addon)
+        save = addon._state.player_data
+        self.assertEqual(equipped_ammo(save), {"Bronze arrows": 98})
+        self.assertEqual(ground_ammo_count(save), 2)
+        self.assertEqual([row["text"] for row in save["review_event_log"] if row["text"].startswith("Ammo:")],
+                         ["Ammo: 2 fired · 0 broken · 2 landed"])
+        self.assertEqual(self.errors, [])
+
+    def test_activity_bursts_share_one_card_line_for_landed_and_broken_arrows(self):
+        from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
+        from ankiscape.logic.fight_caves_logic import apply_fight_caves_command_pure
+        for activity in ("castle_wars", "fight_caves"):
+            for roll in (0.75, 0.99):
+                with self.subTest(activity=activity, roll=roll):
+                    addon = self._ranged_addon("ankiscape_activity_ammo_" + activity, speed=10)
+                    save = addon._state.player_data
+                    if activity == "castle_wars":
+                        data, ok, info = enter_castle_wars_pure(save, {"automation_mode": "advanced", "duty": "defend"})
+                    else:
+                        data, ok, info = apply_fight_caves_command_pure(save, "enter")
+                    self.assertTrue(ok, info)
+                    save.update(data)
+                    addon._state.current_skill = "Activities"
+                    with patch.object(addon.random, "random", return_value=roll):
+                        self._answer(addon)
+                    fired = 100 - save["equipment_ammunition_count"]
+                    landed = ground_ammo_count(save)
+                    self.assertGreater(fired, 2)
+                    self.assertEqual(landed, fired if roll == 0.75 else 0)
+                    self.assertEqual([row["text"] for row in save["review_event_log"] if row["text"].startswith("Ammo:")],
+                                     [f"Ammo: {fired} fired · {fired - landed} broken · {landed} landed"])
+                    self.assertEqual(self.errors, [])
+
+    def test_quest_combat_logs_shots_once_and_a_later_noncombat_card_logs_none(self):
+        from ankiscape.data.quest.witchs_house import EXPERIMENTS
+        from tests.quests.test_witchs_house import player_at
+        addon = self._ranged_addon("ankiscape_quest_ammo_log", speed=10)
+        save = addon._state.player_data
+        quest = player_at(12)
+        save.update({key: quest[key] for key in ("current_quest", "quests", "quest_action_proofs")})
+        save.update(quest_combat_encounters={"witchs_house": [row[0] for row in EXPERIMENTS[:2]]},
+                    quest_combat_active_encounters={"witchs_house": {EXPERIMENTS[2][0]: 1000}})
+        addon._state.current_skill = "Quests"
+        with patch.object(addon.random, "random", return_value=0.75):
+            self._answer(addon)
+        fired = 100 - save["equipment_ammunition_count"]
+        self.assertGreater(fired, 0)
+        lines = [row["text"] for row in save["review_event_log"] if row["text"].startswith("Ammo:")]
+        self.assertEqual(lines, [f"Ammo: {fired} fired · 0 broken · {fired} landed"])
+        addon._state.current_skill = "Utilities"
+        save["current_utility"] = "bankstanding"
+        self._answer(addon)
+        self.assertEqual([row["text"] for row in save["review_event_log"] if row["text"].startswith("Ammo:")], lines)
+        self.assertEqual(self.errors, [])

@@ -15,9 +15,10 @@ from .skill_registry import get_skill
 from .skill_guide_locks import target_lock_reasons_pure
 from ..data.construction_data import NAIL_DATA
 from ..logic.summoning_logic import summoning_action_requirements_pure
+from ..logic_pure.logic_pure_gathering import eligible_fishing_fish_pure
 from ..logic_pure.logic_pure_runecrafting import _runecrafting_multiplier_info
 from ..logic_pure.logic_pure_production import utility_activity_locked_reasons_pure
-from ..logic_pure.logic_pure_magic import magic_used_items_pure
+from ..logic_pure.logic_pure_magic import effective_magic_rune_cost_pure, magic_used_items_pure
 from ..logic.cadence_coverage import FOREGROUND_ROUTE_TABLES
 
 
@@ -93,20 +94,26 @@ def _item_names(values: Iterable[Any]) -> tuple[str, ...]:
 
 
 _PLANNED_STOCK = 2_147_483_647
+_Stock = list[dict[tuple[str, ...], int]]
 
 
 def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[dict[str, tuple[str, ...]], dict[str, int], int]:
     """What one run uses, as alternatives per input and an amount, and the products it makes."""
     spec = (UTILITY_ACTIVITY_DATA.get(action["utility_id"], {}) if action["kind"] == "utility" else action_target_spec_pure(action))
-    made = int(spec_field_pure(spec, "output_qty") or spec_field_pure(spec, "output_quantity") or 1)
+    made = sum(_batch_products(player_data, action).values()) or 1
     if action.get("skill") == "Summoning":
         needs = summoning_action_requirements_pure(player_data, str(action["target"]))
         return {item: (item,) for item in needs}, needs, made
-    if action.get("skill") == "Runecrafting" and spec_field_pure(spec, "kind") == "standard":
-        level = int(player_data.get("runecrafting_level") or 1)
-        return {"essence": tuple(spec_field_pure(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
+    if essence := spec_field_pure(spec, "essence_items"):
+        return {"essence": tuple(essence)}, {"essence": 1}, made
     needs = dict(spec_field_pure(spec, "requirements") or {})
+    for item, amount in effective_magic_rune_cost_pure(player_data, spec_field_pure(spec, "rune_cost")).items():
+        needs[item] = needs.get(item, 0) + amount
     options = {"Nails": tuple(NAIL_DATA), **dict(spec_field_pure(spec, "material_options") or {})}
+    for field in ("bait_options", "any_requirements", "openable_items"):
+        if choices := spec_field_pure(spec, field):
+            needs.setdefault(choices[0], 1)
+            options[choices[0]] = tuple(choices)
     return {item: tuple(options.get(item) or (item,)) for item in needs}, needs, made
 
 
@@ -115,8 +122,6 @@ def _used_items(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> se
     alternatives, _needs, _made = _inputs_and_yield(player_data, action)
     items = {item for options in alternatives.values() for item in options}
     spec = (UTILITY_ACTIVITY_DATA.get(action["utility_id"], {}) if action["kind"] == "utility" else action_target_spec_pure(action))
-    for field in ("bait_options", "any_requirements", "openable_items"):
-        items.update(spec_field_pure(spec, field) or ())
     if rune := spec_field_pure(spec, "component_rune"):
         items.update(("Pure essence", rune, spec_field_pure(spec, "consumed_talisman")))
     if action.get("skill") == "Magic":
@@ -137,19 +142,51 @@ def _action_locks(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> 
     return ()
 
 
-def _spend_stock(stock: list[dict[str, int]], items: tuple[str, ...], amount: int) -> None:
+def _spend_stock(stock: _Stock, items: tuple[str, ...], amount: int) -> None:
     for bank in stock:
-        for item in items:
-            used = min(amount, bank.get(item, 0))
-            bank[item] = bank.get(item, 0) - used
-            amount -= used
+        for products in bank:
+            if set(products) <= set(items):
+                used = min(amount, bank[products])
+                bank[products] -= used
+                amount -= used
 
 
-def _stock_count(stock: list[dict[str, int]], items: tuple[str, ...]) -> int:
-    return sum(bank.get(item, 0) for bank in stock for item in items)
+def _stock_count(stock: _Stock, items: tuple[str, ...]) -> int:
+    # A random product can fund a recipe only if that recipe accepts every outcome.
+    return sum(count for bank in stock for products, count in bank.items() if set(products) <= set(items))
 
 
-def _project_entry(player_data: Mapping[str, Any], stock: list[dict[str, int]], entry: Mapping[str, Any], done: int) -> dict[str, int]:
+def _planned_products(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[str, ...]:
+    spec = action_target_spec_pure(action)
+    if level := spec_field_pure(spec, "alternate_output_level"):
+        skill = get_skill(action["skill"])
+        item = "alternate_output_item" if int(player_data.get(f"{skill.id}_level") or 1) >= level else "output_item"
+        return _item_names((spec_field_pure(spec, item),))
+    if spec_field_pure(spec, "fish"):
+        fish = eligible_fishing_fish_pure(
+            spec, int(player_data.get("fishing_level") or 1),
+            int(player_data.get("strength_level") or 1), int(player_data.get("agility_level") or 1),
+        )
+        return _item_names(spec_field_pure(row, "output_item") for row in fish)
+    return action_product_items_pure(action)
+
+
+def _batch_products(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> dict[tuple[str, ...], int]:
+    """One paid batch: alternatives share a count, simultaneous products keep their quantities."""
+    products = _planned_products(player_data, action)
+    if not products:
+        return {}
+    spec = (UTILITY_ACTIVITY_DATA.get(action["utility_id"], {}) if action["kind"] == "utility" else action_target_spec_pure(action))
+    outputs = spec_field_pure(spec, "outputs")
+    if isinstance(outputs, Mapping) and not spec_field_pure(spec, "output_item"):
+        return {(item,): amount for item, amount in outputs.items()}
+    made = int(spec_field_pure(spec, "output_qty") or spec_field_pure(spec, "output_quantity") or 1)
+    if spec_field_pure(spec, "essence_items"):
+        made = _runecrafting_multiplier_info(spec, int(player_data.get("runecrafting_level") or 1))[0]
+    return {products: made}
+
+
+def _project_entry(player_data: Mapping[str, Any], stock: _Stock, entry: Mapping[str, Any], done: int) -> dict[tuple[str, ...], int]:
     action = entry["action"]
     unit = _supply_unit(action)
     if entry["count"] is None or unit not in {"items", "uses"}:
@@ -162,13 +199,12 @@ def _project_entry(player_data: Mapping[str, Any], stock: list[dict[str, int]], 
         for item, amount in needs.items():
             _spend_stock(stock, alternatives[item], runs * int(amount))
     # A requested count may end inside a batch; the queue keeps the paid-for batch whole.
-    produced = runs * made
-    return dict.fromkeys(action_product_items_pure(action), produced)
+    return {products: runs * amount for products, amount in _batch_products(player_data, action).items()}
 
 
-def _projected_stock(player_data: Mapping[str, Any], queue: Mapping[str, Any]) -> list[dict[str, int]]:
+def _projected_stock(player_data: Mapping[str, Any], queue: Mapping[str, Any]) -> _Stock:
     """Reserve inputs in queue order; each remaining output retains its entry number."""
-    stock = [dict(player_data.get("inventory") or {})]
+    stock = [{(item,): count for item, count in (player_data.get("inventory") or {}).items()}]
     for position, entry in enumerate(queue["entries"]):
         stock.append(_project_entry(player_data, stock, entry, queue["done"] if position == 0 else 0))
     return stock
@@ -184,8 +220,13 @@ def queue_plan_refusal_pure(player_data: Mapping[str, Any], action: Mapping[str,
     if _action_locks({**player_data, "inventory": unlimited}, action):
         return ""
     stock = _projected_stock(player_data, queue)
-    items = {item for bank in stock for item in bank}
-    projected = {item: _stock_count(stock, (item,)) for item in items}
+    alternatives, _needs, _made = _inputs_and_yield(player_data, action)
+    projected = {}
+    for bank in stock:
+        for products, count in bank.items():
+            if len(products) == 1 or any(set(products) <= set(items) for items in alternatives.values()):
+                item = products[0]
+                projected[item] = projected.get(item, 0) + count
     reasons = _action_locks({**player_data, "inventory": projected}, action)
     return "Requires: " + ", ".join(reasons) if reasons else ""
 

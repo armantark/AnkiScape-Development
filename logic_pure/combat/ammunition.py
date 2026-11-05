@@ -1,5 +1,8 @@
 """Worn ammunition, timed ground piles and Bank-backed rune packing."""
 
+from contextlib import contextmanager
+from contextvars import ContextVar
+
 from ...core.review_event_log import record_review_event_pure
 from ...data.combat.mechanics import COMBAT_RANGED_AMMO_DATA, COMBAT_RANGED_WEAPON_DATA
 from ...logic.inventory_pure import carried_slots_used, clamp_carried_view_to_bank
@@ -14,6 +17,20 @@ AMMO_BREAK_CHANCE = 0.20
 GROUND_AMMO_LIFETIME_TICKS = 350
 # PLACEHOLDER(ava_incidental_interval): recover the exact period generation timer.
 AVA_INCIDENTAL_TICKS = 300  # Period wiki estimate: one arrow per 180 seconds.
+
+
+_CARD_SHOTS = ContextVar("ammunition_card_shots", default=None)
+
+
+@contextmanager
+def count_card_shots():
+    """Count at consumption, including bursts whose activity drops the combat result."""
+    counts = {"fired": 0, "broken": 0, "landed": 0}
+    token = _CARD_SHOTS.set(counts)
+    try:
+        yield counts
+    finally:
+        _CARD_SHOTS.reset(token)
 
 
 def equipped_ammo(data):
@@ -108,12 +125,17 @@ def consume_ammo(data, weapon_spec, target_id, rng, *, tick_offset=0, outcomes=N
     cape = (data.get("equipment") or {}).get("cape")
     recovery = AVA_RECOVERY.get(cape, 0.0)
     roll = rng()
+    counts = _CARD_SHOTS.get()
+    if counts is not None:
+        counts["fired"] += 1
     if roll >= recovery:
         count -= 1
         broken = roll >= 1 - AMMO_BREAK_CHANCE
+        key = "broken" if broken else "landed"
         if outcomes is not None:
-            key = "broken" if broken else "landed"
             outcomes[key] += 1
+        if counts is not None:
+            counts[key] += 1
         if not broken:
             expiry = int(data.get("ground_ammunition_tick", 0)) + tick_offset + GROUND_AMMO_LIFETIME_TICKS
             data["ground_ammunition"] = [*(data.get("ground_ammunition") or []),
