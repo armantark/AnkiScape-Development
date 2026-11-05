@@ -633,7 +633,7 @@ def _combat_trim_food_to_capacity(data):
     data["combat_supply_loadout"] = loadout
 
 
-def _combat_carried_slot_counts(data, target_id):
+def _combat_carried_slot_counts(data, target_id, required_runes=()):
     """Return ``(all carried slots, depositable loot slots)`` for one target."""
     if not isinstance(target_id, str):
         return 0, 0
@@ -642,7 +642,7 @@ def _combat_carried_slot_counts(data, target_id):
     if not isinstance(view, Mapping):
         return 0, 0
     view = clamp_carried_view_to_bank(view, data.get("inventory"))
-    depositable = dict(view)
+    depositable = {name: count for name, count in view.items() if name not in required_runes}
     for item_name, baseline_count in _combat_custom_layout_view(data, target_id).items():
         remaining = _non_negative_int(depositable.get(item_name, 0), 0) - _non_negative_int(baseline_count, 0)
         if remaining > 0:
@@ -756,9 +756,9 @@ def _combat_enemy_supply_bank_run_needed(data, enemy):
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     # Supplies and loot share one 28-slot inventory. Eating food frees loot room.
     # Only loot is deposited, so a full supply-only pack cannot be relieved by
-    # banking. Require loot to prevent refilling the same over-budget loadout
-    # forever.
-    carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id)
+    # banking. Required runes remain supplies even when they occupy every slot.
+    rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
+    carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id, rune_cost)
     if loot_slots > 0 and _combat_supply_slots_used(data) + carried_slots >= CARRIED_CAPACITY:
         return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
@@ -769,7 +769,6 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
         return True
     if combat_class == "ranged":
         return _combat_loaded_ranged_ammo(data, ranged_weapon_spec) is None and _combat_banked_ranged_ammo_count(data, ranged_weapon_spec) > 0
-    rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
     if rune_cost:
         missing_runes = _combat_missing_loaded_runes(data, rune_cost)
         return _combat_bank_has_runes(data, missing_runes)

@@ -386,6 +386,7 @@ def _commit_run(addon, queue: dict[str, Any], no_entry_reason: str | None = None
     committed = addon.commit_direct_action(_change, after_apply=_select)
     if committed:
         refresh_review_hud(addon)
+        addon.update_review_event_log_drawer(addon._state.player_data)
     return committed
 
 
@@ -472,7 +473,7 @@ def clear_action_queue(addon) -> bool:
     )
 
 
-def remove_action_queue_entry(addon, position: int, entry: Mapping[str, Any]) -> bool:
+def remove_action_queue_entry(addon, position: int, entry: Mapping[str, Any], expected_queue=None) -> bool:
     """Drop ``entry`` as one undoable menu action, starting the next entry when it was the one running.
 
     Leaving a minigame session first can already have passed ``entry``, so a
@@ -481,6 +482,8 @@ def remove_action_queue_entry(addon, position: int, entry: Mapping[str, Any]) ->
     player_data = addon._state.player_data
     before = action_queue_pure(player_data)
     queue, ok = remove_queue_entry_pure(before, position)
+    if expected_queue is not None and before != expected_queue:
+        return False
     if not ok or before["entries"][position] != entry:
         return False
     if position == 0 and queue_runs_pure(player_data, addon._state.current_skill):
@@ -531,7 +534,7 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
     elif command == "resume":
         ok = resume_action_queue(addon)
     elif command == "remove":
-        ok = remove_action_queue_entry(addon, int(payload["position"]), payload["entry"])
+        ok = remove_action_queue_entry(addon, int(payload["position"]), payload["entry"], payload.get("expected_queue"))
     elif command == "move":
         ok = move_action_queue_entry(addon, int(payload["position"]), int(payload["new_index"]))
     else:

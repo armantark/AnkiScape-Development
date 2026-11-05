@@ -671,6 +671,43 @@ def diary_totals_pure(
     }
 
 
+def _cabinet_task_rows(player_data, tier, completed, pinned, completion_filter, search):
+    rows: list[dict[str, Any]] = []
+    for task in tier.tasks:
+        done = task.id in completed
+        if completion_filter == "complete" and not done:
+            continue
+        if completion_filter == "incomplete" and done:
+            continue
+        _satisfied, have, need = task_progress_pure(player_data, task)
+        if match_rank(search, task.name, task.description) is None:
+            continue
+        rows.append(
+            {
+                "task_id": task.id,
+                "name": task.name,
+                "description": task.description,
+                "requirements": tuple(
+                    condition.label or condition.key
+                    for condition in task.conditions
+                )
+                + (("Access gates — " + " · ".join(
+                    condition.label or condition.key for condition in task.access_gates
+                ),) if task.access_gates else ()),
+                "completed": done,
+                "latent": task.dormant,
+                "have": need if done else have,
+                "need": need,
+                "staged": need > 1,
+                "pinned": task.id == pinned,
+                "coin_reward": task.coin_reward,
+                "source": task.source,
+            }
+        )
+    rows.sort(key=lambda row: (match_rank(search, row["name"], row["description"]), not row["pinned"]))
+    return rows
+
+
 def achievement_cabinet_view_pure(
     player_data: Mapping[str, Any],
     *,
@@ -697,40 +734,7 @@ def achievement_cabinet_view_pure(
         for tier in family.tiers:
             if tier_filter and tier.name != tier_filter:
                 continue
-            rows: list[dict[str, Any]] = []
-            for task in tier.tasks:
-                done = task.id in completed
-                if completion_filter == "complete" and not done:
-                    continue
-                if completion_filter == "incomplete" and done:
-                    continue
-                _satisfied, have, need = task_progress_pure(player_data, task)
-                if match_rank(search, task.name, task.description) is None:
-                    continue
-                rows.append(
-                    {
-                        "task_id": task.id,
-                        "name": task.name,
-                        "description": task.description,
-                        "requirements": tuple(
-                            condition.label or condition.key
-                            for condition in task.conditions
-                        )
-                        + tuple(
-                            f"Access gate — {condition.label or condition.key}"
-                            for condition in task.access_gates
-                        ),
-                        "completed": done,
-                        "latent": task.dormant,
-                        "have": need if done else have,
-                        "need": need,
-                        "staged": need > 1,
-                        "pinned": task.id == pinned,
-                        "coin_reward": task.coin_reward,
-                        "source": task.source,
-                    }
-                )
-            rows.sort(key=lambda row: (match_rank(search, row["name"], row["description"]), not row["pinned"]))
+            rows = _cabinet_task_rows(player_data, tier, completed, pinned, completion_filter, search)
             claim = tier_claim_state_pure(player_data, family, tier)
             tiers.append(
                 {

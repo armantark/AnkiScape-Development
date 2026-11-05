@@ -173,3 +173,46 @@ class AmmunitionPackTests(unittest.TestCase):
         recovered = advance_combat_grave_review_pure(walking, ticks=300)
         self.assertEqual(equipped_ammo(recovered), {"Bronze arrows": 840})
         self.assertEqual(recovered["inventory"].get("Bronze arrows", 0), 0)
+
+    def test_a_full_spell_supply_pack_casts_instead_of_repeating_bank_trips(self):
+        player = _player(
+            equipment={"weapon": "Staff of fire"},
+            inventory={**{r + " rune": 1000 for r in
+                          ("Air", "Water", "Earth", "Fire", "Mind", "Chaos", "Death", "Blood", "Astral", "Cosmic", "Law")},
+                       "Magic potion (4)": 100, "Shrimps": 1000},
+            agility_level=50, combat_pack_mode="max_safety", current_combat_spell="fire_surge",
+            combat_vengeance=True, combat_spellbook_swap="vengeance",
+            quests={"lunar_diplomacy": {"completed": True}},
+            combat_prayers_enabled=False, combat_auto_flee=False,
+        )
+        player, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+        self.assertTrue(ok, reason)
+        self.assertEqual(_combat_supply_slots_used(player) + carried_slots_used(
+            player["carried_inventory"]["chicken"], STACKABLE_ITEM_NAMES), 28)
+        ctx = _context(player, review_action_multiplier=1)
+        ctx.cadence_live_enabled = True
+        ctx.random_random = random.Random(50).random
+        for _card in range(40):
+            self.assertTrue(handle_combat_answer(ctx))
+        self.assertGreater(ctx.player_data["magic_exp"], 0)
+        self.assertLess(ctx.player_data["inventory"]["Air rune"], 1000)
+
+    def test_melee_and_ranged_rune_loot_never_give_an_instant_restock(self):
+        for weapon in ("Iron sword", "Shortbow"):
+            with self.subTest(weapon=weapon):
+                player = _player(
+                    equipment={"weapon": weapon, "ammunition": "Bronze arrows"},
+                    equipment_ammunition_count=840,
+                    inventory={"Air rune": 1, "Shrimps": 100, "Iron ore": 3},
+                    carried_inventory={"chicken": {"Air rune": 1, "Iron ore": 3}},
+                    combat_supply_loadout={"food": {"Shrimps": 1}},
+                    combat_encounter={"target_id": "chicken", "enemy_lifepoints": 100000},
+                    combat_prayers_enabled=False, combat_auto_flee=False,
+                )
+                ctx = _context(player, random_values=(0.99,) * 10000, review_action_multiplier=1)
+                ctx.cadence_live_enabled = True
+                self.assertTrue(handle_combat_answer(ctx))
+                self.assertEqual(ctx.player_data["combat_last_result"]["reason"], "combat_burst")
+                self.assertEqual(ctx.player_data["combat_supply_loadout"]["food"], {"Shrimps": 1})
+                self.assertEqual(ctx.player_data["inventory"]["Shrimps"], 100)
+                self.assertEqual(ctx.player_data["carried_inventory"]["chicken"], {"Air rune": 1, "Iron ore": 3})

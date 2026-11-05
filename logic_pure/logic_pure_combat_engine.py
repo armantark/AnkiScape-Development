@@ -1792,13 +1792,7 @@ def _combat_supply_loadout_class_compatible_pure(player_data, equipment_data=Non
     )
     combat_class = str(style.get("combat_class", "melee"))
     relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
-    return (
-        (combat_class == "magic" or not carried_runes(player_data))
-        and all(
-            item_name in relevant_stat_potions
-            for item_name in (loadout.get("stat_potions", {}) or {})
-        )
-    )
+    return all(item_name in relevant_stat_potions for item_name in loadout["stat_potions"])
 
 
 def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):

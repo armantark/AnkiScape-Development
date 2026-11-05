@@ -31,6 +31,7 @@ try:
         QEvent,
         QItemSelectionModel,
         QRect,
+        QPoint,
         QRegion,
         QStyle,
         QStyleOptionViewItem,
@@ -148,3 +149,22 @@ def settle_tree(tree) -> None:
     """Lay out ``tree`` and run the accessibility reset that layout queues, before control returns to the event loop."""
     tree.executeDelayedItemsLayout()
     QCoreApplication.sendPostedEvents(tree, QEvent.Type.MetaCall)
+
+
+class WholeRowTree(QTreeWidget):
+    """Keep the last visible row whole, including when wrapped rows change height."""
+
+    def updateGeometries(self):
+        super().updateGeometries()
+        available = self.viewport().height() + self.viewportMargins().bottom()
+        index = self.indexAt(QPoint(self.viewport().width() // 2, 0))
+        bottom = 0
+        while index.isValid():
+            rect = self.visualRect(index)
+            if rect.bottom() >= available:
+                break
+            bottom = rect.bottom() + 1
+            index = self.indexBelow(index)
+        margin = available - bottom if index.isValid() and bottom else 0
+        if margin != self.viewportMargins().bottom():
+            self.setViewportMargins(0, 0, 0, margin)

@@ -245,7 +245,7 @@ class ActionQueuePanelTest(fixtures.MainMenuWidgetTest):
             [label.text() for label in panel.findChildren(QLabel, "actionQueueRowState")][:2], ["1. Now", "2. Next"]
         )
         removes[1].click()
-        self.assertEqual(self.commands[-1], ("remove", {"position": 1, "entry": queue["entries"][1]}))
+        self.assertEqual(self.commands[-1], ("remove", {"position": 1, "entry": queue["entries"][1], "expected_queue": queue}))
 
     def test_a_target_picked_while_the_queue_runs_that_skill_is_held_for_the_queue(self):
         from ankiscape.core.action_queue import action_queue_pure, add_queue_entry_pure

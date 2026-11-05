@@ -5640,7 +5640,7 @@ class CombatLogicTest(unittest.TestCase):
                     )
                 )
 
-    def test_safe_recovery_repairs_a_stale_loadout_after_an_encounter_ends(self):
+    def test_safe_recovery_preserves_carried_rune_loot_after_an_encounter_ends(self):
         recovered = apply_safe_combat_recovery_pure(
             _player(
                 combat_encounter={},
@@ -5649,7 +5649,7 @@ class CombatLogicTest(unittest.TestCase):
             EQUIPMENT_DATA,
         )
 
-        self.assertEqual(carried_runes(recovered), {})
+        self.assertEqual(carried_runes(recovered), {"Air rune": 5, "Mind rune": 5})
         self.assertEqual(recovered["inventory"]["Air rune"], 5)
         self.assertEqual(recovered["inventory"]["Mind rune"], 5)
 

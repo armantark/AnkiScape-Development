@@ -186,8 +186,6 @@ def build_shop_tab(ctx) -> "QWidget":
     stock_scroll = QScrollArea()
     stock_scroll.setObjectName("shopStockScroll")
     stock_scroll.setWidgetResizable(True)
-    # One full tile row is the hard floor (short Anki windows must compress
-    # gracefully, never overlap); taller dialogs stretch to show more rows.
     stock_scroll.setMinimumHeight(86)
     stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
     stock_content = QWidget()
@@ -908,6 +906,8 @@ def build_shop_tab(ctx) -> "QWidget":
             )
             btn.clicked.connect(lambda _=False, rid=row_id: _select_stock_row(rid))
             stock_grid.addWidget(btn, index // 6, index % 6)
+        stock_scroll.setMinimumHeight(max(66, btn.sizeHint().height()) + 12 + 2 * stock_scroll.frameWidth())
+        shop_mode_tabs.setMinimumHeight(stock_scroll.minimumHeight() + shop_mode_tabs.tabBar().sizeHint().height() + 4)
 
     def _select_stock_row(row_id: str) -> None:
         shop_state["row_id"] = row_id

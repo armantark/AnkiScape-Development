@@ -2886,7 +2886,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
-    def test_combat_handler_finisher_repairs_stale_runes_when_fight_ends(self):
+    def test_combat_handler_finisher_preserves_rune_loot_when_fight_ends(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {'Air rune': 5, 'Mind rune': 5},
@@ -2914,7 +2914,7 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_encounter"], {})
-        self.assertEqual(carried_runes(player_data), {})
+        self.assertEqual(carried_runes(player_data), {"Air rune": 5, "Mind rune": 5})
         self.assertEqual(player_data["inventory"]["Air rune"], 5)
         self.assertEqual(player_data["inventory"]["Mind rune"], 5)
         self.assertEqual(calls["saves"], 1)

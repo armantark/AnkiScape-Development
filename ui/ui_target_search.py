@@ -192,6 +192,7 @@ def style_flat_target_list(target_list) -> None:
     target_list.setAlternatingRowColors(True)
     target_list.setStyleSheet(
         f"QListWidget::item {{ min-height: 28px; padding: {_ROW_PADDING}px; }}"
+        f" QListWidget::item:disabled {{ color: {dim_text_css(target_list)}; }}"
         " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
         " color: palette(text); }"
     )

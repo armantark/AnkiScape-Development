@@ -92,7 +92,7 @@ def surface_trains_pick_pure(player_data: Mapping[str, Any], surface: str, activ
 
 
 def _activity_id(action: Mapping[str, Any]) -> str:
-    return str(action["utility_id"]) if action.get("kind") == "utility" else ""
+    return str(action["utility_id"]) if action.get("kind") == "utility" else "bankstanding"
 
 
 def activity_started_by_add_pure(
@@ -102,8 +102,7 @@ def activity_started_by_add_pure(
 
     That is the queue's first entry, or the added one in an empty queue. Empty
     when the queue refuses the add, so no session ends for nothing; when the
-    queue already runs, so the add only waits its turn; or when the entry that
-    starts is not an activity.
+    queue already runs, so the add only waits its turn.
     """
     queue = action_queue_pure(player_data)
     if queue_add_refusal_pure(player_data, action) or not add_queue_entry_pure(queue, action, count)[1]:
@@ -155,7 +154,7 @@ def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any])
         level = int(player_data.get("runecrafting_level") or 1)
         return {"essence": tuple(spec_field_pure(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
     needs = dict(spec_field_pure(spec, "requirements") or {})
-    options = dict(spec_field_pure(spec, "material_options") or {})
+    options = {"Nails": tuple(NAIL_DATA), **dict(spec_field_pure(spec, "material_options") or {})}
     return {item: tuple(options.get(item) or (item,)) for item in needs}, needs, made
 
 

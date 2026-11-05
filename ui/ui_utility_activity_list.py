@@ -76,7 +76,7 @@ from .ui import (
     dim_text_css,
     set_activity_group_collapsed,
 )
-from .ui_first_cell_tree import settle_tree
+from .ui_first_cell_tree import settle_tree, WholeRowTree
 
 _GROUP_ROLE_PREFIX = "__utility_group__:"
 _ROW_PADDING = 5
@@ -206,7 +206,7 @@ def _tint(base, red: int, green: int, blue: int) -> str:
 def _styled_tree() -> "QTreeWidget":
     from .ui_tab_shop_widgets import WrappedRowDelegate
 
-    tree = QTreeWidget()
+    tree = WholeRowTree()
     tree.setObjectName("utilityActivityTree")
     tree.setHeaderHidden(True)
     tree.setIconSize(QSize(28, 28))

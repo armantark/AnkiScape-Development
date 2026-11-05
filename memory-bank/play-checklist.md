@@ -168,3 +168,5 @@ you are in the game, with the date the change reached main.
 - Pass 20 review fixes: at default Game speed, open Combat target rows and hover a level label, then Grand Exchange; level tags stay together and the search hint reads “Search exchangeable items” in light and dark themes.
 
 - Pass 21 ammunition: Equipment → Ammunition shows the worn stack count; hover Ava’s incidental items in Food and loot, switch it off, and confirm fired-arrow recovery continues while iron/steel generation stops.
+
+- Pass 21 review fixes: at default size and 560 points tall in both themes, buy a Bob’s Brilliant Axes hatchet in Shop and read the full product names; search Utilities for “sawmill” and scroll to the last whole row; hover queue chevrons during a move flash, inspect Construction’s Add materials with mixed nail types, and search the Achievement Cabinet for “Moon Over Catherby” to see one Access gates label. With the Event log drawer open, remove an entry whose successor cannot start and see the stop line immediately.

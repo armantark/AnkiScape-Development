@@ -236,7 +236,10 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
         from ankiscape.ui.ui_action_queue import menu_queue
 
         factory = {"kind": "utility", "utility_id": FLASH_POWDER_FACTORY_ACTIVITY_ID}
-        addon = self._played("ankiscape_remove_session_yes", (factory, 5), (_PICKUP, 5))
+        from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+
+        star = {"kind": "utility", "utility_id": SHOOTING_STAR_ACTIVITY_ID}
+        addon = self._played("ankiscape_remove_session_yes", (factory, 5), (star, 1), (factory, 5), (_MINE_IRON, 30))
         save = addon._state.player_data
         save.update({"agility_level": 99, "thieving_level": 99, "herblore_level": 99})
         entered, ok, info = enter_flash_powder_factory_pure(save)
@@ -256,8 +259,8 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
         queue("remove", {"position": 0})
 
         self.assertFalse(flash_powder_factory_view_pure(save)["active"])
-        self.assertEqual([row[0] for row in self.profile._rows(addon)], ["Pick onions"])
-        self.assertEqual(save["current_utility"], _PICKUP["utility_id"])
+        self.assertEqual([row[0] for row in self.profile._rows(addon)], ["Flash Powder Factory", "Mining: Iron"])
+        self.assertEqual(save["current_utility"], factory["utility_id"])
         self.assertFalse(results[0]["ok"])
 
     def test_the_review_hud_drops_the_stale_next_line_after_a_move(self):
@@ -296,3 +299,76 @@ class QueueRowMoveWidgetTest(fixtures.MainMenuWidgetTest):
                 self.assertEqual([bar for bar in panel.findChildren(QScrollBar) if bar.isVisible()], [])
                 self.assertEqual(text_fit_defects(panel), [])
                 dialog.close()
+
+    def test_removal_for_a_skill_combat_or_quest_requires_session_exit(self):
+        from ankiscape.logic.flash_powder_factory_logic import (
+            FLASH_POWDER_FACTORY_ACTIVITY_ID, enter_flash_powder_factory_pure, flash_powder_factory_view_pure,
+        )
+        from ankiscape.ui.ui_action_queue import menu_queue
+
+        factory = {"kind": "utility", "utility_id": FLASH_POWDER_FACTORY_ACTIVITY_ID}
+        for action, count in ((_MINE_IRON, 30), ({"kind": "combat", "target": "chicken", "combat_action": "attack"}, 5),
+                              ({"kind": "quest", "quest_id": "cooks_assistant"}, None)):
+            with self.subTest(action=action):
+                addon = self._played("ankiscape_remove_nonutility_" + action["kind"], (factory, 5), (action, count))
+                save = addon._state.player_data
+                save.update(agility_level=99, thieving_level=99, herblore_level=99)
+                entered, ok, info = enter_flash_powder_factory_pure(save)
+                self.assertTrue(ok, info)
+                save.update(entered)
+                calls = []
+                queue = menu_queue(save, lambda: addon._state.current_skill,
+                                   partial(addon.apply_action_queue_command, addon), lambda result: None,
+                                   lambda destination: calls.append(destination) or False)
+                queue("remove", {"position": 0})
+                queue("move", {"position": 1, "new_index": 0})
+                save["action_queue"]["paused"] = True
+                save["action_queue"]["entries"].reverse()
+                queue("add", {"action": _MINE_IRON, "count": 5})
+                self.assertEqual(calls, ["bankstanding"] * 3)
+                self.assertTrue(flash_powder_factory_view_pure(save)["active"])
+                self.assertEqual(len(self.profile._rows(addon)), 2)
+
+    def test_a_menu_run_redraws_the_event_drawer_before_another_card(self):
+        quest = {"kind": "quest", "quest_id": "cooks_assistant"}
+        addon = self._played("ankiscape_queue_drawer", (_MINE_IRON, 30), (quest, None), (_SMELT_IRON, 5))
+        addon._state.player_data["quests"]["cooks_assistant"] = {"completed": True}
+        parent = QMainWindow()
+        parent.show()
+        drawer = self._ui.ReviewEventLogDrawer(parent)
+        drawer.toggle.setChecked(True)
+        drawer.set_data(addon._state.player_data)
+        addon.update_review_event_log_drawer = drawer.set_data
+        self.assertTrue(addon.apply_action_queue_command(addon, "remove", {
+            "position": 0, "entry": addon._state.player_data["action_queue"]["entries"][0],
+        })["ok"])
+        self.assertIn("Queue: Cook's Assistant stopped", drawer.rows.toPlainText())
+        parent.close()
+
+    def test_confirmed_removal_closes_the_session_before_a_nonutility_successor_runs(self):
+        from ankiscape.logic.flash_powder_factory_logic import (
+            FLASH_POWDER_FACTORY_ACTIVITY_ID, enter_flash_powder_factory_pure, flash_powder_factory_view_pure,
+        )
+        from ankiscape.ui.ui_action_queue import menu_queue
+
+        factory = {"kind": "utility", "utility_id": FLASH_POWDER_FACTORY_ACTIVITY_ID}
+        for action, count, active in ((_MINE_IRON, 30, "Mining"),
+                                      ({"kind": "combat", "target": "chicken", "combat_action": "attack"}, 5, "Combat"),
+                                      ({"kind": "quest", "quest_id": "cooks_assistant"}, None, "Quests")):
+            with self.subTest(action=action):
+                addon = self._played("ankiscape_remove_confirmed_" + action["kind"], (factory, 5), (action, count))
+                save = addon._state.player_data
+                save.update(agility_level=99, thieving_level=99, herblore_level=99)
+                entered, ok, info = enter_flash_powder_factory_pure(save)
+                self.assertTrue(ok, info)
+                save.update(entered)
+                captured = {}
+                with patch.object(addon.ui, "show_main_menu", lambda *args, **kwargs: captured.update(kwargs)):
+                    addon._on_main_menu()
+                queue = menu_queue(save, lambda: addon._state.current_skill,
+                                   partial(addon.apply_action_queue_command, addon), lambda result: None,
+                                   lambda destination: captured["on_agility_command"]("leave_flash_powder_factory", {})["ok"])
+                queue("remove", {"position": 0})
+                self.assertFalse(flash_powder_factory_view_pure(save)["active"])
+                self.assertEqual(addon._state.current_skill, active)
+                self.assertEqual(save["action_queue"]["entries"], [{"action": action, "count": count}])

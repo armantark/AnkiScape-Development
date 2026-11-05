@@ -126,8 +126,8 @@ if HAS_QT:
         def __call__(self, command: str, payload: dict, remember: bool = False) -> None:
             if command == "remove":
                 # Named before any session ends, because ending one can pass this entry on its own.
-                entries = action_queue_pure(self._player_data)["entries"]
-                payload = {**payload, "entry": entries[payload["position"]]}
+                before = action_queue_pure(self._player_data)
+                payload = {**payload, "entry": before["entries"][payload["position"]], "expected_queue": before}
             activity = self._activity_started(command, payload)
             if activity and not self._leave_running_activity(activity):
                 return
