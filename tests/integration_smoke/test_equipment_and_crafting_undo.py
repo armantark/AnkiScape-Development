@@ -321,7 +321,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(addon._state.player_data["combat_recovery_progress"], {"stat_drain_ticks": 6})
         self.assertEqual(
             addon._state.player_data["combat_supply_loadout"],
-            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
+            {"food": {}, "potions": {}, "stat_potions": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
         )
         self.assertEqual(addon._state.player_data["combat_bank_run"], {"ticks_remaining": 94, "target_id": "chicken"})
         self.assertEqual(addon._state.player_data["combat_last_result"]["reason"], "combat_bank_run")

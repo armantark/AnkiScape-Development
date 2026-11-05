@@ -1216,7 +1216,8 @@ class DominionTowerPowerupTest(unittest.TestCase):
         data, rng = self._freestyle_nomad()
         data["equipment"] = {"weapon": "Rune crossbow"}
         data["combat_attack_style"] = "ranged_rapid"
-        data["combat_supply_loadout"] = {"ammo": {"Broad-tipped bolts": 100}}
+        data["equipment"]["ammunition"] = "Broad-tipped bolts"
+        data["equipment_ammunition_count"] = 100
         data["inventory"] = {**data["inventory"], "Dominion crossbow": 1}
         data, ok, info = apply_dominion_tower_command_pure(
             data, "use_powerup", {"item": "Dominion crossbow"}, rng
@@ -1237,9 +1238,8 @@ class DominionTowerPowerupTest(unittest.TestCase):
         data["equipment"] = {"weapon": "Staff"}
         data["combat_attack_style"] = "magic_standard"
         data["current_combat_spell"] = "wind_strike"
-        data["combat_supply_loadout"] = {
-            "runes": {"Air rune": 100, "Mind rune": 100}
-        }
+        data["inventory"].update({"Air rune": 100, "Mind rune": 100})
+        data["carried_inventory"] = {data.get("current_combat_target", "chicken"): {"Air rune": 100, "Mind rune": 100}}
         data["inventory"] = {**data["inventory"], "Dominion staff": 1}
         data, ok, info = apply_dominion_tower_command_pure(
             data, "use_powerup", {"item": "Dominion staff"}, rng
@@ -1259,9 +1259,8 @@ class DominionTowerPowerupTest(unittest.TestCase):
         data["equipment"] = {"weapon": "Staff"}
         data["combat_attack_style"] = "magic_standard"
         data["current_combat_spell"] = "wind_strike"
-        data["combat_supply_loadout"] = {
-            "runes": {"Air rune": 100, "Mind rune": 100}
-        }
+        data["inventory"].update({"Air rune": 100, "Mind rune": 100})
+        data["carried_inventory"] = {data.get("current_combat_target", "chicken"): {"Air rune": 100, "Mind rune": 100}}
         data["inventory"] = {**data["inventory"], "Dominion staff": 1}
         data, ok, info = apply_dominion_tower_command_pure(
             data, "use_powerup", {"item": "Dominion staff"}, rng
@@ -1284,9 +1283,8 @@ class DominionTowerPowerupTest(unittest.TestCase):
         data["equipment"] = {"weapon": "Staff"}
         data["combat_attack_style"] = "magic_standard"
         data["current_combat_spell"] = "wind_strike"
-        data["combat_supply_loadout"] = {
-            "runes": {"Air rune": 100, "Mind rune": 100}
-        }
+        data["inventory"].update({"Air rune": 100, "Mind rune": 100})
+        data["carried_inventory"] = {data.get("current_combat_target", "chicken"): {"Air rune": 100, "Mind rune": 100}}
         data["inventory"] = {**data["inventory"], "Dominion staff": 1}
         data, ok, info = apply_dominion_tower_command_pure(
             data, "use_powerup", {"item": "Dominion staff"}, rng

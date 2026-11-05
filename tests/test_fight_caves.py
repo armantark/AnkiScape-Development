@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from tests import test_farming_dispatch as farming_dispatch
 from ankiscape.core.constants import (
     EQUIPMENT_DATA,
@@ -30,7 +31,7 @@ from ankiscape.logic.fight_caves_logic import (
 )
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
-from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
+from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure, combat_target_pack_move_pure
 from ankiscape.logic_pure.logic_pure_prayer import (
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     prayer_drain_for_ticks_pure,
@@ -397,7 +398,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         # untouched: the burst engine may not unload it into the real bank nor
         # restock the pack from it mid-run.
         data = _entered(
-            combat_supply_loadout={"runes": {"Air rune": 5, "Mind rune": 5}},
+            combat_supply_loadout={}, inventory={"Air rune": 5, "Mind rune": 5}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
         )
         data["fight_caves"].update(
             roster=[
@@ -419,7 +420,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         self.assertTrue(result["wave_completed"])
         self.assertEqual(updated["inventory"], bank_before)
         self.assertEqual(
-            updated["combat_supply_loadout"]["runes"],
+            carried_runes(updated),
             {"Air rune": 5, "Mind rune": 5},
         )
         self.assertEqual(updated["combat_supply_loadout"]["food"], {})
@@ -598,7 +599,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(result["safe_death"])
         self.assertEqual(defeated["equipment"], before_equipment)
-        self.assertEqual(defeated["carried_inventory"], before_carried)
+        self.assertEqual(defeated["carried_inventory"], {"chicken": before_carried["fight_caves"]})
         for item, quantity in before_inventory.items():
             self.assertEqual(defeated["inventory"][item], quantity)
         self.assertEqual(
@@ -718,8 +719,8 @@ class FightCavesJadProtectionTests(unittest.TestCase):
     def test_existing_partial_prayers_keep_their_effects_and_target_policy(self):
         setups = (
             ("standard", ["ultimate_strength", "incredible_reflexes", "steel_skin"], "accurate", {}, {}),
-            ("standard", ["eagle_eye"], "ranged_accurate", {"weapon": "Shortbow"}, {"ammo": {"Bronze arrows": 100}}),
-            ("standard", ["mystic_might"], "magic_standard", {"weapon": "Staff of air"}, {"runes": {"Mind rune": 100}}),
+            ("standard", ["eagle_eye"], "ranged_accurate", {"weapon": "Shortbow", "ammunition": "Bronze arrows"}, {}),
+            ("standard", ["mystic_might"], "magic_standard", {"weapon": "Staff of air"}, {"Mind rune": 100}),
             ("curses", ["sap_warrior", "berserker"], "accurate", {}, {}),
             ("curses", ["leech_attack", "leech_strength", "leech_defence"], "accurate", {}, {}),
             ("curses", ["turmoil"], "accurate", {}, {}),
@@ -735,7 +736,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                     prayer_level=99, combat_attack_style=style,
                     equipment={"head": "Saradomin halo", **weapon},
                     combat_prayer_drain_counter=counter,
-                    combat_supply_loadout=supplies, current_combat_spell="wind_strike",
+                    inventory=supplies, carried_inventory={"chicken": supplies}, equipment_ammunition_count=100, current_combat_spell="wind_strike",
                 )
                 settings = {
                     "combat_prayers_enabled": enabled,
@@ -753,7 +754,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                 }
                 baseline["combat_presets"] = {"Jad": ordinary_settings}
                 baseline["combat_target_overrides"] = {"fight_caves": ordinary_settings}
-                baseline["current_combat_target"] = "fight_caves"
+                baseline.update(combat_target_pack_move_pure(baseline, "fight_caves"))
                 baseline["combat_encounter"] = {
                     **data["fight_caves"]["roster"][0]["encounter"],
                     "enemy_lifepoints": 2550, "target_id": "fight_caves",

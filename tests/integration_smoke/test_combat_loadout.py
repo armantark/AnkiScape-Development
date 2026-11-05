@@ -1,4 +1,5 @@
 from tests.test_integration_smoke import _DummyCol, _DummyMW, _load_addon_as_package, sys
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from tests.integration_smoke import fixtures
 
 
@@ -44,11 +45,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon._state.current_skill = "Combat"
         addon._state.player_data = {
-            "inventory": {
-                "Rune scimitar": 1,
-                "Air rune": 0,
-                "Mind rune": 0,
-            },
+            "inventory": {'Rune scimitar': 1, 'Air rune': 5, 'Mind rune': 5},
             "equipment": {"weapon": "Staff"},
             "attack_level": 40,
             "magic_level": 99,
@@ -56,9 +53,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             "current_combat_spell": "wind_strike",
             "combat_pack_mode": "max_output",
             "combat_vengeance": True,
-            "combat_supply_loadout": {
-                "runes": {"Air rune": 5, "Mind rune": 5}
-            },
+            "combat_supply_loadout": {}, 'carried_inventory': {'chicken': {"Air rune": 5, "Mind rune": 5}},
             "combat_encounter": {},
             "constitution_level": 10,
         }
@@ -69,7 +64,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
             addon._state.player_data["equipment"], {"weapon": "Rune scimitar"}
         )
         self.assertEqual(
-            addon._state.player_data["combat_supply_loadout"]["runes"], {}
+            carried_runes(addon._state.player_data), {}
         )
         self.assertEqual(addon._state.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon._state.player_data["inventory"]["Mind rune"], 5)
@@ -172,7 +167,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertTrue(addon.on_refill_combat_loadout())
         self.assertEqual(addon._state.player_data["combat_supply_loadout"]["food"], {"Shark": 20})
         self.assertEqual(addon._state.player_data["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
-        self.assertEqual(addon._state.player_data["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
+        self.assertEqual(carried_runes(addon._state.player_data), {"Air rune": 5, "Mind rune": 5})
         self.assertEqual(addon._state.player_data["inventory"]["Shark"], 10)
         self.assertEqual(addon._state.player_data["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(addon._state.player_data["inventory"]["Fire rune"], 5)
@@ -181,18 +176,18 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(
             addon._state.player_data["combat_supply_loadout"]["food"], {"Shark": 8}
         )
-        self.assertEqual(calls["achievement_runes"], [0])
+        self.assertEqual(calls["achievement_runes"], [10])
 
         self.assertTrue(addon.on_unload_combat_loadout())
         self.assertEqual(
             addon._state.player_data["combat_supply_loadout"],
-            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
+            {"food": {}, "potions": {}, "stat_potions": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
         )
         self.assertEqual(addon._state.player_data["inventory"]["Shark"], 30)
         self.assertEqual(addon._state.player_data["inventory"]["Antipoison (2)"], 1)
         self.assertEqual(addon._state.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon._state.player_data["inventory"]["Mind rune"], 5)
-        self.assertEqual(calls["achievement_runes"], [0, 10])
+        self.assertEqual(calls["achievement_runes"], [10, 10])
         self.assertGreaterEqual(calls["save"], 5)
         self.assertGreaterEqual(calls["hud"], 4)
         self.assertGreaterEqual(calls["refresh"], 4)

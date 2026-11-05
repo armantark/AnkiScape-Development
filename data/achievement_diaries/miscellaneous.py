@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3000,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'tears_of_guthix', 1, 'Complete Tears of Guthix'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3001,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_penguin_hunting',
@@ -53,7 +51,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3002,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_evil_tree',
@@ -63,7 +60,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3003,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shooting_star',
@@ -73,7 +69,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3004,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_impetuous_impulses',
@@ -83,7 +78,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3005,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_vinesweeper',
@@ -93,7 +87,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3006,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_balthazar_s_big_top_bonanza',
@@ -103,7 +96,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3007,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_defeat_bork',
@@ -113,7 +105,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3008,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'what_lies_below', 1, 'Complete What Lies Below'),),
             ),
             DiaryTask(
@@ -124,7 +115,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3009,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'),),
             ),
             DiaryTask(
@@ -135,7 +125,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3010,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'fur_n_seek', 1, "Complete Fur 'n Seek"),),
             ),
             DiaryTask(
@@ -146,7 +135,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3011,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_great_orb_project',
@@ -156,7 +144,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3012,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pest_control',
@@ -166,7 +153,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3013,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_castle_wars',
@@ -176,7 +162,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3014,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_court_cases',
@@ -186,7 +171,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3015,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'kings_ransom', 1, "Complete King's Ransom"),),
             ),
             DiaryTask(
@@ -197,7 +181,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3016,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             DiaryTask(
@@ -208,7 +191,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3017,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_pits',
@@ -218,7 +200,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3018,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_brimhaven_agility_arena',
@@ -228,7 +209,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3019,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_barbarian_assault',
@@ -238,7 +218,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3020,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_blast_furnace',
@@ -248,7 +227,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3021,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shades_of_mort_ton',
@@ -258,7 +236,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3022,
                 100,
-                False,
                 access_gates=(DiaryCondition('quest', 'priest_in_peril', 1, 'Complete Priest in Peril'), DiaryCondition('quest', 'shades_of_mortton', 1, "Complete Shades of Mort'ton"),),
             ),
             DiaryTask(
@@ -269,7 +246,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3023,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pyramid_plunder',
@@ -279,7 +255,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3024,
                 100,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 21, 'Level 21 Thieving'),),
             ),
             DiaryTask(
@@ -290,7 +265,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3025,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_mage_training_arena',
@@ -300,7 +274,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3026,
                 100,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 7, 'Level 7 Magic'),),
             ),
             DiaryTask(
@@ -311,7 +284,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3027,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fist_of_guthix',
@@ -321,7 +293,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3028,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_stealing_creation',
@@ -331,7 +302,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3029,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_soul_wars',
@@ -341,7 +311,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3030,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_clan_wars',
@@ -351,7 +320,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3031,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_gnome_restaurant',
@@ -361,7 +329,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3032,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_mobilising_armies',
@@ -371,7 +338,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3033,
                 100,
-                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_warriors_guild',
@@ -381,7 +347,6 @@ FAMILY = DiaryFamily(
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3034,
                 100,
-                False,
             ),
             ),
             None,

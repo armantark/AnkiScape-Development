@@ -552,12 +552,17 @@ def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_thresho
     auto_bury.setObjectName("combatAutoPrayerTrainingCheck")
     auto_bury.setToolTip("Costs simulated ticks.")
     layout.addWidget(auto_bury)
+    ava = WrappingCheckBox("Ava's incidental items")
+    ava.setObjectName("combatAvaIncidentalItemsCheck")
+    ava.setToolTip("Collect incidental iron or steel items. Fired ammunition recovery stays on.")
+    layout.addWidget(ava)
     loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5)
     _row(layout, _text_label("Leave loot worth under"), loot_spin, _text_label("coins"), grow=None)
     if on_set_auto_eat is not None:
         auto_eat.valueChanged.connect(lambda value: on_set_auto_eat(value))
     if send_config is not None:
         auto_bury.toggled.connect(lambda checked: send_config("combat_auto_prayer_training", bool(checked)))
+        ava.toggled.connect(lambda checked: send_config("combat_ava_incidental_items", bool(checked)))
     if on_set_loot_threshold is not None:
         loot_spin.valueChanged.connect(lambda value: on_set_loot_threshold(int(value)))
 
@@ -567,6 +572,7 @@ def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_thresho
             spin.setValue(value)
             spin.blockSignals(False)
         _set_checked(auto_bury, view["auto_prayer_training"])
+        _set_checked(ava, view["ava_incidental_items"])
 
     return sync
 

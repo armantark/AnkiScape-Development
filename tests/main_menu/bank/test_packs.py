@@ -193,8 +193,6 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             "food": {"Shark": 3, "Lobster": 3},
             "potions": {"Antipoison (4)": 1},
             "stat_potions": {"Prayer potion (4)": 1},
-            "ammo": {},
-            "runes": {},
             "finishers": {},
             "hazards": {},
             "cannonballs": 25,

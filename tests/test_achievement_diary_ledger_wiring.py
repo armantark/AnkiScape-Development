@@ -54,6 +54,7 @@ from ankiscape.runtime.runtime_actions import (
 )
 from ankiscape.runtime.runtime_actions_shared import _apply_farming_queue_result
 from tools.achievement_diary_ledger import (
+    AUTHORED_SOURCE_ID_FLOOR,
     _DIRECT_EVENT_EMITTERS,
     _LIVE_DISPOSITIONS,
     _condition_from_spec,
@@ -106,7 +107,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             for tier in family.tiers
             for task in tier.tasks
         }
-        self.assertEqual(len(rows), 320)
+        self.assertEqual(len(rows), 342)
         self.assertEqual(
             {
                 disposition: sum(row["disposition"] == disposition for row in rows)
@@ -114,10 +115,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     "active", "translated", "swapped", "invented", "dormant"
                 )
             },
-            {
-                "active": 46, "translated": 123, "swapped": 0,
-                "invented": 39, "dormant": 112,
-            },
+            {"active": 46, "translated": 142, "swapped": 0, "invented": 42, "dormant": 112},
         )
         self.assertEqual([row["task_id"] for row in rows if row["task_id"] not in task_ids], [])
 
@@ -133,6 +131,8 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     expected_fields += ["designed_name", "designed_description"]
                     self.assertTrue(row["designed_name"])
                     self.assertTrue(row["designed_description"])
+                if row["source_id"] >= AUTHORED_SOURCE_ID_FLOOR:
+                    expected_fields.append("access_gates")
                 self.assertEqual(list(row), expected_fields)
                 self.assertNotIn("\nWiring: ", row["designed_trigger"])
                 self.assertEqual(

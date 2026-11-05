@@ -46,10 +46,6 @@ class DiaryTask:
     source: str
     source_id: int
     coin_reward: int = 0
-    # True only for an owner-approved generic progression row used to
-    # complete a twelve-task curated tier when the period family has fewer
-    # than 48 deeds.
-    curation_anchor: bool = False
     # Source-backed level and quest prerequisites are presentation-only access
     # gates. Completion reads ``conditions`` and never these rows.
     access_gates: Tuple[DiaryCondition, ...] = ()

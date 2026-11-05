@@ -123,7 +123,7 @@ from ..logic_pure.logic_pure import (
     repair_combat_supply_loadout_class_pure,
     sanitize_action_telemetry_pure,
     sanitize_achievement_progress_pure,
-    sanitize_combat_state_pure,
+    sanitize_combat_state_pure, migrate_ammunition,
     sanitize_mage_arena_state_pure,
     red_sandstone_daily_state_pure,
     sanitize_stronghold_state_pure,
@@ -362,7 +362,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 126
+CURRENT_CONFIG_VERSION = 127
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -1311,7 +1311,6 @@ def migrate_loaded_data(
     ORE_DATA: Dict[str, Any],
     item_definitions: Optional[Iterable[ItemDefinition]] = None,
 ) -> Dict[str, Any]:
-    # Start from copy
     data = dict(loaded) if loaded else {}
 
     # Add config_version if missing
@@ -2393,6 +2392,7 @@ def migrate_loaded_data(
     invalid_dream_latch = bool(data.get("combat_dream_thrift", False)) and bool(
         combat_dream_thrift_locked_reasons_pure(data)
     )
+    migrate_ammunition(data, EQUIPMENT_DATA, loaded_config_version)
     data.update(sanitize_combat_state_pure(data))
     if invalid_dream_latch:
         data, _refilled, _reason = refill_combat_supply_loadout_pure(

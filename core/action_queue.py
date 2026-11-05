@@ -30,6 +30,10 @@ queue starts at once, and the old one keeps only the count it still owes. A
 paused or set-aside queue only changes its order: a pause holds until Resume,
 and a hand-started action keeps running until it stops.
 
+The ✕ removes any entry (owner, Pass 21). Removing the running first entry
+starts the next one, or ends at Bankstanding when none is left; what that entry
+already made stays. A paused or set-aside queue only changes its list.
+
 An add means the player wants the plan to run (owner, Pass 19): a queue
 that does not run its first entry, because it is new, paused, or put aside
 for an action the player started by hand, starts that entry at once in place
@@ -150,10 +154,9 @@ def advance_queue_pure(queue: Mapping[str, Any], progress: int) -> tuple[dict[st
 
 
 def remove_queue_entry_pure(queue: Mapping[str, Any], position: int) -> tuple[dict[str, Any], bool]:
-    """Drop one entry that is not running; the entry the queue runs now refuses."""
+    """Drop one entry; a position outside the queue refuses. A new first entry starts from nothing."""
     entries = list(queue["entries"])
-    running = position == 0 and not queue["paused"] and not queue.get("suspended")
-    if not 0 <= position < len(entries) or running:
+    if not 0 <= position < len(entries):
         return dict(queue), False
     del entries[position]
     return {**queue, "entries": entries, "done": queue["done"] if position else 0}, True
@@ -236,7 +239,6 @@ def _queue_entry_row(queue: Mapping[str, Any], position: int) -> dict[str, Any]:
         "count": queue["entries"][position]["count"],
         "done": queue["done"] if current else 0,
         "state": "current" if current else "waiting",
-        "removable": not current or queue["paused"] or queue["suspended"],
     }
 
 
@@ -252,13 +254,26 @@ def action_queue_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def queue_notice_view_pure(player_data: Mapping[str, Any], activity_lines=()) -> str:
-    """The latest queue transition stays in the HUD until the next answered card."""
+    """The latest queue transition stays in the HUD until the next answered card or a queue change from the menu."""
     review = _answered_reviews_pure(player_data)
     text = next((
         row["text"] for row in reversed(player_data.get("review_event_log") or ())
         if row.get("kind") == "queue" and row.get("review") == review
     ), "")
     return " • ".join(filter(None, (text, *activity_lines)))
+
+
+def _cleared_queue_notice_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """The save values of a queue change from the menu: this card's queue lines stay in the Event log and leave the HUD.
+
+    A line such as "Next: Combat" names the entry that started then, so it can
+    be wrong once the player changes the list.
+    """
+    review = _answered_reviews_pure(player_data)
+    return {"review_event_log": [
+        {**row, "kind": "activity"} if row.get("kind") == "queue" and row.get("review") == review else row
+        for row in player_data.get("review_event_log") or ()
+    ]}
 
 
 def _record_queue_notice(addon, text: str, row=None) -> None:
@@ -342,22 +357,36 @@ def _apply_in_transaction(addon, updated: Mapping[str, Any], review_action: str 
         addon.update_review_hud(player_data, addon._state.current_skill)
 
 
-def _commit_run(addon, queue: dict[str, Any]) -> bool:
-    """Run the queue's current entry as one undoable menu action."""
+def _commit_queue(addon, queue: dict[str, Any], **commit_options: Any) -> bool:
+    """Save a changed queue as one undoable menu action, with no change to what runs unless the options ask."""
+    return addon.commit_direct_action(
+        lambda current: ({**current, **_cleared_queue_notice_pure(current), ACTION_QUEUE_KEY: queue}, True),
+        **commit_options,
+    )
+
+
+def _commit_run(addon, queue: dict[str, Any], no_entry_reason: str | None = None) -> bool:
+    """Run the queue's current entry as one undoable menu action.
+
+    When no entry can run, what runs now carries on, or with ``no_entry_reason`` stops for it at Bankstanding.
+    """
     review_action = None
 
     def _change(current):
         nonlocal review_action
-        updated, review_action = _run_current_entry(addon, current, queue)
+        updated, review_action = _run_current_entry(addon, {**current, **_cleared_queue_notice_pure(current)}, queue)
         return updated, True
 
     def _select():
         if review_action is not None:
             addon._select_review_action(review_action)
+        elif no_entry_reason is not None:
+            addon._switch_to_bankstanding(no_entry_reason, automatic=False)
 
     committed = addon.commit_direct_action(_change, after_apply=_select)
     if committed:
         refresh_review_hud(addon)
+        addon.update_review_event_log_drawer(addon._state.player_data)
     return committed
 
 
@@ -423,7 +452,7 @@ def add_to_action_queue(addon, action: Mapping[str, Any], count: Any) -> str:
         if fingerprint:
             queue["entries"][-1]["wilderness_fingerprint"] = fingerprint
     if runs:
-        committed = addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+        committed = _commit_queue(addon, queue)
     else:
         committed = _commit_run(addon, {**queue, "paused": False, "suspended": False})
         # The run passed every entry that could not start, the new one too, so the player's action runs on.
@@ -439,17 +468,27 @@ def clear_action_queue(addon) -> bool:
     stops the work (owner, Pass 18). What stopped lands at Bankstanding as the
     last action, so Resume offers it back.
     """
-    return addon.commit_direct_action(
-        lambda current: ({**current, ACTION_QUEUE_KEY: _empty_queue()}, True),
-        bankstanding_reason="The queue was cleared.",
-        bankstanding_automatic=False,
+    return _commit_queue(
+        addon, _empty_queue(), bankstanding_reason="The queue was cleared.", bankstanding_automatic=False
     )
 
 
-def remove_action_queue_entry(addon, position: int) -> bool:
-    """Drop one entry that is not running, as one undoable menu action."""
-    queue, ok = remove_queue_entry_pure(action_queue_pure(addon._state.player_data), position)
-    return ok and addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+def remove_action_queue_entry(addon, position: int, entry: Mapping[str, Any], expected_queue=None) -> bool:
+    """Drop ``entry`` as one undoable menu action, starting the next entry when it was the one running.
+
+    Leaving a minigame session first can already have passed ``entry``, so a
+    position that holds another entry now refuses and that entry stays.
+    """
+    player_data = addon._state.player_data
+    before = action_queue_pure(player_data)
+    queue, ok = remove_queue_entry_pure(before, position)
+    if expected_queue is not None and before != expected_queue:
+        return False
+    if not ok or before["entries"][position] != entry:
+        return False
+    if position == 0 and queue_runs_pure(player_data, addon._state.current_skill):
+        return _commit_run(addon, queue, no_entry_reason="The queue is empty.")
+    return _commit_queue(addon, queue)
 
 
 def queue_move_takes_over_pure(player_data: Mapping[str, Any], current_skill: Any, position: int, new_index: int) -> bool:
@@ -465,7 +504,7 @@ def move_action_queue_entry(addon, position: int, new_index: int) -> bool:
         return False
     if queue_move_takes_over_pure(player_data, addon._state.current_skill, position, new_index):
         return _commit_run(addon, queue)
-    return addon.commit_direct_action(lambda current: ({**current, ACTION_QUEUE_KEY: queue}, True))
+    return _commit_queue(addon, queue)
 
 
 def resume_action_queue(addon) -> bool:
@@ -478,7 +517,10 @@ def resume_action_queue(addon) -> bool:
     entry = current_queue_entry_pure(queue)
     if not (queue["paused"] or queue["suspended"]) or entry is None:
         return False
-    return start_action(addon, entry["action"], {ACTION_QUEUE_KEY: {**queue, "paused": False, "suspended": False}})
+    return start_action(addon, entry["action"], {
+        **_cleared_queue_notice_pure(addon._state.player_data),
+        ACTION_QUEUE_KEY: {**queue, "paused": False, "suspended": False},
+    })
 
 
 def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -492,7 +534,7 @@ def apply_action_queue_command(addon, command: str, payload: Mapping[str, Any]) 
     elif command == "resume":
         ok = resume_action_queue(addon)
     elif command == "remove":
-        ok = remove_action_queue_entry(addon, int(payload["position"]))
+        ok = remove_action_queue_entry(addon, int(payload["position"]), payload["entry"], payload.get("expected_queue"))
     elif command == "move":
         ok = move_action_queue_entry(addon, int(payload["position"]), int(payload["new_index"]))
     else:

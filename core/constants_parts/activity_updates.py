@@ -58,7 +58,7 @@ UTILITY_ACTIVITY_DATA = {
         "source": "https://runescape.wiki/w/Robust_glass?oldid=6504157",
     },
     "convert_logs_to_planks": {
-        "display_name": "Convert logs to planks",
+        "display_name": "Sawmill: Plank",
         "requirements": {"Logs": 1, "Coins": 100},
         "output_item": "Plank",
         "output_qty": 1,
@@ -67,7 +67,7 @@ UTILITY_ACTIVITY_DATA = {
         "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
     },
     "convert_oak_logs_to_oak_planks": {
-        "display_name": "Convert oak logs to oak planks",
+        "display_name": "Sawmill: Oak plank",
         "requirements": {"Oak logs": 1, "Coins": 250},
         "output_item": "Oak plank",
         "output_qty": 1,
@@ -76,7 +76,7 @@ UTILITY_ACTIVITY_DATA = {
         "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
     },
     "convert_teak_logs_to_teak_planks": {
-        "display_name": "Convert teak logs to teak planks",
+        "display_name": "Sawmill: Teak plank",
         "requirements": {"Teak logs": 1, "Coins": 500},
         "output_item": "Teak plank", "output_qty": 1, "batch_size": 28,
         "group": "material_processing",
@@ -84,7 +84,7 @@ UTILITY_ACTIVITY_DATA = {
         "source": "Darkan SawmillOperator.java @ 7e7d67b481f1b94599de38a98c470419ab7c96b3",
     },
     "convert_mahogany_logs_to_mahogany_planks": {
-        "display_name": "Convert mahogany logs to mahogany planks",
+        "display_name": "Sawmill: Mahogany plank",
         "requirements": {"Mahogany logs": 1, "Coins": 1500},
         "output_item": "Mahogany plank", "output_qty": 1, "batch_size": 28,
         "group": "material_processing",

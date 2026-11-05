@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.action_queue import action_queue_pure
 from ankiscape.core.menu_action_queue import action_supply_limit_pure, queue_add_view_pure
 from tests.action_queue.test_queue_reviews import _MINE_IRON, _SMELT_IRON, QueueProfile
 
@@ -91,8 +92,8 @@ class QueueMenuCommandTest(QueueProfile):
         )
         self.assertFalse(queue_add_view_pure(addon._state.player_data, _SMELT_IRON)["enabled"])
 
-        self.assertTrue(command("remove", {"position": 4})["ok"])
-        self.assertFalse(command("remove", {"position": 0})["ok"])
+        last = action_queue_pure(addon._state.player_data)["entries"][4]
+        self.assertTrue(command("remove", {"position": 4, "entry": last})["ok"])
         self.assertEqual(len(self._rows(addon)), 4)
 
         self.assertEqual(command("clear", {}), {"ok": True, "active": "Utilities", "message": ""})

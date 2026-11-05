@@ -8,7 +8,7 @@ from tests.main_menu import fixtures
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
-    def test_prayer_tree_groups_methods_and_locked_rows_ignore_clicks(self) -> None:
+    def test_prayer_tree_groups_methods_and_rows_without_bones_keep_the_saved_method(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {}
         dialog = self._open(pd, current_skill="Prayer")
@@ -23,7 +23,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(groups, ["Bury", "Scatter", "Ectofuntus", "Gilded altar"])
         bury = tree.topLevelItem(0)
         bones = next(bury.child(i) for i in range(bury.childCount()) if bury.child(i).data(0, Qt.ItemDataRole.UserRole) == "bury_bones")
-        self.assertTrue(bones.isDisabled())
+        self.assertFalse(bones.isDisabled())
         before = list(self._prayer_calls)
         tree.itemClicked.emit(bones, 0)
         QApplication.processEvents()

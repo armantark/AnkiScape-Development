@@ -291,9 +291,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
                 "combat_attack_style": "magic_standard",
                 "current_combat_spell": "wind_strike",
                 "magic_level": 10,
-                "inventory": {"Air rune": 5, "Mind rune": 5},
+                "inventory": {'Air rune': 6, 'Mind rune': 6},
                 "equipment": {"weapon": "Staff"},
-                "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
+                "combat_supply_loadout": {}, 'carried_inventory': {"chicken": {"Air rune": 1, "Mind rune": 1}},
             }
         )
         dialog = self._open(pd, current_skill="Combat")
@@ -445,16 +445,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd.update(
             {
                 "config_version": CURRENT_CONFIG_VERSION,
-                "inventory": {"Fire rune": 100},
+                "inventory": {'Fire rune': 150, 'Air rune': 5, 'Mind rune': 5},
                 "current_combat_target": "chicken",
                 "combat_auto_eat_threshold_percent": 55,
                 "combat_auto_eat_food": ["Lobster", "Shrimps"],
-                "combat_supply_loadout": {
-                    "food": {"Lobster": 3},
-                    "potions": {"Antipoison (1)": 1},
-                    "ammo": {"Bronze arrows": 10},
-                    "runes": {"Air rune": 5, "Mind rune": 5, "Fire rune": 50},
-                },
+                "combat_supply_loadout": {'food': {"Lobster": 3}, 'potions': {"Antipoison (1)": 1}}, 'equipment': {'ammunition': "Bronze arrows"}, 'equipment_ammunition_count': 10, 'carried_inventory': {"chicken": {"Air rune": 5, "Mind rune": 5, "Fire rune": 50}},
             }
         )
         pd = migrate_loaded_data(pd, ORE_DATA, ITEM_DEFINITIONS)
@@ -477,14 +472,14 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertEqual(threshold_spin.value(), 55)
         self.assertIn("Food: Lobster x3", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
-        self.assertIn("Ammo: none loaded", summary_label.text())
+        self.assertIn("Ammunition: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: none loaded", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
         _open_bank_tab(dialog)
         bank_texts = _bank_grid_texts(dialog)
         self.assertIn("Air rune x5", bank_texts)
         self.assertIn("Mind rune x5", bank_texts)
-        self.assertIn("Bronze arrows x10", bank_texts)
+        self.assertNotIn("Bronze arrows x10", bank_texts)
         self.assertIn("Fire rune x150", bank_texts)
 
         threshold_spin.setValue(60)

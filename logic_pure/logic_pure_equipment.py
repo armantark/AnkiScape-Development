@@ -487,6 +487,17 @@ def save_equipment_move_pure(current, move, equipment_data):
     updated = dict(current)
     updated["inventory"] = new_inventory
     updated["equipment"] = new_equipment
+    before_ammo = before_equipment.get("ammunition")
+    after_ammo = new_equipment.get("ammunition")
+    if before_ammo != after_ammo:
+        count = int(current.get("equipment_ammunition_count", 1 if before_ammo else 0))
+        if before_ammo:
+            new_inventory[before_ammo] += count - 1
+        count = 0
+        if after_ammo:
+            count = new_inventory.get(after_ammo, 0) + 1
+            new_inventory[after_ammo] = 0
+        updated["equipment_ammunition_count"] = count
     swap = current.get("quest_equipment_swap", {})
     if swap and any(before_equipment.get(slot) != new_equipment.get(slot) for slot in swap["displaced"]):
         updated["quest_equipment_swap"] = {}
@@ -551,3 +562,11 @@ def restore_quest_equipment_pure(player_data, equipment_data=None, *, force=Fals
             inventory, equipment, _ = equip_item_pure(item, inventory, equipment, wear_data)
     # Held quest gear outside the catalog retains its original slot.
     return save_equipment_move_pure(data, (inventory, equipment, True), equipment_data)[0]
+
+
+def combat_equipment_totals_pure(equipment, equipment_data):
+    # Combat adds the selected projectile's strength separately, including a
+    # Bank preview before that stack is worn and the last shot before refill.
+    gear = dict(equipment or {})
+    gear.pop("ammunition", None)
+    return equipment_stat_totals_pure(gear, equipment_data)

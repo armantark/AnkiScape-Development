@@ -201,7 +201,7 @@ class TestSpiritShieldRequirements(unittest.TestCase):
                 self.assertEqual(player, before)
 
     def test_migration_is_idempotent_for_each_schema_version(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 126)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 127)
         for version, (failure, updates, _reason), quantity in product((1, 125, 126), FAILURES, (0, 2)):
             with self.subTest(version=version, requirement=failure, bank_quantity=quantity):
                 player = _player(config_version=version, **updates)

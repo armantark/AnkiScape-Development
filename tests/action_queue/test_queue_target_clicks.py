@@ -30,18 +30,15 @@ _JUNGLE_POTION_DONE = {
 
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
-class TargetClickTest(QueueProfile):
+class TargetClickFlow(QueueProfile):
+    """Opens the real menu of a queue addon and clicks its rows and buttons."""
+
     def setUp(self):
         # The real aqt in place of the review fakes, because these flows open the real menu.
         self._orig_modules = dict(sys.modules)
         self.app = QApplication.instance() or QApplication([])
 
-    def _herblore_addon(self, name, *entries, inventory=None):
-        addon = self._queue_addon(
-            f"ankiscape_target_click_{name}", *entries,
-            herblore_level=99, current_herblore="clean_snake_weed",
-            quests=dict(_JUNGLE_POTION_DONE), inventory=dict(_HERBS if inventory is None else inventory),
-        )
+    def _capture_menus(self, addon):
         self.opened = []
         opened = self.opened
 
@@ -59,9 +56,10 @@ class TargetClickTest(QueueProfile):
         self.addCleanup(dialog.close)
         dialog.show()
         dialog.resize(900, 560)
-        category = "Artisan" if surface in {"Herblore", "Smithing"} else surface
+        artisan = surface in {"Herblore", "Smithing", "Crafting", "Fletching", "Firemaking"}
+        category = "Artisan" if artisan else surface
         next(b for b in dialog.findChildren(QPushButton) if b.text() == category).click()
-        if surface in {"Herblore", "Smithing"}:
+        if artisan:
             skills = _find_artisan_skill_list(dialog)
             skills.setCurrentRow(next(i for i in range(skills.count()) if skills.item(i).text() == surface))
         self._settle()
@@ -108,6 +106,16 @@ class TargetClickTest(QueueProfile):
         from ankiscape.core.action_queue import action_queue_view_pure
 
         return action_queue_view_pure(addon._state.player_data)
+
+
+@unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
+class TargetClickTest(TargetClickFlow):
+    def _herblore_addon(self, name, *entries, inventory=None):
+        return self._capture_menus(self._queue_addon(
+            f"ankiscape_target_click_{name}", *entries,
+            herblore_level=99, current_herblore="clean_snake_weed",
+            quests=dict(_JUNGLE_POTION_DONE), inventory=dict(_HERBS if inventory is None else inventory),
+        ))
 
     def test_the_owners_herbs_click_add_and_train_each_do_what_they_show(self):
         addon = self._herblore_addon("herbs")

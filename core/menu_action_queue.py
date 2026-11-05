@@ -5,10 +5,15 @@ for, never below one, so a sensible count needs no arithmetic and an entry can
 plan on what an earlier one makes; the line beside the box names both sources.
 An action no Bank item limits, such as mining or a fight, starts at one
 inventory, the unit a 2012 player counts gathering in.
+
+A target row locked only for lack of what its run uses up is plan-only (owner,
+Pass 21): it takes the click and the Add record, because an earlier entry can
+make those items, and Start stays off until they exist.
 """
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any, Mapping
 
 from .action_products import (
@@ -28,14 +33,23 @@ from .action_queue import (
     queue_entry_unit_pure,
     queue_move_takes_over_pure,
     queue_runs_pure,
+    remove_queue_entry_pure,
 )
-from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, utility_review_surface_for_target
-from .constants import UTILITY_ACTIVITY_DATA
+from .action_registry import COMBAT_REVIEW_ACTION_DISPLAY_NAME, is_utility_review_action, utility_review_surface_for_target
+from .constants import QUEST_UNLOCK_RULES, UTILITY_ACTIVITY_DATA
 from .last_action import last_action_record_pure
+from .skill_guide_locks import target_lock_reasons_pure
 from .skill_registry import get_skill
+from .target_row import TargetRowMetadata
+from ..data.construction_data import NAIL_DATA
 from ..logic.inventory_pure import CARRIED_CAPACITY
 from ..logic.summoning_logic import summoning_action_requirements_pure
-from ..logic_pure.logic_pure import _runecrafting_multiplier_info
+from ..logic_pure.logic_pure import _runecrafting_multiplier_info, utility_activity_locked_reasons_pure
+from ..logic_pure.logic_pure_magic import magic_used_items_pure
+
+
+# More than any recipe uses, so a supposed Bank never locks a row by quantity.
+_PLANNED_STOCK = 2_147_483_647
 
 
 def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked: Any = None) -> dict[str, Any]:
@@ -47,8 +61,8 @@ def menu_action_record_pure(player_data: Mapping[str, Any], surface: str, picked
     one, so the entry names and counts that target.
     """
     record = last_action_record_pure(player_data, surface)
-    if picked is not None and record.get("kind") == "utility":
-        record["utility_id"] = picked
+    if picked is not None and is_utility_review_action(surface):
+        record = {"kind": "utility", "utility_id": picked}
     elif picked is not None and record:
         record["target"] = picked
     if record.get("kind") == "utility" and utility_review_surface_for_target(record["utility_id"]) != surface:
@@ -77,6 +91,10 @@ def surface_trains_pick_pure(player_data: Mapping[str, Any], surface: str, activ
     )
 
 
+def _activity_id(action: Mapping[str, Any]) -> str:
+    return str(action["utility_id"]) if action.get("kind") == "utility" else "bankstanding"
+
+
 def activity_started_by_add_pure(
     player_data: Mapping[str, Any], current_skill: Any, action: Mapping[str, Any], count: Any
 ) -> str:
@@ -84,8 +102,7 @@ def activity_started_by_add_pure(
 
     That is the queue's first entry, or the added one in an empty queue. Empty
     when the queue refuses the add, so no session ends for nothing; when the
-    queue already runs, so the add only waits its turn; or when the entry that
-    starts is not an activity.
+    queue already runs, so the add only waits its turn.
     """
     queue = action_queue_pure(player_data)
     if queue_add_refusal_pure(player_data, action) or not add_queue_entry_pure(queue, action, count)[1]:
@@ -93,8 +110,7 @@ def activity_started_by_add_pure(
     if queue_runs_pure(player_data, current_skill):
         return ""
     entry = current_queue_entry_pure(queue)
-    starting = entry["action"] if entry is not None else action
-    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
+    return _activity_id(entry["action"] if entry is not None else action)
 
 
 def activity_started_by_move_pure(
@@ -104,8 +120,16 @@ def activity_started_by_move_pure(
     queue, ok = move_queue_entry_pure(action_queue_pure(player_data), position, new_index)
     if not ok or not queue_move_takes_over_pure(player_data, current_skill, position, new_index):
         return ""
-    starting = current_queue_entry_pure(queue)["action"]
-    return str(starting["utility_id"]) if starting.get("kind") == "utility" else ""
+    return _activity_id(current_queue_entry_pure(queue)["action"])
+
+
+def activity_started_by_remove_pure(player_data: Mapping[str, Any], current_skill: Any, position: int) -> str:
+    """Where removing the running entry lands, so it first asks to leave a running session: the next activity or Bankstanding."""
+    queue, ok = remove_queue_entry_pure(action_queue_pure(player_data), position)
+    if not ok or position or not queue_runs_pure(player_data, current_skill):
+        return ""
+    entry = current_queue_entry_pure(queue)
+    return _activity_id(entry["action"]) if entry is not None else "bankstanding"
 
 
 def utility_action_record_pure(utility_id: str) -> dict[str, Any]:
@@ -113,12 +137,15 @@ def utility_action_record_pure(utility_id: str) -> dict[str, Any]:
     return {"kind": "utility", "utility_id": utility_id} if utility_id else {}
 
 
+def _action_spec(action: Mapping[str, Any]) -> Any:
+    if action["kind"] == "utility":
+        return UTILITY_ACTIVITY_DATA.get(action["utility_id"], {})
+    return action_target_spec_pure(action)
+
+
 def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[dict[str, tuple[str, ...]], dict[str, int], int]:
     """What one run uses, as alternatives per input and an amount, and the products it makes."""
-    if action["kind"] == "utility":
-        spec = UTILITY_ACTIVITY_DATA.get(action["utility_id"], {})
-    else:
-        spec = action_target_spec_pure(action)
+    spec = _action_spec(action)
     made = int(spec_field_pure(spec, "output_qty") or spec_field_pure(spec, "output_quantity") or 1)
     if action.get("skill") == "Summoning":
         needs = summoning_action_requirements_pure(player_data, str(action["target"]))
@@ -127,8 +154,57 @@ def _inputs_and_yield(player_data: Mapping[str, Any], action: Mapping[str, Any])
         level = int(player_data.get("runecrafting_level") or 1)
         return {"essence": tuple(spec_field_pure(spec, "essence_items"))}, {"essence": 1}, _runecrafting_multiplier_info(spec, level)[0]
     needs = dict(spec_field_pure(spec, "requirements") or {})
-    options = dict(spec_field_pure(spec, "material_options") or {})
+    options = {"Nails": tuple(NAIL_DATA), **dict(spec_field_pure(spec, "material_options") or {})}
     return {item: tuple(options.get(item) or (item,)) for item in needs}, needs, made
+
+
+def _used_items(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> set[str]:
+    """Every item a run of the action can use up; never a tool, an access item or a wage, so those locks stay."""
+    alternatives, _needs, _made = _inputs_and_yield(player_data, action)
+    items = {item for options in alternatives.values() for item in options}
+    spec = _action_spec(action)
+    for field in ("bait_options", "any_requirements", "openable_items"):
+        items.update(spec_field_pure(spec, field) or ())
+    if rune := spec_field_pure(spec, "component_rune"):
+        items.update(("Pure essence", rune, spec_field_pure(spec, "consumed_talisman")))
+    if action.get("skill") == "Magic":
+        items.update(magic_used_items_pure(spec))
+    if "Nails" in items:
+        items.update(NAIL_DATA)
+    return items
+
+
+def _action_locks(player_data: Mapping[str, Any], action: Mapping[str, Any]) -> tuple[str, ...]:
+    """What the action's target row says locks it now; empty for an action no row list locks."""
+    if action.get("kind") == "skill":
+        return target_lock_reasons_pure(player_data, get_skill(action["skill"]).id, action["target"])
+    if action.get("utility_id") in UTILITY_ACTIVITY_DATA:
+        return utility_activity_locked_reasons_pure(
+            player_data, action["utility_id"], UTILITY_ACTIVITY_DATA, QUEST_UNLOCK_RULES
+        )
+    return ()
+
+
+def pick_can_start_pure(player_data: Mapping[str, Any], surface: str, picked: Any) -> bool:
+    """Whether the panel's Start can run this target now, so a pick without its inputs leaves Start off."""
+    return not _action_locks(player_data, menu_action_record_pure(player_data, surface, picked))
+
+
+def _plan_only(player_data: Mapping[str, Any], surface: str, row: TargetRowMetadata) -> bool:
+    """Whether the row's own lock reasons all clear once the Bank holds what its run uses up."""
+    action = menu_action_record_pure(player_data, surface, row.target_id)
+    locks = _action_locks(player_data, action)
+    if row.enabled or not locks or not set(row.locked_reasons) <= set(locks):
+        return False
+    bank = {**(player_data.get("inventory") or {}), **dict.fromkeys(_used_items(player_data, action), _PLANNED_STOCK)}
+    return not _action_locks({**player_data, "inventory": bank}, action)
+
+
+def plan_rows_pure(
+    player_data: Mapping[str, Any], surface: str, rows: tuple[TargetRowMetadata, ...]
+) -> tuple[TargetRowMetadata, ...]:
+    """The panel's rows, with each row that lacks only what its run uses up marked plan-only."""
+    return tuple(replace(row, plan_only=_plan_only(player_data, surface, row)) for row in rows)
 
 
 def _bank_count(player_data: Mapping[str, Any], items: tuple[str, ...]) -> int:
@@ -231,7 +307,6 @@ def queue_panel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "state": labels[row["state"]],
                 "text": _row_text(row),
                 "current": row["state"] == "current",
-                "removable": row["removable"],
                 "can_move_up": position > 0,
                 "can_move_down": position + 1 < count,
             }

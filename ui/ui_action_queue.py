@@ -12,7 +12,10 @@ from ..core.action_queue import MAX_QUEUE_ENTRIES, action_queue_pure, queue_noti
 from ..core.menu_action_queue import (
     activity_started_by_add_pure,
     activity_started_by_move_pure,
+    activity_started_by_remove_pure,
     menu_action_record_pure,
+    pick_can_start_pure,
+    plan_rows_pure,
     queue_add_view_pure,
     queue_panel_view_pure,
     queue_runs_surface_pure,
@@ -92,16 +95,18 @@ if HAS_QT:
     class MenuQueue(QObject):
         """The menu's queue command and what the menu does around it.
 
-        An add or move that starts an activity at once first asks to leave a
-        running session, as Start does. ``typed`` keeps a count the player typed
-        through a panel rebuild until the target changes, ``remembered`` keeps
-        one the queue took, and each result goes to the menu's follow-up. For
-        ``_CONFIRM_MS`` after an add, ``confirmed`` names the action and the
-        entry total its Add button confirms, also on a control the follow-up
-        rebuilt, and ``added`` tells the queue box which line is new.
+        An add, move or removal that starts an activity at once first asks to
+        leave a running session, as Start does. ``typed`` keeps a count the
+        player typed through a panel rebuild until the target changes,
+        ``remembered`` keeps one the queue took, and each result goes to the
+        menu's follow-up. For ``_CONFIRM_MS`` after an add, ``confirmed`` names
+        the action and the entry total its Add button confirms, also on a
+        control the follow-up rebuilt. ``added`` and ``moved`` tell the queue
+        box which line to flash.
         """
 
         added = pyqtSignal(int)
+        moved = pyqtSignal(int)
 
         def __init__(self, player_data: dict, current_skill, on_command, on_result, leave_running_activity):
             super().__init__()
@@ -119,24 +124,41 @@ if HAS_QT:
             self._confirm_timer.timeout.connect(self._end_confirmation)
 
         def __call__(self, command: str, payload: dict, remember: bool = False) -> None:
-            if command == "move":
-                activity = activity_started_by_move_pure(
-                    self._player_data, self._current_skill(), payload["position"], payload["new_index"]
-                )
-                if activity and not self._leave_running_activity(activity):
-                    return
-            if command == "add":
-                activity = activity_started_by_add_pure(
-                    self._player_data, self._current_skill(), payload["action"], payload["count"]
-                )
-                if activity and not self._leave_running_activity(activity):
-                    return
+            if command == "remove":
+                # Named before any session ends, because ending one can pass this entry on its own.
+                before = action_queue_pure(self._player_data)
+                payload = {**payload, "entry": before["entries"][payload["position"]], "expected_queue": before}
+            activity = self._activity_started(command, payload)
+            if activity and not self._leave_running_activity(activity):
+                return
+            entries_before = len(action_queue_pure(self._player_data)["entries"])
             result = self._on_command(command, payload)
             if command == "add" and result["ok"]:
                 if remember:
                     self.remembered[_record_key(payload["action"])] = payload["count"]
                 self._confirm(payload["action"])
             self._on_result(result)
+            if command == "move" and result["ok"]:
+                self._confirm_move(payload["new_index"], entries_before)
+
+        def _activity_started(self, command: str, payload: dict) -> str:
+            if command == "move":
+                return activity_started_by_move_pure(
+                    self._player_data, self._current_skill(), payload["position"], payload["new_index"]
+                )
+            if command == "add":
+                return activity_started_by_add_pure(
+                    self._player_data, self._current_skill(), payload["action"], payload["count"]
+                )
+            if command == "remove":
+                return activity_started_by_remove_pure(self._player_data, self._current_skill(), payload["position"])
+            return ""
+
+        def _confirm_move(self, new_index: int, entries_before: int) -> None:
+            # A new first entry that could not start already left, and each one that left moved the line up one.
+            row = new_index - (entries_before - len(action_queue_pure(self._player_data)["entries"]))
+            if row >= 0:
+                self.moved.emit(row)
 
         def _confirm(self, action) -> None:
             entries = len(action_queue_pure(self._player_data)["entries"])
@@ -248,18 +270,28 @@ if HAS_QT:
         """The control on the Activities card that ``activity_id()`` names, empty when none is open."""
         return QueueAddControl(player_data, queue, lambda: utility_action_record_pure(activity_id()))
 
-    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target, active) -> bool:
-        """Hold a target picked while the queue runs this panel's action, for the queue controls only.
+    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target, active, plan_only: bool = False) -> bool:
+        """Hold a plan-only target, or one picked while the queue runs this panel's action, for the queue controls only.
 
-        True when held: the running entry keeps its target, and the panel's
-        Start applies the pick through ``apply`` when the player presses it.
+        True when held: the saved target stays, and the panel's Start applies
+        the pick through ``apply`` when the player presses it.
         """
-        if not queue_runs_surface_pure(player_data, surface, active):
+        if not plan_only and not queue_runs_surface_pure(player_data, surface, active):
             held.pop(surface, None)
             return False
         held[surface] = (apply, target)
         notify_action_queue_changed()
         return True
+
+    def planned_target_selection(player_data: dict, held: dict, surface: str, rows: tuple, select, active) -> tuple:
+        """The panel's rows with their plan-only marks, and a click handler that holds what ``held_by_queue`` holds."""
+        rows = plan_rows_pure(player_data, surface, rows)
+        plan_only = {row.target_id for row in rows if row.plan_only}
+
+        def on_select(target) -> bool:
+            return not held_by_queue(player_data, held, surface, select, target, active(), target in plan_only) and select(target)
+
+        return rows, select and on_select
 
     def show_held_pick(selector, target) -> None:
         """Select the held row of a rebuilt list again; the selection style sets it apart from the training row."""
@@ -274,7 +306,7 @@ if HAS_QT:
         """A skill panel's Start: it reads as running only while the skill runs the target the panel shows.
 
         A held pick is another action, so the same button then starts that pick
-        ahead of the queue.
+        ahead of the queue, once the pick has its inputs.
         """
 
         def __init__(self, player_data: dict, surface: str, active, picked, texts: tuple, available):
@@ -285,23 +317,31 @@ if HAS_QT:
             self._picked = picked
             self._texts = texts
             self._available = available
-            self._training = None
+            self._shown = None
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
+
+        def pick_can_start(self) -> bool:
+            picked = self._picked()
+            return picked is None or pick_can_start_pure(self._player_data, self._surface, picked)
 
         def refresh(self) -> None:
             picked = self._picked()
             training = surface_trains_pick_pure(self._player_data, self._surface, self._active(), picked)
-            if training == self._training:
+            startable = self.pick_can_start()
+            # Asks ``available`` only when this changes, because that walks every target of the skill.
+            shown = (training, picked is None, startable)
+            if shown == self._shown:
                 return
-            self._training = training
+            self._shown = shown
             self.setProperty("ankiscapeCurrentlyTraining", training)
             self.setText(self._texts[0] if training else self._texts[1])
-            self.setEnabled(not training and (picked is not None or self._available()))
+            self.setEnabled(not training and startable and (picked is not None or self._available()))
             self.setStyleSheet(
                 _TRAINING_BUTTON_STYLE
                 if training
-                else _START_BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}"
+                # The application's palette, because the button's own still holds the training style's green.
+                else _START_BUTTON_STYLE + f" QPushButton:disabled {{ color: {dim_text_css()}; }}"
             )
 
     def _queue_box_folded() -> bool:
@@ -408,6 +448,7 @@ if HAS_QT:
             self._title.toggled.connect(self._fold)
             if queue is not None:
                 queue.added.connect(self._flash)
+                queue.moved.connect(self._flash)
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
 
@@ -426,16 +467,16 @@ if HAS_QT:
             remove.setFixedSize(text.fontMetrics().lineSpacing(), text.fontMetrics().lineSpacing())
             remove.setEnabled(self._queue is not None)
             remove.clicked.connect(lambda _=False: self._queue("remove", {"position": position}))
-            up = self._move_button("Up", position, position - 1)
-            down = self._move_button("Down", position, position + 1)
+            up = self._move_button("Up", "∧", position, position - 1)
+            down = self._move_button("Down", "∨", position, position + 1)
             state.setContentsMargins(0, 1, 12, 1)
             text.setContentsMargins(0, 1, 0, 1)
             for column, widget in enumerate((state, text, up, down, remove)):
                 layout.addWidget(widget, position, column)
             return state, text, up, down, remove
 
-        def _move_button(self, label: str, position: int, new_index: int):
-            button = QPushButton(label)
+        def _move_button(self, label: str, chevron: str, position: int, new_index: int):
+            button = QPushButton(chevron)
             button.setObjectName(f"actionQueueMove{label}")
             button.setAccessibleName(f"Move entry {position + 1} {label.lower()}")
             button.setStyleSheet(_MOVE_STYLE + f" QPushButton:disabled {{ color: {dim_text_css(self)}; }}")
@@ -460,9 +501,8 @@ if HAS_QT:
             self._lines.setVisible(self._title.isChecked())
             for position, (state, text, up, down, remove) in enumerate(self._rows):
                 row = view["rows"][position] if position < len(view["rows"]) else None
-                for widget in (state, text, up, down):
+                for widget in (state, text, up, down, remove):
                     widget.setVisible(row is not None)
-                remove.setVisible(row is not None and row["removable"])
                 if row is not None:
                     up.setEnabled(row["can_move_up"] and self._queue is not None)
                     down.setEnabled(row["can_move_down"] and self._queue is not None)

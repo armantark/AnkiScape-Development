@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 61,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_restless_ghost', 1, 'Complete The Restless Ghost'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 79,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_doom',
@@ -53,7 +51,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 62,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_shrimpin_ain_t_easy',
@@ -63,7 +60,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 63,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_master_of_all_i_survey',
@@ -73,7 +69,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 64,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_raise_the_roof',
@@ -83,7 +78,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 65,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_hail_to_the_duke_baby',
@@ -93,7 +87,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 66,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_window_shopping',
@@ -103,7 +96,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 67,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_grinding_my_gears',
@@ -113,7 +105,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 68,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_sage_advice',
@@ -123,7 +114,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 69,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_tinkle_the_ivories',
@@ -133,7 +123,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 70,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_passing_out',
@@ -143,7 +132,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 71,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.lumbridge.beginner.lamp_minimum_level): the exact period
@@ -168,7 +156,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 84,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 25, 'Level 25 Fishing'),),
             ),
             DiaryTask(
@@ -179,7 +166,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 85,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_belter_of_a_smelter',
@@ -189,7 +175,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 86,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 30, 'Level 30 Smithing'),),
             ),
             DiaryTask(
@@ -200,7 +185,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 88,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 5, 'Level 5 Runecrafting'),),
             ),
             DiaryTask(
@@ -211,7 +195,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 91,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_restless_ghost', 1, 'Complete The Restless Ghost'),),
             ),
             DiaryTask(
@@ -222,7 +205,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 93,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_what_is_this_place',
@@ -232,7 +214,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 97,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
             ),
             DiaryTask(
@@ -243,7 +224,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 99,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 4, 'Level 4 Crafting'),),
             ),
             DiaryTask(
@@ -254,7 +234,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 102,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 15, 'Level 15 Mining'),),
             ),
             DiaryTask(
@@ -265,7 +244,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 87,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_klept_old_man_ia',
@@ -275,7 +253,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 89,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_eye_on_the_prize',
@@ -285,7 +262,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 90,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.lumbridge.easy.lamp_minimum_level): the exact period
@@ -310,7 +286,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 103,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 30, 'Level 30 Mining'),),
             ),
             DiaryTask(
@@ -321,7 +296,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 104,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'cooks_assistant', 1, "Complete Cook's Assistant"), DiaryCondition('skill_level', 'cooking', 40, 'Level 40 Cooking'),),
             ),
             DiaryTask(
@@ -332,7 +306,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 105,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 30, 'Level 30 Fishing'),),
             ),
             DiaryTask(
@@ -343,7 +316,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 106,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 30, 'Level 30 Woodcutting'),),
             ),
             DiaryTask(
@@ -354,7 +326,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 107,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'dragon_slayer', 1, 'Complete Dragon Slayer'),),
             ),
             DiaryTask(
@@ -365,7 +336,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 108,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 36, 'Level 36 Smithing'),),
             ),
             DiaryTask(
@@ -376,7 +346,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 109,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 31, 'Level 31 Magic'),),
             ),
             DiaryTask(
@@ -387,7 +356,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 110,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 30, 'Level 30 Firemaking'),),
             ),
             DiaryTask(
@@ -398,7 +366,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 112,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 20, 'Level 20 Mining'),),
             ),
             DiaryTask(
@@ -409,7 +376,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 113,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 20, 'Level 20 Smithing'),),
             ),
             DiaryTask(
@@ -420,7 +386,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 114,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 16, 'Level 16 Crafting'),),
             ),
             DiaryTask(
@@ -431,7 +396,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 111,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.lumbridge.medium.lamp_minimum_level): the exact period
@@ -456,7 +420,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 351,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 68, 'Level 68 Smithing'),),
             ),
             DiaryTask(
@@ -467,7 +430,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 352,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 40, 'Level 40 Smithing'), DiaryCondition('skill_level', 'magic', 49, 'Level 49 Magic'), DiaryCondition('skill_level', 'crafting', 50, 'Level 50 Crafting'),),
             ),
             DiaryTask(
@@ -478,7 +440,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 353,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 50, 'Level 50 Cooking'),),
             ),
             DiaryTask(
@@ -489,7 +450,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 354,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 59, 'Level 59 Magic'),),
             ),
             DiaryTask(
@@ -500,7 +460,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 355,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'prayer', 45, 'Level 45 Prayer'),),
             ),
             DiaryTask(
@@ -511,7 +470,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 356,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 57, 'Level 57 Runecrafting'),),
             ),
             DiaryTask(
@@ -522,7 +480,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 357,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 60, 'Level 60 Firemaking'),),
             ),
             DiaryTask(
@@ -533,7 +490,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 92,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_it_was_dead_already',
@@ -543,7 +499,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 94,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_camping_trip',
@@ -553,7 +508,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 95,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_ratatouille',
@@ -563,7 +517,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 96,
                 0,
-                False,
             ),
             DiaryTask(
                 'lumbridge_easy_money_down_the_drayn',
@@ -573,7 +526,6 @@ FAMILY = DiaryFamily(
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 98,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.lumbridge.hard.lamp_minimum_level): the exact period

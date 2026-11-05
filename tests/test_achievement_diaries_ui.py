@@ -286,19 +286,6 @@ class AchievementCabinetUITest(unittest.TestCase):
             for tier in family.tiers:
                 self.assertIsNone(page.findChild(QLabel, f"cabinetSourceGap_{tier.id}"))
 
-    def test_progression_anchor_is_visibly_labelled(self):
-        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        anchor = next(
-            task
-            for family in ACHIEVEMENT_DIARY_CATALOG
-            for tier in family.tiers
-            for task in tier.tasks
-            if task.curation_anchor
-        )
-        page, _ctx = self._build(player)
-        label = self._named(page, f"cabinetTask_{anchor.id}", QLabel)
-        self.assertIn("Progression anchor", label.text())
-
     def test_pressing_claim_runs_the_command_and_re_renders(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         family, catalog = _active_claim_catalog()

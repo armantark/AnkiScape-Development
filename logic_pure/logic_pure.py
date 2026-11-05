@@ -355,7 +355,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     combat_enemy_pressure_attack_pure,
     combat_has_active_encounter_pure,
     combat_hud_state_pure,
-    combat_supply_loadout_summary_pure,
+    combat_supply_loadout_summary_pure, equipment_slot_text, combat_target_pack_move_pure, migrate_ammunition, carried_runes,
     combat_target_preview_pure,
     combat_weapon_style_options_pure,
     player_combat_level_pure,

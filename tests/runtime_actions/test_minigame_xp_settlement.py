@@ -104,5 +104,5 @@ class TestMinigameXpSettlement(unittest.TestCase):
             equipment={"weapon": "Staff"},
             combat_attack_style="magic_standard",
             current_combat_spell="wind_strike",
-            combat_supply_loadout={"runes": {"Air rune": 50, "Mind rune": 50}},
+            combat_supply_loadout={}, inventory={"Air rune": 50, "Mind rune": 50}, carried_inventory={'chicken': {"Air rune": 50, "Mind rune": 50}},
         )

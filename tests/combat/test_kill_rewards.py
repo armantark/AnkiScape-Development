@@ -29,7 +29,7 @@ def _reflection_player():
         combat_vengeance=True,
         combat_spellbook_swap="vengeance",
         quests={"lunar_diplomacy": {"completed": True}},
-        combat_supply_loadout={"runes": {"Mind rune": 1}},
+        combat_supply_loadout={}, inventory={"Mind rune": 1}, carried_inventory={"reward_target": {"Mind rune": 1}},
         combat_encounter={
             "target_id": "reward_target",
             "enemy_lifepoints": 5,

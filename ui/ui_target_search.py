@@ -177,6 +177,14 @@ def short_target_row_label(label: str) -> str:
     return f"{first} +{rest.count('/') + 1} more{place}"
 
 
+def show_row_lock(item, row, *column) -> None:
+    """A plan-only row reads dim and still takes clicks; any other locked row is disabled. A tree item names its ``column``."""
+    if row.plan_only:
+        item.setForeground(*column, dim_text_color())
+    elif not row.enabled:
+        item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+
+
 def style_flat_target_list(target_list) -> None:
     from .ui_tab_shop_widgets import WrappedRowDelegate
 
@@ -184,6 +192,7 @@ def style_flat_target_list(target_list) -> None:
     target_list.setAlternatingRowColors(True)
     target_list.setStyleSheet(
         f"QListWidget::item {{ min-height: 28px; padding: {_ROW_PADDING}px; }}"
+        f" QListWidget::item:disabled {{ color: {dim_text_css(target_list)}; }}"
         " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
         " color: palette(text); }"
     )

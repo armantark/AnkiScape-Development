@@ -21,7 +21,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertIsNotNone(dialog.findChild(QWidget, "constructionHouseRoomView"))
         tree = dialog.findChild(QTreeWidget, "constructionTargetTree")
         self.assertIsNotNone(tree)
-        locked = next(item for item in _tree_items(tree) if item.data(0, Qt.ItemDataRole.UserRole) == "crude_wooden_chair")
+        # No staircase room is bought; the Bank alone would only make a row plan-only.
+        locked = next(item for item in _tree_items(tree) if item.data(0, Qt.ItemDataRole.UserRole) == "oak_staircase")
         self.assertTrue(locked.isDisabled())
         before = list(self._construction_calls)
         tree.itemClicked.emit(locked, 0)

@@ -17,7 +17,7 @@ from ..data.fight_caves_data import (
     FIGHT_CAVES_WAVES,
 )
 from ..logic_pure.logic_pure import (
-    apply_combat_burst_pure,
+    apply_combat_burst_pure, combat_target_pack_move_pure,
     apply_thieving_damage_pure,
     combat_enemy_pressure_attack_pure,
     combat_max_lifepoints_pure,
@@ -317,7 +317,7 @@ def _end_session(
     data["combat_encounter"] = {}
     previous = state.get("previous_combat_target")
     if previous:
-        data["current_combat_target"] = previous
+        data.update(combat_target_pack_move_pure(data, previous))
     return {
         "outcome": outcome,
         "tokkul": tokkul,
@@ -516,7 +516,7 @@ def apply_fight_caves_review_pure(
     if enemy_id == "tztok_jad":
         enemy["attack_style"] = state["jad_next_style"]
         enemy["max_hit"] = 970
-    data["current_combat_target"] = FIGHT_CAVES_COMBAT_TARGET_ID
+    data.update(combat_target_pack_move_pure(data, FIGHT_CAVES_COMBAT_TARGET_ID))
     data["combat_encounter"] = _sanitize_encounter(
         engaged.get("encounter"), engaged["lifepoints"]
     )

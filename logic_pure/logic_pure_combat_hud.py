@@ -157,6 +157,7 @@ def combat_setup_panel_view_pure(player_data, equipment_data):
         "borrowed_power_spell": player_data.get("combat_borrowed_power_spell"),
         "dream_thrift": bool(player_data.get("combat_dream_thrift", False)),
         "auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
+        "ava_incidental_items": bool(player_data.get("combat_ava_incidental_items", True)),
         "auto_eat_threshold": max(1, min(_int_or(player_data.get("combat_auto_eat_threshold_percent", 40) or 40, 40), 99)),
         "preset_names": [str(name) for name in presets] if isinstance(presets, dict) else ["Default"],
         "active_preset": active_preset,

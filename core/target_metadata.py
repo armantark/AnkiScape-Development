@@ -1368,10 +1368,7 @@ def _combat_ammo_summary(player_data: Mapping[str, object], target_id: str, ammo
         except (TypeError, ValueError):
             return 0
 
-    loadout_raw = player_data.get("combat_supply_loadout", {}) or {}
-    loadout = loadout_raw if isinstance(loadout_raw, Mapping) else {}
-    ammo_raw = loadout.get("ammo", {}) if isinstance(loadout, Mapping) else {}
-    ammo_loadout = ammo_raw if isinstance(ammo_raw, Mapping) else {}
+    ammo_loadout = {(player_data.get("equipment") or {}).get("ammunition"): player_data.get("equipment_ammunition_count", 1)}
     inventory_raw = player_data.get("inventory", {}) or {}
     inventory = inventory_raw if isinstance(inventory_raw, Mapping) else {}
     encounter_raw = player_data.get("combat_encounter", {}) or {}
@@ -1403,10 +1400,7 @@ def _combat_rune_summary(
         except (TypeError, ValueError):
             return 0
 
-    loadout_raw = player_data.get("combat_supply_loadout", {}) or {}
-    loadout = loadout_raw if isinstance(loadout_raw, Mapping) else {}
-    runes_raw = loadout.get("runes", {}) if isinstance(loadout, Mapping) else {}
-    rune_loadout = runes_raw if isinstance(runes_raw, Mapping) else {}
+    rune_loadout = (player_data.get("carried_inventory") or {}).get(target_id, {})
     inventory_raw = player_data.get("inventory", {}) or {}
     inventory = inventory_raw if isinstance(inventory_raw, Mapping) else {}
     encounter_raw = player_data.get("combat_encounter", {}) or {}
@@ -1417,7 +1411,7 @@ def _combat_rune_summary(
         if not isinstance(rune_name, str):
             continue
         loaded = _count(rune_loadout.get(rune_name, 0))
-        banked = 0 if active_encounter else _count(inventory.get(rune_name, 0))
+        banked = 0 if active_encounter else max(0, _count(inventory.get(rune_name, 0)) - loaded)
         required = _count(amount)
         staff_name = covered_runes.get(rune_name)
         if isinstance(staff_name, str):

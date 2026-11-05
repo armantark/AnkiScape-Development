@@ -95,7 +95,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_leaping_fish"
         )
 
-        self.assertFalse(bait_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        # Missing bait makes the row plan-only: it takes the click and keeps the saved method.
+        self.assertTrue(bait_row.flags() & Qt.ItemFlag.ItemIsEnabled)
         self.assertIn("materials", bait_row.toolTip())
         self.assertFalse(leaping_row.flags() & Qt.ItemFlag.ItemIsEnabled)
         self.assertIn("side levels", leaping_row.toolTip())

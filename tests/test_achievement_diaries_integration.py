@@ -79,24 +79,16 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         from ankiscape.runtime.runtime_actions_shared import RuntimeActionContext
 
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        # One Crafting level short of a real Varrock task, so the review itself
-        # is what crosses the line rather than the setup.
         task = next(
             t
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for t in tier.tasks
-            if len(t.conditions) == 1
-            and t.conditions[0].kind == "skill_level"
-            and t.conditions[0].key == "crafting"
-            # Above the level the weave itself needs, so the review is what
-            # crosses the line rather than the starting state.
-            and t.conditions[0].amount > 10
+            if t.conditions and t.conditions[0].key == "crafting:jewellery_gold_ring"
         )
-        required = task.conditions[0].amount
-        player["crafting_level"] = required - 1
-        player["inventory"]["Ball of wool"] = 5
-        player["current_craft"] = "weave_strip_of_cloth"
+        player["crafting_level"] = 5
+        player["inventory"].update({"Gold bar": 1, "Ring mould": 1})
+        player["current_craft"] = "jewellery_gold_ring"
 
         player = refresh_achievement_diaries_pure(player)[0]
         self.assertNotIn(task.id, player["achievement_diaries"]["completed_tasks"])
@@ -107,9 +99,6 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             player[exp_key] = float(player.get(exp_key, 0)) + float(amount)
             return amount
 
-        def _level_up(_skill, data):
-            data["crafting_level"] = required
-
         ctx = RuntimeActionContext(
             player_data=player,
             random_random=lambda: 0.5,
@@ -117,7 +106,7 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=_award,
             award_hidden_skill_exp=lambda *_args: None,
-            level_up_check=_level_up,
+            level_up_check=lambda *_args: None,
             check_achievements=DeferredAchievementDialogs().defer(check_achievements),
             save_player_data=lambda: None,
             refresh_skill_availability=lambda: None,
@@ -216,24 +205,6 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         player["completed_achievements"] = ["First Steps"]
         check_achievements(player)
         self.assertIn("First Steps", player["completed_achievements"])
-
-    def test_progression_anchor_credits_through_the_live_refresh_seam(self):
-        from ankiscape.core.logic import DeferredAchievementDialogs, check_achievements
-
-        anchor = next(
-            task
-            for family in ACHIEVEMENT_DIARY_CATALOG
-            for tier in family.tiers
-            for task in tier.tasks
-            if task.curation_anchor
-        )
-        condition = anchor.conditions[0]
-        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player[f"{condition.key}_level"] = condition.amount
-
-        DeferredAchievementDialogs().defer(check_achievements)(player)
-
-        self.assertIn(anchor.id, player["achievement_diaries"]["completed_tasks"])
 
     def test_music_unlocks_enter_history_without_floating_popups(self):
         from ankiscape.core.logic import check_achievements

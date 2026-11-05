@@ -3,7 +3,7 @@
 Darkan's achievement classes and rev-727 cache enum 3483 own task identity,
 original tier membership, names, descriptions and ordinary requirements.
 Regional rows are curated into twelve-task AnkiScape tiers; cross-tier
-placements and generic progression anchors are explicitly labelled. Pinned
+placements are explicitly labelled and the curation ledger authors the rest. Pinned
 pre-cutoff wiki revisions are corroboration only. Ordinary requirements
 are shown as access gates and never complete a deed. Un-curated deeds are
 dormant: visible, incomplete, and excluded from automatic completion.

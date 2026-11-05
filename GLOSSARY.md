@@ -2,9 +2,6 @@
 
 Domain terms with one settled meaning each. Implementation detail stays out.
 
-- **Anchor task** — one of the 22 diary rows that are visibly labelled "Reach
-  Level X" milestones. An anchor's level threshold IS its deed, so it is the
-  only diary row class whose trigger may be a level.
 - **Bank Claims** — the Bank tab's inbox of pending claimable rewards. A claim
   row persists until the player claims it; it is the delivery surface for
   deferred rewards such as XP lamps.
@@ -39,8 +36,9 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   through once from top to bottom. An add starts the queue at once, in place
   of whatever runs, unless the queue already runs. The player can move entries
   up and down; a new top entry starts at once and the old one keeps its
-  remaining count. Whole lots stay whole even when the last lot exceeds the
-  count. The rest of that card's play goes to the next entry when eligible;
+  remaining count. The player can remove any entry; removing the running top
+  entry starts the next one. Whole lots stay whole even when the last lot
+  exceeds the count. The rest of that card's play goes to the next entry when eligible;
   otherwise the successor can begin next card. A finished or stopped entry
   leaves the queue, and a finished quest removes every entry for that quest. An action started
   ahead of the queue runs until it stops by itself and the queue then continues

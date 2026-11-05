@@ -41,7 +41,7 @@ def earned_old_save(stage):
 
 class WitchsHouseStorageTest(unittest.TestCase):
     def test_old_incomplete_progress_zero_through_eleven_preserves_earned_custody_and_combat(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 126)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 127)
         for old_stage in range(12):
             with self.subTest(old_stage=old_stage):
                 player = earned_old_save(old_stage)

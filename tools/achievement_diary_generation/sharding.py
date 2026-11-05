@@ -41,7 +41,7 @@ def aggregator_source(
         "requirements.\n"
         "Regional rows are curated into twelve-task AnkiScape tiers; "
         "cross-tier\n"
-        "placements and generic progression anchors are explicitly labelled. "
+        "placements are explicitly labelled and the curation ledger authors the rest. "
         "Pinned\n"
         "pre-cutoff wiki revisions are corroboration only. Ordinary "
         "requirements\n"

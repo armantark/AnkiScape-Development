@@ -3,6 +3,7 @@
 import unittest
 
 import pkg_alias  # noqa: F401
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from ankiscape.logic_pure.logic_pure import repair_combat_supply_loadout_class_pure
 from tests import test_combat_logic as _combat
 from tests import test_storage_pure as _storage
@@ -239,8 +240,8 @@ class EncounterLifecycleTest(unittest.TestCase):
             combat_attack_style="magic_standard",
             current_combat_spell="wind_strike",
             equipment={"weapon": "Staff"},
-            inventory={"Water rune": 5},
-            combat_supply_loadout={"runes": {"Air rune": 5, "Mind rune": 5}},
+            inventory={'Water rune': 5, 'Air rune': 5, 'Mind rune': 5},
+            combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
             combat_encounter=encounter,
         )
 
@@ -253,7 +254,7 @@ class EncounterLifecycleTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(updated["current_combat_spell"], "water_strike")
         self.assertEqual(
-            updated["combat_supply_loadout"]["runes"],
+            carried_runes(updated),
             {"Air rune": 5, "Mind rune": 5, "Water rune": 5},
         )
         self.assertEqual(updated["combat_encounter"], encounter)
@@ -308,13 +309,10 @@ class EncounterLifecycleTest(unittest.TestCase):
             "enemy_attack_ticks_remaining": 4,
         }
         player = _combat._player(
-            equipment={"weapon": "Rune scimitar"},
-            inventory={"Shark": 30},
+            equipment={**{"weapon": "Rune scimitar"}, 'ammunition': "Bronze arrows"},
+            inventory={'Shark': 30, 'Air rune': 5},
             combat_auto_eat_food=["Shark"],
-            combat_supply_loadout={
-                "ammo": {"Bronze arrows": 5},
-                "runes": {"Air rune": 5},
-            },
+            combat_supply_loadout={"stat_potions": {"Magic potion (4)": 1}}, equipment_ammunition_count=5, carried_inventory={'chicken': {"Air rune": 5}},
             combat_encounter=encounter,
         )
 
@@ -325,9 +323,9 @@ class EncounterLifecycleTest(unittest.TestCase):
         loaded_sharks = repaired["combat_supply_loadout"]["food"]["Shark"]
         self.assertGreater(loaded_sharks, 0)
         self.assertEqual(repaired["inventory"]["Shark"] + loaded_sharks, 30)
-        self.assertEqual(repaired["combat_supply_loadout"]["ammo"], {})
-        self.assertEqual(repaired["combat_supply_loadout"]["runes"], {})
-        self.assertEqual(repaired["inventory"]["Bronze arrows"], 5)
+        self.assertEqual(equipped_ammo(repaired), {"Bronze arrows": 5})
+        self.assertEqual(carried_runes(repaired), {})
+        self.assertEqual(repaired["inventory"].get("Bronze arrows", 0), 0)
         self.assertEqual(repaired["inventory"]["Air rune"], 5)
         self.assertEqual(repaired["combat_encounter"], encounter)
 
@@ -337,7 +335,7 @@ class EncounterLifecycleTest(unittest.TestCase):
         )
         saved.update(
             {
-                "inventory": {},
+                "inventory": {'Air rune': 5, 'Mind rune': 5},
                 "equipment": {},
                 "combat_attack_style": "accurate",
                 "current_combat_target": "chicken",
@@ -347,9 +345,7 @@ class EncounterLifecycleTest(unittest.TestCase):
                     "player_attack_ticks_remaining": 2,
                     "enemy_attack_ticks_remaining": 4,
                 },
-                "combat_supply_loadout": {
-                    "runes": {"Air rune": 5, "Mind rune": 5},
-                },
+                "combat_supply_loadout": {"stat_potions": {"Magic potion (4)": 1}}, 'carried_inventory': {"chicken": {"Air rune": 5, "Mind rune": 5}},
             }
         )
 
@@ -357,7 +353,7 @@ class EncounterLifecycleTest(unittest.TestCase):
             saved, _storage.ORE_DATA, _storage.ITEM_DEFINITIONS
         )
 
-        self.assertEqual(migrated["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(migrated), {})
         self.assertEqual(migrated["inventory"]["Air rune"], 5)
         self.assertEqual(migrated["inventory"]["Mind rune"], 5)
         for key, value in saved["combat_encounter"].items():

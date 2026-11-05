@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 257,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 258,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 15, 'Level 15 Mining'),),
             ),
             DiaryTask(
@@ -54,7 +52,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 13, 'Level 13 Agility'),),
             ),
             DiaryTask(
@@ -65,7 +62,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 263,
                 0,
-                False,
             ),
             DiaryTask(
                 'varrock_easy_pot_stop',
@@ -75,7 +71,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 265,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 8, 'Level 8 Crafting'),),
             ),
             DiaryTask(
@@ -86,7 +81,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 267,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'construction', 10, 'Level 10 Construction'),),
             ),
             DiaryTask(
@@ -97,7 +91,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 268,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'),),
             ),
             DiaryTask(
@@ -108,7 +101,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 271,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 10, 'Level 10 Mining'),),
             ),
             DiaryTask(
@@ -119,7 +111,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 272,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 20, 'Level 20 Fishing'),),
             ),
             DiaryTask(
@@ -130,7 +121,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 256,
                 0,
-                False,
             ),
             DiaryTask(
                 'varrock_easy_plank_you_very_much',
@@ -140,7 +130,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 259,
                 0,
-                False,
             ),
             DiaryTask(
                 'varrock_easy_making_learning_fun',
@@ -150,7 +139,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 260,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.varrock.easy.lamp_minimum_level): the exact period
@@ -175,7 +163,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 277,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'what_lies_below', 1, 'Complete What Lies Below'), DiaryCondition('skill_level', 'mining', 42, 'Level 42 Mining'),),
             ),
             DiaryTask(
@@ -186,7 +173,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 278,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rat_catchers', 1, 'Complete Rat Catchers'),),
             ),
             DiaryTask(
@@ -197,7 +183,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 280,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tree_gnome_village', 1, 'Complete Tree Gnome Village'),),
             ),
             DiaryTask(
@@ -208,7 +193,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 282,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'gertrudes_cat', 1, "Complete Gertrude's Cat"),),
             ),
             DiaryTask(
@@ -219,7 +203,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 283,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 21, 'Level 21 Agility'),),
             ),
             DiaryTask(
@@ -230,7 +213,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 284,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'a_souls_bane', 1, "Complete A Soul's Bane"),),
             ),
             DiaryTask(
@@ -241,7 +223,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 285,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 49, 'Level 49 Magic'),),
             ),
             DiaryTask(
@@ -252,7 +233,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 286,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 9, 'Level 9 Runecrafting'),),
             ),
             DiaryTask(
@@ -263,7 +243,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 287,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 40, 'Level 40 Thieving'),),
             ),
             DiaryTask(
@@ -274,7 +253,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 288,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 25, 'Level 25 Magic'),),
             ),
             DiaryTask(
@@ -285,7 +263,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 291,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'garden_of_tranquillity', 1, 'Complete Garden of Tranquillity'),),
             ),
             DiaryTask(
@@ -296,7 +273,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 292,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'firemaking', 40, 'Level 40 Firemaking'),),
             ),
             ),
@@ -322,7 +298,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 296,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 70, 'Level 70 Farming'),),
             ),
             DiaryTask(
@@ -333,7 +308,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 297,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 51, 'Level 51 Agility'),),
             ),
             DiaryTask(
@@ -344,7 +318,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 299,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
             ),
             DiaryTask(
@@ -355,7 +328,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 300,
                 0,
-                False,
             ),
             DiaryTask(
                 'varrock_hard_who_ate_all_the_pie',
@@ -365,7 +337,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 301,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 32, 'Level 32 Cooking'),),
             ),
             DiaryTask(
@@ -376,7 +347,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 302,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 66, 'Level 66 Crafting'), DiaryCondition('skill_level', 'magic', 66, 'Level 66 Magic'),),
             ),
             DiaryTask(
@@ -387,7 +357,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 304,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'construction', 40, 'Level 40 Construction'),),
             ),
             DiaryTask(
@@ -398,7 +367,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 305,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 25, 'Level 25 Magic'), DiaryCondition('skill_level', 'construction', 67, 'Level 67 Construction'),),
             ),
             DiaryTask(
@@ -409,7 +377,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 306,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'family_crest', 1, 'Complete Family Crest'),),
             ),
             DiaryTask(
@@ -420,7 +387,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 307,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 57, 'Level 57 Woodcutting'),),
             ),
             DiaryTask(
@@ -431,7 +397,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 308,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'desert_treasure', 1, 'Complete Desert Treasure'),),
             ),
             DiaryTask(
@@ -442,7 +407,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 298,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.varrock.hard.lamp_minimum_level): the exact period
@@ -467,7 +431,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 337,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'what_lies_below', 1, 'Complete What Lies Below'),),
             ),
             DiaryTask(
@@ -478,7 +441,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 338,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'nomads_requiem', 1, "Complete Nomad's Requiem"),),
             ),
             DiaryTask(
@@ -489,7 +451,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 339,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 80, 'Level 80 Woodcutting'),),
             ),
             DiaryTask(
@@ -500,7 +461,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 340,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'), DiaryCondition('skill_level', 'firemaking', 92, 'Level 92 Firemaking'), DiaryCondition('skill_level', 'farming', 15, 'Level 15 Farming'),),
             ),
             DiaryTask(
@@ -511,7 +471,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 341,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'what_lies_below', 1, 'Complete What Lies Below'), DiaryCondition('skill_level', 'magic', 80, 'Level 80 Magic'),),
             ),
             DiaryTask(
@@ -522,7 +481,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 342,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 95, 'Level 95 Cooking'),),
             ),
             DiaryTask(
@@ -533,7 +491,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 343,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_temple_at_senntisten', 1, 'Complete The Temple at Senntisten'), DiaryCondition('skill_level', 'prayer', 92, 'Level 92 Prayer'),),
             ),
             DiaryTask(
@@ -544,7 +501,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 344,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fletching', 69, 'Level 69 Fletching'), DiaryCondition('skill_level', 'smithing', 88, 'Level 88 Smithing'),),
             ),
             DiaryTask(
@@ -555,7 +511,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 345,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 78, 'Level 78 Runecrafting'),),
             ),
             DiaryTask(
@@ -566,7 +521,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier medium; curated into elite',
                 293,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'gertrudes_cat', 1, "Complete Gertrude's Cat"),),
             ),
             DiaryTask(
@@ -577,7 +531,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier medium; curated into elite',
                 295,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'dragon_slayer', 1, 'Complete Dragon Slayer'),),
             ),
             DiaryTask(
@@ -588,7 +541,6 @@ FAMILY = DiaryFamily(
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier hard; curated into elite',
                 303,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.varrock.elite.lamp_minimum_level): the exact period

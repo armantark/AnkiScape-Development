@@ -18,7 +18,7 @@ ENEMY = {
 }
 
 
-def answer_combat(player=None, *, enemy=None, hits=()):
+def answer_combat(player=None, *, enemy=None, hits=(), random_values=None):
     # Prayers stay off unless a test turns them on: the game's level-1 pick
     # spends its 10 points by tick 40, and zero Prayer ends the card.
     player = _player(current_combat_target="chicken", combat_auto_flee=False, combat_prayers_enabled=False) if player is None else player
@@ -29,7 +29,7 @@ def answer_combat(player=None, *, enemy=None, hits=()):
             "enemy_attack_ticks_remaining": 0,
         }
     calls = {"xp": [], "saves": 0, "errors": []}
-    ctx = _context(player, calls, review_action_multiplier=10)
+    ctx = _context(player, calls, review_action_multiplier=10, random_values=random_values)
     ctx.cadence_live_enabled = True
     rolls = iter(()) if callable(hits) else iter(hits)
     with patch.object(combat, "COMBAT_ENEMY_DATA", {player["current_combat_target"]: enemy or ENEMY}), patch.object(
@@ -84,15 +84,15 @@ class CombatDangerStopsTests(unittest.TestCase):
 
     def test_empty_ammo_or_runes_carries_the_fight_at_the_next_attack(self):
         cases = (
-            ("out_of_ammo", "ranged_rapid", "Shortbow", {"ammo": {"Bronze arrows": 1}}, 4),
-            ("out_of_runes", "magic_standard", "Staff", {"runes": {"Air rune": 1, "Mind rune": 1}}, 6),
+            ("out_of_ammo", "ranged_rapid", "Shortbow", {}, 4),
+            ("out_of_runes", "magic_standard", "Staff", {"Air rune": 1, "Mind rune": 1}, 6),
         )
         for reason, style, weapon, loadout, elapsed in cases:
             with self.subTest(reason=reason):
                 player = _player(combat_auto_flee=False, combat_attack_style=style,
-                                 equipment={"weapon": weapon}, combat_supply_loadout=loadout,
+                                 equipment={"weapon": weapon, **({"ammunition": "Bronze arrows"} if reason == "out_of_ammo" else {})}, equipment_ammunition_count=1, inventory=loadout, carried_inventory={"chicken": loadout},
                                  combat_encounter={"target_id": "chicken", "enemy_lifepoints": 999})
-                ctx, _calls, ok = answer_combat(player)
+                ctx, _calls, ok = answer_combat(player, random_values=(0.99,) * 100)
                 self.assertTrue(ok)
                 self.assertEqual(ctx.card.stop_reason, reason)
                 self.assertEqual(ctx.player_data["combat_last_result"]["ticks_elapsed"], elapsed)
@@ -101,8 +101,8 @@ class CombatDangerStopsTests(unittest.TestCase):
     def test_bank_trip_stops_after_the_kill_without_starting_the_trip(self):
         player = _player(combat_auto_flee=False, combat_attack_style="magic_standard",
                          equipment={"weapon": "Staff"},
-                         inventory={"Air rune": 5, "Mind rune": 5},
-                         combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 1}},
+                         inventory={'Air rune': 6, 'Mind rune': 6},
+                         combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 1, "Mind rune": 1}},
                          combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1})
         ctx, _calls, ok = answer_combat(player, hits=((True, 1),))
         self.assertTrue(ok)

@@ -114,11 +114,7 @@ def build_achievements_tab(ctx) -> "QWidget":
         text_layout = QVBoxLayout(text)
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setSpacing(1)
-        suffix = (
-            " · Not yet obtainable"
-            if task["latent"]
-            else " · Progression anchor" if task["curation_anchor"] else ""
-        )
+        suffix = " · Not yet obtainable" if task["latent"] else ""
         name = QLabel(f"{task['name']}{suffix}")
         name.setObjectName(f"cabinetTask_{task['task_id']}")
         name.setStyleSheet(

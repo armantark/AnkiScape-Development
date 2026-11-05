@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 0,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 1,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 5, 'Level 5 Thieving'),),
             ),
             DiaryTask(
@@ -54,7 +52,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 3,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'plague_city', 1, 'Complete Plague City'),),
             ),
             DiaryTask(
@@ -65,7 +62,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 5,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 15, 'Level 15 Fishing'),),
             ),
             DiaryTask(
@@ -76,7 +72,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 6,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'biohazard', 1, 'Complete Biohazard'),),
             ),
             DiaryTask(
@@ -87,7 +82,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 7,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'plague_city', 1, 'Complete Plague City'), DiaryCondition('quest', 'gertrudes_cat', 1, "Complete Gertrude's Cat"),),
             ),
             DiaryTask(
@@ -98,7 +92,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 8,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tower_of_life', 1, 'Complete Tower of Life'),),
             ),
             DiaryTask(
@@ -109,7 +102,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 9,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'plague_city', 1, 'Complete Plague City'),),
             ),
             DiaryTask(
@@ -120,7 +112,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 11,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 15, 'Level 15 Thieving'),),
             ),
             DiaryTask(
@@ -131,7 +122,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 14,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'monks_friend', 1, "Complete Monk's Friend"),),
             ),
             DiaryTask(
@@ -142,7 +132,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 13,
                 0,
-                False,
             ),
             DiaryTask(
                 'ardougne_easy_vial_deeds',
@@ -152,7 +141,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 15,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.ardougne.easy.lamp_minimum_level): the exact period
@@ -177,7 +165,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 25,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 39, 'Level 39 Agility'), DiaryCondition('skill_level', 'ranged', 21, 'Level 21 Ranged'), DiaryCondition('skill_level', 'strength', 38, 'Level 38 Strength'),),
             ),
             DiaryTask(
@@ -188,7 +175,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 27,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'kenniths_concerns', 1, "Complete Kennith's Concerns"), DiaryCondition('skill_level', 'mining', 46, 'Level 46 Mining'),),
             ),
             DiaryTask(
@@ -199,7 +185,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 28,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 47, 'Level 47 Farming'),),
             ),
             DiaryTask(
@@ -210,7 +195,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 30,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'firemaking', 50, 'Level 50 Firemaking'),),
             ),
             DiaryTask(
@@ -221,7 +205,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 32,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'meeting_history', 1, 'Complete Meeting History'),),
             ),
             DiaryTask(
@@ -232,7 +215,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 33,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'sea_slug', 1, 'Complete Sea Slug'), DiaryCondition('skill_level', 'fishing', 3, 'Level 3 Fishing'),),
             ),
             DiaryTask(
@@ -243,7 +225,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 34,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 33, 'Level 33 Agility'),),
             ),
             DiaryTask(
@@ -254,7 +235,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 35,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 38, 'Level 38 Thieving'),),
             ),
             DiaryTask(
@@ -265,7 +245,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 36,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 28, 'Level 28 Thieving'),),
             ),
             DiaryTask(
@@ -276,7 +255,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 37,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 30, 'Level 30 Mining'),),
             ),
             DiaryTask(
@@ -287,7 +265,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 38,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tower_of_life', 1, 'Complete Tower of Life'),),
             ),
             DiaryTask(
@@ -298,7 +275,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 50,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'plague_city', 1, 'Complete Plague City'), DiaryCondition('skill_level', 'magic', 51, 'Level 51 Magic'),),
             ),
             ),
@@ -324,7 +300,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 29,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'watchtower', 1, 'Complete Watchtower'), DiaryCondition('skill_level', 'magic', 58, 'Level 58 Magic'),),
             ),
             DiaryTask(
@@ -335,7 +310,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 39,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"),),
             ),
             DiaryTask(
@@ -346,7 +320,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 40,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"),),
             ),
             DiaryTask(
@@ -357,7 +330,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 41,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 66, 'Level 66 Magic'),),
             ),
             DiaryTask(
@@ -368,7 +340,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 42,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 66, 'Level 66 Magic'),),
             ),
             DiaryTask(
@@ -379,7 +350,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 44,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'lunar_diplomacy', 1, 'Complete Lunar Diplomacy'), DiaryCondition('skill_level', 'magic', 71, 'Level 71 Magic'),),
             ),
             DiaryTask(
@@ -390,7 +360,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 45,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 65, 'Level 65 Thieving'), DiaryCondition('skill_level', 'hunter', 54, 'Level 54 Hunter'),),
             ),
             DiaryTask(
@@ -401,7 +370,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 46,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tower_of_life', 1, 'Complete Tower of Life'),),
             ),
             DiaryTask(
@@ -412,7 +380,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 47,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'monkey_madness', 1, 'Complete Monkey Madness'),),
             ),
             DiaryTask(
@@ -423,7 +390,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 48,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'back_to_my_roots', 1, 'Complete Back to my Roots'), DiaryCondition('skill_level', 'slayer', 59, 'Level 59 Slayer'),),
             ),
             DiaryTask(
@@ -434,7 +400,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 51,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 57, 'Level 57 Agility'),),
             ),
             DiaryTask(
@@ -445,7 +410,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 52,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'hunter', 59, 'Level 59 Hunter'),),
             ),
             ),
@@ -471,7 +435,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 56,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 81, 'Level 81 Fishing'),),
             ),
             DiaryTask(
@@ -482,7 +445,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 57,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'summoning', 93, 'Level 93 Summoning'),),
             ),
             DiaryTask(
@@ -493,7 +455,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 58,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 82, 'Level 82 Thieving'),),
             ),
             DiaryTask(
@@ -504,7 +465,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 59,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'), DiaryCondition('skill_level', 'runecrafting', 75, 'Level 75 Runecrafting'),),
             ),
             DiaryTask(
@@ -515,7 +475,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 60,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 91, 'Level 91 Smithing'), DiaryCondition('skill_level', 'fletching', 69, 'Level 69 Fletching'),),
             ),
             DiaryTask(
@@ -526,7 +485,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 53,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 57, 'Level 57 Farming'),),
             ),
             DiaryTask(
@@ -537,7 +495,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 54,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 59, 'Level 59 Thieving'),),
             ),
             DiaryTask(
@@ -548,7 +505,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 55,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'catapult_construction', 1, 'Complete Catapult Construction'),),
             ),
             DiaryTask(
@@ -559,7 +515,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 43,
                 0,
-                False,
             ),
             DiaryTask(
                 'ardougne_hard_living_on_a_prayer',
@@ -569,7 +524,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 49,
                 0,
-                False,
             ),
             DiaryTask(
                 'ardougne_medium_a_visit_to_charlie',
@@ -579,7 +533,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier medium; curated into elite',
                 23,
                 0,
-                False,
             ),
             DiaryTask(
                 'ardougne_medium_i_wonder_what_this_does',
@@ -589,7 +542,6 @@ FAMILY = DiaryFamily(
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier medium; curated into elite',
                 24,
                 0,
-                False,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.ardougne.elite.lamp_minimum_level): the exact period

@@ -31,6 +31,10 @@ _ITEM_NAMES = frozenset(row.storage_key for row in ITEM_DEFINITIONS)
 _LIVE_DISPOSITIONS = frozenset({"active", "translated", "swapped", "invented"})
 _ALLOWED_DISPOSITIONS = _LIVE_DISPOSITIONS | {"dormant"}
 _DESIGNED_TEXT_DISPOSITIONS = frozenset({"translated", "invented"})
+# A row at or above this source id has no cache identity: the ledger alone
+# defines it, including its place in the tier and its access gates.
+AUTHORED_SOURCE_ID_FLOOR = 900000
+_ACCESS_GATE_KINDS = frozenset({"skill_level", "quest"})
 
 
 def _dynamic_direct_event_domain(event_type: str, field: str) -> frozenset | None:
@@ -287,8 +291,8 @@ def _load_rows(path: Path) -> dict[str, dict]:
             raise SystemExit(f"invalid or duplicate diary ledger task_id {task_id!r}")
         _validate_row_metadata(task_id, row)
         rows[task_id] = row
-    if len(rows) != 320:
-        raise SystemExit(f"diary ledger has {len(rows)} rows, expected 320")
+    if len(rows) != 342:
+        raise SystemExit(f"diary ledger has {len(rows)} rows, expected 342")
     return rows
 
 
@@ -441,6 +445,25 @@ class CurationLedger:
         if row["disposition"] not in _DESIGNED_TEXT_DISPOSITIONS:
             return base_name, base_description
         return row["designed_name"], row["designed_description"]
+
+    def authored_rows(self, tier_id: str) -> list[dict]:
+        return [
+            row
+            for row in self.rows.values()
+            if row["current_tier"] == tier_id
+            and row["source_id"] >= AUTHORED_SOURCE_ID_FLOOR
+        ]
+
+    def access_gates_for(self, task_id: str) -> list[tuple]:
+        specs = self.rows.get(task_id, {}).get("access_gates", ())
+        for spec in specs:
+            if spec["kind"] not in _ACCESS_GATE_KINDS:
+                raise SystemExit(
+                    f"diary ledger task {task_id} has unsupported access gate {spec['kind']!r}"
+                )
+        return [
+            (spec["kind"], spec["key"], spec["amount"], spec["label"]) for spec in specs
+        ]
 
     def assert_complete(self) -> None:
         missing = sorted(set(self.rows) - self.seen)

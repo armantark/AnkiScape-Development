@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 21 results</title>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body>
+<header>
+  <h1>Pass 21 notes in the game</h1>
+  <div class="tldr">Pass 21 is on main on both Macs at f15039a53; restart Anki to play it. Your 840 arrows were never lost. Fifteen open questions wait in a file for the grill you ask for.</div>
+  <details class="thread"><summary>Why · your Pass 21 notes</summary>
+    <doc-quote via="doc" from="owner" at="Pass 21 notes">I just created 840 bronze arrows and they are not in my bank at all.</doc-quote>
+    <doc-quote via="prompt" from="owner" at="2026-11-04 23:08">Why is there an "ammunition loadout" with like zero visibility? Ammo equipped goes into the ammo slot or Ava's device</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 21 notes">Expected output from earlier queue steps should allow you to queue something next that requires the thing from the first step.</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 21 notes">Why is reaching level 37 strength and then level 35 strength an achievement lol</doc-quote>
+    <doc-quote via="prompt" from="owner" at="2026-11-04 23:04">if it doesn't work, "translate" it, and if it's too boring or generic then make another one in the same spirit as the rest.</doc-quote>
+  </details>
+</header>
+<main>
+<doc-plan>
+
+<doc-claim id="ammo">
+  <p><b>Changed.</b> Arrows sit in the real Ammunition slot, and the hidden store is gone.</p>
+  <doc-mock frame="terminal" title="Real review handler · Shortbow, Hill giant, 10x" w="470"><template><span class="dim">card 1</span>  bank trip, slot was empty
+<span class="dim">card 2</span>  Ammunition: Iron arrows ×197
+<span class="dim">card 3</span>  ×187   <span class="g">15 shots, about half come back</span>
+<span class="dim">card 4</span>  ×176
+<span class="dim">Bank</span>    Bronze arrows 500, still visible</template></doc-mock>
+  <doc-note tone="info">Your save held 918 Bronze arrows in a store that no screen showed, because a combat refill moved every stack out of the Bank. Saves migrate: the best type goes to the slot and the rest returns to the Bank. Without an Ava's device, 50% of fired ammo comes back, your rule. Runes now take carried slots, one per type. Rune pouches and Tirannwn quivers date from after 2012, so I did not build them.</doc-note>
+  <doc-claim>
+    <p>Casual mode wears the strongest type your bow and levels allow.</p>
+    <doc-code src="logic_pure/combat/ammunition.py" ref="f15039a53" lines="32-40"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim id="plan">
+  <p><b>Held.</b> One click selects any row, and a queue can plan from what it will make.</p>
+  <doc-mock frame="terminal" title="Real Anki · your bronze arrow case" w="470"><template><span class="dim">queue</span>  Smithing: Bronze arrowtips · 30
+<span class="dim">click once</span>  Fletching: Bronze arrows, 0 arrowtips in the Bank
+       <span class="g">count 30, Start stays off, Add works</span>
+<span class="dim">one card</span>  +30 Bronze arrows, Bank 530</template></doc-mock>
+  <doc-note tone="info">No double-click rule caused your Unfired bowl note: a row with no materials ignored the click, so Add stayed on the old target. The fix covers every skill list and Utilities. Level, quest and tool locks still lock a row.</doc-note>
+</doc-claim>
+
+<doc-claim id="queue">
+  <p><b>Held.</b> The queue has chevrons, a simple remove on entry 1, and a move flash.</p>
+  <doc-mock frame="terminal" title="Real Anki · queue box" w="470"><template>1. Now   Pick onions · 0 / 5     <span class="g">∧ ∨ ×</span>
+2. Next  Pick potatoes · 0 / 5   <span class="g">∧ ∨ ×</span>  <span class="dim">flashes after a move</span>
+<span class="dim">remove entry 1</span>  the next entry starts, or the queue ends</template></doc-mock>
+  <doc-note tone="info">The stale "Next: Combat" line clears when you change the queue from the menu, and the Event log keeps it. Only tests prove this, because the native run did not reach that line, so your play is its first real check.</doc-note>
+</doc-claim>
+
+<doc-claim id="diary">
+  <p><b>Changed.</b> All 22 "Reach Level" diary rows became real deeds.</p>
+  <doc-mock frame="terminal" title="Achievement diary · examples" w="500"><template>Yew Can't Park Here    Chop three yew trees
+Tuna In, Drop Out      Catch a tuna off Rellekka's docks
+Sabre Rattler          Trap 25 sabre-toothed kebbits
+Beard Snatcher         Pickpocket a Fremennik  <span class="dim">invented</span></template></doc-mock>
+  <doc-note tone="info">19 are translated from the real 2012 task that held the level, and 3 are invented where no honest translation exists. Your earlier rule covered this, and I should have followed it instead of asking. A save with past actions can complete a deed at its next refresh.</doc-note>
+</doc-claim>
+
+<doc-claim id="shop">
+  <p><b>Held.</b> Shop search returns to the top, quantity resets, and Sawmill can be found.</p>
+  <doc-mock frame="terminal" title="Real Anki" w="470"><template><span class="dim">Utilities search</span>  sawmill  Sawmill: Plank, Oak, Teak, Mahogany
+<span class="dim">one card</span>          +20 Plank, Coins 50,000 to 48,000
+<span class="dim">Shop</span>              new search at the top; new item, quantity 1</template></doc-mock>
+  <doc-note tone="info">The planks already existed as "Convert logs to planks", so your search found nothing. Prices and behavior did not change.</doc-note>
+</doc-claim>
+
+<doc-claim aux="scope">
+  <p>What the native runs did not reach, and where the questions are.</p>
+  <doc-note tone="info">Magic with runes in the pack and the stale Next line passed through tests only. The tester lost Anki once while reopening Equipment, with no crash report, so the cause is unknown. Your Studio Anki segfaulted at 22:28 with the menu open; tell me if that repeats. Open questions: memory-bank/specs/done/pass21-owner-notes/open-questions.md. Full record: run-record.md beside it.</doc-note>
+</doc-claim>
+
+</doc-plan>
+</main>
+</body></html>

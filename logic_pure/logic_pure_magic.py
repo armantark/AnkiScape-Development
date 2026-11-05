@@ -384,6 +384,26 @@ _STRINGABLE_AMULETS = {
 }
 
 
+# What each cast that finds its input in the Bank can use up.
+_MAGIC_BANK_INPUTS = {
+    "bones_conversion": ("Bones", "Big bones"),
+    "bake_pie": tuple(_PIE_OUTPUTS),
+    "humidify": tuple(_HUMIDIFY_OUTPUTS),
+    "superglass": ("Bucket of sand", "Soda ash", "Seaweed", "Swamp weed"),
+    "tan_leather": tuple(_LEATHER_OUTPUTS),
+    "string_jewellery": tuple(_STRINGABLE_AMULETS),
+}
+
+
+def magic_used_items_pure(spec):
+    """Every item a cast can use up: its runes, its fixed inputs and the input it finds in the Bank."""
+    return (
+        *spec.get("rune_cost", {}),
+        *_requirements_from_spec(spec),
+        *_MAGIC_BANK_INPUTS.get(str(spec.get("action", "pure")), ()),
+    )
+
+
 def _take_items(inventory, items, limit):
     """Take ``items`` from ``inventory``, every one or at most ``limit`` in all; return how many it took."""
     taken = 0

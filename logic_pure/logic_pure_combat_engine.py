@@ -197,7 +197,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_potion_flask_cap,
     _combat_preset_snapshot,
     _combat_protective_equipment_state,
-    _combat_ranged_ammo_count,
+    _combat_ranged_ammo_count, combat_equipment_totals_pure, equipment_slot_text, combat_target_pack_move_pure, migrate_ammunition, equipped_ammo, carried_runes, generate_ava_items,
     _combat_ranged_locked_reasons,
     _combat_ranged_max_hit_old_hp,
     _combat_ranged_weapon_spec,
@@ -556,7 +556,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     )
     if reasons:
         return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
-    player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
+    player_totals = combat_equipment_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
@@ -628,7 +628,7 @@ def combat_enemy_pressure_attack_pure(
     rng = rng or (lambda: 0.0)
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, {"pressure": enemy}))
-    player_totals = equipment_stat_totals_pure(
+    player_totals = combat_equipment_totals_pure(
         data.get("equipment", {}) or {}, equipment_data
     )
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -771,7 +771,7 @@ def advance_combat_grave_review_pure(player_data, ticks=6):
         walking = max(0, _non_negative_int(grave.get("walk_ticks_remaining", 0), 0) - ticks)
         if walking <= 0:
             _combat_reclaim_items_to_player(
-                data, grave.get("items", ()) or (), _combat_stored_loadout(grave)
+                data, grave.get("items", ()) or (), _combat_stored_loadout(grave), grave.get("stack_extras")
             )
             data["combat_grave"] = {}
             data.update(sanitize_equipment_instance_state_pure(data, EQUIPMENT_CONDITION_DATA))
@@ -849,6 +849,7 @@ def reclaim_death_office_items_pure(player_data):
         data,
         items,
         _combat_stored_loadout(data.get("death_office", {}) or {}),
+        (data.get("death_office") or {}).get("stack_extras"),
     )
     data["death_office"] = {}
     data.update(
@@ -972,11 +973,12 @@ def _combat_apply_enemy_unequip_special(data, target_id):
         equipment = dict(before_equipment)
         equipment.pop(removed_slot, None)
         inventory = dict(data.get("inventory", {}) or {})
-        inventory[removed_item] = int(inventory.get(removed_item, 0) or 0) + 1
+        amount = int(data.pop("equipment_ammunition_count", 1)) if removed_slot == "ammunition" else 1
+        inventory[removed_item] = int(inventory.get(removed_item, 0) or 0) + amount
         carried = dict(data.get("carried_inventory", {}) or {})
         carried_view = dict(carried.get(target_id, {}) or {})
         carried_view[removed_item] = (
-            int(carried_view.get(removed_item, 0) or 0) + 1
+            int(carried_view.get(removed_item, 0) or 0) + amount
         )
         carried[target_id] = carried_view
         data["equipment"] = equipment
@@ -1155,7 +1157,7 @@ def apply_combat_burst_pure(
         _combat_enemy_regeneration(enemy, encounter, active_encounter)
     )
 
-    player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
+    player_totals = combat_equipment_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     player_attack_speed = max(1, _positive_int(_equipment_value(weapon_spec, "attack_speed", 4), 4))
     if combat_class == "ranged":
@@ -1332,7 +1334,7 @@ def apply_combat_burst_pure(
             if tick >= next_player_attack and enemy_lp > 0:
                 next_player_attack += player_attack_speed
                 if combat_class == "ranged":
-                    ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id)
+                    ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id, rng)
                     if ammo_name is None:
                         out_of_ammo = True
                         break
@@ -1623,6 +1625,7 @@ def apply_combat_burst_pure(
             data, enemy, player_lp, max_player_lp, rng,
             wilderness_equipment_risk, food_used,
         )
+    generate_ava_items(data, ticks_elapsed, _combat_supply_slots_used(data))
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",
@@ -1789,14 +1792,7 @@ def _combat_supply_loadout_class_compatible_pure(player_data, equipment_data=Non
     )
     combat_class = str(style.get("combat_class", "melee"))
     relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
-    return (
-        (combat_class == "ranged" or not loadout.get("ammo"))
-        and (combat_class == "magic" or not loadout.get("runes"))
-        and all(
-            item_name in relevant_stat_potions
-            for item_name in (loadout.get("stat_potions", {}) or {})
-        )
-    )
+    return all(item_name in relevant_stat_potions for item_name in loadout["stat_potions"])
 
 
 def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):
@@ -1816,8 +1812,6 @@ def combat_supply_loadout_summary_pure(player_data, equipment_data=None):
     )
     combat_class = str(style.get("combat_class", "melee"))
     relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
-    # _sanitize_combat_supply_loadout guarantees every section exists with
-    # positive-int quantities, so the summary only projects and class-gates.
     stat_potions = {
         item_name: amount
         for item_name, amount in loadout["stat_potions"].items()
@@ -1829,8 +1823,8 @@ def combat_supply_loadout_summary_pure(player_data, equipment_data=None):
         "potions_loaded_items": dict(loadout["potions"]),
         "stat_potions_loaded": sum(stat_potions.values()),
         "stat_potions_loaded_items": stat_potions,
-        "ammo_loaded": dict(loadout["ammo"]) if combat_class == "ranged" else {},
-        "runes_loaded": dict(loadout["runes"]) if combat_class == "magic" else {},
+        "ammo_equipped": equipped_ammo(player_data),
+        "runes_carried": {name: count for name, count in carried_runes(player_data).items() if name.endswith(" rune")} if combat_class == "magic" else {},
         "finishers_loaded": dict(loadout["finishers"]),
         "hazards_loaded": dict(loadout["hazards"]),
         "cannonballs_loaded": loadout["cannonballs"],
@@ -1930,7 +1924,7 @@ def unload_combat_supply_loadout_pure(player_data):
     data.update(sanitize_combat_state_pure(data))
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
-    for key in ("food", "potions", "stat_potions", "ammo", "runes", "finishers", "hazards"):
+    for key in ("food", "potions", "stat_potions", "finishers", "hazards"):
         for item_name, amount in (loadout.get(key, {}) or {}).items():
             if isinstance(item_name, str):
                 inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) + _non_negative_int(amount, 0)
@@ -1938,7 +1932,7 @@ def unload_combat_supply_loadout_pure(player_data):
     if cannonballs > 0:
         inventory["Cannonball"] = _non_negative_int(inventory.get("Cannonball", 0), 0) + cannonballs
     data["inventory"] = inventory
-    data["combat_supply_loadout"] = default_combat_supply_loadout_pure()
+    data.update(combat_supply_loadout=default_combat_supply_loadout_pure(), carried_inventory={**(data.get("carried_inventory") or {}), data.get("current_combat_target", DEFAULT_COMBAT_TARGET): {}})
     return data, True, ""
 
 

@@ -113,7 +113,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         tree = _find_tree_with_user_role(dialog, "finished_shrink_me_quick")
         row = _tree_row(tree, "finished_shrink_me_quick")
 
-        self.assertTrue(row.isDisabled())
+        self.assertFalse(row.isDisabled())
         self.assertFalse(row.icon(0).isNull())
         self.assertIn("Base XP: 6", row.toolTip(0))
         self.assertIn("Tarromin potion (unf) x1", row.toolTip(0))

@@ -103,9 +103,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         rune = _smith_row(tree, "forge_rune_platebody")
         self.assertTrue(rune.isDisabled())
         self.assertIn("level 99", rune.toolTip(0))
-        # Bronze bar is in-level but there are no ores -> locked with materials.
+        # Bronze bar is in-level but there are no ores -> plan-only, with materials in its lock.
         bronze = _smith_row(tree, "smelt_bronze_bar")
-        self.assertTrue(bronze.isDisabled())
+        self.assertFalse(bronze.isDisabled())
         self.assertIn("materials", bronze.toolTip(0))
         # No hammer/tool gate is ever surfaced (toolbelt is gathering-only).
         self.assertNotIn("hammer", bronze.toolTip(0).lower())
@@ -124,8 +124,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertIn("Iron bar x2 (you have 1)", tip)
         # The dev-facing source enum/path was removed from player tooltips.
         self.assertNotIn("Source", tip)
-        # Owning only 1 of 2 required bars keeps it locked on materials.
-        self.assertTrue(pick.isDisabled())
+        # Owning only 1 of 2 required bars locks it on materials, so it is plan-only.
+        self.assertFalse(pick.isDisabled())
 
     def test_smithing_unlocks_with_materials_and_persists_recipe_id(self) -> None:
         pd = _make_player_data()
@@ -198,11 +198,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
     def test_smithing_disabled_row_click_does_not_change_target(self) -> None:
         # Same disabled-row click guard on the Smithing tree.
         pd = _make_player_data()
-        pd["inventory"] = {}  # no bars -> every smith recipe locked on materials
+        pd["inventory"] = {}
         dialog = self._open(pd)
         _goto_smithing(dialog)
         tree = _find_smith_tree(dialog)
-        locked = _smith_row(tree, "smelt_bronze_bar")
+        locked = _smith_row(tree, "forge_rune_platebody")  # above the level, so a click does nothing
         self.assertTrue(locked.isDisabled())
         before = list(self._smith_calls)
         tree.itemClicked.emit(locked, 0)

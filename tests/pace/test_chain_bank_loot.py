@@ -16,8 +16,8 @@ def loaded_player(**overrides):
         combat_auto_flee=False,
         combat_prayers_enabled=False,
         combat_supply_loadout=loadout,
-        inventory={"Bones": 7},
-        carried_inventory={"chicken": {"Bones": 7}},
+        inventory={"Bones": 7, **overrides.pop("inventory", {})},
+        carried_inventory={"chicken": {"Bones": 7, **overrides.pop("carried_inventory", {}).get("chicken", {})}},
         **overrides,
     )
 
@@ -73,8 +73,7 @@ class ChainBankLootTests(unittest.TestCase):
         player = loaded_player(
             combat_attack_style="magic_standard", current_combat_spell="confuse",
             equipment={"weapon": "Staff"},
-            combat_supply_loadout={"food": {"Shrimps": 17},
-                                   "runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
+            combat_supply_loadout={'food': {"Shrimps": 17}}, inventory={"Water rune": 100, "Earth rune": 100, "Body rune": 100}, carried_inventory={'chicken': {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
             combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,
                               "player_attack_ticks_remaining": 99,
                               "enemy_attack_ticks_remaining": 0, "vengeance_pending": True},
@@ -86,7 +85,7 @@ class ChainBankLootTests(unittest.TestCase):
         self.assertEqual(ctx.card.stop_reason, "")
         self.assertEqual(result["drops"], {"Bones": 1})
         self.assertEqual(ctx.player_data["inventory"]["Bones"], 8)
-        self.assertEqual(ctx.player_data["carried_inventory"]["chicken"], {"Bones": 8})
+        self.assertEqual(ctx.player_data["carried_inventory"]["chicken"], {"Bones": 8, "Water rune": 100, "Earth rune": 100, "Body rune": 100})
         self.assertEqual(ctx.player_data["combat_encounter"], {})
 
     def test_left_loot_and_auto_buried_bones_do_not_fill_the_pack(self):
