@@ -17,3 +17,11 @@ Disposition: fixed.
 Evidence: tools/generate_npc_shop_data.py now derives its default --items-2011 from ANKISCAPE_GAME_MAIN, matching the existing source-root convention. Explicit --items-2011 takes precedence. The new fixture regression first failed because the manifest bound the Studio source instead of the configured fixture; python3 run_tests.py tests.shops.test_source_inputs then passed: Ran 33 tests, OK. These checks generated only disposable fixture catalogs and retained the digest refusal checks; no gameplay catalog was regenerated.
 
 - 2026-10-28T00:19:29-07:00 — Pass 18 ticket 06: tools/generate_npc_shop_data.py defaults --items-2011 to the Mac Studio path /Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml, which does not exist on the MacBook; every MacBook regeneration needs --items-2011 /Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main/data/cfg/items.yml.
+
+## Function metrics accepts a unique qualified method name
+
+Disposition: fixed.
+
+Evidence: tools/maintenance/function_metrics.py validates a qualified method against its exact AST scope, then joins the unchanged slop-gate instrument tables by its file-unique bare name. Duplicate bare names and nested functions remain refused; no fleet hook or guard was changed. The existing unique-method regression first failed for Example.choose with exit 2, then python3 run_tests.py tests.maintenance.test_function_metrics passed: Ran 11 tests, OK. Bare and qualified names produce identical measured CCN, cognitive complexity and Halstead difficulty.
+
+- 2026-10-28T04:35:58-07:00 — Pass 18 review fixes: tools/maintenance/function_metrics.py refuses a qualified method name ("QueueCount._credit: expected one file-unique bare function name"), so a class method cannot be measured by name.

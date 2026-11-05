@@ -4,9 +4,9 @@
 --output names one evidence file outside the worktrees (the common Git directory
 is allowed). Exit 1 means a selected function exceeds a gate limit; invalid
 inputs or missing instruments exit 2 without publishing a report. Name one
-source file, then each function by its file-unique bare name; the gate's tables
-key on bare names, so qualified names cannot disambiguate repeated methods and a
-nested function is measurable only as its enclosing function.
+source file, then each function by its bare or qualified name. The bare name must
+be file-unique because the gate's tables cannot disambiguate repeated methods;
+a nested function is measurable only as its enclosing function.
 
 Requires the fleet slop_gate.py and its uv-installed lizard, complexipy and radon.
 """
@@ -69,11 +69,11 @@ def validate_selection(tree: ast.AST, names: list[str]) -> None:
     definitions = collect_definitions(tree, {})
     for name in names:
         matches = definitions.get(name.rsplit(".", 1)[-1], [])
-        if len(matches) != 1 or "." in name:
+        if len(matches) != 1 or name not in (matches[0][0], name.rsplit(".", 1)[-1]):
             locations = ", ".join(f"{qualified} at line {line}" for qualified, line, _ in matches)
             raise ValueError(
-                f"{name}: expected one file-unique bare function name; definitions: {locations or 'none'}; "
-                "qualified names are unsupported because slop-gate tables key on bare names"
+                f"{name}: expected one file-unique function name; definitions: {locations or 'none'}; "
+                "qualified names cannot disambiguate repeated bare names in slop-gate tables"
             )
         qualified, line, enclosing = matches[0]
         if enclosing is not None:
@@ -106,7 +106,7 @@ def measure(source: Path, names: list[str], gate) -> dict:
     for name in names:
         row = {}
         for metric, table in tables.items():
-            matches = [value for (_, measured), value in table.items() if gate.simple_name(measured) == name]
+            matches = [value for (_, measured), value in table.items() if gate.simple_name(measured) == name.rsplit(".", 1)[-1]]
             if len(matches) != 1:
                 raise ValueError(f"{name}: expected one {metric} entry from slop-gate, found {len(matches)}")
             row[metric] = matches[0]
