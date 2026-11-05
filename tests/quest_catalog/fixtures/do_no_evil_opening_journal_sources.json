@@ -1,0 +1,592 @@
+{
+  "status": "Source-to-display mapping for the authored Do No Evil stage-1 journal; not an original in-game journal transcription or gameplay acceptance result.",
+  "quest_id": "do_no_evil",
+  "stage": 1,
+  "period_cutoff_exclusive": "2012-11-20T00:00:00Z",
+  "original_game_journal_transcription": false,
+  "journal": [
+    "Before starting, Senliten must be restored to 100%.",
+    "Speak to Leela in Draynor Village and accompany her to Senliten's tomb at Uzer Mastaba.",
+    "Speak to Senliten and Leela. Ask the queen how you can help, and listen to her story about the desert monkeys.",
+    "Travel to Sophanem to investigate Apmeken with Jex and the Sphinx. You may visit them in either order.",
+    "Ask Jex at the wrecked temple about minor gods, then ask him all the questions about Apmeken.",
+    "Have a cat or kitten out when speaking to the Sphinx. Ask her about minor gods, then Apmeken.",
+    "After speaking to both, return to Senliten to hear her request to return the monkeys to their rightful place in the desert."
+  ],
+  "mapping": [
+    {
+      "display_line": 1,
+      "text": "Before starting, Senliten must be restored to 100%.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees",
+      "note": "Restoration is a requirement, not a claim that restoration has occurred.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 31,
+              "text": "* [[Senliten]] must be restored to 100% - Requires [[Garden of Tranquillity]] and [[Creature of Fenkenstrain]] on top of the previously listed quest requirements"
+            }
+          ]
+        },
+        {
+          "source_id": "J",
+          "title": "Jagex — Do No Evil (published 01-Dec-2010)",
+          "revision_or_actual_capture": "20110827112417",
+          "timestamp_utc": "2011-08-27T11:24:17Z",
+          "url": "https://web.archive.org/web/20110827112417id_/http://services.runescape.com:80/m=news/do-no-evil?",
+          "saved_body": "sources/jagex-do-no-evil-20110827112417.html",
+          "body_sha256": "04d0706e7b0c39045289614a8aa57a9d4a4f751fbd8d303675889dc15971c2cb",
+          "quoted_file": "sources/jagex-do-no-evil-20110827112417.visible.txt",
+          "quoted_file_sha256": "3ad6bec970dba23e8b5a099b6a15baf35317fc59cdef916092551238889ee859",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 67,
+              "text": "Missing My Mummy (Senliten restored to 100%)"
+            }
+          ]
+        },
+        {
+          "source_id": "S",
+          "title": "Sal’s Realm — Do No Evil",
+          "revision_or_actual_capture": "20120516122507",
+          "timestamp_utc": "2012-05-16T12:25:07Z",
+          "url": "https://web.archive.org/web/20120516122507id_/http://runescape.salmoneus.net/quests/do-no-evil.html",
+          "saved_body": "sources/sals-do-no-evil-20120516122507.html",
+          "body_sha256": "45f9c069b871fe2a0df0f0bf2c1c137f2795b66b1e79f5784f64eb9decc4147d",
+          "quoted_file": "sources/sals-do-no-evil-20120516122507.visible.txt",
+          "quoted_file_sha256": "f22add71ed31655c4b273be9570f8b9d28468fe23c70fe8294f4f52a3bedd87c",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 27,
+              "text": "Quests: Animal Magnetism, Dealing With Scabaras, Desert Treasure, King Awowogei part of Recipe for Disaster, Leela must have been brought to Senliten's tomb, Missing My Mummy, Senliten the Pharaoh Queen must have been restored to 100%, Smoking Kills"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 2,
+      "text": "Speak to Leela in Draynor Village and accompany her to Senliten's tomb at Uzer Mastaba.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "disagrees (Draynor value taken; conflicting RuneHQ Mastaba step retained)",
+      "note": "Wiki, official release article and Tip.It independently support Draynor. RuneHQ Start Point also says Draynor, while its step 1 says Mastaba. The two RuneHQ statements remain unresolved.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 32,
+              "text": "* Must have led [[Leela]] to Senliten's tomb (speak to her in Draynor to accompany her)"
+            },
+            {
+              "line": 70,
+              "text": "Before starting the quest, travel to Draynor Village and speak to Leela who is North-East of the bank. The two of you will travel to [[Uzer Mastaba]]. Talk to [[Senliten]] and Leela. Ask the queen if there is any way you can be of service. Senliten will say yes, but first she will tell you a story of her childhood; this story is about how she once played in the great forests that once existed in the Kharidian Empire, and how a group of monkeys saved her from a jackal. Monkeys during this time were both friendly and revered creatures. After the story is complete, she directs players to [[Jex]] and the [[Sphinx]], both in [[Sophanem]], to learn more about [[Apmeken]]."
+            }
+          ]
+        },
+        {
+          "source_id": "J",
+          "title": "Jagex — Do No Evil (published 01-Dec-2010)",
+          "revision_or_actual_capture": "20110827112417",
+          "timestamp_utc": "2011-08-27T11:24:17Z",
+          "url": "https://web.archive.org/web/20110827112417id_/http://services.runescape.com:80/m=news/do-no-evil?",
+          "saved_body": "sources/jagex-do-no-evil-20110827112417.html",
+          "body_sha256": "04d0706e7b0c39045289614a8aa57a9d4a4f751fbd8d303675889dc15971c2cb",
+          "quoted_file": "sources/jagex-do-no-evil-20110827112417.visible.txt",
+          "quoted_file_sha256": "3ad6bec970dba23e8b5a099b6a15baf35317fc59cdef916092551238889ee859",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 58,
+              "text": "Escort Leela from Draynor to Senliten’s tomb"
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 82,
+              "text": "1. Begin the quest by talking to Leela in Draynor Village. She is about to leave to visit Senliten's tomb. Accompany her and you will be immediately brought to Senliten's mastaba."
+            }
+          ]
+        },
+        {
+          "source_id": "H",
+          "title": "RuneHQ — Do No Evil",
+          "revision_or_actual_capture": "20121105180643",
+          "timestamp_utc": "2012-11-05T18:06:43Z",
+          "url": "https://web.archive.org/web/20121105180643id_/http://www.runehq.com:80/quest/do-no-evil",
+          "saved_body": "sources/runehq-do-no-evil-20121105180643.html",
+          "body_sha256": "f867c26b2d8973085f2b796b9c57679c5e7fcc6765a824515d0fddc4cbe583f3",
+          "quoted_file": "sources/runehq-do-no-evil-20121105180643.visible.txt",
+          "quoted_file_sha256": "af7f981dbd2f7028c123dad230d72fd775c7e991597443bf4ecee68fc5a1dac5",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 82,
+              "text": "Talk to Leela in Draynor Village."
+            },
+            {
+              "line": 86,
+              "text": "Talk to Leela in the Mastaba south of Uzer. She will ask you if you would like to join her to pay homage to Senliten. Agree to go with her, and you will automatically be taken to Senliten."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 3,
+      "text": "Speak to Senliten and Leela. Ask the queen how you can help, and listen to her story about the desert monkeys.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees",
+      "note": "Prospective commission instruction, not completion proof.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 70,
+              "text": "Before starting the quest, travel to Draynor Village and speak to Leela who is North-East of the bank. The two of you will travel to [[Uzer Mastaba]]. Talk to [[Senliten]] and Leela. Ask the queen if there is any way you can be of service. Senliten will say yes, but first she will tell you a story of her childhood; this story is about how she once played in the great forests that once existed in the Kharidian Empire, and how a group of monkeys saved her from a jackal. Monkeys during this time were both friendly and revered creatures. After the story is complete, she directs players to [[Jex]] and the [[Sphinx]], both in [[Sophanem]], to learn more about [[Apmeken]]."
+            }
+          ]
+        },
+        {
+          "source_id": "H",
+          "title": "RuneHQ — Do No Evil",
+          "revision_or_actual_capture": "20121105180643",
+          "timestamp_utc": "2012-11-05T18:06:43Z",
+          "url": "https://web.archive.org/web/20121105180643id_/http://www.runehq.com:80/quest/do-no-evil",
+          "saved_body": "sources/runehq-do-no-evil-20121105180643.html",
+          "body_sha256": "f867c26b2d8973085f2b796b9c57679c5e7fcc6765a824515d0fddc4cbe583f3",
+          "quoted_file": "sources/runehq-do-no-evil-20121105180643.visible.txt",
+          "quoted_file_sha256": "af7f981dbd2f7028c123dad230d72fd775c7e991597443bf4ecee68fc5a1dac5",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 87,
+              "text": "Talk to Senliten and go through all the options. She'll tell you a story about the monkeys in the desert. After that, she'll instruct you to talk to Jex and the Sphinx in Sophanem about the minor deity, Apmeken."
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 83,
+              "text": "2. After a brief conversation with Leela and Senliten, Senliten sends you to Sophanem to learn more about the Menaphite goddess, Apmenken. Enter Sophanem and speak to both the Sphinx (between the 2 pyramids) and Jex (outside the building with the destroyed altar and the ladder to the bank). Note that you must have your cat out to speak to the Sphinx."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 4,
+      "text": "Travel to Sophanem to investigate Apmeken with Jex and the Sphinx. You may visit them in either order.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees on both inquiries; no consensus source for explicit either-order permission",
+      "note": "The explicit parenthesis allowing Sphinx first and Jex second is W76 only. Independent guides require both and do not expressly state this alternative order. Preserve the permission without overstating independent corroboration.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 70,
+              "text": "Before starting the quest, travel to Draynor Village and speak to Leela who is North-East of the bank. The two of you will travel to [[Uzer Mastaba]]. Talk to [[Senliten]] and Leela. Ask the queen if there is any way you can be of service. Senliten will say yes, but first she will tell you a story of her childhood; this story is about how she once played in the great forests that once existed in the Kharidian Empire, and how a group of monkeys saved her from a jackal. Monkeys during this time were both friendly and revered creatures. After the story is complete, she directs players to [[Jex]] and the [[Sphinx]], both in [[Sophanem]], to learn more about [[Apmeken]]."
+            },
+            {
+              "line": 76,
+              "text": "Head back to the [[Shantay Pass]], take a carpet to [[Pollnivneach]], then finally take a carpet to [[Sophanem]]. Once there, talk to Jex at the wrecked temple in the north-east part of the city. Ask him about minor gods, then ask him all the questions about Apmeken. Next, go to the Sphinx with your cat, ask about minor gods, then about Apmeken. (Note: It is permissible to talk to Sphinx first and Jex second)."
+            }
+          ]
+        },
+        {
+          "source_id": "H",
+          "title": "RuneHQ — Do No Evil",
+          "revision_or_actual_capture": "20121105180643",
+          "timestamp_utc": "2012-11-05T18:06:43Z",
+          "url": "https://web.archive.org/web/20121105180643id_/http://www.runehq.com:80/quest/do-no-evil",
+          "saved_body": "sources/runehq-do-no-evil-20121105180643.html",
+          "body_sha256": "f867c26b2d8973085f2b796b9c57679c5e7fcc6765a824515d0fddc4cbe583f3",
+          "quoted_file": "sources/runehq-do-no-evil-20121105180643.visible.txt",
+          "quoted_file_sha256": "af7f981dbd2f7028c123dad230d72fd775c7e991597443bf4ecee68fc5a1dac5",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 87,
+              "text": "Talk to Senliten and go through all the options. She'll tell you a story about the monkeys in the desert. After that, she'll instruct you to talk to Jex and the Sphinx in Sophanem about the minor deity, Apmeken."
+            },
+            {
+              "line": 88,
+              "text": "Go to Sophanem and talk to both Jex and the Sphinx about the minor god, Apmeken. For the Sphinx, you'll need to have your cat out. Once you've talked to both about all the Apmeken options, your character will say he/she knows enough about Apmeken and understands the importance of monkeys in the desert. Return to Senliten. She'll ask you to bring the monkeys back to the desert as free creatures."
+            }
+          ]
+        },
+        {
+          "source_id": "S",
+          "title": "Sal’s Realm — Do No Evil",
+          "revision_or_actual_capture": "20120516122507",
+          "timestamp_utc": "2012-05-16T12:25:07Z",
+          "url": "https://web.archive.org/web/20120516122507id_/http://runescape.salmoneus.net/quests/do-no-evil.html",
+          "saved_body": "sources/sals-do-no-evil-20120516122507.html",
+          "body_sha256": "45f9c069b871fe2a0df0f0bf2c1c137f2795b66b1e79f5784f64eb9decc4147d",
+          "quoted_file": "sources/sals-do-no-evil-20120516122507.visible.txt",
+          "quoted_file_sha256": "f22add71ed31655c4b273be9570f8b9d28468fe23c70fe8294f4f52a3bedd87c",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 38,
+              "text": "To start the quest, speak with Senliten in her tomb south of Uzer. She will tell you a story of a time when monkeys lived within the forests of the Kharidian Desert. You will inform her that the monkeys no longer live in the desert, and she will become upset that you sound unconcerned. She will then send you to the Sphinx and Jex in Sophanem to learn about the Ape Goddess, Apmeken. Speak to Jex outside the temple to the lesser gods. Ask him about minor gods first, then all of the questions about Apmeken. In order to get the Sphinx to talk to you, you need a cat or kitten out. After the short intro with your cat, ask her about the minor gods, then ask about Apmeken. After speaking to both informants, head back to Senliten and inform her of what you've learned. She will tell you that the desert needs wild monkeys in it to preserve the desert's health."
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 83,
+              "text": "2. After a brief conversation with Leela and Senliten, Senliten sends you to Sophanem to learn more about the Menaphite goddess, Apmenken. Enter Sophanem and speak to both the Sphinx (between the 2 pyramids) and Jex (outside the building with the destroyed altar and the ladder to the bank). Note that you must have your cat out to speak to the Sphinx."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 5,
+      "text": "Ask Jex at the wrecked temple about minor gods, then ask him all the questions about Apmeken.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees",
+      "note": "Sal’s independently supports topics and order within Jex’s conversation; Tip.It supports the destroyed-altar location. Q and W are one lineage.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 76,
+              "text": "Head back to the [[Shantay Pass]], take a carpet to [[Pollnivneach]], then finally take a carpet to [[Sophanem]]. Once there, talk to Jex at the wrecked temple in the north-east part of the city. Ask him about minor gods, then ask him all the questions about Apmeken. Next, go to the Sphinx with your cat, ask about minor gods, then about Apmeken. (Note: It is permissible to talk to Sphinx first and Jex second)."
+            }
+          ]
+        },
+        {
+          "source_id": "Q",
+          "title": "Do No Evil/Quick guide",
+          "revision_or_actual_capture": "6587806",
+          "timestamp_utc": "2012-11-19T15:06:12Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil%2FQuick_guide&oldid=6587806&action=raw",
+          "saved_body": "sources/do-no-evil-quick-guide-6587806.txt",
+          "body_sha256": "1d4bd6c8f90c6ded806bc245d991612e85b5a6a700275fe29980435ccd6e76ce",
+          "quoted_file": "sources/do-no-evil-quick-guide-6587806.txt",
+          "quoted_file_sha256": "1d4bd6c8f90c6ded806bc245d991612e85b5a6a700275fe29980435ccd6e76ce",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 52,
+              "text": "* Head to [[Sophanem]] and talk to Jex at the wrecked temple in the north-east of the city. Ask him about minor gods and ask him all the questions about Apmeken."
+            }
+          ]
+        },
+        {
+          "source_id": "S",
+          "title": "Sal’s Realm — Do No Evil",
+          "revision_or_actual_capture": "20120516122507",
+          "timestamp_utc": "2012-05-16T12:25:07Z",
+          "url": "https://web.archive.org/web/20120516122507id_/http://runescape.salmoneus.net/quests/do-no-evil.html",
+          "saved_body": "sources/sals-do-no-evil-20120516122507.html",
+          "body_sha256": "45f9c069b871fe2a0df0f0bf2c1c137f2795b66b1e79f5784f64eb9decc4147d",
+          "quoted_file": "sources/sals-do-no-evil-20120516122507.visible.txt",
+          "quoted_file_sha256": "f22add71ed31655c4b273be9570f8b9d28468fe23c70fe8294f4f52a3bedd87c",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 38,
+              "text": "To start the quest, speak with Senliten in her tomb south of Uzer. She will tell you a story of a time when monkeys lived within the forests of the Kharidian Desert. You will inform her that the monkeys no longer live in the desert, and she will become upset that you sound unconcerned. She will then send you to the Sphinx and Jex in Sophanem to learn about the Ape Goddess, Apmeken. Speak to Jex outside the temple to the lesser gods. Ask him about minor gods first, then all of the questions about Apmeken. In order to get the Sphinx to talk to you, you need a cat or kitten out. After the short intro with your cat, ask her about the minor gods, then ask about Apmeken. After speaking to both informants, head back to Senliten and inform her of what you've learned. She will tell you that the desert needs wild monkeys in it to preserve the desert's health."
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 83,
+              "text": "2. After a brief conversation with Leela and Senliten, Senliten sends you to Sophanem to learn more about the Menaphite goddess, Apmenken. Enter Sophanem and speak to both the Sphinx (between the 2 pyramids) and Jex (outside the building with the destroyed altar and the ladder to the bank). Note that you must have your cat out to speak to the Sphinx."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 6,
+      "text": "Have a cat or kitten out when speaking to the Sphinx. Ask her about minor gods, then Apmeken.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees",
+      "note": "Cat/kitten and deployed companion context, not a Cat inventory item consumed by the journal.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 74,
+              "text": "'''''Items required:''' A [[cat]] or kitten. '''Suggested:''' Coins for [[magic carpet]] rides, [[Ring of Charos|ring of Charos (a)]] and access to the [[Fairy Ring]] network for quick transportation to [[Nardah]] and the [[Uzer Mastaba]] (code: DLQ).''"
+            },
+            {
+              "line": 76,
+              "text": "Head back to the [[Shantay Pass]], take a carpet to [[Pollnivneach]], then finally take a carpet to [[Sophanem]]. Once there, talk to Jex at the wrecked temple in the north-east part of the city. Ask him about minor gods, then ask him all the questions about Apmeken. Next, go to the Sphinx with your cat, ask about minor gods, then about Apmeken. (Note: It is permissible to talk to Sphinx first and Jex second)."
+            }
+          ]
+        },
+        {
+          "source_id": "Q",
+          "title": "Do No Evil/Quick guide",
+          "revision_or_actual_capture": "6587806",
+          "timestamp_utc": "2012-11-19T15:06:12Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil%2FQuick_guide&oldid=6587806&action=raw",
+          "saved_body": "sources/do-no-evil-quick-guide-6587806.txt",
+          "body_sha256": "1d4bd6c8f90c6ded806bc245d991612e85b5a6a700275fe29980435ccd6e76ce",
+          "quoted_file": "sources/do-no-evil-quick-guide-6587806.txt",
+          "quoted_file_sha256": "1d4bd6c8f90c6ded806bc245d991612e85b5a6a700275fe29980435ccd6e76ce",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 50,
+              "text": "''Items required: A cat or kitten, 1000 coins and desert survival equipment.''"
+            },
+            {
+              "line": 53,
+              "text": "*Go to the Sphinx with your cat, ask about minor gods and Apmeken."
+            }
+          ]
+        },
+        {
+          "source_id": "H",
+          "title": "RuneHQ — Do No Evil",
+          "revision_or_actual_capture": "20121105180643",
+          "timestamp_utc": "2012-11-05T18:06:43Z",
+          "url": "https://web.archive.org/web/20121105180643id_/http://www.runehq.com:80/quest/do-no-evil",
+          "saved_body": "sources/runehq-do-no-evil-20121105180643.html",
+          "body_sha256": "f867c26b2d8973085f2b796b9c57679c5e7fcc6765a824515d0fddc4cbe583f3",
+          "quoted_file": "sources/runehq-do-no-evil-20121105180643.visible.txt",
+          "quoted_file_sha256": "af7f981dbd2f7028c123dad230d72fd775c7e991597443bf4ecee68fc5a1dac5",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 88,
+              "text": "Go to Sophanem and talk to both Jex and the Sphinx about the minor god, Apmeken. For the Sphinx, you'll need to have your cat out. Once you've talked to both about all the Apmeken options, your character will say he/she knows enough about Apmeken and understands the importance of monkeys in the desert. Return to Senliten. She'll ask you to bring the monkeys back to the desert as free creatures."
+            }
+          ]
+        },
+        {
+          "source_id": "S",
+          "title": "Sal’s Realm — Do No Evil",
+          "revision_or_actual_capture": "20120516122507",
+          "timestamp_utc": "2012-05-16T12:25:07Z",
+          "url": "https://web.archive.org/web/20120516122507id_/http://runescape.salmoneus.net/quests/do-no-evil.html",
+          "saved_body": "sources/sals-do-no-evil-20120516122507.html",
+          "body_sha256": "45f9c069b871fe2a0df0f0bf2c1c137f2795b66b1e79f5784f64eb9decc4147d",
+          "quoted_file": "sources/sals-do-no-evil-20120516122507.visible.txt",
+          "quoted_file_sha256": "f22add71ed31655c4b273be9570f8b9d28468fe23c70fe8294f4f52a3bedd87c",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 38,
+              "text": "To start the quest, speak with Senliten in her tomb south of Uzer. She will tell you a story of a time when monkeys lived within the forests of the Kharidian Desert. You will inform her that the monkeys no longer live in the desert, and she will become upset that you sound unconcerned. She will then send you to the Sphinx and Jex in Sophanem to learn about the Ape Goddess, Apmeken. Speak to Jex outside the temple to the lesser gods. Ask him about minor gods first, then all of the questions about Apmeken. In order to get the Sphinx to talk to you, you need a cat or kitten out. After the short intro with your cat, ask her about the minor gods, then ask about Apmeken. After speaking to both informants, head back to Senliten and inform her of what you've learned. She will tell you that the desert needs wild monkeys in it to preserve the desert's health."
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 83,
+              "text": "2. After a brief conversation with Leela and Senliten, Senliten sends you to Sophanem to learn more about the Menaphite goddess, Apmenken. Enter Sophanem and speak to both the Sphinx (between the 2 pyramids) and Jex (outside the building with the destroyed altar and the ladder to the bank). Note that you must have your cat out to speak to the Sphinx."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_line": 7,
+      "text": "After speaking to both, return to Senliten to hear her request to return the monkeys to their rightful place in the desert.",
+      "supplying_rung": "R5 dated wiki, cross-checked with independent contemporary articles",
+      "consensus_result": "agrees",
+      "note": "Prospective return and instruction; no claim that any monkeys have already been returned.",
+      "sources": [
+        {
+          "source_id": "W",
+          "title": "Do No Evil",
+          "revision_or_actual_capture": "6587790",
+          "timestamp_utc": "2012-11-19T14:55:38Z",
+          "url": "https://runescape.wiki/w/index.php?title=Do_No_Evil&oldid=6587790&action=raw",
+          "saved_body": "sources/do-no-evil-6587790.txt",
+          "body_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "quoted_file": "sources/do-no-evil-6587790.txt",
+          "quoted_file_sha256": "d732e9701228c76068f6df58c8296c5ab1ea81e5394330b5a68e29a1e75c85bf",
+          "representation": "literal wikitext",
+          "literal_lines": [
+            {
+              "line": 78,
+              "text": "Go back to the [[Pharaoh Queen]]. She asks players to return all the desert monkeys to their rightful place."
+            }
+          ]
+        },
+        {
+          "source_id": "H",
+          "title": "RuneHQ — Do No Evil",
+          "revision_or_actual_capture": "20121105180643",
+          "timestamp_utc": "2012-11-05T18:06:43Z",
+          "url": "https://web.archive.org/web/20121105180643id_/http://www.runehq.com:80/quest/do-no-evil",
+          "saved_body": "sources/runehq-do-no-evil-20121105180643.html",
+          "body_sha256": "f867c26b2d8973085f2b796b9c57679c5e7fcc6765a824515d0fddc4cbe583f3",
+          "quoted_file": "sources/runehq-do-no-evil-20121105180643.visible.txt",
+          "quoted_file_sha256": "af7f981dbd2f7028c123dad230d72fd775c7e991597443bf4ecee68fc5a1dac5",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 88,
+              "text": "Go to Sophanem and talk to both Jex and the Sphinx about the minor god, Apmeken. For the Sphinx, you'll need to have your cat out. Once you've talked to both about all the Apmeken options, your character will say he/she knows enough about Apmeken and understands the importance of monkeys in the desert. Return to Senliten. She'll ask you to bring the monkeys back to the desert as free creatures."
+            }
+          ]
+        },
+        {
+          "source_id": "S",
+          "title": "Sal’s Realm — Do No Evil",
+          "revision_or_actual_capture": "20120516122507",
+          "timestamp_utc": "2012-05-16T12:25:07Z",
+          "url": "https://web.archive.org/web/20120516122507id_/http://runescape.salmoneus.net/quests/do-no-evil.html",
+          "saved_body": "sources/sals-do-no-evil-20120516122507.html",
+          "body_sha256": "45f9c069b871fe2a0df0f0bf2c1c137f2795b66b1e79f5784f64eb9decc4147d",
+          "quoted_file": "sources/sals-do-no-evil-20120516122507.visible.txt",
+          "quoted_file_sha256": "f22add71ed31655c4b273be9570f8b9d28468fe23c70fe8294f4f52a3bedd87c",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 38,
+              "text": "To start the quest, speak with Senliten in her tomb south of Uzer. She will tell you a story of a time when monkeys lived within the forests of the Kharidian Desert. You will inform her that the monkeys no longer live in the desert, and she will become upset that you sound unconcerned. She will then send you to the Sphinx and Jex in Sophanem to learn about the Ape Goddess, Apmeken. Speak to Jex outside the temple to the lesser gods. Ask him about minor gods first, then all of the questions about Apmeken. In order to get the Sphinx to talk to you, you need a cat or kitten out. After the short intro with your cat, ask her about the minor gods, then ask about Apmeken. After speaking to both informants, head back to Senliten and inform her of what you've learned. She will tell you that the desert needs wild monkeys in it to preserve the desert's health."
+            }
+          ]
+        },
+        {
+          "source_id": "T",
+          "title": "Tip.It — Do No Evil",
+          "revision_or_actual_capture": "20120825005203",
+          "timestamp_utc": "2012-08-25T00:52:03Z",
+          "url": "https://web.archive.org/web/20120825005203id_/http://www.tip.it:80/runescape/index.php?rs2quest_id=225",
+          "saved_body": "sources/tipit-do-no-evil-20120825005203.html",
+          "body_sha256": "c6dc3d17deeb9cb65e275d1ce5cd8ba806f84fc416e7c679a7bec858d8e14ce4",
+          "quoted_file": "sources/tipit-do-no-evil-20120825005203.visible.txt",
+          "quoted_file_sha256": "b4bcdb3dd34e4d2134206c1ddcb4761cae5f458bea25eb10ec5d899579ce0b00",
+          "representation": "retained HTML visible-text derivative; original HTML and replay headers retained",
+          "literal_lines": [
+            {
+              "line": 84,
+              "text": "3. Return to Senliten after you've learned about Apmenken and she will commission you to bring wild monkeys back to the desert. However, the monkeys must be very hardy to survive in the cruel and unforgiving desert."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence_root_at_harvest": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/active/2140-do-no-evil-opening-journal-instructions"
+}
