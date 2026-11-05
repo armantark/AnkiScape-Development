@@ -116,7 +116,7 @@ class AmmunitionPackTests(unittest.TestCase):
         self.assertFalse(player["equipment_ammunition_manual"])
 
     def test_seeded_review_recovery_and_global_incidental_toggle(self):
-        for cape, rate in ((None, 0.50), ("Ava's attractor", 0.60), ("Ava's accumulator", 0.72)):
+        for cape, rate in ((None, 0.0), ("Ava's attractor", 0.60), ("Ava's accumulator", 0.72), ("Ava's alerter", 0.72)):
             with self.subTest(cape=cape):
                 fired, lost, enabled = sample_recovery(cape, True)
                 fired_off, lost_off, disabled = sample_recovery(cape, False)

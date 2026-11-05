@@ -1,7 +1,7 @@
 """logic_pure_combat_model.py - split out of logic_pure.py; see that module's header."""
 
 from .combat.recovery import reclaim_items as _combat_reclaim_items_to_player, lost_ammo_extras, merge_stack_extras
-from .combat.ammunition import equipped_ammo, carried_runes, best_ammo, EQUIPMENT_DATA, generate_ava_items, migrate_ammunition, sanitize_ammunition_state, equipment_slot_text, combat_target_pack_move_pure
+from .combat.ammunition import advance_ground_ammo, equipped_ammo, carried_runes, best_ammo, EQUIPMENT_DATA, generate_ava_items, migrate_ammunition, sanitize_ammunition_state, equipment_slot_text, combat_target_pack_move_pure
 from math import comb, floor, sqrt
 from .logic_pure_combat_food import combat_max_lifepoints_pure
 
@@ -533,9 +533,7 @@ def default_combat_state_pure():
         "combat_prayer_points": 10,
         "combat_prayer_drain_counter": 0.0,
         "combat_auto_prayer_training": False,
-        "combat_ava_incidental_items": True,
-        "combat_ava_incidental_ticks": 0,
-        "equipment_ammunition_count": 0,
+        **sanitize_ammunition_state({}),
         "combat_prayers_enabled": True,
         "combat_vengeance": False,
         "combat_dream_thrift": False,

@@ -8070,7 +8070,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(mixed_after["inventory"]["Rune arrows"], 10)
         self.assertEqual(
             equipped_ammo(mixed_after),
-            {"Broad arrows": 10},
+            {"Broad arrows": 9},
         )
         self.assertEqual(
             combat_target_locked_reasons_pure(

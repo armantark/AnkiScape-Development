@@ -1,7 +1,8 @@
-"""The review HUD's action buttons: Bank run, and Resume at Bankstanding."""
+"""The review HUD's action buttons: banking, ammo pickup and Resume."""
 
 from __future__ import annotations
 
+from ..logic_pure.combat.ammunition import ammo_pickup_button_view_pure
 from ..core.last_action import resume_button_view_pure
 from ..logic.review_strip_logic import REVIEW_BANK_RUN_LABEL, REVIEW_BANK_RUN_TOOLTIP
 
@@ -38,6 +39,17 @@ if HAS_QT:
         def _activate(self) -> None:
             if self._action_callback is not None:
                 self._action_callback()
+
+    class ReviewAmmoPickupButton(ReviewBankRunButton):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("reviewAmmoPickupButton")
+            self.setStyleSheet("QPushButton { color: palette(text); background: palette(base); font-size: 10px; padding: 1px 6px; }")
+            self.hide()
+
+        def set_player_data(self, data, action_callback=None):
+            self.set_data(ammo_pickup_button_view_pure(data), action_callback)
+            self.setFixedSize(self.sizeHint())
 
     class ReviewResumeButton(QPushButton):
         """Restart the action the switch to Bankstanding stopped.
@@ -117,3 +129,25 @@ else:
             pass
         def set_data(self, view: dict, action_callback=None) -> None:
             pass
+
+    class ReviewAmmoPickupButton(ReviewBankRunButton):
+        def set_player_data(self, data, action_callback=None):
+            pass
+
+
+def add_review_ammo_title(hud, info, title):
+    title_row = QHBoxLayout()
+    title_row.setContentsMargins(0, 0, 0, 0)
+    title_row.addWidget(title, 1)
+    button = ReviewAmmoPickupButton(hud)
+    title_row.addWidget(button)
+    info.addLayout(title_row)
+    return button
+
+
+def attach_review_bank_run_button(hud, button):
+    button.setParent(hud)
+    button.setFixedSize(button.sizeHint())
+    hud.action_column.addWidget(
+        button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+    )

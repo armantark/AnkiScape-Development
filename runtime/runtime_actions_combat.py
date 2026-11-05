@@ -599,6 +599,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     result["stop_reason"] = _record_burst_stop(ctx, result, slayer_limit)
+    ctx.card.ammo_fired += sum(result.get("ammo_used", {}).values())
+    ctx.card.ammo_broken += result.get("ammo_broken", 0)
+    ctx.card.ammo_landed += result.get("ammo_landed", 0)
     guild_result = {}
     if (
         target_id in {"cyclops", "cyclossus"}

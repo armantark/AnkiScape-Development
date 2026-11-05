@@ -1,6 +1,7 @@
 """logic_pure_combat_engine.py - split out of logic_pure.py; see that module's header."""
 
 from typing import Iterable, Mapping, Optional
+
 from .combat_lure import prepare_combat_lure_encounter_pure
 from .logic_pure_combat_setup import _combat_spell_enemy_state
 
@@ -196,7 +197,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_potion_flask_cap,
     _combat_preset_snapshot,
     _combat_protective_equipment_state,
-    _combat_ranged_ammo_count, combat_equipment_totals_pure, equipment_slot_text, combat_target_pack_move_pure, migrate_ammunition, equipped_ammo, carried_runes, generate_ava_items,
+    _combat_ranged_ammo_count, combat_equipment_totals_pure, equipment_slot_text, combat_target_pack_move_pure, migrate_ammunition, equipped_ammo, carried_runes, generate_ava_items, advance_ground_ammo,
     _combat_ranged_locked_reasons,
     _combat_ranged_max_hit_old_hp,
     _combat_ranged_weapon_spec,
@@ -491,7 +492,7 @@ from .logic_pure_combat_outcome import (
     _combat_settle_wilderness_ambush,
 )
 from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
-from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_target_loadout, _combat_bank_window, combat_start_ammo_values_pure
+from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_target_loadout, _combat_bank_window, combat_start_ammo_values_pure, combat_supply_loadout_summary_pure
 from .logic_pure_combat_setup import (
     _combat_enemy_start_lifepoints,
     _combat_prayer_request,
@@ -1070,6 +1071,7 @@ def apply_combat_burst_pure(
         equipment_data, enemy_data, ticks, allow_bank_run, locked_reasons,
     )
     if bank_run_result is not None:
+        advance_ground_ammo(data, bank_run_result.get("ticks_elapsed", 0))
         data["combat_last_result"] = bank_run_result
         return data, True, bank_run_result
     if locked_reasons:
@@ -1265,6 +1267,7 @@ def apply_combat_burst_pure(
     if dragonfire_potion_event:
         potions_used.append(dragonfire_potion_event)
     ammo_used = {}
+    ammo_outcomes = {"broken": 0, "landed": 0}
     runes_used = {}
     for rune_name, amount in supplemental_used.items():
         runes_used[rune_name] = runes_used.get(rune_name, 0) + amount
@@ -1333,7 +1336,10 @@ def apply_combat_burst_pure(
             if tick >= next_player_attack and enemy_lp > 0:
                 next_player_attack += player_attack_speed
                 if combat_class == "ranged":
-                    ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id, rng)
+                    ammo_name = _combat_consume_ranged_ammo(
+                        data, ranged_weapon_spec, target_id, rng,
+                        tick_offset=bank_ticks + tick + 1, outcomes=ammo_outcomes,
+                    )
                     if ammo_name is None:
                         out_of_ammo = True
                         break
@@ -1624,6 +1630,7 @@ def apply_combat_burst_pure(
             data, enemy, player_lp, max_player_lp, rng,
             wilderness_equipment_risk, food_used,
         )
+    advance_ground_ammo(data, ticks_elapsed + bank_ticks)
     generate_ava_items(data, ticks_elapsed, _combat_supply_slots_used(data))
     data["combat_lifepoints"] = player_lp
     result = {
@@ -1660,6 +1667,8 @@ def apply_combat_burst_pure(
         "food_used": tuple(food_used),
         "potions_used": tuple(potions_used),
         "ammo_used": dict(ammo_used),
+        "ammo_broken": ammo_outcomes["broken"],
+        "ammo_landed": ammo_outcomes["landed"],
         "runes_used": dict(runes_used),
         "status_damage": dict(status_damage),
         "status_applied": dict(status_applied),
@@ -1801,33 +1810,6 @@ def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):
         player_data, {}, equipment_data
     )
     return repaired
-
-
-def combat_supply_loadout_summary_pure(player_data, equipment_data=None):
-    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    style = COMBAT_ATTACK_STYLE_DATA.get(
-        combat_attack_style_for_equipment_pure(player_data, equipment_data or {}),
-        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
-    )
-    combat_class = str(style.get("combat_class", "melee"))
-    relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
-    stat_potions = {
-        item_name: amount
-        for item_name, amount in loadout["stat_potions"].items()
-        if item_name in relevant_stat_potions
-    }
-    return {
-        "food_loaded_items": dict(loadout["food"]),
-        "potions_loaded": sum(loadout["potions"].values()),
-        "potions_loaded_items": dict(loadout["potions"]),
-        "stat_potions_loaded": sum(stat_potions.values()),
-        "stat_potions_loaded_items": stat_potions,
-        "ammo_equipped": equipped_ammo(player_data),
-        "runes_carried": {name: count for name, count in carried_runes(player_data).items() if name.endswith(" rune")} if combat_class == "magic" else {},
-        "finishers_loaded": dict(loadout["finishers"]),
-        "hazards_loaded": dict(loadout["hazards"]),
-        "cannonballs_loaded": loadout["cannonballs"],
-    }
 
 
 def combat_has_active_encounter_pure(player_data):

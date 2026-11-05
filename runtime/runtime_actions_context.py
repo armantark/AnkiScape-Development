@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 from typing import Any, Callable, Mapping, Optional
 
+from ..logic_pure.combat.ammunition import advance_ground_ammo, pickup_ground_ammo_pure
 from ..core.activity_feedback import fish_flingers_card_feedback
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 from ..logic.pace.short_timers import STEP_TICKS, card_ticks_pure
@@ -45,6 +46,9 @@ class CardBudget:
     # Record elapsed Combat time across those bursts for pace verification.
     burst_ticks_left: int = 0
     combat_ticks_spent: int = 0
+    ammo_fired: int = 0
+    ammo_broken: int = 0
+    ammo_landed: int = 0
 
     def record_tick_stop(self, ticks_elapsed: int, reason: str) -> str:
         self.stop_reason = reason
@@ -302,3 +306,33 @@ def apply_review_recovery(addon, save_callback=None, *, ticks=None) -> None:
         addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
     except Exception:
         pass
+
+
+def active_review_bank_run_target(addon, handler_key):
+    if handler_key == "combat":
+        return str(addon._state.player_data.get("current_combat_target", addon.DEFAULT_COMBAT_TARGET) or "")
+    target_key = addon.runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+    return str(addon._state.player_data.get(target_key, "") or "") if target_key else ""
+
+
+def pickup_review_ammo(addon):
+    committed = addon.commit_direct_action(pickup_ground_ammo_pure)
+    addon._refresh_bank_run_surfaces()
+    addon.update_review_event_log_drawer(addon._state.player_data)
+    return committed
+
+
+def record_review_ammunition(addon, card):
+    if card.ammo_fired:
+        addon._record_review_event(
+            "activity",
+            f"Ammo: {card.ammo_fired:,} fired · {card.ammo_broken:,} broken · {card.ammo_landed:,} landed",
+            persist=False,
+        )
+
+
+def finish_review_ammunition_clock(data, before, speed):
+    # Combat ages arrows at their shot ticks. Every answer also spends the rest
+    # of its card, including Again, bank trips and noncombat actions.
+    elapsed = data.get("ground_ammunition_tick", 0) - before.get("ground_ammunition_tick", 0)
+    advance_ground_ammo(data, max(0, card_ticks_pure(speed) - elapsed))

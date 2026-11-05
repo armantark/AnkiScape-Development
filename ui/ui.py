@@ -610,7 +610,7 @@ from ..logic.brawling_gloves_logic import (
     brawling_wilderness_enabled_pure,
 )
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
-from .review_hud_buttons import ReviewBankRunButton
+from .review_hud_buttons import ReviewBankRunButton, add_review_ammo_title, attach_review_bank_run_button
 from ..logic.review_strip_logic import (
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
@@ -2155,7 +2155,7 @@ if HAS_QT:
             info.setSpacing(4)
             self.title_lbl = QLabel("Skill")
             self.title_lbl.setStyleSheet("color: white; font-weight: 600;")
-            info.addWidget(self.title_lbl)
+            self.ammo_pickup_button = add_review_ammo_title(self, info, self.title_lbl)
 
             # The text and fill are separate so the progress fill never sits
             # behind the progress text.
@@ -2343,11 +2343,7 @@ if HAS_QT:
             self.hide()
 
         def attach_bank_run_button(self, button) -> None:
-            button.setParent(self)
-            button.setFixedSize(button.sizeHint())
-            self.action_column.addWidget(
-                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-            )
+            attach_review_bank_run_button(self, button)
 
         def _skill_icon_path(self, skill: str) -> Optional[str]:
             # Registry-driven: resolves icon/<skill_id>_icon.png for any playable
@@ -4000,6 +3996,7 @@ def update_review_bank_run_button(
     action_callback=None,
     *,
     target_id=None,
+    ammo_pickup_action=None,
 ) -> None:
     if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
         return
@@ -4013,6 +4010,7 @@ def update_review_bank_run_button(
             ),
             action_callback,
         )
+    _REVIEW_HUD.ammo_pickup_button.set_player_data(player_data, ammo_pickup_action)
     _sync_review_strip_layout()
 
 

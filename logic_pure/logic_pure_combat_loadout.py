@@ -9,13 +9,14 @@ from typing import Mapping
 from .logic_pure_combat_model import apply_combat_preset_pure, apply_combat_target_overrides_pure
 from .logic_pure_combat_supplies import (
     _combat_custom_layout_view, _combat_refill_ranged_ammo_loadout,
-    _combat_locks_can_bank_run, _combat_progress_or_start_bank_run,
+    _combat_locks_can_bank_run, _combat_progress_or_start_bank_run, _combat_relevant_potion_items,
 )
 from .logic_pure_combat_model import (
     _combat_ranged_weapon_spec, combat_target_locked_reasons_pure,
-    _positive_int, COMBAT_BURST_TICKS,
+    _positive_int, COMBAT_BURST_TICKS, COMBAT_ATTACK_STYLE_DATA, DEFAULT_COMBAT_ATTACK_STYLE,
+    combat_attack_style_for_equipment_pure, _sanitize_combat_supply_loadout,
 )
-from .combat.ammunition import equipped_ammo, EQUIPMENT_DATA
+from .combat.ammunition import equipped_ammo, carried_runes, EQUIPMENT_DATA
 
 
 def _combat_prepare_target_loadout(data, target_id):
@@ -72,3 +73,30 @@ def _combat_bank_window(
         return spent, ticks, result, ()
     reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     return spent, ticks - spent, None, reasons
+
+
+def combat_supply_loadout_summary_pure(player_data, equipment_data=None):
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        combat_attack_style_for_equipment_pure(player_data, equipment_data or {}),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    combat_class = str(style.get("combat_class", "melee"))
+    relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
+    stat_potions = {
+        item_name: amount
+        for item_name, amount in loadout["stat_potions"].items()
+        if item_name in relevant_stat_potions
+    }
+    return {
+        "food_loaded_items": dict(loadout["food"]),
+        "potions_loaded": sum(loadout["potions"].values()),
+        "potions_loaded_items": dict(loadout["potions"]),
+        "stat_potions_loaded": sum(stat_potions.values()),
+        "stat_potions_loaded_items": stat_potions,
+        "ammo_equipped": equipped_ammo(player_data),
+        "runes_carried": {name: count for name, count in carried_runes(player_data).items() if name.endswith(" rune")} if combat_class == "magic" else {},
+        "finishers_loaded": dict(loadout["finishers"]),
+        "hazards_loaded": dict(loadout["hazards"]),
+        "cannonballs_loaded": loadout["cannonballs"],
+    }

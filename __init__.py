@@ -1477,18 +1477,15 @@ def _open_grand_exchange_sheet():
     _on_main_menu(initial_global_tab="Grand Exchange")
 
 
-def _active_review_bank_run_target(handler_key: str) -> str:
-    if handler_key == "combat":
-        return str(_state.player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET) or "")
-    target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-    return str(_state.player_data.get(target_key, "") or "") if target_key else ""
+def on_pickup_review_ammo() -> bool:
+    return runtime_actions.pickup_review_ammo(sys.modules[__name__])
 
 
 def on_request_review_bank_run() -> bool:
     """Queue the current activity's existing review-paced bank-run path."""
 
     handler_key = review_action_handler_key(_state.current_skill)
-    target_id = _active_review_bank_run_target(handler_key)
+    target_id = runtime_actions.active_review_bank_run_target(sys.modules[__name__], handler_key)
     committed = commit_direct_action(
         lambda data: request_review_bank_run_pure(data, handler_key, target_id)
     )
@@ -1506,7 +1503,8 @@ def _update_review_bank_run_surface() -> None:
         _state.player_data,
         handler_key,
         on_request_review_bank_run,
-        target_id=_active_review_bank_run_target(handler_key),
+        target_id=runtime_actions.active_review_bank_run_target(sys.modules[__name__], handler_key),
+        ammo_pickup_action=on_pickup_review_ammo,
     )
     ui.set_review_resume_action(on_resume_last_action)
 
@@ -4983,6 +4981,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                 _spend_card_on_action(review_ctx, handler_key, handler)
         finally:
             _finish_review_feedback_context(review_ctx.card.stop_reason)
+            runtime_actions.record_review_ammunition(sys.modules[__name__], review_ctx.card)
             # The background clock and active action form one persisted review
             # transaction, including rejected handlers and safe recovery.
             _advance_world_events_after_review()
@@ -5119,6 +5118,7 @@ def on_answer_card(self, ease, _old):
         _advance_effects_for_answer(successful_answer)
         _advance_farming_for_answer(answers_farm_step)
         _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, before_state)
+        runtime_actions.finish_review_ammunition_clock(_state.player_data, before_state["player_data"], _review_action_multiplier())
         _state.familiar_ticks_before = _state.calendar_ticks_for_answer = None
     _state.card_turned = False
     _state.answer_shown = False  # Reset for the next card

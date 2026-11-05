@@ -1,6 +1,6 @@
 # Pass 21 follow-up: owner answers, 2026-11-05
 
-These answers settle `open-questions.md`. The ammo return rate stays open and is not part of this work.
+These answers settle `open-questions.md`; the later ammo-return section settles the pickup contract.
 
 ## Owner's words
 

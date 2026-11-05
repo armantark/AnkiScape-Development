@@ -1,5 +1,6 @@
-"""One worn ammunition stack and Bank-backed rune packing."""
+"""Worn ammunition, timed ground piles and Bank-backed rune packing."""
 
+from ...core.review_event_log import record_review_event_pure
 from ...data.combat.mechanics import COMBAT_RANGED_AMMO_DATA, COMBAT_RANGED_WEAPON_DATA
 from ...logic.inventory_pure import carried_slots_used, clamp_carried_view_to_bank
 from ...data.item_values import STACKABLE_ITEM_NAMES
@@ -9,7 +10,8 @@ from ..logic_pure_state import _non_negative_int
 
 # PLACEHOLDER(ava_recovery_split): corroborate Darkan Ranged.kt with a period split.
 AVA_RECOVERY = {"Ava's attractor": 0.60, "Ava's accumulator": 0.72, "Ava's alerter": 0.72}
-AMMO_PICKUP_WITHOUT_AVA = 0.50  # Owner's Pass 21 balance rule, all fired shots.
+AMMO_BREAK_CHANCE = 0.20
+GROUND_AMMO_LIFETIME_TICKS = 350
 # PLACEHOLDER(ava_incidental_interval): recover the exact period generation timer.
 AVA_INCIDENTAL_TICKS = 300  # Period wiki estimate: one arrow per 180 seconds.
 
@@ -98,20 +100,77 @@ def consume_runes(data, rune_cost):
     return dict(rune_cost)
 
 
-def consume_ammo(data, weapon_spec, target_id, rng):
+def consume_ammo(data, weapon_spec, target_id, rng, *, tick_offset=0, outcomes=None):
     name = (data.get("equipment") or {}).get("ammunition")
     count = equipped_ammo(data).get(name, 0)
     if name not in (weapon_spec or {}).get("compatible_ammo", ()) or count <= 0:
         return None
     cape = (data.get("equipment") or {}).get("cape")
-    recovery = AVA_RECOVERY.get(cape, AMMO_PICKUP_WITHOUT_AVA)
-    if rng() >= recovery:
+    recovery = AVA_RECOVERY.get(cape, 0.0)
+    roll = rng()
+    if roll >= recovery:
         count -= 1
+        broken = roll >= 1 - AMMO_BREAK_CHANCE
+        if outcomes is not None:
+            key = "broken" if broken else "landed"
+            outcomes[key] += 1
+        if not broken:
+            expiry = int(data.get("ground_ammunition_tick", 0)) + tick_offset + GROUND_AMMO_LIFETIME_TICKS
+            data["ground_ammunition"] = [*(data.get("ground_ammunition") or []),
+                                          {"name": name, "count": 1, "expires_at": expiry}]
     data["equipment_ammunition_count"] = count
     if count <= 0:
         data["equipment"] = dict(data.get("equipment") or {})
         data["equipment"].pop("ammunition", None)
     return name
+
+
+def advance_ground_ammo(data, ticks):
+    now = int(data.get("ground_ammunition_tick", 0)) + max(0, int(ticks))
+    data["ground_ammunition_tick"] = now
+    data["ground_ammunition"] = [row for row in data.get("ground_ammunition", []) if row["expires_at"] > now]
+
+
+def ground_ammo_count(data):
+    return sum(row["count"] for row in data.get("ground_ammunition", []))
+
+
+def ammo_pickup_button_view_pure(data):
+    weapon = (data.get("equipment") or {}).get("weapon")
+    uses_ammo = bool(COMBAT_RANGED_WEAPON_DATA.get(weapon, {}).get("compatible_ammo"))
+    count = ground_ammo_count(data)
+    return {"visible": uses_ammo, "enabled": uses_ammo and count > 0, "text": f"Pick up ammo ({count:,})", "tooltip": ""}
+
+
+def pickup_ground_ammo_pure(player_data):
+    if not ammo_pickup_button_view_pure(player_data)["enabled"]:
+        return player_data, False
+    data = dict(player_data)
+    inventory = dict(data.get("inventory") or {})
+    worn = (data.get("equipment") or {}).get("ammunition")
+    count = equipped_ammo(data).get(worn, 0)
+    for row in data.get("ground_ammunition", []):
+        if row["name"] == worn:
+            count += row["count"]
+        else:
+            inventory[row["name"]] = inventory.get(row["name"], 0) + row["count"]
+    data = record_review_event_pure(data, "activity", f"Picked up {ground_ammo_count(data):,} ammo")
+    data.update(inventory=inventory, equipment_ammunition_count=count, ground_ammunition=[])
+    return data, True
+
+
+def sanitize_ground_ammo(data):
+    now = _non_negative_int(data.get("ground_ammunition_tick", 0), 0)
+    pile = []
+    raw = data.get("ground_ammunition")
+    for row in raw if isinstance(raw, list) else []:
+        if not isinstance(row, dict) or row.get("name") not in COMBAT_RANGED_AMMO_DATA:
+            continue
+        count = _non_negative_int(row.get("count", 0), 0)
+        expiry = _non_negative_int(row.get("expires_at", 0), 0)
+        if count and expiry > now:
+            pile.append({"name": row["name"], "count": count, "expires_at": expiry})
+    return {"ground_ammunition_tick": now, "ground_ammunition": pile}
 
 
 def generate_ava_items(data, ticks, supply_slots=0):
@@ -155,6 +214,7 @@ def sanitize_ammunition_state(data):
     count = data.get("equipment_ammunition_count", int(bool((data.get("equipment") or {}).get("ammunition"))))
     manual = data.get("equipment_ammunition_manual")
     return {
+        **sanitize_ground_ammo(data),
         "equipment_ammunition_count": _non_negative_int(count, 0),
         "equipment_ammunition_manual": manual if isinstance(manual, str) and manual in COMBAT_RANGED_AMMO_DATA else "",
         "combat_ava_incidental_items": bool(data.get("combat_ava_incidental_items", True)),

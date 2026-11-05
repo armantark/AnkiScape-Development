@@ -609,6 +609,10 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
 )
 from .runtime_actions_context import (  # noqa: F401  (re-export)
     apply_review_recovery,
+    active_review_bank_run_target,
+    pickup_review_ammo,
+    record_review_ammunition,
+    finish_review_ammunition_clock,
     ONE_PER_CARD_HANDLER_KEYS,
     RuntimeActionContext,
     activity_session_cleared,
