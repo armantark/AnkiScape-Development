@@ -49,3 +49,11 @@ Disposition: fixed.
 Evidence: Current tests/runtime_actions/test_dispatcher_state.py saves each original random.random callable before replacement, registers addCleanup(setattr, ..., random_roll), and restores RNG state with addCleanup(setstate, ...). The permanent lambda assignment recorded in this incident no longer exists. python3 run_tests.py tests.runtime_actions.test_dispatcher_state tests.test_undo_seam_slayer tests.test_fight_caves passed: Ran 51 tests, OK. The combined papercut-focused run also passed 143 tests (3 unrelated Pillow-only skips), exercising real-Qt fixtures and these fake-runtime/undo consumers together.
 
 - 2026-10-18T11:25:53-07:00 — Pace part C baseline: my new dispatcher test assigned `addon.random.random = lambda: 0.01`; `addon.random` is the process-wide `random` module, so every later test in the full plain lane saw a frozen RNG ("AssertionError" in tests.runtime_actions.test_dispatcher_state, tests.test_undo_seam_slayer, tests.test_fight_caves undo/RNG tests). Patch it with `self.enterContext(patch.object(addon.random, "random", ...))`.
+
+## Pirate hook fixture loads its earned state before the undo baseline
+
+Disposition: fixed.
+
+Evidence: Current tests/item_tradeability/test_pirates_hook_tradeability.py::test_earned_hook_exchange_escrow_settlement_undo_and_reload saves the earned inventory and loads it through storage_load_player_data before copying its before_reward snapshot. This applies bank_layout normalization before the strict undo comparison. python3 run_tests.py tests.item_tradeability.test_pirates_hook_tradeability passed: Ran 1 test, OK. It also passed within the 143-test combined run (3 unrelated Pillow-only skips). All collection data was the test dummy; no profile database or real player save was opened.
+
+- 2026-10-15T17:36:29.349586+00:00 — Pirate’s hook pre-edit proof first exited 1 before GE: full Undo equality differed in `bank_layout` because the earned inventory was injected after load; normalize through existing save/load before the snapshot. Original failure retained in external `pirates-hook-implementation-2026-10-15/red.log`.
