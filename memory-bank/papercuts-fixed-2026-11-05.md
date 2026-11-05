@@ -25,3 +25,11 @@ Disposition: fixed.
 Evidence: tools/maintenance/function_metrics.py validates a qualified method against its exact AST scope, then joins the unchanged slop-gate instrument tables by its file-unique bare name. Duplicate bare names and nested functions remain refused; no fleet hook or guard was changed. The existing unique-method regression first failed for Example.choose with exit 2, then python3 run_tests.py tests.maintenance.test_function_metrics passed: Ran 11 tests, OK. Bare and qualified names produce identical measured CCN, cognitive complexity and Halstead difficulty.
 
 - 2026-10-28T04:35:58-07:00 — Pass 18 review fixes: tools/maintenance/function_metrics.py refuses a qualified method name ("QueueCount._credit: expected one file-unique bare function name"), so a class method cannot be measured by name.
+
+## Historical downloads already retry uncached and verify exact bytes
+
+Disposition: fixed.
+
+Evidence: Current tools/fetch_assets.py::_download_source_bytes constructs a unique cache_bust on every attempt and accepts bytes only when their SHA-1 matches the API revision. tools/reresearch_period_art.py::_download_matching_sha1 also retries each URL with an uncached query. python3 run_tests.py tests.historical_assets.test_fetch_assets_source_urls tests.test_fetch_assets passed: Ran 29 tests, OK (skipped=3 Pillow-only checks). The active local HTTP regressions test recompressed first responses, query preservation, distinct retries and rejection after three mismatches. No asset was fetched from the Internet or written to the repository.
+
+- 2026-10-29T23:10:46-07:00 — Pass 19 renamed icons: tools/reresearch_period_art.py reported sha_mismatch for `File:White candle.png` on one asset and replaced the same revision on another; Cloudflare Polish ("cf-polished: ok, orig_size=394") serves recompressed bytes a41a2dd318bd18072587c7fe513dc7f31ed1a93e on a cache hit, while a never-cached query string returns the uploaded bytes dab5404b4da5e9f8eb2441509bf47ce58acc40f9. The tool now retries each URL uncached; tools/fetch_assets.py downloads do not.
