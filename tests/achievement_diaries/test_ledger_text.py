@@ -70,11 +70,11 @@ class CurationLedgerTextTest(unittest.TestCase):
 
         for row in rows:
             with self.subTest(task_id=row["task_id"]):
-                source = definitions[str(row["source_id"])]
                 task = tasks[row["task_id"]]
                 self.assertEqual(task.name, row["designed_name"])
                 self.assertEqual(task.description, row["designed_description"])
-                self.assertNotEqual(task.description, source["description"])
+                source = definitions.get(str(row["source_id"]), {})
+                self.assertNotEqual(task.description, source.get("description"))
                 self.assertLessEqual(len(task.description), 90)
                 self.assertTrue(task.description.endswith("."))
 

@@ -81,8 +81,8 @@ pinned cutoff task catalog; they are not forced into twelve-row tiers.
 - Remove geography, emotes, and inventory choreography when those details do
   not change the accomplishment. A concise narrative line may retain the
   original setting.
-- Prefer 9-11 distinctive translated feats per tier. Only 1-3 generic
-  progression anchors may pad a tier.
+- Prefer 9-11 distinctive translated feats per tier. Deeds authored in the
+  curation ledger fill any tier a period family leaves short.
 - No task condition or durable task ID is shared between families. The content
   budget is large enough to give every family a distinct palette.
 - Preserve regional personality. Diversity is a review criterion, not a rigid

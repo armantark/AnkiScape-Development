@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 531,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_bring_him_down',
@@ -42,7 +41,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 532,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_we_re_done_here',
@@ -52,7 +50,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 533,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_fire_in_the_troll',
@@ -62,7 +59,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 535,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_take_your_pick',
@@ -72,7 +68,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 538,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_fine_fine_axe',
@@ -82,7 +77,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 539,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_are_you_in_rubble',
@@ -92,7 +86,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 540,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_jack_of_some_trades',
@@ -102,7 +95,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 541,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_arm_the_militia',
@@ -112,7 +104,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 542,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_a_farmer_in_the_making',
@@ -122,7 +113,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 543,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_dibs_on_the_first_batch',
@@ -132,7 +122,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 544,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_the_circle_of_life',
@@ -142,7 +131,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 545,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_two_in_the_bush',
@@ -152,7 +140,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 546,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_fisherman_s_friends',
@@ -162,7 +149,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 547,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_feed_the_refugees',
@@ -172,7 +158,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 548,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_a_pocket_or_two',
@@ -182,7 +167,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 549,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_bank_on_it',
@@ -192,7 +176,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 583,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_the_red_mist_descends',
@@ -202,7 +185,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 550,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_these_aren_t_oven_gloves',
@@ -212,7 +194,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 551,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_a_new_threat',
@@ -222,7 +203,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 552,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_no_stone_unturned',
@@ -232,7 +212,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 553,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_mission_complete',
@@ -242,7 +221,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 554,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_all_fell_down',
@@ -252,7 +230,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 555,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_pocket_wolf',
@@ -262,7 +239,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 556,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_heel_boy',
@@ -272,7 +248,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 557,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_spiritual_healing',
@@ -282,7 +257,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 940,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_like_a_house_on_fire',
@@ -292,7 +266,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 559,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_one_thing_after_another',
@@ -302,7 +275,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 560,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_my_axe_is_my_buddy',
@@ -312,7 +284,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 561,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_on_the_straight_and_arrow',
@@ -322,7 +293,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 562,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_super_tuber',
@@ -332,7 +302,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 563,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_problem_officer',
@@ -342,7 +311,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 537,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_raising_the_stokes',
@@ -352,7 +320,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 1010,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_bows_are_for_violence',
@@ -362,7 +329,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 564,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_out_of_water',
@@ -372,7 +338,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 565,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_guam_fly_with_me',
@@ -382,7 +347,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 566,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_a_fresh_batch',
@@ -392,7 +356,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 567,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_bottoms_up',
@@ -402,7 +365,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 568,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_hammer_the_anvil',
@@ -412,7 +374,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 569,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_wicked',
@@ -422,7 +383,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 571,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_lapping_it_up',
@@ -432,7 +392,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 574,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_make_them_feel_special',
@@ -442,7 +401,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 576,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_arise_hero',
@@ -452,7 +410,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 575,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_heimward_bound',
@@ -462,7 +419,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 577,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_party_on_dudes',
@@ -472,7 +428,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 578,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_raiders_of_the_frost_dark',
@@ -482,7 +437,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 579,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_unreal_estate_man',
@@ -492,7 +446,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 580,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_room_to_manoeuvre',
@@ -502,7 +455,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 581,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_about_to_drop_the_hammer',
@@ -512,7 +464,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 582,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_mind_out_of_matter',
@@ -522,7 +473,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 570,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_walking_in_the_air_altar',
@@ -532,7 +482,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 572,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_there_s_no_place_like_burthorpe',
@@ -542,7 +491,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 573,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_let_them_eat_pie',
@@ -552,7 +500,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 451,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_druidic_ritual',
@@ -562,7 +509,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 440,
                 0,
-                False,
             ),
             DiaryTask(
                 'burthorpe_period_death_plateau',
@@ -572,7 +518,6 @@ FAMILY = DiaryFamily(
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 441,
                 0,
-                False,
             ),
             ),
             None,

@@ -722,7 +722,6 @@ def achievement_cabinet_view_pure(
                         ),
                         "completed": done,
                         "latent": task.dormant,
-                        "curation_anchor": task.curation_anchor,
                         "have": need if done else have,
                         "need": need,
                         "staged": need > 1,

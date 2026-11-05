@@ -82,8 +82,7 @@ CONDITION_OVERRIDES = {
 }
 
 # These three quest requirements are the described deed itself, rather than an
-# access gate for some other world action. They are the quest-family analogue of
-# the visibly labelled progression anchors.
+# access gate for some other world action.
 QUEST_COMPLETION_SOURCE_IDS = frozenset({440, 441, 451})
 
 # Darkan confirms these tasks' exact tier membership. Their ordinary requirement

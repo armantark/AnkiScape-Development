@@ -2,9 +2,6 @@
 
 Domain terms with one settled meaning each. Implementation detail stays out.
 
-- **Anchor task** — one of the 22 diary rows that are visibly labelled "Reach
-  Level X" milestones. An anchor's level threshold IS its deed, so it is the
-  only diary row class whose trigger may be a level.
 - **Bank Claims** — the Bank tab's inbox of pending claimable rewards. A claim
   row persists until the player claims it; it is the delivery surface for
   deferred rewards such as XP lamps.

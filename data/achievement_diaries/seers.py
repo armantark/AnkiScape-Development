@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 223,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 13, 'Level 13 Farming'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 226,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 10, 'Level 10 Crafting'),),
             ),
             DiaryTask(
@@ -54,7 +52,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 227,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'murder_mystery', 1, 'Complete Murder Mystery'),),
             ),
             DiaryTask(
@@ -65,7 +62,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 229,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'murder_mystery', 1, 'Complete Murder Mystery'), DiaryCondition('skill_level', 'cooking', 21, 'Level 21 Cooking'),),
             ),
             DiaryTask(
@@ -76,7 +72,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 230,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_mack_rolled',
@@ -86,7 +81,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 232,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 16, 'Level 16 Fishing'),),
             ),
             DiaryTask(
@@ -97,7 +91,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 221,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_why',
@@ -107,7 +100,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 222,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_stir_galahad',
@@ -117,7 +109,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 224,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_la_morte_d_arthur',
@@ -127,27 +118,26 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 225,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_reach_level_10_crafting',
-                'Reach Level 10 Crafting',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'crafting', 10, 'Level 10 Crafting'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Strung Along',
+                "String a plain longbow, a first bow for the Ranging Guild's hopefuls.",
+                (DiaryCondition('ledger_action', 'fletching:string_longbow', 1, 'String a longbow'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900601,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'fletching', 10, 'Level 10 Fletching'),),
             ),
             DiaryTask(
                 'seers_easy_reach_level_30_mining',
-                'Reach Level 30 Mining',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'mining', 30, 'Level 30 Mining'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Coal Comfort',
+                "Mine five coal, the least the Seers' Village coal trucks will haul.",
+                (DiaryCondition('ledger_action', 'mining:coal', 5, 'Mine five coal'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900602,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'mining', 30, 'Level 30 Mining'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.seers.easy.lamp_minimum_level): the exact period
@@ -172,7 +162,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 233,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 48, 'Level 48 Agility'),),
             ),
             DiaryTask(
@@ -183,7 +172,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 234,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'scorpion_catcher', 1, 'Complete Scorpion Catcher'),),
             ),
             DiaryTask(
@@ -194,7 +182,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 235,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 30, 'Level 30 Mining'),),
             ),
             DiaryTask(
@@ -205,7 +192,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 236,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'elemental_workshop_i', 1, 'Complete Elemental Workshop I'),),
             ),
             DiaryTask(
@@ -216,7 +202,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 237,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 45, 'Level 45 Magic'),),
             ),
             DiaryTask(
@@ -227,7 +212,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 238,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'ranged', 40, 'Level 40 Ranged'),),
             ),
             DiaryTask(
@@ -238,7 +222,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 239,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'ranged', 40, 'Level 40 Ranged'),),
             ),
             DiaryTask(
@@ -249,7 +232,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 240,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'one_small_favour', 1, 'Complete One Small Favour'),),
             ),
             DiaryTask(
@@ -260,7 +242,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 241,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 45, 'Level 45 Firemaking'), DiaryCondition('skill_level', 'summoning', 46, 'Level 46 Summoning'),),
             ),
             DiaryTask(
@@ -271,28 +252,27 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 243,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 46, 'Level 46 Fishing'), DiaryCondition('skill_level', 'cooking', 43, 'Level 43 Cooking'),),
             ),
             DiaryTask(
                 'seers_medium_reach_level_46_fishing',
-                'Reach Level 46 Fishing',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'fishing', 46, 'Level 46 Fishing'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Claws For Concern',
+                "Catch three lobsters, the pride of Catherby's shore.",
+                (DiaryCondition('ledger_output', 'fishing:Raw lobster', 3, 'Catch three lobsters'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900611,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'fishing', 40, 'Level 40 Fishing'),),
             ),
             DiaryTask(
                 'seers_medium_reach_level_57_magic',
-                'Reach Level 57 Magic',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'magic', 57, 'Level 57 Magic'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'A Bolt From the Blue',
+                "Enchant diamond bolts, the Ranging Guild's favorite parting gift.",
+                (DiaryCondition('ledger_action', 'magic:enchant_diamond_bolts', 1, 'Enchant diamond bolts'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900612,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'magic', 57, 'Level 57 Magic'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.seers.medium.lamp_minimum_level): the exact period
@@ -317,7 +297,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 246,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
             ),
             DiaryTask(
@@ -328,7 +307,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 247,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fletching', 80, 'Level 80 Fletching'),),
             ),
             DiaryTask(
@@ -339,7 +317,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 248,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'prayer', 70, 'Level 70 Prayer'), DiaryCondition('skill_level', 'defense', 70, 'Level 70 Defense'),),
             ),
             DiaryTask(
@@ -350,7 +327,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 250,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 75, 'Level 75 Firemaking'),),
             ),
             DiaryTask(
@@ -361,7 +337,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 251,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 55, 'Level 55 Magic'),),
             ),
             DiaryTask(
@@ -372,7 +347,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 252,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'strength', 22, 'Level 22 Strength'), DiaryCondition('skill_level', 'agility', 36, 'Level 36 Agility'), DiaryCondition('skill_level', 'ranged', 39, 'Level 39 Ranged'),),
             ),
             DiaryTask(
@@ -383,7 +357,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 253,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 76, 'Level 76 Fishing'),),
             ),
             DiaryTask(
@@ -394,7 +367,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 254,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 80, 'Level 80 Cooking'),),
             ),
             DiaryTask(
@@ -405,7 +377,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 255,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 56, 'Level 56 Magic'),),
             ),
             DiaryTask(
@@ -416,27 +387,26 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 245,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_hard_reach_level_65_fletching',
-                'Reach Level 65 Fletching',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'fletching', 65, 'Level 65 Fletching'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Tipping Point',
+                'Tip diamond bolts, the sharpest shot the Ranging Guild has seen.',
+                (DiaryCondition('ledger_action', 'fletching:tip_diamond_bolts', 1, 'Tip diamond bolts'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900621,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'fletching', 65, 'Level 65 Fletching'),),
             ),
             DiaryTask(
                 'seers_hard_reach_level_73_smithing',
-                'Reach Level 73 Smithing',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Bolt Upright',
+                "Forge unfinished adamant bolts, for the Seers' Village fletchers.",
+                (DiaryCondition('ledger_action', 'smithing:forge_adamant_bolts_unf', 1, 'Forge adamant bolts'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900622,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.seers.hard.lamp_minimum_level): the exact period
@@ -461,7 +431,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 332,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 35, 'Level 35 Fishing'), DiaryCondition('skill_level', 'cooking', 70, 'Level 70 Cooking'),),
             ),
             DiaryTask(
@@ -472,7 +441,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 333,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 57, 'Level 57 Magic'), DiaryCondition('skill_level', 'fletching', 65, 'Level 65 Fletching'), DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
             ),
             DiaryTask(
@@ -483,7 +451,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 334,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 10, 'Level 10 Crafting'), DiaryCondition('skill_level', 'fletching', 85, 'Level 85 Fletching'),),
             ),
             DiaryTask(
@@ -494,7 +461,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 335,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'ranged', 40, 'Level 40 Ranged'), DiaryCondition('skill_level', 'herblore', 92, 'Level 92 Herblore'),),
             ),
             DiaryTask(
@@ -505,7 +471,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 336,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'lunar_diplomacy', 1, 'Complete Lunar Diplomacy'), DiaryCondition('skill_level', 'magic', 83, 'Level 83 Magic'),),
             ),
             DiaryTask(
@@ -516,7 +481,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier medium; curated into elite",
                 244,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'ranged', 40, 'Level 40 Ranged'),),
             ),
             DiaryTask(
@@ -527,7 +491,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier hard; curated into elite",
                 249,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_medium_at_least_it_doesn_t_need_walking',
@@ -537,7 +500,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier medium; curated into elite",
                 242,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_happy_hour',
@@ -547,7 +509,6 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier easy; curated into elite",
                 228,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_easy_a_seer_ing_light',
@@ -557,27 +518,26 @@ FAMILY = DiaryFamily(
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier easy; curated into elite",
                 231,
                 0,
-                False,
             ),
             DiaryTask(
                 'seers_elite_reach_level_83_magic',
-                'Reach Level 83 Magic',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'magic', 83, 'Level 83 Magic'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Moon Over Catherby',
+                "Cast Catherby Teleport, the Moon Clan's shortcut to the Seers' fishing shore.",
+                (DiaryCondition('ledger_action', 'magic:catherby_teleport', 1, 'Cast Catherby Teleport'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900631,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'magic', 87, 'Level 87 Magic'), DiaryCondition('quest', 'lunar_diplomacy', 1, 'Complete Lunar Diplomacy'),),
             ),
             DiaryTask(
                 'seers_elite_reach_level_80_fletching',
-                'Reach Level 80 Fletching',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'fletching', 80, 'Level 80 Fletching'),),
-                'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Cut a Long Story Short',
+                "Cut a magic longbow, whittled from the trees by the Sorcerers' Tower.",
+                (DiaryCondition('ledger_action', 'fletching:magic_longbow_u', 1, 'Cut a magic longbow'),),
+                'AnkiScape deed curated beside Darkan SeersVillageTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900632,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'fletching', 85, 'Level 85 Fletching'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.seers.elite.lamp_minimum_level): the exact period

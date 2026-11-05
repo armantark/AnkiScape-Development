@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 944,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 15, 'Level 15 Crafting'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 945,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 12, 'Level 12 Cooking'),),
             ),
             DiaryTask(
@@ -54,7 +52,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 946,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'priest_in_peril', 1, 'Complete Priest in Peril'),),
             ),
             DiaryTask(
@@ -65,7 +62,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 947,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'creature_of_fenkenstrain', 1, 'Complete Creature of Fenkenstrain'), DiaryCondition('skill_level', 'agility', 25, 'Level 25 Agility'),),
             ),
             DiaryTask(
@@ -76,7 +72,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 948,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'creature_of_fenkenstrain', 1, 'Complete Creature of Fenkenstrain'),),
             ),
             DiaryTask(
@@ -87,7 +82,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 949,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'nature_spirit', 1, 'Complete Nature Spirit'),),
             ),
             DiaryTask(
@@ -98,7 +92,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 950,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'nature_spirit', 1, 'Complete Nature Spirit'),),
             ),
             DiaryTask(
@@ -109,7 +102,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 951,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'nature_spirit', 1, 'Complete Nature Spirit'),),
             ),
             DiaryTask(
@@ -120,7 +112,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 952,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_easy_if_it_bleeds',
@@ -130,7 +121,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 953,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_easy_wurt_a_bundle',
@@ -140,7 +130,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 954,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 26, 'Level 26 Farming'),),
             ),
             DiaryTask(
@@ -151,7 +140,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into easy',
                 973,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'slayer', 45, 'Level 45 Slayer'),),
             ),
             ),
@@ -177,7 +165,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 957,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'ghosts_ahoy', 1, 'Complete Ghosts Ahoy'),),
             ),
             DiaryTask(
@@ -188,7 +175,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 958,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'ghosts_ahoy', 1, 'Complete Ghosts Ahoy'),),
             ),
             DiaryTask(
@@ -199,7 +185,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 960,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shades_of_mortton', 1, "Complete Shades of Mort'ton"),),
             ),
             DiaryTask(
@@ -210,7 +195,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 962,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 40, 'Level 40 Woodcutting'),),
             ),
             DiaryTask(
@@ -221,7 +205,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 963,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'ghosts_ahoy', 1, 'Complete Ghosts Ahoy'),),
             ),
             DiaryTask(
@@ -232,7 +215,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 964,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_medium_don_t_stop_me_if_i_start_to_ramble',
@@ -242,7 +224,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 965,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_darkness_of_hallowvale', 1, 'Complete The Darkness of Hallowvale'),),
             ),
             DiaryTask(
@@ -253,7 +234,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 966,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shades_of_mortton', 1, "Complete Shades of Mort'ton"),),
             ),
             DiaryTask(
@@ -264,7 +244,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 968,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'herblore', 22, 'Level 22 Herblore'), DiaryCondition('quest', 'ghosts_ahoy', 1, 'Complete Ghosts Ahoy'),),
             ),
             DiaryTask(
@@ -275,7 +254,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 970,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 33, 'Level 33 Magic'),),
             ),
             DiaryTask(
@@ -286,7 +264,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 971,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'in_search_of_the_myreque', 1, 'Complete In Search of the Myreque'),),
             ),
             DiaryTask(
@@ -297,7 +274,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 972,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 35, 'Level 35 Smithing'), DiaryCondition('quest', 'dwarf_cannon', 1, 'Complete Dwarf Cannon'),),
             ),
             ),
@@ -323,7 +299,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 975,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'slayer', 40, 'Level 40 Slayer'), DiaryCondition('quest', 'haunted_mine', 1, 'Complete Haunted Mine'),),
             ),
             DiaryTask(
@@ -334,7 +309,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 985,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 50, 'Level 50 Runecrafting'), DiaryCondition('quest', 'legacy_of_seergaze', 1, 'Complete Legacy of Seergaze'),),
             ),
             DiaryTask(
@@ -345,7 +319,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 976,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legacy_of_seergaze', 1, 'Complete Legacy of Seergaze'),),
             ),
             DiaryTask(
@@ -356,7 +329,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 977,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 60, 'Level 60 Agility'), DiaryCondition('quest', 'creature_of_fenkenstrain', 1, 'Complete Creature of Fenkenstrain'),),
             ),
             DiaryTask(
@@ -367,7 +339,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 978,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 65, 'Level 65 Agility'),),
             ),
             DiaryTask(
@@ -378,7 +349,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 979,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'magic', 66, 'Level 66 Magic'), DiaryCondition('skill_level', 'construction', 50, 'Level 50 Construction'), DiaryCondition('quest', 'desert_treasure', 1, 'Complete Desert Treasure'),),
             ),
             DiaryTask(
@@ -389,7 +359,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 981,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legacy_of_seergaze', 1, 'Complete Legacy of Seergaze'),),
             ),
             DiaryTask(
@@ -400,7 +369,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 982,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 76, 'Level 76 Woodcutting'), DiaryCondition('skill_level', 'fletching', 70, 'Level 70 Fletching'),),
             ),
             DiaryTask(
@@ -411,7 +379,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 983,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_hard_better_than_cursing_the_darkness',
@@ -421,7 +388,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 984,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 62, 'Level 62 Firemaking'), DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'),),
             ),
             DiaryTask(
@@ -432,7 +398,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 980,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_medium_izzy_wizzy_let_s_get_lizzy',
@@ -442,7 +407,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into hard',
                 967,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'hunter', 29, 'Level 29 Hunter'),),
             ),
             ),
@@ -468,7 +432,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 986,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'slayer', 85, 'Level 85 Slayer'),),
             ),
             DiaryTask(
@@ -479,7 +442,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 987,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 77, 'Level 77 Runecrafting'), DiaryCondition('quest', 'legacy_of_seergaze', 1, 'Complete Legacy of Seergaze'),),
             ),
             DiaryTask(
@@ -490,7 +452,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 988,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'summoning', 87, 'Level 87 Summoning'),),
             ),
             DiaryTask(
@@ -501,7 +462,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 989,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 91, 'Level 91 Farming'), DiaryCondition('skill_level', 'herblore', 94, 'Level 94 Herblore'),),
             ),
             DiaryTask(
@@ -512,7 +472,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 990,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 96, 'Level 96 Fishing'), DiaryCondition('skill_level', 'strength', 76, 'Level 76 Strength'),),
             ),
             DiaryTask(
@@ -523,7 +482,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 992,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 80, 'Level 80 Firemaking'),),
             ),
             DiaryTask(
@@ -534,7 +492,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 993,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'ritual_of_the_mahjarrat', 1, 'Complete Ritual of the Mahjarrat'),),
             ),
             DiaryTask(
@@ -545,7 +502,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 994,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_branches_of_darkmeyer', 1, 'Complete The Branches of Darkmeyer'),),
             ),
             DiaryTask(
@@ -556,7 +512,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 991,
                 0,
-                False,
             ),
             DiaryTask(
                 'morytania_medium_fun_guy_but_bitter',
@@ -566,7 +521,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into elite',
                 974,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 53, 'Level 53 Farming'),),
             ),
             DiaryTask(
@@ -577,7 +531,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into elite',
                 959,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'nature_spirit', 1, 'Complete Nature Spirit'), DiaryCondition('quest', 'haunted_mine', 1, 'Complete Haunted Mine'),),
             ),
             DiaryTask(
@@ -588,7 +541,6 @@ FAMILY = DiaryFamily(
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into elite',
                 955,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shades_of_mortton', 1, "Complete Shades of Mort'ton"),),
             ),
             ),

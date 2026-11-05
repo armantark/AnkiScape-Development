@@ -466,8 +466,6 @@ class CatalogIntegrityTest(unittest.TestCase):
         classifications = [
             "dormant"
             if task.dormant
-            else "anchor"
-            if task.curation_anchor
             else "quest_deed"
             if task.source_id in quest_deed_source_ids
             else "real_deed"
@@ -476,8 +474,7 @@ class CatalogIntegrityTest(unittest.TestCase):
 
         self.assertEqual(len(tasks), 474)
         self.assertEqual(classifications.count("dormant"), 112)
-        self.assertEqual(classifications.count("real_deed"), 337)
-        self.assertEqual(classifications.count("anchor"), 22)
+        self.assertEqual(classifications.count("real_deed"), 359)
         self.assertEqual(classifications.count("quest_deed"), 3)
         self.assertEqual(quest_deed_source_ids, {440, 441, 451})
 
@@ -617,42 +614,6 @@ class CatalogIntegrityTest(unittest.TestCase):
                 self.assertEqual(tier.designed_task_count, 12, tier.id)
                 self.assertEqual(tier.total_tasks, 12, tier.id)
                 self.assertEqual(len(tier.tasks), tier.total_tasks, tier.id)
-
-    def test_progression_anchors_are_bounded_reachable_and_explicit(self):
-        anchors = []
-        for family in ACHIEVEMENT_DIARY_CATALOG:
-            if family.kind != "regional":
-                continue
-            for tier in family.tiers:
-                tier_anchors = [task for task in tier.tasks if task.curation_anchor]
-                self.assertLessEqual(len(tier_anchors), 3, tier.id)
-                anchors.extend(tier_anchors)
-        self.assertEqual(len(anchors), 22)
-        self.assertEqual(
-            {task.id.split("_", 1)[0] for task in anchors},
-            {"falador", "fremennik", "karamja", "seers"},
-        )
-        for task in anchors:
-            self.assertFalse(task.dormant, task.id)
-            self.assertTrue(task.conditions, task.id)
-            self.assertIn("not a period task identity", task.source, task.id)
-
-        for family in ACHIEVEMENT_DIARY_CATALOG:
-            for tier in family.tiers:
-                authentic_levels = {
-                    (condition.key, condition.amount)
-                    for task in tier.tasks
-                    if not task.curation_anchor
-                    for condition in task.conditions
-                    if condition.kind == "skill_level"
-                }
-                for anchor in (task for task in tier.tasks if task.curation_anchor):
-                    condition = anchor.conditions[0]
-                    self.assertNotIn(
-                        (condition.key, condition.amount),
-                        authentic_levels,
-                        anchor.id,
-                    )
 
     def test_cross_tier_curation_keeps_the_original_durable_identity(self):
         marker = "original period tier "
@@ -1356,37 +1317,26 @@ class TaskProgressTest(unittest.TestCase):
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
-            if task.curation_anchor
+            if task.conditions and task.conditions[0].kind == "hold_item"
         )
-        condition = task.conditions[0]
         player = _satisfy(player, task)
         player = refresh_achievement_diaries_pure(player)[0]
         self.assertIn(task.id, player["achievement_diaries"]["completed_tasks"])
 
-        player[f"{condition.key}_level"] = 1
+        player["inventory"][task.conditions[0].key] = 0
         player, newly = refresh_achievement_diaries_pure(player)
         self.assertEqual(newly, ())
         self.assertIn(task.id, player["achievement_diaries"]["completed_tasks"])
 
-    def test_levels_alone_complete_only_the_twenty_two_curation_anchors(self):
+    def test_levels_alone_complete_no_diary_row(self):
         player = _fresh()
-        anchors = {
-            task.id
-            for family in ACHIEVEMENT_DIARY_CATALOG
-            for tier in family.tiers
-            for task in tier.tasks
-            if task.curation_anchor
-        }
         for skill in trainable_skill_definitions():
             player[f"{skill.id}_level"] = 126
 
         player, newly = refresh_achievement_diaries_pure(player)
 
-        self.assertEqual(len(anchors), 22)
-        self.assertEqual(set(newly), anchors)
-        self.assertEqual(
-            set(player["achievement_diaries"]["completed_tasks"]), anchors
-        )
+        self.assertEqual(newly, ())
+        self.assertEqual(player["achievement_diaries"]["completed_tasks"], [])
 
     def test_each_quest_completion_deed_fires_only_on_its_own_quest(self):
         quest_deeds = [
@@ -1976,14 +1926,16 @@ class MigrationTest(unittest.TestCase):
         loaded = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
         self.assertEqual(loaded["achievement_diaries"]["completed_tasks"], [])
 
-    def test_migration_carries_a_level_the_old_save_really_had(self):
+    def test_migration_credits_a_deed_the_old_save_already_proved(self):
         legacy = _fresh()
         legacy["config_version"] = 87
         legacy.pop("achievement_diaries")
-        legacy["mining_level"] = 99
-        legacy["crafting_level"] = 99
+        legacy["inventory"]["Beer"] = 1
         loaded = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertTrue(loaded["achievement_diaries"]["completed_tasks"])
+        self.assertIn(
+            "falador_easy_the_good_stuff",
+            loaded["achievement_diaries"]["completed_tasks"],
+        )
 
     def test_a_current_save_is_not_reseeded_on_reload(self):
         player = _fresh()

@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 183,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 10, 'Level 10 Agility'),),
             ),
             DiaryTask(
@@ -43,7 +42,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 184,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 40, 'Level 40 Mining'),),
             ),
             DiaryTask(
@@ -54,7 +52,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 187,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 15, 'Level 15 Agility'),),
             ),
             DiaryTask(
@@ -65,7 +62,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 188,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 5, 'Level 5 Fishing'),),
             ),
             DiaryTask(
@@ -76,7 +72,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 190,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_easy_five_a_day',
@@ -86,7 +81,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 182,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_easy_put_to_port_in_port_sarim',
@@ -96,7 +90,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 185,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_easy_avast_ardougne',
@@ -106,7 +99,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 186,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_easy_beachcomber',
@@ -116,7 +108,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 189,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_easy_it_s_a_jungle_ogre',
@@ -126,7 +117,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 191,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_medium_romancing_the_stone',
@@ -136,7 +126,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into easy',
                 198,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'), DiaryCondition('skill_level', 'mining', 40, 'Level 40 Mining'),),
             ),
             DiaryTask(
@@ -147,7 +136,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into easy',
                 204,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 27, 'Level 27 Farming'),),
             ),
             ),
@@ -173,7 +161,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 192,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 40, 'Level 40 Agility'),),
             ),
             DiaryTask(
@@ -184,7 +171,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 193,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'dragon_slayer', 1, 'Complete Dragon Slayer'),),
             ),
             DiaryTask(
@@ -195,7 +181,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 194,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'dragon_slayer', 1, 'Complete Dragon Slayer'),),
             ),
             DiaryTask(
@@ -206,7 +191,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 195,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'),),
             ),
             DiaryTask(
@@ -217,7 +201,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 196,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             DiaryTask(
@@ -228,7 +211,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 197,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 16, 'Level 16 Cooking'),),
             ),
             DiaryTask(
@@ -239,7 +221,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 209,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'),),
             ),
             DiaryTask(
@@ -250,7 +231,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 199,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 35, 'Level 35 Woodcutting'),),
             ),
             DiaryTask(
@@ -261,7 +241,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 200,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 50, 'Level 50 Woodcutting'),),
             ),
             DiaryTask(
@@ -272,7 +251,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 201,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tai_bwo_wannai_trio', 1, 'Complete Tai Bwo Wannai Trio'), DiaryCondition('skill_level', 'fishing', 65, 'Level 65 Fishing'),),
             ),
             DiaryTask(
@@ -283,7 +261,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 202,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'),),
             ),
             DiaryTask(
@@ -294,7 +271,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 203,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_grand_tree', 1, 'Complete The Grand Tree'),),
             ),
             ),
@@ -320,7 +296,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 212,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_hard_at_one_with_nature',
@@ -330,7 +305,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 214,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 44, 'Level 44 Runecrafting'),),
             ),
             DiaryTask(
@@ -341,7 +315,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 215,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'tai_bwo_wannai_trio', 1, 'Complete Tai Bwo Wannai Trio'), DiaryCondition('skill_level', 'cooking', 30, 'Level 30 Cooking'),),
             ),
             DiaryTask(
@@ -352,7 +325,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 216,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'woodcutting', 15, 'Level 15 Woodcutting'), DiaryCondition('skill_level', 'agility', 50, 'Level 50 Agility'), DiaryCondition('skill_level', 'strength', 50, 'Level 50 Strength'), DiaryCondition('skill_level', 'thieving', 50, 'Level 50 Thieving'), DiaryCondition('skill_level', 'mining', 52, 'Level 52 Mining'),),
             ),
             DiaryTask(
@@ -363,7 +335,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 217,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'strength', 21, 'Level 21 Strength'), DiaryCondition('skill_level', 'ranged', 42, 'Level 42 Ranged'), DiaryCondition('skill_level', 'agility', 53, 'Level 53 Agility'),),
             ),
             DiaryTask(
@@ -374,7 +345,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 218,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'woodcutting', 15, 'Level 15 Woodcutting'),),
             ),
             DiaryTask(
@@ -385,7 +355,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 219,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'), DiaryCondition('skill_level', 'slayer', 50, 'Level 50 Slayer'),),
             ),
             DiaryTask(
@@ -396,7 +365,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 220,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 12, 'Level 12 Agility'), DiaryCondition('skill_level', 'woodcutting', 34, 'Level 34 Woodcutting'),),
             ),
             DiaryTask(
@@ -407,7 +375,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 211,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_hard_i_d_be_kharazi_to_eat_this',
@@ -417,7 +384,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 213,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_medium_hunters_of_the_horned_graahk',
@@ -427,7 +393,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into hard',
                 205,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'hunter', 41, 'Level 41 Hunter'),),
             ),
             DiaryTask(
@@ -438,7 +403,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into hard',
                 206,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             ),
@@ -464,7 +428,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 324,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 91, 'Level 91 Runecrafting'),),
             ),
             DiaryTask(
@@ -475,7 +438,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 326,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'hunter', 27, 'Level 27 Hunter'), DiaryCondition('skill_level', 'summoning', 95, 'Level 95 Summoning'),),
             ),
             DiaryTask(
@@ -486,7 +448,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 327,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'herblore', 63, 'Level 63 Herblore'),),
             ),
             DiaryTask(
@@ -497,7 +458,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 328,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 80, 'Level 80 Cooking'),),
             ),
             DiaryTask(
@@ -508,7 +468,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 329,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'summoning', 90, 'Level 90 Summoning'),),
             ),
             DiaryTask(
@@ -519,7 +478,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 330,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'), DiaryCondition('skill_level', 'agility', 74, 'Level 74 Agility'),),
             ),
             DiaryTask(
@@ -530,7 +488,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 331,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'while_guthix_sleeps', 1, 'Complete While Guthix Sleeps'), DiaryCondition('skill_level', 'slayer', 50, 'Level 50 Slayer'),),
             ),
             DiaryTask(
@@ -541,7 +498,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 325,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_medium_hotfooting_it',
@@ -551,7 +507,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 207,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 12, 'Level 12 Agility'),),
             ),
             DiaryTask(
@@ -562,7 +517,6 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 210,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'monkey_madness', 1, 'Complete Monkey Madness'), DiaryCondition('quest', 'the_grand_tree', 1, 'Complete The Grand Tree'),),
             ),
             DiaryTask(
@@ -573,17 +527,16 @@ FAMILY = DiaryFamily(
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 208,
                 0,
-                False,
             ),
             DiaryTask(
                 'karamja_elite_reach_level_65_fishing',
-                'Reach Level 65 Fishing',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'fishing', 65, 'Level 65 Fishing'),),
-                'AnkiScape progression anchor derived from Darkan KaramjaTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Another Bwan Bites the Dust',
+                "Catch 28 raw karambwan, a full vessel's haul for Tai Bwo Wannai.",
+                (DiaryCondition('ledger_output', 'fishing:Raw karambwan', 28, 'Catch 28 raw karambwan'),),
+                'AnkiScape deed curated beside Darkan KaramjaTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900331,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'fishing', 65, 'Level 65 Fishing'), DiaryCondition('quest', 'tai_bwo_wannai_trio', 1, 'Complete Tai Bwo Wannai Trio'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.karamja.elite.lamp_minimum_level): the exact period

@@ -214,10 +214,9 @@ expected file and provenance key in the asset test.
 - Achievement definitions live behind `core/achievement_metadata.py`. `constants.ACHIEVEMENTS` stays as a legacy export for `core/logic.py`, old tests, and any add-on code that reads the dict shape, while UI code consumes row/progress helpers instead of reconstructing grouped achievement state.
 - Generated Achievement Diary curation preserves source identity rather than
   rewriting it. A task moved within its family keeps its original-tier durable
-  ID and records both original and curated tiers in provenance; explicit
-  progression anchors are separately flagged and must reuse a skill-level pair
-  found in that family's period requirements. Generator validation owns the
-  exact 12-row tier invariant and the maximum of three anchors per tier.
+  ID and records both original and curated tiers in provenance. The curation
+  ledger authors the deeds that fill a tier a period family leaves short.
+  Generator validation owns the exact 12-row tier invariant.
 - Fletching uses stable recipe IDs for saved selections and UI choices.
   Different recipes can produce the same inventory item, such as arrow shafts.
 - Fletching material-only inputs such as feathers and arrowtips are registered as item-manifest `material` entries. Arrowtips are sourced through Smithing; feathers come from live NPC shop stock and Combat drops. The retired `scavenge_chicken_feathers` bridge must not return.

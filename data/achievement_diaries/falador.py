@@ -32,7 +32,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 115,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_the_good_stuff',
@@ -42,7 +41,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 116,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_family_values',
@@ -52,7 +50,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 118,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'construction', 16, 'Level 16 Construction'),),
             ),
             DiaryTask(
@@ -63,7 +60,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 121,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_it_s_not_wabbit_season',
@@ -73,7 +69,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 123,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_stand_and_deliver',
@@ -83,7 +78,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 124,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_making_my_mind_up',
@@ -93,7 +87,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 125,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_chain_store',
@@ -103,7 +96,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 129,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'defense', 10, 'Level 10 Defense'),),
             ),
             DiaryTask(
@@ -114,7 +106,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 117,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_sniffing_out_the_mole',
@@ -124,7 +115,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 119,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_chinchompa_powered',
@@ -134,17 +124,15 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 120,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_reach_level_37_strength',
-                'Reach Level 37 Strength',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'strength', 37, 'Level 37 Strength'),),
-                'AnkiScape progression anchor derived from Darkan FaladorTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Off the Wall',
+                "Defeat a sword guard, one of those walking Falador's north wall.",
+                (DiaryCondition('combat_kill', 'guard_sword', 1, 'Defeat a sword guard'),),
+                'AnkiScape deed curated beside Darkan FaladorTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900101,
                 0,
-                True,
             ),
             ),
             # PLACEHOLDER(achievement_diaries.falador.easy.lamp_minimum_level): the exact period
@@ -169,7 +157,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 130,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'crafting', 36, 'Level 36 Crafting'),),
             ),
             DiaryTask(
@@ -180,7 +167,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 131,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 26, 'Level 26 Agility'),),
             ),
             DiaryTask(
@@ -191,7 +177,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 133,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'agility', 11, 'Level 11 Agility'), DiaryCondition('skill_level', 'strength', 37, 'Level 37 Strength'),),
             ),
             DiaryTask(
@@ -202,7 +187,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 134,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'wanted', 1, 'Complete Wanted!'),),
             ),
             DiaryTask(
@@ -213,7 +197,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 135,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_medium_blinded_with_science',
@@ -223,7 +206,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 136,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'firemaking', 49, 'Level 49 Firemaking'),),
             ),
             DiaryTask(
@@ -234,7 +216,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 137,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'thieving', 40, 'Level 40 Thieving'),),
             ),
             DiaryTask(
@@ -245,7 +226,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 138,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 23, 'Level 23 Farming'),),
             ),
             DiaryTask(
@@ -256,7 +236,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 139,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'smithing', 13, 'Level 13 Smithing'),),
             ),
             DiaryTask(
@@ -267,7 +246,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 140,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'rat_catchers', 1, 'Complete Rat Catchers'),),
             ),
             DiaryTask(
@@ -278,18 +256,17 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 141,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'recruitment_drive', 1, 'Complete Recruitment Drive'), DiaryCondition('skill_level', 'defense', 20, 'Level 20 Defense'), DiaryCondition('skill_level', 'prayer', 10, 'Level 10 Prayer'),),
             ),
             DiaryTask(
                 'falador_medium_reach_level_60_woodcutting',
-                'Reach Level 60 Woodcutting',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
-                'AnkiScape progression anchor derived from Darkan FaladorTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                "Yew Can't Park Here",
+                'Chop three yew trees, none of them welcome in Falador Park.',
+                (DiaryCondition('ledger_action', 'woodcutting:yew', 3, 'Chop three yew trees'),),
+                'AnkiScape deed curated beside Darkan FaladorTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900111,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.falador.medium.lamp_minimum_level): the exact period
@@ -314,7 +291,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 143,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'prayer', 70, 'Level 70 Prayer'), DiaryCondition('skill_level', 'construction', 16, 'Level 16 Construction'),),
             ),
             DiaryTask(
@@ -325,7 +301,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 144,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'runecrafting', 56, 'Level 56 Runecrafting'),),
             ),
             DiaryTask(
@@ -336,7 +311,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 145,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 60, 'Level 60 Farming'), DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
             ),
             DiaryTask(
@@ -347,7 +321,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 146,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 60, 'Level 60 Mining'),),
             ),
             DiaryTask(
@@ -358,7 +331,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 148,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'slayer', 32, 'Level 32 Slayer'),),
             ),
             DiaryTask(
@@ -369,7 +341,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 149,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'slayer', 72, 'Level 72 Slayer'),),
             ),
             DiaryTask(
@@ -380,7 +351,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 150,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'summoning', 56, 'Level 56 Summoning'),),
             ),
             DiaryTask(
@@ -391,7 +361,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 151,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_slug_menace', 1, 'Complete The Slug Menace'), DiaryCondition('skill_level', 'defense', 30, 'Level 30 Defense'), DiaryCondition('skill_level', 'prayer', 20, 'Level 20 Prayer'),),
             ),
             DiaryTask(
@@ -402,7 +371,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 142,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_hard_i_heard_you_like_mudskips',
@@ -412,7 +380,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 147,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_medium_these_aren_t_the_coins_you_re_looking_for',
@@ -422,17 +389,16 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier medium; curated into hard',
                 132,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_hard_reach_level_80_mining',
-                'Reach Level 80 Mining',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'mining', 80, 'Level 80 Mining'),),
-                'AnkiScape progression anchor derived from Darkan FaladorTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Rock Bottom',
+                'Mine concentrated coal, the black heart of the Living Rock Caverns.',
+                (DiaryCondition('ledger_action', 'mining:concentrated_coal', 1, 'Mine concentrated coal'),),
+                'AnkiScape deed curated beside Darkan FaladorTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900121,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'mining', 77, 'Level 77 Mining'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.falador.hard.lamp_minimum_level): the exact period
@@ -457,7 +423,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 309,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'fishing', 90, 'Level 90 Fishing'),),
             ),
             DiaryTask(
@@ -468,7 +433,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 310,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'cooking', 93, 'Level 93 Cooking'),),
             ),
             DiaryTask(
@@ -479,7 +443,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 311,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'mining', 80, 'Level 80 Mining'),),
             ),
             DiaryTask(
@@ -490,7 +453,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 312,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'farming', 75, 'Level 75 Farming'), DiaryCondition('skill_level', 'woodcutting', 75, 'Level 75 Woodcutting'),),
             ),
             DiaryTask(
@@ -501,7 +463,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 313,
                 0,
-                False,
                 access_gates=(DiaryCondition('skill_level', 'summoning', 80, 'Level 80 Summoning'),),
             ),
             DiaryTask(
@@ -512,7 +473,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 314,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'lunar_diplomacy', 1, 'Complete Lunar Diplomacy'), DiaryCondition('skill_level', 'magic', 80, 'Level 80 Magic'),),
             ),
             DiaryTask(
@@ -523,7 +483,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 315,
                 0,
-                False,
                 access_gates=(DiaryCondition('quest', 'the_temple_at_senntisten', 1, 'Complete The Temple at Senntisten'), DiaryCondition('skill_level', 'prayer', 95, 'Level 95 Prayer'),),
             ),
             DiaryTask(
@@ -534,7 +493,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 122,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_going_along_with_the_fro',
@@ -544,7 +502,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 126,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_mudskip_the_light_fantastic',
@@ -554,7 +511,6 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 127,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_easy_disarm_and_embark',
@@ -564,17 +520,16 @@ FAMILY = DiaryFamily(
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 128,
                 0,
-                False,
             ),
             DiaryTask(
                 'falador_elite_reach_level_93_cooking',
-                'Reach Level 93 Cooking',
-                'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'cooking', 93, 'Level 93 Cooking'),),
-                'AnkiScape progression anchor derived from Darkan FaladorTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
+                'Haute Cave-isine',
+                'Cook a cavefish, fine dining by Living Rock Caverns standards.',
+                (DiaryCondition('ledger_output', 'cooking:Cavefish', 1, 'Cook a cavefish'),),
+                'AnkiScape deed curated beside Darkan FaladorTasks; no rev-727 cache identity of its own; cited in the curation ledger',
                 900131,
                 0,
-                True,
+                access_gates=(DiaryCondition('skill_level', 'cooking', 88, 'Level 88 Cooking'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.falador.elite.lamp_minimum_level): the exact period
