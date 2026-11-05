@@ -906,7 +906,7 @@ def build_shop_tab(ctx) -> "QWidget":
             )
             btn.clicked.connect(lambda _=False, rid=row_id: _select_stock_row(rid))
             stock_grid.addWidget(btn, index // 6, index % 6)
-        stock_scroll.setMinimumHeight(max(66, btn.sizeHint().height()) + 12 + 2 * stock_scroll.frameWidth())
+        stock_scroll.setMinimumHeight(max(66, btn.sizeHint().height()) + 12 + 2 * stock_scroll.frameWidth() + stock_scroll.horizontalScrollBar().sizeHint().height())
         shop_mode_tabs.setMinimumHeight(stock_scroll.minimumHeight() + shop_mode_tabs.tabBar().sizeHint().height() + 4)
 
     def _select_stock_row(row_id: str) -> None:

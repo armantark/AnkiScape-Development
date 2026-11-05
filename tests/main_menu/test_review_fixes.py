@@ -14,30 +14,33 @@ class ReviewFixWidgetTest(fixtures.MainMenuWidgetTest):
         for _ in range(8):
             QApplication.processEvents()
 
-    def _shown(self, player, skill="Mining"):
+    def _shown(self, player, skill="Mining", size=(900, 560)):
         dialog = self._open(player, current_skill=skill)
         dialog.show()
-        dialog.resize(900, 560)
+        dialog.resize(*size)
         self._pump()
         return dialog
 
     def test_shop_viewport_shows_a_complete_card_row_after_purchase(self):
-        player = menu._make_player_data()
-        player["inventory"]["Coins"] = 20000
-        dialog = self._shown(player)
-        menu._open_shop_tab(dialog)
-        menu._find_named_line_edit(dialog, "shopSearchInput").setText("hatchet")
-        selector = menu._find_named_list(dialog, "shopSelectionList")
-        item = next(selector.item(i) for i in range(selector.count())
-                    if (selector.item(i).data(Qt.ItemDataRole.UserRole) or {}).get("shop_id") == "bobs_brilliant_axes")
-        selector.setCurrentItem(item)
-        selector.itemClicked.emit(item)
-        self._pump()
-        menu._find_named_button(dialog, "shopTransactionButton").click()
-        self._pump()
-        scroll = dialog.findChild(QScrollArea, "shopStockScroll")
-        first = next(button for button in scroll.findChildren(QToolButton) if button.property("shopRowId"))
-        self.assertLessEqual(first.geometry().bottom(), scroll.parentWidget().height() - scroll.y() - scroll.frameWidth() - 1)
+        for size in ((720, 540), (900, 560)):
+            with self.subTest(size=size):
+                player = menu._make_player_data()
+                player["inventory"]["Coins"] = 20000
+                dialog = self._shown(player, size=size)
+                menu._open_shop_tab(dialog)
+                menu._find_named_line_edit(dialog, "shopSearchInput").setText("hatchet")
+                selector = menu._find_named_list(dialog, "shopSelectionList")
+                item = next(selector.item(i) for i in range(selector.count())
+                            if (selector.item(i).data(Qt.ItemDataRole.UserRole) or {}).get("shop_id") == "bobs_brilliant_axes")
+                selector.setCurrentItem(item)
+                selector.itemClicked.emit(item)
+                self._pump()
+                menu._find_named_button(dialog, "shopTransactionButton").click()
+                self._pump()
+                scroll = dialog.findChild(QScrollArea, "shopStockScroll")
+                first = next(button for button in scroll.findChildren(QToolButton) if button.property("shopRowId"))
+                self.assertLessEqual(first.geometry().bottom(), scroll.parentWidget().height() - scroll.y() - scroll.frameWidth() - 1)
+                self.assertLessEqual(first.geometry().bottom(), scroll.viewport().height() - 1)
 
     def test_utilities_viewport_ends_after_a_whole_sawmill_row(self):
         dialog = self._shown(menu._make_player_data())
