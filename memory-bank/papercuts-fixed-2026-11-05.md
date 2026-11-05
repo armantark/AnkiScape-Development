@@ -65,3 +65,11 @@ Disposition: fixed.
 Evidence: Inspected current tools/reresearch_period_art.py::_first_move_since and _query_history_following_moves (sed -n 105,170p). The logevents request sets lestart to the supplied cutoff, ledir=newer and lelimit=1; the move-chain caller starts at CUTOFF and advances since to each returned move timestamp. The code therefore asks for the earliest post-cutoff move instead of the newest move of a re-created title. This is a current-code check only; no live wiki request or fresh Yew asset verification was run.
 
 - 2026-10-29T23:14:00-07:00 — Pass 19 renamed icons: following the newest move of `File:Yew tree.png` landed on `File:Yew.png` (a 2011 in-game scene) because the title was re-created and moved again in 2016; the 2012 icon left with the first post-cutoff move, to `File:Yew tree (Construction) icon.png` on 2014-04-06, so the tool follows the first move after the cutoff.
+
+## Worktrees inherit tracked repository rules
+
+Disposition: fixed.
+
+Evidence: git ls-files --error-unmatch AGENTS.md succeeded in this guarded worktree and the AGENTS.md file was read at task startup. Repository-specific worktree/runtime rules are now tracked content; a checkout of this revision includes them without a generated canonical-only copy. No AGENTS.md content was changed.
+
+- 2026-10-08T04:21:41.460463+00:00 Fenkenstrain author checkout has no tracked AGENTS.md; cat AGENTS.md returned cat: AGENTS.md: No such file or directory. Author uses supplied user rules and current canonical AGENTS read-only; no source or gate change.
