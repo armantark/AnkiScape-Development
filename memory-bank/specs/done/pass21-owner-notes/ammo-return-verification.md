@@ -43,6 +43,18 @@ Used the real `sample_recovery` combat-card helper from `tests/pace/test_ammunit
 
 The controlled 100-shot real-fight test also proves the exact split: 20 broken in each case; 80 land without a device, 20 with the attractor, and 8 with either 72% device. The fixture clicks between cards to separate recovery from expiry.
 
+## All-speed Ranged probe
+
+```sh
+.venv-qt/bin/python tools/maintenance/prove_ranged_pace.py
+```
+
+The continuous no-device fight uses five paired seeds and 3,600 ticks at each speed, 1 through 20. Neutral bonuses keep the enlarged-HP test enemy's XP multiplier positive. The measured mean is 46,864.73566666666 XP per hour of play at 1x and 46,864.73566666667 at 20x; the largest paired difference is below 1e-8 XP per tick. This proves speed scaling in that fixture, not a census of every loadout and target.
+
+```text
+All 20 speeds: identical paired XP per tick; 5 seeds, 3600 ticks per seed and speed.
+```
+
 ## Offscreen HUD check
 
 ```sh
