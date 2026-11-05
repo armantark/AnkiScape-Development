@@ -12,6 +12,7 @@ from .elemental_workshop import opening_journal_rows_pure
 from .hazeel_journal import hazeel_journal_row_pure
 from .enakhra import enakhra_opening_journal_row_pure
 from .toktz_opening import toktz_opening_journal_row_pure
+from .elder_kiln_journal import elder_kiln_journal_row_pure
 from .witchs_house import witchs_house_journal_rows_pure
 
 
@@ -65,6 +66,7 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         row = quest_review_journal_row_pure(player_data, quest_id, row)
         row = hazeel_journal_row_pure(player_data, quest_id, row)
         row = toktz_opening_journal_row_pure(player_data, quest_id, row)
+        row = elder_kiln_journal_row_pure(player_data, quest_id, row)
         rows.append(enakhra_opening_journal_row_pure(player_data, quest_id, row))
     if quest_id == "animal_magnetism":
         return _animal_magnetism_opening_rows(player_data, progress, rows)

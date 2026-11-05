@@ -16,6 +16,12 @@ PERIOD_START_GATES = {
         (),
         ("Agility 25", "Herblore 14", "Magic 14", "Mining 40", "Thieving 15"),
     ),
+    # W21–23 and RuneHQ 401–403: no quest prerequisites; Magic and Agility ignore boosts.
+    "the_elder_kiln": (
+        (("agility", 60), ("magic", 75), ("mining", 41)),
+        (),
+        ("Agility 60 (boosts do not work)", "Magic 75 (boosts do not work)", "Mining 41"),
+    ),
     "horror_from_the_deep": (
         (("agility", 35),),
         ("prayer",),

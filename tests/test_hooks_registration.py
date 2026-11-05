@@ -15,7 +15,7 @@ class TestHooksRegistration(unittest.TestCase):
                 "state_did_undo": [lambda *_: None],
             }
         )
-        self.assertEqual(plan["profileLoaded"], 2)
+        self.assertEqual(plan["profileLoaded"], 3)
         self.assertEqual(plan["reviewer_did_show_question"], 1)
         self.assertEqual(plan["reviewer_did_show_answer"], 2)
         self.assertEqual(plan["wrap_reviewer_answerCard"], 1)

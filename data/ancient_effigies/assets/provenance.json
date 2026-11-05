@@ -1,0 +1,191 @@
+[
+  {
+    "item_id": 18778,
+    "item_name": "Starved ancient effigy",
+    "asset": {
+      "title": "File:Ancient effigy.png",
+      "metadata": "discovery/period-reward-images.json",
+      "timestamp": "2011-11-17T09:49:30Z",
+      "size": 811,
+      "width": 29,
+      "height": 30,
+      "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+      "descriptionurl": "https://runescape.wiki/w/File:Ancient_effigy.png",
+      "descriptionshorturl": "https://runescape.wiki/index.php?curid=195466",
+      "sha1": "377e0382002989516fc0733750e0fc17d0764768",
+      "saved": "sources/media-ancient-effigy.png",
+      "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+      "fetch": {
+        "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+        "file": "sources/media-ancient-effigy.png",
+        "exit": 0,
+        "stderr": "",
+        "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+        "retrieved": "2026-10-23T09:33:09.740191+00:00"
+      },
+      "sha1_matches": true,
+      "reused_from": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/sources/media-ancient-effigy.png",
+      "metadata_original": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/discovery/period-reward-images.json",
+      "metadata_saved": "sources/1030-period-reward-images.json"
+    },
+    "period_image_binding": {
+      "page": "Starved ancient effigy",
+      "oldid": "6564000",
+      "timestamp": "2012-11-16T17:16:50Z",
+      "saved": "sources/starved-ancient-effigy-6564000.txt",
+      "line": 3,
+      "text": "|image = [[File:Ancient effigy.png]]"
+    },
+    "client_binding": "C shared model57757 and recolour36824->3014 across six builds",
+    "consensus": "R1/R2/R4/R5 agrees on shared appearance; no mechanics implied"
+  },
+  {
+    "item_id": 18779,
+    "item_name": "Nourished ancient effigy",
+    "asset": {
+      "title": "File:Ancient effigy.png",
+      "metadata": "discovery/period-reward-images.json",
+      "timestamp": "2011-11-17T09:49:30Z",
+      "size": 811,
+      "width": 29,
+      "height": 30,
+      "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+      "descriptionurl": "https://runescape.wiki/w/File:Ancient_effigy.png",
+      "descriptionshorturl": "https://runescape.wiki/index.php?curid=195466",
+      "sha1": "377e0382002989516fc0733750e0fc17d0764768",
+      "saved": "sources/media-ancient-effigy.png",
+      "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+      "fetch": {
+        "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+        "file": "sources/media-ancient-effigy.png",
+        "exit": 0,
+        "stderr": "",
+        "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+        "retrieved": "2026-10-23T09:33:09.740191+00:00"
+      },
+      "sha1_matches": true,
+      "reused_from": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/sources/media-ancient-effigy.png",
+      "metadata_original": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/discovery/period-reward-images.json",
+      "metadata_saved": "sources/1030-period-reward-images.json"
+    },
+    "period_image_binding": {
+      "page": "Nourished ancient effigy",
+      "oldid": "5821163",
+      "timestamp": "2012-06-24T21:53:04Z",
+      "saved": "sources/nourished-ancient-effigy-5821163.txt",
+      "line": 3,
+      "text": "|image = [[File:Ancient effigy.png]]"
+    },
+    "client_binding": "C shared model57757 and recolour36824->3014 across six builds",
+    "consensus": "R1/R2/R4/R5 agrees on shared appearance; no mechanics implied"
+  },
+  {
+    "item_id": 18780,
+    "item_name": "Sated ancient effigy",
+    "asset": {
+      "title": "File:Ancient effigy.png",
+      "metadata": "discovery/period-reward-images.json",
+      "timestamp": "2011-11-17T09:49:30Z",
+      "size": 811,
+      "width": 29,
+      "height": 30,
+      "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+      "descriptionurl": "https://runescape.wiki/w/File:Ancient_effigy.png",
+      "descriptionshorturl": "https://runescape.wiki/index.php?curid=195466",
+      "sha1": "377e0382002989516fc0733750e0fc17d0764768",
+      "saved": "sources/media-ancient-effigy.png",
+      "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+      "fetch": {
+        "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+        "file": "sources/media-ancient-effigy.png",
+        "exit": 0,
+        "stderr": "",
+        "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+        "retrieved": "2026-10-23T09:33:09.740191+00:00"
+      },
+      "sha1_matches": true,
+      "reused_from": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/sources/media-ancient-effigy.png",
+      "metadata_original": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/discovery/period-reward-images.json",
+      "metadata_saved": "sources/1030-period-reward-images.json"
+    },
+    "period_image_binding": {
+      "page": "Sated ancient effigy",
+      "oldid": "5783477",
+      "timestamp": "2012-06-20T03:21:18Z",
+      "saved": "sources/sated-ancient-effigy-5783477.txt",
+      "line": 3,
+      "text": "|image = [[File:Ancient effigy.png]]"
+    },
+    "client_binding": "C shared model57757 and recolour36824->3014 across six builds",
+    "consensus": "R1/R2/R4/R5 agrees on shared appearance; no mechanics implied"
+  },
+  {
+    "item_id": 18781,
+    "item_name": "Gorged ancient effigy",
+    "asset": {
+      "title": "File:Ancient effigy.png",
+      "metadata": "discovery/period-reward-images.json",
+      "timestamp": "2011-11-17T09:49:30Z",
+      "size": 811,
+      "width": 29,
+      "height": 30,
+      "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+      "descriptionurl": "https://runescape.wiki/w/File:Ancient_effigy.png",
+      "descriptionshorturl": "https://runescape.wiki/index.php?curid=195466",
+      "sha1": "377e0382002989516fc0733750e0fc17d0764768",
+      "saved": "sources/media-ancient-effigy.png",
+      "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+      "fetch": {
+        "url": "https://runescape.wiki/images/archive/20140223053121%21Ancient_effigy.png?26cce",
+        "file": "sources/media-ancient-effigy.png",
+        "exit": 0,
+        "stderr": "",
+        "sha256": "c9440cab86a55e6169c9f6bf26c8220b96ff48b8451d2a3e4bd25217f7d564f2",
+        "retrieved": "2026-10-23T09:33:09.740191+00:00"
+      },
+      "sha1_matches": true,
+      "reused_from": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/sources/media-ancient-effigy.png",
+      "metadata_original": "/Users/armantarkhanian/.local/state/sol-loop/ankiscape/done/1030-tormented-wraith-boss-context/discovery/period-reward-images.json",
+      "metadata_saved": "sources/1030-period-reward-images.json"
+    },
+    "period_image_binding": {
+      "page": "Gorged ancient effigy",
+      "oldid": "6201896",
+      "timestamp": "2012-09-06T01:56:39Z",
+      "saved": "sources/gorged-ancient-effigy-6201896.txt",
+      "line": 3,
+      "text": "|image = [[File:Ancient effigy.png]]"
+    },
+    "client_binding": "C shared model57757 and recolour36824->3014 across six builds",
+    "consensus": "R1/R2/R4/R5 agrees on shared appearance; no mechanics implied"
+  },
+  {
+    "item_id": 18782,
+    "item_name": "Dragonkin lamp",
+    "asset": {
+      "timestamp": "2011-11-20T06:50:54Z",
+      "user": "Image optimisation bot",
+      "size": 540,
+      "width": 26,
+      "height": 24,
+      "comment": "(Automated) PNG recompression",
+      "url": "https://runescape.wiki/images/archive/20140223053621%21Dragonkin_lamp.png?ccca9",
+      "descriptionurl": "https://runescape.wiki/w/File:Dragonkin_lamp.png",
+      "descriptionshorturl": "https://runescape.wiki/index.php?curid=195490",
+      "sha1": "063155b97ea2f8dcec8a0d73d5e0a054166c8e9d",
+      "saved": "sources/media-dragonkin-lamp.png",
+      "sha256": "f99260fb6c82e144c2179d62465804d3193e3a37838b81d025acd65c98caf522",
+      "sha1_matches": true
+    },
+    "period_image_binding": {
+      "page": "Dragonkin lamp",
+      "oldid": 6350210,
+      "timestamp": "2012-10-05T11:47:40Z",
+      "saved": "sources/dragonkin-lamp-6350210.txt",
+      "line": 3,
+      "text": "|image = [[File:Dragonkin lamp.png]]"
+    },
+    "client_binding": "C model57756",
+    "consensus": "R2/R4/R5 agrees"
+  }
+]

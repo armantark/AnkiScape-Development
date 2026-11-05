@@ -16,7 +16,8 @@ from ..logic.equipment_instance_logic import (
 )
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 
-from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
+from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used
+from ..logic.ancient_effigies import recovery as effigy_recovery
 
 from ..logic.court_cases_logic import filter_court_summons_outputs_pure
 from ..logic.treasure_trails_logic import (
@@ -637,29 +638,8 @@ def _set_combat_death_office_items(data, items, source="combat_death_office", lo
 
 
 def _carried_inventory_grave_counts(data, target_id=None):
-    """What is actually in hand at death ({item: count}) — the carried view of the
-    active target, i.e. the items from this trip. Combat defaults to its current
-    enemy; other dangerous skills pass their own target explicitly.
-
-    NOT the union of every target's view. `carried_inventory` keeps a saved pack per
-    target, so a player who has trained Firemaking, Cooking, and Smithing has a
-    dormant ~28-item pack sitting under each of those target ids. Draining all of
-    them on a combat death both dropped materials from skills the player was not
-    doing and staged more than 28 slots of items — more than one inventory can hold.
-    A dormant pack is a loadout resting in the bank, not something you are carrying.
-    """
-    carried = data.get("carried_inventory")
-    if not isinstance(carried, Mapping):
-        return {}
-    if target_id is None:
-        target_id = data.get("current_combat_target")
-    view = carried.get(target_id) if isinstance(target_id, str) else None
-    if not isinstance(view, Mapping):
-        return {}
-    # Clamp to what the bank still holds. The view can outlive its items (discard,
-    # shop sale, eating looted food), and graving more than existed would mint the
-    # difference when the grave is reclaimed.
-    return clamp_carried_view_to_bank(view, data.get("inventory"))
+    """The active carried view plus held Dragonkin lamps; see recovery.py."""
+    return effigy_recovery.carried_inventory_grave_counts(data, target_id)
 
 
 def _combat_apply_follower_death(data):
@@ -702,26 +682,9 @@ def _combat_no_grave_protected_items(original_equipment, carried_counts, kept_it
 
 
 def _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave):
-    # Only the active pack is carried; dormant target views remain bank loadouts.
-    # Debit its lost units from the flat store before staging grave recovery.
-    if carried_counts:
-        inventory = dict(data.get("inventory", {}) or {})
-        for item_name, count in carried_counts.items():
-            lost = count - protected_carried.get(item_name, 0)
-            if lost <= 0:
-                continue
-            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - lost)
-            if not no_grave:
-                grave_items.extend([item_name] * lost)
-        data["inventory"] = inventory
-    if not isinstance(active_target, str):
-        return
-    for map_key in ("carried_inventory", "carried_churn"):
-        container = data.get(map_key)
-        if isinstance(container, Mapping) and active_target in container:
-            container = dict(container)
-            container.pop(active_target, None)
-            data[map_key] = container
+    effigy_recovery.settle_carried_death(
+        data, carried_counts, protected_carried, grave_items, active_target, no_grave
+    )
 
 
 def _combat_transfer_old_grave_to_office(data):

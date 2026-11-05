@@ -9,6 +9,7 @@ from copy import deepcopy
 from aqt import mw
 from .constants import ITEM_DEFINITIONS, ORE_DATA
 from .storage_pure import default_player_data, migrate_loaded_data
+from .persistence.item_instances import persist_adopted_item_instances, synchronize_live_item_instances
 from ..logic.inventory_pure import clamp_carried_view_to_bank
 from ..data.quest.cold_war import COLD_WAR_SUIT_BACKFILL_KEY, COLD_WAR_SUIT_NAME
 
@@ -72,6 +73,7 @@ def load_player_data():
     if loaded:
         player_data = migrate_loaded_data(deepcopy(loaded), ORE_DATA, ITEM_DEFINITIONS)
         _persist_quest_repairs(loaded, player_data)
+        persist_adopted_item_instances(saved_player_record(mw.col), player_data, _save_player_data_config)
     else:
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
     current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
@@ -80,6 +82,7 @@ def load_player_data():
 
 def save_player_data(player_data: dict, current_skill: str) -> None:
     """Persist player data and current skill to Anki config."""
+    synchronize_live_item_instances(player_data)
     if carried := player_data.get("carried_inventory"):
         player_data["carried_inventory"] = {
             target_id: clamped

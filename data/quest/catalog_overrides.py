@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from . import watchtower_opening as _watchtower_opening
 from .toktz_opening import PENDING_LINES as _TOKTZ_PENDING_LINES
+from .elder_kiln import ELDER_KILN_JOURNAL_STAGES, REQUIREMENT_READOUT as _ELDER_KILN_READOUT
 from .dependencies import *
 from .contract import *
 from .ids import *
@@ -127,6 +128,7 @@ QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, 
 
 QUEST_REQUIREMENT_TEXT_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     "watchtower": _watchtower_opening.WATCHTOWER_REQUIREMENTS,
+    "the_elder_kiln": _ELDER_KILN_READOUT,
     "desert_treasure": (
         "The Dig Site", "The Tourist Trap", "Temple of Ikov", "Priest in Peril",
         "Troll Stronghold", "Death Plateau", "Waterfall Quest", "Agility 15",
@@ -297,6 +299,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     ),
     "the_grand_tree": _grand_tree_journal_stages(),
     "watchtower": _watchtower_opening.WATCHTOWER_JOURNAL_STAGES,
+    "the_elder_kiln": ELDER_KILN_JOURNAL_STAGES,
     "toktz_ket_dill": tuple(
         QuestStage(row["stage"], (_TOKTZ_PENDING_LINES[0],) if row["stage"] == 1 else tuple(row["journal"]))
         for quest in PRE_EOC_QUEST_CATALOG if quest["id"] == "toktz_ket_dill"

@@ -2,6 +2,8 @@
 from __future__ import annotations
 from typing import Callable, Dict, List, TypedDict
 
+from ..runtime import ancient_effigies as _ancient_effigies
+
 try:
     from aqt import gui_hooks  # type: ignore
     from anki.hooks import addHook, wrap  # type: ignore
@@ -24,12 +26,15 @@ class HookCallbacks(TypedDict, total=False):
 
 
 _REGISTERED = False
+# The add-on's root package, whatever folder name Anki loaded it under.
+_ADDON_PACKAGE = __name__.rsplit(".", 2)[0]
 
 
 def build_registration_plan(callbacks: HookCallbacks) -> Dict[str, int]:
     """Pure helper: return counts of what would be registered."""
     return {
-        "profileLoaded": len(callbacks.get("profile_loaded", [])),
+        # One more profileLoaded initializer: the Ancient Effigies Tools action.
+        "profileLoaded": len(callbacks.get("profile_loaded", [])) + 1,
         "reviewer_did_show_question": len(callbacks.get("reviewer_question", [])),
         "reviewer_did_show_answer": len(callbacks.get("reviewer_answer", [])),
         "wrap_reviewer_answerCard": 1 if callbacks.get("answer_wrapper") else 0,
@@ -55,6 +60,7 @@ def register_hooks(callbacks: HookCallbacks, *, dry_run: bool = False) -> Dict[s
             addHook("profileLoaded", cb)
         except Exception:
             pass
+    _ancient_effigies.register_profile_hooks(_ADDON_PACKAGE, addHook, gui_hooks)
 
     # reviewer show question
     for cb in callbacks.get("reviewer_question", []):

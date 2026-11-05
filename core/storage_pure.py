@@ -26,9 +26,10 @@ from ..data.crafting_data import (
     LEGACY_CRAFTING_TARGETS,
 )
 from .item_registry import ItemDefinition
-from ..logic.equipment_instance_logic import (
-    default_equipment_instance_state_pure,
-    sanitize_equipment_instance_state_pure,
+from .persistence.item_instances import (
+    bank_storage_keys_pure,
+    default_item_instance_state_pure,
+    sanitize_item_instance_state_pure,
 )
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.barrows_logic import default_barrows_state_pure, sanitize_barrows_state_pure
@@ -461,9 +462,7 @@ def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iter
                 if isinstance(weighted, dict) and isinstance(weighted.get("item"), str):
                     inventory.setdefault(str(weighted["item"]), 0)
         return inventory
-    inventory: Dict[str, int] = {}
-    for item in item_definitions:
-        inventory.setdefault(item.storage_key, 0)
+    inventory: Dict[str, int] = dict.fromkeys(bank_storage_keys_pure(item_definitions), 0)
     for ore in ORE_DATA:
         inventory.setdefault(ore, 0)
     return inventory
@@ -696,7 +695,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["action_telemetry"] = default_action_telemetry_pure()
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
-    data.update(default_equipment_instance_state_pure())
+    data.update(default_item_instance_state_pure())
     data.update(default_quest_side_state())
     data["cold_war_greeting"] = []
     data["pending_skill_exp_rewards"] = {}
@@ -2406,7 +2405,7 @@ def migrate_loaded_data(
         initialize_allowances=True,
     )
     data.update(
-        sanitize_equipment_instance_state_pure(
+        sanitize_item_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA
         )
     )

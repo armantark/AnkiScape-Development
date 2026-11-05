@@ -665,6 +665,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 ("logic_pure/quest/enakhra.py", "apply_enakhra_opening_action_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "search_chapel_bookcase_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/elemental_workshop.py", "read_ragged_book_pure", "record_runtime_quest_action_proofs_pure"),
+                ("logic_pure/quest/elder_kiln.py", "_complete_hatch_pure", "record_runtime_quest_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "search_murder_mystery_barrel_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/murder_mystery.py", "apply_murder_mystery_opening_items_pure", "record_quest_stage_action_proofs_pure"),
                 ("logic_pure/quest/witchs_house.py", "apply_witchs_house_service_pure", "record_quest_stage_action_proofs_pure"),
@@ -674,7 +675,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
         self.assertEqual(
             mention_counts,
             {
-                "core/quest_storage.py": 8,
+                "core/quest_storage.py": 9,
                 "logic/shop_logic.py": 5,
                 "logic/shop/services.py": 3,
                 "logic_pure/logic_pure_quest.py": 1,
@@ -689,6 +690,8 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic_pure/quest/toktz_opening.py": 3,
                 "logic_pure/quest/enakhra.py": 3,
                 "logic_pure/quest/elemental_workshop.py": 4,
+                "logic_pure/quest/elder_kiln.py": 3,
+                "logic_pure/quest/elder_kiln_journal.py": 1,
                 "logic_pure/quest/murder_mystery.py": 1,
                 "logic_pure/quest/witchs_house.py": 1,
                 "logic_pure/quest/hazeel.py": 1,
