@@ -22,6 +22,7 @@ from ..logic_pure.logic_pure import (
 )
 from ..data.quest.grand_tree import PHASE_NOTICES
 from ..logic_pure.quest.eligibility import quest_eligibility_reasons_pure
+from ..logic_pure.quest.elder_kiln import elder_kiln_opening_applies_pure
 from ..logic_pure.quest.grand_tree import grand_tree_phase_pure
 from ..logic_pure.quest.review_services import quest_review_service_phase_pure
 from ..logic_pure.quest.hazeel_journal import hazeel_opening_announcement_pure
@@ -35,6 +36,7 @@ from ..logic_pure.quest.toktz_opening import toktz_opening_review_ready_pure, to
 from ..logic_pure.quest.another_cook import (
     another_cook_phase_pure, another_cook_progress_message_pure,
 )
+from .elder_kiln_review import answer_elder_kiln_opening
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import (
     _combat_review_ticks,
@@ -200,6 +202,15 @@ def _show_quest_review_exp(ctx: RuntimeActionContext, exp_before: dict[str, floa
         ctx.show_quest_exp_delta(exp_before)
 
 
+def _answer_stage_activity(ctx: RuntimeActionContext, quest_id: str, quest: dict, combat_blockers, stage_blockers) -> bool | None:
+    """Hand the Answer to the activity that owns the current stage, or return None for ordinary review."""
+    if combat_blockers:
+        return _answer_quest_combat(ctx, quest_id, quest, combat_blockers[0].get("encounter_id"))
+    if elder_kiln_opening_applies_pure(ctx.player_data, quest_id):
+        return answer_elder_kiln_opening(ctx, quest_id, quest, stage_blockers)
+    return None
+
+
 def _quest_review_announcement_phase(player_data, quest_id, stage_blockers):
     return (quest_review_service_phase_pure(player_data, quest_id, stage_blockers)
             or quest_review_phase_pure(player_data, quest_id, stage_blockers, QUEST_DATA))
@@ -223,8 +234,9 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     quest = QUEST_DATA[quest_id]
     silver_phase = murder_mystery_silver_review_phase_pure(player_data, quest_id, QUEST_DATA)
     combat_blockers, stage_blockers = _quest_review_blockers(player_data, quest_id, silver_phase)
-    if combat_blockers:
-        return _answer_quest_combat(ctx, quest_id, quest, combat_blockers[0].get("encounter_id"))
+    activity_answer = _answer_stage_activity(ctx, quest_id, quest, combat_blockers, stage_blockers)
+    if activity_answer is not None:
+        return activity_answer
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     review_ready = can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA)
     if silver_phase and not review_ready:

@@ -4,6 +4,7 @@ from .one_small_favour import OPENING_PROOFS, OPENING_SOURCE
 from .toktz_opening import OPENING_CLEANUPS as _TOKTZ_OPENING_CLEANUPS
 from .dependencies import *
 from .enakhra_opening import ENAKHRA_OPENING_CLEANUPS
+from .elder_kiln import ELDER_KILN_STAGE_CLEANUPS
 from .contract import *
 from .ids import *
 from .sources import *
@@ -26,6 +27,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         remove_required_actions=('Complete One Small Favour stage 1 objective',),
         add_required_actions=OPENING_PROOFS, source=OPENING_SOURCE),),
     "murder_mystery": _MURDER_MYSTERY_OPENING_CLEANUPS,
+    "the_elder_kiln": ELDER_KILN_STAGE_CLEANUPS,
     "zogre_flesh_eaters": tuple(QuestStageRequirementCleanup(**row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_STAGE_REQUIREMENT_CLEANUPS),
     "creature_of_fenkenstrain": CREATURE_OF_FENKENSTRAIN_CLEANUPS,
     "underground_pass": UNDERGROUND_PASS_CLEANUPS,

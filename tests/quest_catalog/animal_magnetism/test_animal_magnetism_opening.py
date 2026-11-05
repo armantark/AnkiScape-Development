@@ -20,6 +20,7 @@ from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from ankiscape.logic_pure.logic_pure_quest import quest_journal_rows_pure, start_quest_pure
 from ankiscape.logic_pure.logic_pure_state import _positive_int, quest_state_pure
 from ankiscape.logic_pure.quest.another_cook import another_cook_journal_row_pure
+from ankiscape.logic_pure.quest.elder_kiln_journal import elder_kiln_journal_row_pure
 from ankiscape.logic_pure.quest.elemental_workshop import opening_journal_rows_pure
 from ankiscape.logic_pure.quest.enakhra import enakhra_opening_journal_row_pure
 from ankiscape.logic_pure.quest.grand_tree import grand_tree_journal_rows_pure
@@ -54,13 +55,14 @@ def previous_projection(player_data, quest_id, quest_data):
     journal_stages = quest.get("journal_stages", {}) or {}
     rows = tuple(
         enakhra_opening_journal_row_pure(player_data, quest_id,
-            toktz_opening_journal_row_pure(player_data, quest_id,
-                hazeel_journal_row_pure(player_data, quest_id,
-                    quest_review_journal_row_pure(player_data, quest_id,
-                        another_cook_journal_row_pure(player_data, quest_id, dict(stage=stage,
+            elder_kiln_journal_row_pure(player_data, quest_id,
+                toktz_opening_journal_row_pure(player_data, quest_id,
+                    hazeel_journal_row_pure(player_data, quest_id,
+                        quest_review_journal_row_pure(player_data, quest_id,
+                            another_cook_journal_row_pure(player_data, quest_id, dict(stage=stage,
              lines=journal_stages.get(stage, ()),
              completed=state["completed"] or stage < progress,
-             current=not state["completed"] and stage == progress))))))
+             current=not state["completed"] and stage == progress)))))))
         for stage in sorted(journal_stages) if stage <= progress
     )
     rows = opening_journal_rows_pure(player_data, quest_id, rows)
