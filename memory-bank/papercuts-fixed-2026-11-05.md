@@ -57,3 +57,11 @@ Disposition: fixed.
 Evidence: Current tests/item_tradeability/test_pirates_hook_tradeability.py::test_earned_hook_exchange_escrow_settlement_undo_and_reload saves the earned inventory and loads it through storage_load_player_data before copying its before_reward snapshot. This applies bank_layout normalization before the strict undo comparison. python3 run_tests.py tests.item_tradeability.test_pirates_hook_tradeability passed: Ran 1 test, OK. It also passed within the 143-test combined run (3 unrelated Pillow-only skips). All collection data was the test dummy; no profile database or real player save was opened.
 
 - 2026-10-15T17:36:29.349586+00:00 — Pirate’s hook pre-edit proof first exited 1 before GE: full Undo equality differed in `bank_layout` because the earned inventory was injected after load; normalize through existing save/load before the snapshot. Original failure retained in external `pirates-hook-implementation-2026-10-15/red.log`.
+
+## Period art follows the earliest move after its cutoff
+
+Disposition: fixed.
+
+Evidence: Inspected current tools/reresearch_period_art.py::_first_move_since and _query_history_following_moves (sed -n 105,170p). The logevents request sets lestart to the supplied cutoff, ledir=newer and lelimit=1; the move-chain caller starts at CUTOFF and advances since to each returned move timestamp. The code therefore asks for the earliest post-cutoff move instead of the newest move of a re-created title. This is a current-code check only; no live wiki request or fresh Yew asset verification was run.
+
+- 2026-10-29T23:14:00-07:00 — Pass 19 renamed icons: following the newest move of `File:Yew tree.png` landed on `File:Yew.png` (a 2011 in-game scene) because the title was re-created and moved again in 2016; the 2012 icon left with the first post-cutoff move, to `File:Yew tree (Construction) icon.png` on 2014-04-06, so the tool follows the first move after the cutoff.
