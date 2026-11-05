@@ -161,7 +161,8 @@ def _project_entry(player_data: Mapping[str, Any], stock: list[dict[str, int]], 
         runs = min(runs, *(_stock_count(stock, alternatives[item]) // max(1, int(amount)) for item, amount in needs.items()))
         for item, amount in needs.items():
             _spend_stock(stock, alternatives[item], runs * int(amount))
-    produced = min(remaining, runs * made)
+    # A requested count may end inside a batch; the queue keeps the paid-for batch whole.
+    produced = runs * made
     return dict.fromkeys(action_product_items_pure(action), produced)
 
 

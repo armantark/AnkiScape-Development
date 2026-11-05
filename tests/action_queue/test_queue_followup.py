@@ -37,6 +37,19 @@ class LookAheadTest(unittest.TestCase):
 
 
 class SupplyEditTest(QueueProfile):
+    def test_a_whole_batch_funds_the_next_row_even_when_the_entry_count_is_smaller(self):
+        shafts = {"kind": "skill", "skill": "Fletching", "target": "arrow_shafts"}
+        headless = {"kind": "skill", "skill": "Fletching", "target": "headless_arrows"}
+        addon = self._queue_addon("ankiscape_supply_whole_lot", (shafts, 1), (headless, 15),
+                                  inventory={"Logs": 1, "Feather": 15})
+        for _ in range(4):
+            self._answer(addon)
+            if not self._rows(addon):
+                break
+        bank = addon._state.player_data["inventory"]
+        self.assertEqual((bank["Headless arrows"], bank.get("Arrow shafts", 0)), (15, 0))
+        self.assertFalse(any("stopped" in line for line in self._log(addon)))
+
     def test_removing_a_producer_keeps_only_the_count_still_funded(self):
         addon = self._queue_addon("ankiscape_supply_partial_edit", (TIPS, 30), (ARROWS, 60),
                                   fletching_level=10, inventory={"Bronze bar": 2, "Headless arrows": 60, "Bronze arrowtips": 30})
