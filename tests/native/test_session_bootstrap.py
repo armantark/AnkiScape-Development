@@ -41,7 +41,9 @@ def make_anki_fixture(app):
     executable = app / "Contents/MacOS/Anki"
     executable.parent.mkdir()
     executable.write_text(
-        f"#!{sys.executable}\n"
+        # A shebang cannot hold a path with a space, and the Mac Studio's venv path has one.
+        "#!/bin/sh\n"
+        f'"exec" "{sys.executable}" "$0" "$@"\n'
         "import os, pathlib, plistlib, runpy, sys\n"
         "contents = pathlib.Path(__file__).resolve().parents[1]\n"
         "sys.path.insert(0, str(contents / 'Resources/app'))\n"
