@@ -73,3 +73,11 @@ Disposition: fixed.
 Evidence: git ls-files --error-unmatch AGENTS.md succeeded in this guarded worktree and the AGENTS.md file was read at task startup. Repository-specific worktree/runtime rules are now tracked content; a checkout of this revision includes them without a generated canonical-only copy. No AGENTS.md content was changed.
 
 - 2026-10-08T04:21:41.460463+00:00 Fenkenstrain author checkout has no tracked AGENTS.md; cat AGENTS.md returned cat: AGENTS.md: No such file or directory. Author uses supplied user rules and current canonical AGENTS read-only; no source or gate change.
+
+## Source-root resolution stays inside the existing source-input module
+
+Disposition: fixed.
+
+Evidence: The first source-root commit was refused for growing tools/generate_npc_shop_data.py from 1257 to 1261 lines. Resolution moved into tools/npc_shop_generation/source_inputs.py::default_2011_items. wc -l tools/generate_npc_shop_data.py now reports 1257; the normal unmodified commit hook accepted commit 906d2872d. The revised python3 run_tests.py tests.shops.test_source_inputs check passed 33 tests, OK. No hook, guard or limit changed.
+
+- 2026-11-05T08:54:55-08:00 — Papercut cleanup source-root commit refused: slop-gate reported code files above 1000 lines were grown: tools/generate_npc_shop_data.py: 1261 lines (was 1257). Move environment resolution into the existing tools/npc_shop_generation/source_inputs.py boundary; keep the gate and limits unchanged.
