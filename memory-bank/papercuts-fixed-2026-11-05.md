@@ -41,3 +41,11 @@ Disposition: fixed.
 Evidence: Current tests/main_menu/bank/test_dye_mixing.py::DyeMixingMenuTest.setUp snapshots sys.modules before the undo seam, retains the ankiscape_undo_seam modules needed by lazy imports, then restores real Qt before constructing menu widgets. python3 run_tests.py tests.main_menu.bank.test_dye_mixing passed: Ran 4 tests, OK, including opening and clicking the Bank mix menu, undo, and the Utility dye search. Neither reported import error recurred. Only simulated test players were used.
 
 - 2026-10-28T00:25:18-07:00 — Pass 18 ticket 05: a mixed Qt and runtime test harness raised "ImportError: cannot import name 'ActionQueuePanel' from 'ankiscape.ui.ui_action_queue'" and then "ModuleNotFoundError: No module named 'ankiscape_undo_seam'" until the test kept runtime-package modules for lazy imports and restored real Qt and stable-alias modules before building widgets (tests/main_menu/bank/test_dye_mixing.py).
+
+## Dispatcher fixtures restore process-wide random functions and state
+
+Disposition: fixed.
+
+Evidence: Current tests/runtime_actions/test_dispatcher_state.py saves each original random.random callable before replacement, registers addCleanup(setattr, ..., random_roll), and restores RNG state with addCleanup(setstate, ...). The permanent lambda assignment recorded in this incident no longer exists. python3 run_tests.py tests.runtime_actions.test_dispatcher_state tests.test_undo_seam_slayer tests.test_fight_caves passed: Ran 51 tests, OK. The combined papercut-focused run also passed 143 tests (3 unrelated Pillow-only skips), exercising real-Qt fixtures and these fake-runtime/undo consumers together.
+
+- 2026-10-18T11:25:53-07:00 — Pace part C baseline: my new dispatcher test assigned `addon.random.random = lambda: 0.01`; `addon.random` is the process-wide `random` module, so every later test in the full plain lane saw a frozen RNG ("AssertionError" in tests.runtime_actions.test_dispatcher_state, tests.test_undo_seam_slayer, tests.test_fight_caves undo/RNG tests). Patch it with `self.enterContext(patch.object(addon.random, "random", ...))`.
