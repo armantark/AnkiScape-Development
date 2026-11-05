@@ -45,3 +45,7 @@ Quest fight carry, 64 seeds, 12 quests, levels 20, 40 and 60, speeds 10x and 20x
 ## Landing
 
 Gate on the Mac Studio at `a2f4a5c04`: plain lane `Ran 6900 tests in 595.743s`, `OK (skipped=828)`; Qt lane `Ran 6900 tests in 711.780s`, `OK (skipped=21)`. Studio main and MacBook main are at `a2f4a5c04`. The 131 briefs entered the loop's queue on 2026-11-04 at 20:14 as orders 6000 to 7300. The gate's Homebrew Python needed `PYTHONPATH=/tmp/pass20-pillow`, because it has no Pillow.
+
+## Owner answers to the build's decisions
+
+2026-11-04 22:15, "Yes to all those": a move in a paused queue changes the order only; a row with no input takes the click for planning a queue (loop item 7330); the Activities panel gets a Start button (loop item 7340); Black mask (10) and Shade robe follow their period pages (loop item 7350). Decisions 2, 3, 6 and 7 above keep their defaults, as nothing contradicted them. The other loop questions are in `memory-bank/grill-decisions-2026-11-04.md`.
