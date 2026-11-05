@@ -24,9 +24,13 @@ DEFAULT_DARKAN_DEPENDENCY_JARS = (
     Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.20.0/1fe6082e660daf07c689a89c94dc0f49c26b44bb/log4j-api-2.20.0.jar"),
     Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.20.0/eb2a9a47b1396e00b5eee1264296729a70565cc0/log4j-core-2.20.0.jar"),
 )
-DEFAULT_2011_ITEMS = Path("/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml")
 
 DARKAN_PRICE_HELPER = Path(__file__).resolve().parents[1] / "DumpDarkanShopPriceInputs.java"
+
+
+def default_2011_items() -> Path:
+    root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", "/Users/ArmanTarkhanian1/Downloads/game-main"))
+    return root / "data/cfg/items.yml"
 
 
 @dataclass(frozen=True)
