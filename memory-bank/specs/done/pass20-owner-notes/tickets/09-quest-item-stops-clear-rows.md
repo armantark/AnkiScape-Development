@@ -4,7 +4,7 @@
 
 **Blocked by:** 08
 
-**Status:** built; native Anki look waits for the orchestrator
+**Status:** done
 
 - [x] Each changed quest plays through the real handler with an empty bank past each folded row. Items a `player brings` row still names are held by the test, and no other item.
 - [x] `/Users/ArmanTarkhanian1/Documents/ankiscape-pass20/scan/walk.py`, empty-bank walk, shows none of the folded stops.

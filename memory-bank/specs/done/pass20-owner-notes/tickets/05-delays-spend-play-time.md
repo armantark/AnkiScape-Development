@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Combat HUD check waits for the orchestrator
+**Status:** done
 
 - [x] `tests/pace/rates/rate_property.py` runs Combat with banking on, and it passes at 1x and 10x.
 - [x] A played fight at 1x, 10x and 20x: a 10x card spends 60 ticks across a bank run when no danger stop occurs; a 1x bank run costs 17 cards.

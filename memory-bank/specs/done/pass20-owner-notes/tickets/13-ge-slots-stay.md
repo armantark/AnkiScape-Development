@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Grand Exchange check waits for the orchestrator
+**Status:** built; a Grand Exchange claim in real Anki waits for the owner's play
 
 - [x] A real panel flow claims the middle of three offers; the two others do not move; a new offer fills the gap.
 - [x] An old save loads with its offers in the same positions.

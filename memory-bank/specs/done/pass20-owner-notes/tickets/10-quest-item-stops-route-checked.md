@@ -4,7 +4,7 @@
 
 **Blocked by:** 09
 
-**Status:** built; native Anki look waits for the orchestrator
+**Status:** done
 
 - [x] Each folded quest plays past its row through the real handler with an empty bank, holding only what `player brings` rows name.
 - [x] A table in the report gives each row's step, price, XP and period source quote, and the rows not folded with their reasons.

@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** built; the frontend-taste review and the native look wait for the orchestrator
+**Status:** done
 
 - [x] A real widget flow reproduces the owner's Jungle Potion herb case: click, add and train each do what they show, with no typed count needed.
 - [x] A held row click leaves training unchanged; the header button then starts the pick, and the queue returns after it (ticket 01).

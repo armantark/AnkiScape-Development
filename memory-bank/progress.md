@@ -10,6 +10,7 @@ This log keeps the current month. Earlier records rotate under the monthly rule 
 - Pass 17, 2026-10-27: queue, Resume, item feedback, combat setup, timers, pickups and source fixes landed. [Run record](specs/done/pass17-owner-notes/run-record.md); [original ledger](archive/progress-2026-10.md#2026-10-03-current-queue-result).
 - Pass 18, 2026-10-28: exact queue counts, supply steps, dyes/woad, tab arrows, Bank geometry and wrapped target rows landed. [Run record and remaining findings](specs/done/pass18-owner-notes/run-record.md); [original ledger](archive/progress-2026-10.md#2026-10-03-current-queue-result).
 - Pass 19, 2026-10-29: every queue add starts the plan; Quests saves sort/filters and colours quest names by progress; renamed wiki files supply period icons. Landed source `48c231acb0c086f1401f72c329f658a6b2d48df5`, recorded at `75f33bee9`. [Run record](specs/done/pass19-owner-notes/run-record.md) retains gate results, offered defaults and the unperformed native look; no native Anki acceptance is inferred.
+- Pass 20, 2026-11-04: queue reorder and return after a hand-started action, no queue popups, bank run, rest and grave recovery in play time with Agility, quest wear, automatic quest item steps including Jungle Potion, 21 items, search and stable Grand Exchange slots. [Run record](specs/done/pass20-owner-notes/run-record.md).
 
 The [priority matrix](goal-priority-matrix.md) owns selection and unresolved gates.
 The [Completion Kanban](future-work-kanban.md) owns remaining product depth.

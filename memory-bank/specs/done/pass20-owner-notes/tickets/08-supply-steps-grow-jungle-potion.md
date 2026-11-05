@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Anki check waits for the orchestrator
+**Status:** done
 
 - [x] Jungle Potion finishes from a new save with its prerequisites in exactly 15 cards at 1x and 10x, with no action switch and no dialog except quest complete.
 - [x] Held grimy or clean herbs skip their steps; a save mid-quest continues.

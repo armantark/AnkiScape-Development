@@ -4,7 +4,7 @@
 
 **Blocked by:** 05
 
-**Status:** built; native quest-fight carry check waits for the orchestrator
+**Status:** built; a kill with ticks left in real Anki waits for the owner's play
 
 - [x] Witch's House experiment forms at 10x: a kill with ticks left continues into the next form in the same card.
 - [x] A kill followed by a non-fight step ends the card.

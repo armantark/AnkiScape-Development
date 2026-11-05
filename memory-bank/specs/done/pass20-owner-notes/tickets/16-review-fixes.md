@@ -2,7 +2,7 @@
 
 **What to build:** The owner's review-fix dispatch: stop live quest combat at danger; repeat the paired deaths gate with danger stops in both arms; spend successful-card ticks on grave travel after debt; recover only eligible time per queue segment; restore quest equipment through normal slot conflicts; remove retired review-duration constants; correct the contradictory queue, cadence and Agility documentation; keep level labels together and shorten the Grand Exchange search hint.
 
-**Status:** built; native target-row and Grand Exchange copy check waits for the orchestrator
+**Status:** done
 
 - [x] Reproduce all four reported behavioral defects at real handlers before fixing them.
 - [x] Stop a non-killing quest danger tick immediately, preserving result and tick accounting.

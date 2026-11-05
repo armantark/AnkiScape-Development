@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Anki search check waits for the orchestrator
+**Status:** done
 
 - [x] A real double-click event selects the phrase in every search box; a census test finds no search box that uses a plain line edit.
 - [x] "bat" gives Giant bat and Guard (battleaxe) in Combat. "Stolen Hearts" still ranks first in Quests, and "tara" still finds tiara.

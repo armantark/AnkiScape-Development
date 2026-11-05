@@ -4,7 +4,7 @@
 
 **Blocked by:** 05
 
-**Status:** built; native Equipment and Review HUD check waits for the orchestrator
+**Status:** built; Witch's House gloves in real Anki wait for the owner's play (Demon Slayer passed natively)
 
 - [x] Witch's House plays from stage 5 to stage 7 with Barrows gloves worn at the start and no menu action: gloves switch physically in the save, and the original pair returns at the next bank run during the experiment fights.
 - [x] The same quest with no bank run returns the gloves at quest end, and a Stop returns them at once.

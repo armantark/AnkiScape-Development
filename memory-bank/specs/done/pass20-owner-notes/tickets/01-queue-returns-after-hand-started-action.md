@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Anki check waits for the orchestrator
+**Status:** done
 
 - [ ] Played through the review handler: a hand-started Mining ahead of a two-entry queue runs out of supplies, and the next card runs the top entry. Mining consumes no supplies; the focused proof covers a missing-pickaxe Mining stop and supply exhaustion in Smithing.
 - [x] A hand-run quest that completes leaves the queue in that review, with all its entries, and the queue continues or stays paused by its earlier state.

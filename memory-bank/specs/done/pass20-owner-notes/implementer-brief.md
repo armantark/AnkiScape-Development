@@ -3,8 +3,8 @@
 Every Pass 20 implementer reads this file, then its ticket. The orchestrator seat dispatches the tickets, lands them on the integration branch, and runs the full test lanes, the native checks, the final review and the promotion gate.
 
 <context>
-- Spec: `memory-bank/specs/pass20-owner-notes/spec.md`. Every decision there is settled by the owner. His answers, word for word, are in `grill.md`, and they are the approval for exactly the changes the spec names, including changes to existing screens. Do not relitigate a decision, and do not change a screen the spec does not name.
-- Ticket: `memory-bank/specs/pass20-owner-notes/tickets/<NN>-*.md`.
+- Spec: `memory-bank/specs/done/pass20-owner-notes/spec.md`. Every decision there is settled by the owner. His answers, word for word, are in `grill.md`, and they are the approval for exactly the changes the spec names, including changes to existing screens. Do not relitigate a decision, and do not change a screen the spec does not name.
+- Ticket: `memory-bank/specs/done/pass20-owner-notes/tickets/<NN>-*.md`.
 - Code facts with citations (lines can have moved): `facts-queue.md`, `facts-small.md`, `facts-combat.md`. Read the section for your ticket before you open code.
 - Quest stops: `quest-stop-scan.tsv`; walker: `/Users/ArmanTarkhanian1/Documents/ankiscape-pass20/scan/walk.py`. Terms: `GLOSSARY.md`.
 - Binding rules: `memory-bank/codex-briefs/STANDING-SLICE-CONTRACT.md`, read in full, and the repository `AGENTS.md`. This brief replaces the contract's section 6 lane commands and its `--expected-tests` collection: implementers run the focused tests under <build>, and the orchestrator runs the full plain and offscreen Qt lanes. The rest of section 6 still binds you. Where this brief and the contract disagree in any other way, stop and report.

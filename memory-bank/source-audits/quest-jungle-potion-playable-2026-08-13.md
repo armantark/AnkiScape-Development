@@ -2,7 +2,7 @@
 
 ## Pass 20 supply steps — 2026-11-04
 
-[Pass 20 ticket 08](../specs/pass20-owner-notes/tickets/08-supply-steps-grow-jungle-potion.md)
+[Pass 20 ticket 08](../specs/done/pass20-owner-notes/tickets/08-supply-steps-grow-jungle-potion.md)
 replaces the historical manual-cleaning review route below. Each herb now uses
 one quest-local search, one referenced Herblore cleaning and one hand-in: 15
 cards at 1x and 10x. Held products skip their supply steps. The pinned guide's

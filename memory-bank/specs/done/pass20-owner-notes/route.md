@@ -1,6 +1,6 @@
 # Pass 20 owner notes: route
 
-The owner invoked `/implement-spec` on 2026-11-04 11:28 with `/to-spec memory-bank/specs/pass20-owner-notes` and `/to-tickets` in its text, after he answered "Ok" to the settled design.
+The owner invoked `/implement-spec` on 2026-11-04 11:28 with `/to-spec memory-bank/specs/done/pass20-owner-notes` and `/to-tickets` in its text, after he answered "Ok" to the settled design.
 
 - Grill: done, `grill.md`; `GLOSSARY.md` gained Bank run and Quest wear and a new Action queue entry. No ADR: no decision met all three ADR tests.
 - `to-spec`: done, `spec.md`. Skip its seam check: the owner asked for the chain, and the seams are the existing queue, pace and quest layers.

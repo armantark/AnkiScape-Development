@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** built; native Anki check waits for the orchestrator
+**Status:** done
 
 - [x] Played: Pirate's Treasure completes with a next entry; no dialog appears, and the line reads "Pirate's Treasure complete. Next: <entry>." plus lamp text when lamps wait.
 - [x] Played: the same quest with nothing next shows the popup with its old text.

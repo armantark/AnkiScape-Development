@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** built; native Bank and Grand Exchange look waits for the orchestrator
+**Status:** done
 
 - [x] A check finds no equipment definition without an item registration.
 - [x] Adamant boots can drop from a Gargoyle, can be held, worn, banked and, per its period page, traded on the Grand Exchange at its value.
