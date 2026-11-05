@@ -7,8 +7,8 @@ action's own unit: the product items it makes, the one item it uses when it
 makes nothing (bones buried), kills for a fight, reviews for any other action,
 and no count for a quest, which runs until it stops.
 
-An entry makes exactly its count (owner, Pass 18): the queue counts every step,
-the step that reaches the count makes only the remainder, and the rest of the
+An entry makes its count (owner, Pass 18), and a whole lot stays whole: the queue
+counts every step, the step that reaches the count makes only the remainder, and the rest of the
 card goes to the next entry when that is a skill or utility; a fight or quest
 starts on the next card, and a finished queue ends at Bankstanding. A review
 count goes up once per card.
