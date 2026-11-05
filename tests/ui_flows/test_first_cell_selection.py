@@ -83,6 +83,8 @@ def _dark_palette() -> "QPalette":
         (QPalette.ColorRole.Window, QColor(45, 45, 45)),
         (QPalette.ColorRole.WindowText, QColor(230, 230, 230)),
         (QPalette.ColorRole.Base, QColor(30, 30, 30)),
+        (QPalette.ColorRole.Button, QColor(45, 45, 45)),
+        (QPalette.ColorRole.ButtonText, QColor(230, 230, 230)),
         (QPalette.ColorRole.AlternateBase, QColor(40, 40, 40)),
         (QPalette.ColorRole.Text, QColor(230, 230, 230)),
         (QPalette.ColorRole.Highlight, QColor(42, 130, 218)),
@@ -249,6 +251,13 @@ class FirstCellSelectionTest(unittest.TestCase):
                     plain, first_cell = self._grab_pair(window, trees, row, state)
                     with self.subTest(theme=theme, row=row, state=state):
                         self.assertTrue(plain == first_cell, "selected row differs from a row-selected tree")
+
+    def test_dark_capture_palette_has_legible_button_text(self) -> None:
+        palette = _dark_palette()
+        for group in (QPalette.ColorGroup.Active, QPalette.ColorGroup.Inactive):
+            with self.subTest(group=group):
+                self.assertLess(palette.color(group, QPalette.ColorRole.Button).lightness(), 64)
+                self.assertGreater(palette.color(group, QPalette.ColorRole.ButtonText).lightness(), 200)
 
     def test_a_click_selects_the_first_cell_while_column_zero_is_scrolled_away(self) -> None:
         _window, (_plain, tree) = self._side_by_side()
