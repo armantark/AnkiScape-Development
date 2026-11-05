@@ -4,6 +4,7 @@ from ...data.combat.mechanics import COMBAT_RANGED_AMMO_DATA, COMBAT_RANGED_WEAP
 from ...logic.inventory_pure import carried_slots_used, clamp_carried_view_to_bank
 from ...data.item_values import STACKABLE_ITEM_NAMES
 from ...data.equipment_data import EQUIPMENT_DATA
+from ..logic_pure_state import _non_negative_int
 
 
 # PLACEHOLDER(ava_recovery_split): corroborate Darkan Ranged.kt with a period split.
@@ -30,16 +31,9 @@ def carried_runes(data, target_id=None):
 
 def best_ammo(data, compatible, equipment_data, *, check_levels=True):
     def allowed(name):
-        spec = equipment_data.get(name)
-        requirements = getattr(spec, "skill_requirements", ())
-        if isinstance(spec, dict):
-            requirements = spec.get("skill_requirements", ())
-        # The catalog's primary requirement is separate from additional levels.
-        skill = getattr(spec, "combat_skill", "ranged")
-        level = getattr(spec, "required_level", 1)
-        return int(data.get(f"{skill}_level", 1)) >= level and all(
-            int(data.get(f"{skill}_level", 1)) >= level for skill, level in requirements
-        )
+        spec = equipment_data[name]
+        requirements = spec.skill_requirements or ((spec.combat_skill, spec.required_level),)
+        return all(int(data.get(f"{skill}_level", 1)) >= level for skill, level in requirements)
     inventory = data.get("inventory") or {}
     return max((name for name in compatible if inventory.get(name, 0) > 0 and (not check_levels or allowed(name))),
                key=lambda name: (COMBAT_RANGED_AMMO_DATA.get(name, {}).get("ranged_strength", 0), name), default=None)
@@ -112,7 +106,7 @@ def consume_ammo(data, weapon_spec, target_id, rng):
     return name
 
 
-def generate_ava_items(data, ticks):
+def generate_ava_items(data, ticks, supply_slots=0):
     cape = (data.get("equipment") or {}).get("cape")
     if cape not in AVA_RECOVERY or not data.get("combat_ava_incidental_items", True):
         return
@@ -120,9 +114,17 @@ def generate_ava_items(data, ticks):
     count, data["combat_ava_incidental_ticks"] = divmod(elapsed, AVA_INCIDENTAL_TICKS)
     if count:
         name = "Iron arrows" if cape == "Ava's attractor" else "Steel arrows"
+        if name in equipped_ammo(data):
+            data["equipment_ammunition_count"] += count
+            return
+        view = carried_items(data)
+        if name not in view and carried_slots_used(view, STACKABLE_ITEM_NAMES) + supply_slots >= 28:
+            return
         inventory = dict(data.get("inventory") or {})
         inventory[name] = inventory.get(name, 0) + count
-        data["inventory"] = inventory
+        view[name] = view.get(name, 0) + count
+        target = data.get("current_combat_target", "chicken")
+        data.update(inventory=inventory, carried_inventory={**(data.get("carried_inventory") or {}), target: view})
 
 
 def migrate_ammunition(data, equipment_data, version):
@@ -144,9 +146,9 @@ def migrate_ammunition(data, equipment_data, version):
 def sanitize_ammunition_state(data):
     count = data.get("equipment_ammunition_count", int(bool((data.get("equipment") or {}).get("ammunition"))))
     return {
-        "equipment_ammunition_count": max(0, int(count)),
+        "equipment_ammunition_count": _non_negative_int(count, 0),
         "combat_ava_incidental_items": bool(data.get("combat_ava_incidental_items", True)),
-        "combat_ava_incidental_ticks": max(0, int(data.get("combat_ava_incidental_ticks", 0))),
+        "combat_ava_incidental_ticks": _non_negative_int(data.get("combat_ava_incidental_ticks", 0), 0),
     }
 
 
@@ -172,3 +174,11 @@ def migrate_equipped_ammo(data, ammo, inventory, equipment_data):
         data["equipment"] = {**(data.get("equipment") or {}), "ammunition": name}
         data["equipment_ammunition_count"] = ammo[name] + (count if old == name else 0)
         inventory[name] -= data["equipment_ammunition_count"]
+
+
+def combat_target_pack_move_pure(data, target):
+    packs = dict(data.get("carried_inventory") or {})
+    previous = data.get("current_combat_target")
+    if previous != target and previous in packs:
+        packs[target] = packs.pop(previous)
+    return {"current_combat_target": target, "carried_inventory": packs}

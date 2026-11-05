@@ -176,7 +176,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(
             addon._state.player_data["combat_supply_loadout"]["food"], {"Shark": 8}
         )
-        self.assertEqual(calls["achievement_runes"], [0])
+        self.assertEqual(calls["achievement_runes"], [10])
 
         self.assertTrue(addon.on_unload_combat_loadout())
         self.assertEqual(
@@ -187,7 +187,7 @@ class TestIntegrationSmoke(fixtures.TestIntegrationSmoke):
         self.assertEqual(addon._state.player_data["inventory"]["Antipoison (2)"], 1)
         self.assertEqual(addon._state.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon._state.player_data["inventory"]["Mind rune"], 5)
-        self.assertEqual(calls["achievement_runes"], [0, 10])
+        self.assertEqual(calls["achievement_runes"], [10, 10])
         self.assertGreaterEqual(calls["save"], 5)
         self.assertGreaterEqual(calls["hud"], 4)
         self.assertGreaterEqual(calls["refresh"], 4)

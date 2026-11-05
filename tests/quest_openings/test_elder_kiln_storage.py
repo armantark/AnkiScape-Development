@@ -57,8 +57,8 @@ class DefaultsAndMigrationTest(unittest.TestCase):
         self.assertEqual(first[KEY], default_elder_kiln_state_pure())
         self.assertIsNot(first[KEY], second[KEY])
         self.assertEqual(default_player_data(ORE_DATA, ITEM_DEFINITIONS)[KEY], default_elder_kiln_state_pure())
-        # The hatching side state is additive; 126 is main's Witch's House bump, not this change's.
-        self.assertEqual(CURRENT_CONFIG_VERSION, 126)
+        # The hatching side state is additive to the save schema.
+        self.assertEqual(CURRENT_CONFIG_VERSION, 127)
 
     def test_valid_states_survive_loading_for_every_save_shape(self):
         shapes = {

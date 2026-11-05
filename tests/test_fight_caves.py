@@ -31,7 +31,7 @@ from ankiscape.logic.fight_caves_logic import (
 )
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
-from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
+from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure, combat_target_pack_move_pure
 from ankiscape.logic_pure.logic_pure_prayer import (
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     prayer_drain_for_ticks_pure,
@@ -599,7 +599,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(result["safe_death"])
         self.assertEqual(defeated["equipment"], before_equipment)
-        self.assertEqual(defeated["carried_inventory"], before_carried)
+        self.assertEqual(defeated["carried_inventory"], {"chicken": before_carried["fight_caves"]})
         for item, quantity in before_inventory.items():
             self.assertEqual(defeated["inventory"][item], quantity)
         self.assertEqual(
@@ -736,7 +736,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                     prayer_level=99, combat_attack_style=style,
                     equipment={"head": "Saradomin halo", **weapon},
                     combat_prayer_drain_counter=counter,
-                    inventory=supplies, equipment_ammunition_count=100, current_combat_spell="wind_strike",
+                    inventory=supplies, carried_inventory={"chicken": supplies}, equipment_ammunition_count=100, current_combat_spell="wind_strike",
                 )
                 settings = {
                     "combat_prayers_enabled": enabled,
@@ -754,7 +754,7 @@ class FightCavesJadProtectionTests(unittest.TestCase):
                 }
                 baseline["combat_presets"] = {"Jad": ordinary_settings}
                 baseline["combat_target_overrides"] = {"fight_caves": ordinary_settings}
-                baseline["current_combat_target"] = "fight_caves"
+                baseline.update(combat_target_pack_move_pure(baseline, "fight_caves"))
                 baseline["combat_encounter"] = {
                     **data["fight_caves"]["roster"][0]["encounter"],
                     "enemy_lifepoints": 2550, "target_id": "fight_caves",

@@ -2450,7 +2450,7 @@ def _boss_review_pure(
 
     for key in (
         "inventory",
-        "equipment",
+        "equipment", "equipment_ammunition_count", "combat_ava_incidental_ticks",
         "current_combat_target",
         "combat_encounter",
         "combat_auto_flee",

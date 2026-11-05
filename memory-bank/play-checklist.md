@@ -166,3 +166,5 @@ you are in the game, with the date the change reached main.
 - Pass 20 integration: in Artisan → Smithing, queue Iron bar and Iron platebody; use Up and Down and check the green running row, details and count follow the new top target. Hold a Herblore pick, exhaust its materials and press Train this skill: the saved running target must stay put; restore supplies and retry. In Utilities, hold another pick and search “search”: the marked running row must keep its name rank at 1× and 10×.
 
 - Pass 20 review fixes: at default Game speed, open Combat target rows and hover a level label, then Grand Exchange; level tags stay together and the search hint reads “Search exchangeable items” in light and dark themes.
+
+- Pass 21 ammunition: Equipment → Ammunition shows the worn stack count; hover Ava’s incidental items in Food and loot, switch it off, and confirm fired-arrow recovery continues while iron/steel generation stops.

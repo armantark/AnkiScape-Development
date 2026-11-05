@@ -36,7 +36,7 @@ def fatal_player(target="cow", *, reflection="deflect", lifepoints=10, escape=Fa
         player.update(combat_attack_style="magic_standard", equipment={"weapon": "Staff"},
                       current_combat_spell="confuse", combat_selected_prayers=[],
                       combat_supply_loadout={'food': {"Shrimps": 2}}, inventory={
-                          "Water rune": 10, "Earth rune": 10, "Body rune": 10}, carried_inventory={'chicken': {
+                          "Water rune": 10, "Earth rune": 10, "Body rune": 10}, carried_inventory={target: {
                           "Water rune": 10, "Earth rune": 10, "Body rune": 10}})
         player["combat_encounter"]["vengeance_pending"] = True
     if escape:

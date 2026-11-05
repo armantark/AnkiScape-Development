@@ -6,7 +6,7 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-from ..logic_pure.logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
+from ..logic_pure.logic_pure import combat_target_pack_move_pure, apply_combat_burst_pure, combat_max_lifepoints_pure
 from ..data.barbarian_assault_data import (
     BARBARIAN_ASSAULT_ACTIVITY_ID,
     BARBARIAN_ASSAULT_COMBAT_TARGET_ID,
@@ -252,7 +252,7 @@ def enter_barbarian_assault_pure(
     }
     data["activity_session"] = {"active_id": BARBARIAN_ASSAULT_ACTIVITY_ID}
     data["current_utility"] = BARBARIAN_ASSAULT_ACTIVITY_ID
-    data["current_combat_target"] = BARBARIAN_ASSAULT_COMBAT_TARGET_ID
+    data.update(combat_target_pack_move_pure(data, BARBARIAN_ASSAULT_COMBAT_TARGET_ID))
     data["combat_encounter"] = copy.deepcopy(data["barbarian_assault"]["encounter"])
     data["barbarian_assault_last_result"] = f"Entered wave 1 as {role}."
     return data, True, {"message": data["barbarian_assault_last_result"], "role": role}
@@ -260,7 +260,7 @@ def enter_barbarian_assault_pure(
 
 def _restore_previous_target(data: dict[str, Any], session: Mapping[str, Any]) -> None:
     data["combat_encounter"] = {}
-    data["current_combat_target"] = str(session.get("previous_combat_target", ""))
+    data.update(combat_target_pack_move_pure(data, str(session.get("previous_combat_target", ""))))
 
 
 def _restart_wave_after_safe_death(
@@ -448,7 +448,7 @@ def apply_barbarian_assault_review_pure(
 
     combat_result: dict[str, Any] = {}
     if session["role"] == "attacker":
-        data["current_combat_target"] = BARBARIAN_ASSAULT_COMBAT_TARGET_ID
+        data.update(combat_target_pack_move_pure(data, BARBARIAN_ASSAULT_COMBAT_TARGET_ID))
         data["combat_encounter"] = copy.deepcopy(session["encounter"])
         enemy = barbarian_assault_front_enemy_pure(int(session["wave"]))
         data, ok, combat_result = apply_combat_burst_pure(

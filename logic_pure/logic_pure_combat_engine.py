@@ -197,7 +197,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_potion_flask_cap,
     _combat_preset_snapshot,
     _combat_protective_equipment_state,
-    _combat_ranged_ammo_count, equipment_slot_text, migrate_ammunition, equipped_ammo, carried_runes, generate_ava_items,
+    _combat_ranged_ammo_count, combat_equipment_totals_pure, equipment_slot_text, combat_target_pack_move_pure, migrate_ammunition, equipped_ammo, carried_runes, generate_ava_items,
     _combat_ranged_locked_reasons,
     _combat_ranged_max_hit_old_hp,
     _combat_ranged_weapon_spec,
@@ -556,7 +556,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     )
     if reasons:
         return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
-    player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
+    player_totals = combat_equipment_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
@@ -628,7 +628,7 @@ def combat_enemy_pressure_attack_pure(
     rng = rng or (lambda: 0.0)
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, {"pressure": enemy}))
-    player_totals = equipment_stat_totals_pure(
+    player_totals = combat_equipment_totals_pure(
         data.get("equipment", {}) or {}, equipment_data
     )
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -1157,7 +1157,7 @@ def apply_combat_burst_pure(
         _combat_enemy_regeneration(enemy, encounter, active_encounter)
     )
 
-    player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
+    player_totals = combat_equipment_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     player_attack_speed = max(1, _positive_int(_equipment_value(weapon_spec, "attack_speed", 4), 4))
     if combat_class == "ranged":
@@ -1625,7 +1625,7 @@ def apply_combat_burst_pure(
             data, enemy, player_lp, max_player_lp, rng,
             wilderness_equipment_risk, food_used,
         )
-    generate_ava_items(data, ticks_elapsed)
+    generate_ava_items(data, ticks_elapsed, _combat_supply_slots_used(data))
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",

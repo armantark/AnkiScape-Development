@@ -7,19 +7,21 @@ refill clearing runes, and a toggle that accidentally disables shot recovery.
 import copy
 import random
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401
-from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, COMBAT_ENEMY_DATA
 from ankiscape.core.equipment_change import equip_item_save_pure, unequip_slot_save_pure
 from ankiscape.core.storage_pure import migrate_loaded_data
 from ankiscape.core.combat_prayer_config import apply_combat_prayer_config_pure
 from ankiscape.logic.inventory_pure import carried_slots_used
 from ankiscape.data.item_values import STACKABLE_ITEM_NAMES
 from ankiscape.logic_pure.combat.ammunition import carried_runes, equipped_ammo
-from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
+from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure, request_combat_bank_run_now_pure, start_combat_grave_walk_pure, advance_combat_grave_review_pure
 from ankiscape.logic_pure.logic_pure_combat_supplies import _combat_supply_slots_used
 from ankiscape.runtime.runtime_actions_combat import handle_combat_answer
-from tests.test_combat_logic import _player
+from ankiscape.runtime import runtime_actions_combat as combat_runtime
+from tests.test_combat_logic import _player, _KILLER_ENEMY_DATA
 from tests.test_runtime_actions import _context
 
 
@@ -37,10 +39,12 @@ def sample_recovery(cape, enabled, cards=500):
     ctx.review_action_multiplier = 10
     ctx.cadence_live_enabled = True
     fired = 0
-    for _ in range(cards):
-        if not handle_combat_answer(ctx):
-            raise AssertionError(ctx.player_data.get("combat_last_result"))
-        fired += sum(ctx.player_data["combat_last_result"].get("ammo_used", {}).values())
+    enemy = {**COMBAT_ENEMY_DATA["chicken"], "stats": {**COMBAT_ENEMY_DATA["chicken"]["stats"], "hitpoints": 100000000}}
+    with patch.dict(combat_runtime.COMBAT_ENEMY_DATA, {"chicken": enemy}):
+        for _ in range(cards):
+            if not handle_combat_answer(ctx):
+                raise AssertionError(ctx.player_data.get("combat_last_result"))
+            fired += sum(ctx.player_data["combat_last_result"].get("ammo_used", {}).values())
     remaining = ctx.player_data["inventory"].get("Bronze arrows", 0) + equipped_ammo(ctx.player_data).get("Bronze arrows", 0)
     return fired, 100000 - remaining, ctx.player_data
 
@@ -114,9 +118,13 @@ class AmmunitionPackTests(unittest.TestCase):
         player, ok = equip_item_save_pure(player, "Bronze arrows")
         self.assertTrue(ok)
         self.assertEqual(equipped_ammo(player), {"Bronze arrows": 840})
+        player["inventory"]["Bronze arrows"] = 3
+        player, ok = equip_item_save_pure(player, "Bronze arrows")
+        self.assertTrue(ok)
+        self.assertEqual(equipped_ammo(player), {"Bronze arrows": 843})
         player, ok = equip_item_save_pure(player, "Iron arrows")
         self.assertTrue(ok)
-        self.assertEqual(player["inventory"]["Bronze arrows"], 840)
+        self.assertEqual(player["inventory"]["Bronze arrows"], 843)
         player, ok = unequip_slot_save_pure(player, "ammunition")
         self.assertTrue(ok)
         self.assertEqual(player["inventory"]["Iron arrows"], 18)
@@ -126,3 +134,42 @@ class AmmunitionPackTests(unittest.TestCase):
         player = apply_combat_prayer_config_pure(_player(), "combat_ava_incidental_items", False)
         player = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
         self.assertFalse(player["combat_ava_incidental_items"])
+
+    def test_restock_after_ammunition_danger_stop_switches_to_the_remaining_type(self):
+        player = _player(equipment={"weapon": "Shortbow", "ammunition": "Bronze arrows"},
+                         equipment_ammunition_count=1, inventory={"Iron arrows": 18},
+                         combat_auto_flee=False, combat_prayers_enabled=False,
+                         combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1000})
+        ctx = _context(player, random_values=(0.99,) * 1000, review_action_multiplier=10)
+        ctx.cadence_live_enabled = True
+        self.assertTrue(handle_combat_answer(ctx))
+        self.assertEqual(ctx.card.stop_reason, "out_of_ammo")
+        self.assertEqual(equipped_ammo(ctx.player_data), {})
+        restocked, ok, reason = request_combat_bank_run_now_pure(ctx.player_data)
+        self.assertTrue(ok, reason)
+        ctx.player_data.update(restocked)
+        self.assertTrue(handle_combat_answer(ctx))
+        self.assertEqual(ctx.player_data["combat_bank_run"]["ticks_remaining"], 40)
+        self.assertTrue(handle_combat_answer(ctx))
+        self.assertEqual(ctx.player_data["combat_bank_run"], {})
+        self.assertEqual(ctx.player_data["equipment"]["ammunition"], "Iron arrows")
+        self.assertEqual(ctx.player_data["inventory"]["Iron arrows"], 0)
+
+    def test_a_real_fatal_review_and_grave_walk_preserve_the_ammunition_stack(self):
+        player = _player(equipment={"weapon": "Iron sword", "ammunition": "Bronze arrows"},
+                         equipment_ammunition_count=840, current_combat_target="killer",
+                         defense_level=1, combat_auto_flee=False, combat_prayers_enabled=False,
+                         combat_auto_eat_food=[])
+        ctx = _context(player, random_values=(0.999999, 0.0, 0.999999), review_action_multiplier=10)
+        ctx.cadence_live_enabled = True
+        with patch.dict(combat_runtime.COMBAT_ENEMY_DATA, _KILLER_ENEMY_DATA):
+            self.assertTrue(handle_combat_answer(ctx))
+        self.assertTrue(ctx.player_data["combat_last_result"]["died"])
+        self.assertEqual(ctx.player_data["combat_grave"]["stack_extras"], {"Bronze arrows": 839})
+        self.assertEqual(equipped_ammo(ctx.player_data), {})
+        reloaded = migrate_loaded_data(copy.deepcopy(ctx.player_data), ORE_DATA, ITEM_DEFINITIONS)
+        walking, ok = start_combat_grave_walk_pure(reloaded)
+        self.assertTrue(ok)
+        recovered = advance_combat_grave_review_pure(walking, ticks=300)
+        self.assertEqual(equipped_ammo(recovered), {"Bronze arrows": 840})
+        self.assertEqual(recovered["inventory"].get("Bronze arrows", 0), 0)

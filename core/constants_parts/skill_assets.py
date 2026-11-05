@@ -9,7 +9,7 @@ from .distraction_sources import *
 from .landmark_and_boss_sources import *
 from .utility_sources import *
 from .equipment_sources import *
-from .equipment_sources import _BASE_EQUIPMENT_DATA
+from .equipment_sources import _BASE_EQUIPMENT_DATA, _ava_equipment_data_as_dict
 from .registry_sources import *
 from .paths import *
 from .hunter_assets import HUNTER_SHARED_ITEM_IMAGES
@@ -430,6 +430,7 @@ def _equipment_data_before_diaries():
     equipment_data = dict(_BASE_EQUIPMENT_DATA)
     equipment_data.update(murder_mystery_silver_equipment_data_as_dict())
     equipment_data.update(barrows_equipment_data_as_dict())
+    equipment_data.update(_ava_equipment_data_as_dict())
     equipment_data.update(fish_flingers_equipment_data_as_dict())
     equipment_data.update(great_orb_project_equipment_data_as_dict())
     equipment_data.update(runecrafting_equipment_data_as_dict())

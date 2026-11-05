@@ -1,7 +1,7 @@
 """logic_pure_combat_model.py - split out of logic_pure.py; see that module's header."""
 
 from .combat.recovery import reclaim_items as _combat_reclaim_items_to_player, lost_ammo_extras, merge_stack_extras
-from .combat.ammunition import equipped_ammo, carried_runes, best_ammo, EQUIPMENT_DATA, generate_ava_items, migrate_ammunition, sanitize_ammunition_state, equipment_slot_text
+from .combat.ammunition import equipped_ammo, carried_runes, best_ammo, EQUIPMENT_DATA, generate_ava_items, migrate_ammunition, sanitize_ammunition_state, equipment_slot_text, combat_target_pack_move_pure
 from math import comb, floor, sqrt
 from .logic_pure_combat_food import combat_max_lifepoints_pure
 
@@ -146,7 +146,7 @@ from .logic_pure_equipment import (  # noqa: F401  (re-export)
     can_equip_item_pure,
     equip_item_pure,
     equipment_bonus_state_pure,
-    equipment_stat_totals_pure,
+    equipment_stat_totals_pure, combat_equipment_totals_pure,
     unequip_item_pure,
 )
 

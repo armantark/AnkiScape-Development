@@ -467,8 +467,8 @@ def equipment_stat_totals_pure(
     equipment_data: Mapping[str, object],
 ) -> EquipmentBonuses:
     totals = {field: 0 for field in EQUIPMENT_BONUS_FIELDS}
-    for slot, item_name in equipment.items():
-        if slot == "ammunition" or not isinstance(item_name, str):
+    for item_name in equipment.values():
+        if not isinstance(item_name, str):
             continue
         spec = equipment_data.get(item_name)
         if spec is None:
@@ -562,3 +562,11 @@ def restore_quest_equipment_pure(player_data, equipment_data=None, *, force=Fals
             inventory, equipment, _ = equip_item_pure(item, inventory, equipment, wear_data)
     # Held quest gear outside the catalog retains its original slot.
     return save_equipment_move_pure(data, (inventory, equipment, True), equipment_data)[0]
+
+
+def combat_equipment_totals_pure(equipment, equipment_data):
+    # Combat adds the selected projectile's strength separately, including a
+    # Bank preview before that stack is worn and the last shot before refill.
+    gear = dict(equipment or {})
+    gear.pop("ammunition", None)
+    return equipment_stat_totals_pure(gear, equipment_data)

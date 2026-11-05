@@ -554,7 +554,7 @@ def _add_food_and_loot(layout, on_set_auto_eat, send_config, on_set_loot_thresho
     layout.addWidget(auto_bury)
     ava = WrappingCheckBox("Ava's incidental items")
     ava.setObjectName("combatAvaIncidentalItemsCheck")
-    ava.setToolTip("Collect occasional iron or steel items. Fired ammunition is always recovered.")
+    ava.setToolTip("Collect incidental iron or steel items. Fired ammunition recovery stays on.")
     layout.addWidget(ava)
     loot_spin = _number_box("combatLootThresholdSpin", 0, 100000, 5)
     _row(layout, _text_label("Leave loot worth under"), loot_spin, _text_label("coins"), grow=None)

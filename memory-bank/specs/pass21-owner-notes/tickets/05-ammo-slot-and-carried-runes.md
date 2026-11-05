@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by gpt-6.1-sol on goal/pass21-05
+**Status:** built; native Equipment inspection and frontend-taste review wait for the orchestrator
 
-- [ ] Played at 10x: Shortbow, 840 Bronze arrows in the Bank; a fight puts the stack in the slot; the Equipment tab shows the count; the count falls and recovered arrows return at the stated rate; running out starts a bank run or a danger stop as ammunition does today.
-- [ ] With Ava's attractor and accumulator, over a seeded sample, the rates match `ammo-facts.md`; without a device the rate is 50%; the toggle saves and changes only the incidental items.
-- [ ] A rune stack takes one carried slot per type, a spell spends it, and running out starts a bank run or stop; the pack's 28 slots stay honest with food and loot.
-- [ ] A save with 918 Bronze and 18 Iron loaded, and with loaded runes, migrates with every item accounted for; undo and reload hold.
-- [ ] Offscreen captures of the Equipment slot count and the toggle, default size and 560 tall, dark and light.
+- [x] Played at 10x: Shortbow, 840 Bronze arrows in the Bank; a fight puts the stack in the slot; the Equipment tab shows the count; the count falls and recovered arrows return at the stated rate; running out starts a bank run or a danger stop as ammunition does today.
+- [x] With Ava's attractor and accumulator, over a seeded sample, the rates match `ammo-facts.md`; without a device the rate is 50%; the toggle saves and changes only the incidental items.
+- [x] A rune stack takes one carried slot per type, a spell spends it, and running out starts a bank run or stop; the pack's 28 slots stay honest with food and loot.
+- [x] A save with 918 Bronze and 18 Iron loaded, and with loaded runes, migrates with every item accounted for; undo and reload hold.
+- [x] Offscreen captures of the Equipment slot count and the toggle, default size and 560 tall, dark and light.

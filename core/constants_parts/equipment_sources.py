@@ -10,6 +10,7 @@ from ...data.equipment_data import (
 )
 
 from ...data.cooking_gauntlets_data import cooking_gauntlets_equipment_data_as_dict
+from ...data.equipment_overrides.avas_devices import ava_equipment_data_as_dict as _ava_equipment_data_as_dict
 
 from ...data.brawling_gloves_data import (
     brawling_gloves_equipment_data_as_dict,
