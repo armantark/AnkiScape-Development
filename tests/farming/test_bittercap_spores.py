@@ -337,6 +337,7 @@ class BittercapSporeRuntimeTest(unittest.TestCase):
         addon.save_player_data = lambda: None
         self._plan_and_queue(menu, "compost")
         before = copy.deepcopy(addon._state.player_data)
+        self.addCleanup(addon.random.setstate, addon.random.getstate())
         addon.random.seed(5)
 
         self._answer(addon)

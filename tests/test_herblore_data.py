@@ -203,6 +203,8 @@ class RelicymReviewPersistenceTests(unittest.TestCase):
         sys.modules["aqt"].mw = runtime_fixture._DummyMW(collection)
         self.addon = runtime_fixture._load_addon_as_package("ankiscape_relicym_review")
         addon = self.addon
+        # This fixture checks potion ownership, without a strange-rock replacement.
+        self.enterContext(patch.object(addon.random, "random", return_value=0.999))
         addon.load_player_data()
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
