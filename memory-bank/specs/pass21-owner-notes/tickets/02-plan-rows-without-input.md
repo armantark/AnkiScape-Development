@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** open
+**Status:** claimed by claude-opus-5-5 on goal/pass21-02
 
 - [ ] Real widget flow: queue Smithing Bronze arrowtips, click Fletching Bronze arrows with zero arrowtips; the row takes one click, the count shows the promised output, the add succeeds, and the queue plays both to the real products.
 - [ ] Unfired bowl with no Soft clay takes one click, and Add follows it.
