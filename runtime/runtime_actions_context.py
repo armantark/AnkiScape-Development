@@ -20,8 +20,8 @@ from ..logic.pace.short_timers import STEP_TICKS, card_ticks_pure
 from ..logic.pace.world_clock import calendar_ticks_pure
 from ..logic.pace.danger_stops import card_danger_state_pure, card_danger_stop_pure
 
-# Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
-# one stage or one room per card at every speed (owner-accepted).
+# Non-fight quest steps and Dungeoneering rooms keep one card at every speed;
+# the quest handler carries consecutive fights within its own tick budget.
 ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering"})
 
 # Ticks the running budget owes the next card: a stun's length, or the part of a
@@ -298,4 +298,3 @@ def apply_review_recovery(addon, save_callback=None, *, ticks=None) -> None:
         addon.update_review_hud(addon._state.player_data, addon._state.current_skill)
     except Exception:
         pass
-

@@ -76,9 +76,6 @@ def _non_negative_float(value, default=0.0):
     return parsed if parsed >= 0.0 else default
 
 
-COMBAT_BANK_RUN_REVIEWS = 2
-
-
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 # An AnkiScape safety abstraction, not a period mechanic: below this share of
 # maximum lifepoints with nothing left to eat and nothing bankable to fetch, the

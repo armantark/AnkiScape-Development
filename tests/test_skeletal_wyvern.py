@@ -174,7 +174,7 @@ class SkeletalWyvernDataAndSurfaceTests(unittest.TestCase):
 
         unlocked = row_for(_player(slayer_level=72))
         self.assertTrue(unlocked.enabled)
-        self.assertEqual(unlocked.label, "Skeletal Wyvern (Lvl 198)")
+        self.assertEqual(unlocked.label, "Skeletal Wyvern (Lvl\xa0198)")
         self.assertEqual(unlocked.icon_path, COMBAT_ENEMY_IMAGES["skeletal_wyvern"])
         self.assertIn("Wyvern ice breath", unlocked.tooltip)
         self.assertEqual(

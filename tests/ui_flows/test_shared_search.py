@@ -118,7 +118,7 @@ class SharedSearchWidgetTest(unittest.TestCase):
         pump()
         rows = dialog.findChild(QListWidget, "combatTargetTree")
         self.assertEqual({rows.item(i).text() for i in range(rows.count())},
-                         {"Giant bat (Lvl 27)", "Guard (battleaxe) (Lvl 21)"})
+                         {"Giant bat (Lvl\xa027)", "Guard (battleaxe) (Lvl\xa021)"})
         search.setText("cockatrice mirror")
         pump()
         rows = dialog.findChild(QListWidget, "combatTargetTree")
@@ -234,6 +234,30 @@ class SharedSearchWidgetTest(unittest.TestCase):
         rows = dialog.findChild(QListWidget, "geItemList")
         self.capture(dialog, "exchange", rows.parentWidget())
         self.assertTrue(any("tiara" in rows.item(i).text().casefold() for i in range(rows.count())))
+
+    def test_target_level_labels_do_not_split(self):
+        for skill in ("Combat", "Mining", "Woodcutting", "Crafting", "Fishing"):
+            with self.subTest(skill=skill):
+                dialog, _ = self.open(skill)
+                selector = dialog.findChild(QListWidget, f"{skill.lower()}TargetTree")
+                if selector is not None:
+                    labels = [selector.item(i).text() for i in range(selector.count())]
+                else:
+                    tree = dialog.findChild(QTreeWidget, f"{skill.lower()}TargetTree")
+                    labels = [item.text(0) for item in tree.findItems(
+                        "*", Qt.MatchFlag.MatchWildcard | Qt.MatchFlag.MatchRecursive)]
+                levels = [label for label in labels if "(Lvl" in label]
+                self.assertTrue(levels)
+                for label in levels:
+                    self.assertNotIn("(Lvl ", label)
+                    self.assertIn("(Lvl\xa0", label)
+                dialog.close()
+
+    def test_exchange_search_hint_is_minimal(self):
+        dialog, _ = self.open()
+        menu_tests._open_ge_tab(dialog)
+        search = dialog.findChild(QLineEdit, "geItemSearchInput")
+        self.assertEqual(search.placeholderText(), "Search exchangeable items")
 
 
 if __name__ == "__main__":

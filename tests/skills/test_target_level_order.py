@@ -34,14 +34,14 @@ from ankiscape.data.thieving_data import (
 )
 
 
-_LEVEL_PATTERN = re.compile(r"\(Lvl (\d+)\)")
+_LEVEL_PATTERN = re.compile(r"\(Lvl\xa0(\d+)\)")
 
 
 def _levels(rows, group=None):
     """Read each row's level the way a player sees it: the rendered label.
 
     Sorting by sort_key first would make `levels == sorted(levels)` true by
-    construction, so the level must come from the label's "(Lvl N)" tag.
+    construction, so the level must come from the label's "(Lvl\xa0N)" tag.
     """
     members = [row for row in rows if group is None or row.group == group]
     ordered = sorted(members, key=lambda row: row.sort_key)
@@ -132,7 +132,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
 
 
 def _level_of(text: str) -> int:
-    # First "(Lvl N)" is the row's own requirement; a later "at Lvl 30+"
+    # First "(Lvl\xa0N)" is the row's own requirement; a later "at Lvl 30+"
     # describes an alternate output, not the sort level.
     return int(_LEVEL_PATTERN.search(text).group(1))
 

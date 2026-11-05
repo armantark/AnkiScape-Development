@@ -199,7 +199,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         tree = _goto_crafting(self.dialog)
         jewellery = _craft_family_node(tree, "jewellery")
         levels = [
-            int(re.search(r"\(Lvl (\d+)\)", jewellery.child(i).text(0)).group(1))
+            int(re.search(r"\(Lvl\xa0(\d+)\)", jewellery.child(i).text(0)).group(1))
             for i in range(jewellery.childCount())
         ]
         self.assertEqual(levels, sorted(levels), f"jewellery not level-ordered: {levels}")

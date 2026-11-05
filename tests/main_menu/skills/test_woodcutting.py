@@ -26,8 +26,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         tree_list = self._open_woodcutting(self.dialog)
         texts = [tree_list.item(i).text() for i in range(tree_list.count())]
         # Friendly display names, not raw IDs like "oak"/"tree".
-        self.assertTrue(any(t.startswith("Oak (Lvl 15)") for t in texts), texts)
-        self.assertTrue(any(t.startswith("✓ Tree (Lvl 1)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("Oak (Lvl\xa015)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("✓ Tree (Lvl\xa01)") for t in texts), texts)
         self.assertFalse(any(t == "oak" or t == "tree" for t in texts), texts)
 
     def test_woodcutting_ivy_marked_xp_only_no_logs(self) -> None:

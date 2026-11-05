@@ -92,7 +92,6 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
@@ -1030,7 +1029,7 @@ def apply_quest_combat_encounter_pure(
         equipment_data or {},
         ticks=combat_ticks,
         rng=combat_rng,
-        stop_after_first_kill=stop_after_first_kill,
+        stop_after_first_kill=stop_after_first_kill, stop_on_danger=live_cadence,
         live_cadence=live_cadence,
     )
     if not combat_ok:

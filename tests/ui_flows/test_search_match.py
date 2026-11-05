@@ -27,7 +27,7 @@ class SearchMatchTest(unittest.TestCase):
                 self.assertEqual(match_rank(query, name, *metadata), expected)
 
     def test_fuzzy_matching_uses_words_and_requires_every_token(self):
-        self.assertEqual(match_rank("tara", "Silver tiara (Lvl 23)"), 4)
+        self.assertEqual(match_rank("tara", "Silver tiara (Lvl\xa023)"), 4)
         self.assertIsNone(match_rank("tara", "Tanning rawhide"))
         self.assertEqual(match_rank("air tara", "Tiara", "Air altar"), 4)
         self.assertEqual(match_rank("iron ore", "Ore", "Iron"), 3)

@@ -178,3 +178,60 @@ class CombatDelayTests(ReviewedProfile):
         self.assertFalse(addon._state.player_data["combat_grave"])
         self.assertEqual(addon._state.player_data["inventory"]["Bronze sword"], 1)
         self.assertNotIn("combat_rest_reviews", addon._state.player_data)
+
+    def test_grave_walk_waits_for_success_and_debt_without_double_charging(self):
+        from tests.test_integration_smoke import _FakeReviewer
+
+        addon = self._fight(20, card_tick_debt=30)
+        addon._state.current_skill = "Mining"
+        data = addon._state.player_data
+        data.update(current_ore="iron", mining_level=99, mining_exp=13034431.0,
+                    toolbelt={"mining": ["rune_pickaxe"]},
+                    combat_grave={"items": ["Bronze sword"], "reviews_remaining": 5,
+                                  "walk_ticks_remaining": 300})
+        for _ in range(3):
+            addon._state.card_turned = addon._state.answer_shown = True
+            addon._state.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 1, lambda *_: "answered")
+            self.assertEqual(data["combat_grave"]["walk_ticks_remaining"], 300)
+            self.assertEqual(data["card_tick_debt"], 30)
+            self.assertNotIn("Bronze sword", data["inventory"])
+        for remaining in (210, 90):
+            self._answer(addon)
+            self.assertEqual(data["combat_grave"]["walk_ticks_remaining"], remaining)
+            self.assertEqual(data.get("card_tick_debt", 0), 0)
+            self.assertNotIn("Iron ore", data["inventory"])
+        self._answer(addon)
+        self.assertFalse(data["combat_grave"])
+        self.assertEqual(data["inventory"]["Bronze sword"], 1)
+        self.assertGreater(data["inventory"]["Iron ore"], 0)
+        self.assertEqual(data.get("card_tick_debt", 0), 0)
+
+    def test_unclaimed_grave_expires_on_again(self):
+        from tests.test_integration_smoke import _FakeReviewer
+
+        addon = self._fight(combat_grave={"items": ["Bronze sword"], "reviews_remaining": 2})
+        data = addon._state.player_data
+        for remaining in (1, 0):
+            addon._state.card_turned = addon._state.answer_shown = True
+            addon._state.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 1, lambda *_: "answered")
+            self.assertEqual(data.get("combat_grave", {}).get("reviews_remaining", 0), remaining)
+        self.assertNotIn("Bronze sword", data["inventory"])
+
+    def test_queue_segments_share_one_cards_recovery_time(self):
+        from ankiscape.core.action_queue import add_to_action_queue
+
+        addon = self._fight(combat_lifepoints=500, combat_rest_ticks_remaining=180,
+                            combat_auto_eat_food=[])
+        data = addon._state.player_data
+        data.update(mining_level=99, mining_exp=13034431.0, toolbelt={"mining": ["rune_pickaxe"]})
+        for target, count in (("iron", 1), ("copper", 1), ("iron", 100)):
+            self.assertEqual(add_to_action_queue(addon,
+                             {"kind": "skill", "skill": "Mining", "target": target}, count), "")
+        random.seed(20261104)
+        self._answer(addon)
+        self.assertEqual(data["combat_rest_ticks_remaining"], 120)
+        self.assertEqual(data["combat_lifepoints"], 665)
+        self.assertGreater(data["inventory"]["Copper ore"], 0)
+        self.assertEqual(len(data["action_queue"]["entries"]), 1)

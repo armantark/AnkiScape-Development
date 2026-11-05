@@ -601,6 +601,7 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
     _switch_material_failure_to_bankstanding,
     advance_farming_clock_for_review,
     advance_shared_review_state_for_review,
+    spend_card_on_grave_walk,
     fishing_materials_text,
     handle_farming_queue_answer,
     handle_farming_review_answer,

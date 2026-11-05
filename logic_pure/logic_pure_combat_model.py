@@ -179,7 +179,6 @@ from .logic_pure_landmarks import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
     COMBAT_ENEMY_ATTACK_STYLES,
     _combat_enemy_attack_class,
     _combat_enemy_attack_style,
@@ -252,25 +251,6 @@ from .logic_pure_state import (
     default_combat_supply_loadout_pure,
     quest_completed_pure,
 )
-
-
-# RS-classic natural regeneration is ~1 hitpoint per game-minute; a lifepoint is
-# 1/10th of a hitpoint, and a safe (non-combat) review models one burst window
-# (COMBAT_BURST_TICKS * 0.6s ~= 30s ~= half a game-minute), so a rested-out review
-# regenerates ~5 LP. This is the slow baseline; leaving combat grants an
-# accelerated "rest" that reaches full LP over COMBAT_REST_FULL_HEAL_REVIEWS.
-NATURAL_COMBAT_RECOVERY_LIFEPOINTS = 5
-
-
-COMBAT_REST_FULL_HEAL_REVIEWS = 3
-
-
-# Overheal (LP above max, from potions/brews) still bleeds off at the old faster
-# rate — natural regen only ever climbs toward the cap, never away from it.
-SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100
-
-
-SAFE_COMBAT_RECOVERY_TICKS = COMBAT_BURST_TICKS
 
 
 COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100

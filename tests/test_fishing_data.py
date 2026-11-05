@@ -170,11 +170,11 @@ class TestFishingData(unittest.TestCase):
     def test_both_eel_spots_name_their_place_in_the_picker(self):
         rows = {row.target_id: row for row in fishing_target_rows({"fishing_level": 99}, FISHING_DATA, {}, "")}
 
-        self.assertEqual(rows["catch_slimy_eel"].label, "Catch slimy eel (Lvl 28)/cave eel (Lvl 38) (Mort Myre)")
+        self.assertEqual(rows["catch_slimy_eel"].label, "Catch slimy eel (Lvl\xa028)/cave eel (Lvl\xa038) (Mort Myre)")
         self.assertEqual(
-            rows["catch_cave_eel"].label, "Catch slimy eel (Lvl 28)/cave eel (Lvl 38) (Lumbridge Swamp Caves)"
+            rows["catch_cave_eel"].label, "Catch slimy eel (Lvl\xa028)/cave eel (Lvl\xa038) (Lumbridge Swamp Caves)"
         )
-        self.assertEqual(rows["catch_frog_spawn"].label, "Catch frog spawn (Lvl 33)")
+        self.assertEqual(rows["catch_frog_spawn"].label, "Catch frog spawn (Lvl\xa033)")
 
 
 if __name__ == "__main__":

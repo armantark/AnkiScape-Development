@@ -517,7 +517,7 @@ expected file and provenance key in the asset test.
   `tools/audit_quest_combat_stat_gaps.py` classifies unresolved combat rows and supplies the current census.
 - `tools/audit_quest_historical_wiki_combat_stats.py` audits historical Wiki monster pages as a separate source tier.
   Lifepoints, maximum hit, and attack-style prose are metadata, not resolver-ready hidden combat stats.
-- Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
+- Completed quests leave the queue in the completion review. A continuing queue shows one event-log and Review HUD line, including waiting lamps, without a dialog or duplicate floating gain; an empty queue retains the modal `Quest complete` stop-point dialog and floating completion gain.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.
 - The Wicked hood claim is intentionally gated by Rune Mysteries only in AnkiScape. Do not re-add a Runecrafting level 5 claim gate; historical 2012 evidence shows that level prompt was not a reliable hard claim requirement, and the hood's actual altar use still remains constrained by Runecrafting target gates.
@@ -563,7 +563,7 @@ expected file and provenance key in the asset test.
   `Open bird nests` consumes a known nest subtype and rolls source contents.
   It does not use a fixed `requirements -> output_item` recipe.
 - Review rewards are paired with Anki undo via `gui_hooks.state_did_undo`. When an eligible answer changes game state, the runtime records the original values for only the changed `player_data` keys; undo restores those values and saves config so Command-Z does not leave XP/items ahead of the card schedule.
-- Review pacing reads the integer `ankiscape_review_action_multiplier` (with the legacy `ankiscape_xp_multiplier` fallback) and supplies six game ticks per speed unit. Handlers spend that card budget on their source action units, stop at terminal/danger boundaries and aggregate feedback under one review undo snapshot. Queue transitions may spend the remainder on the next eligible entry; quests and Dungeoneering keep their one-stage/room boundary.
+- Review pacing reads the integer `ankiscape_review_action_multiplier` (with the legacy `ankiscape_xp_multiplier` fallback) and supplies six game ticks per speed unit. Handlers spend that card budget on their source action units, stop at terminal/danger boundaries and aggregate feedback under one review undo snapshot. Queue transitions may spend the remainder on the next eligible entry; quests keep non-fight steps to one card but may carry into consecutive fights; Dungeoneering keeps its one-room boundary.
 - Every started review action should record durable telemetry in `player_data["action_telemetry"]`. The stable row key is `skill_id:action_id`; rows track attempts, successes, failures, expected successes, dry streaks, output counts, and failure kinds. Blocked actions such as missing materials or insufficient level do not count as attempts, but dry RNG outcomes, Cooking burns, and iron smelt failures do save telemetry.
 
 ## Landmark activity pattern
@@ -647,7 +647,7 @@ regeneration, retaliation, attack delay, Magic effects and Curse ramp while
 preserving the player's weapon cooldown. The engine reports the exact tick and
 stop reason; the runtime passes the matching Slayer assignment's remaining count
 so the chain cannot overshoot its last kill. Banking is checked after each kill;
-the next card starts the trip. Step handlers compare shared danger projections
+the remaining card ticks pay for the trip, and any remainder resumes fighting. Step handlers compare shared danger projections
 after each step. The world tick exposes a familiar's pre-drain lifetime through
 transient dispatcher state, which caps the foreground budget with
 `familiar_ended`; an earlier danger keeps its own reason. Again advances world
@@ -655,7 +655,8 @@ consumers only and marks an active encounter disengaged for safe automation
 without granting either side a combat beat.
 Quest combat takes the same `6 × M` slice and carries its own encounter,
 attack clocks included, from card to card, so a boss fight spans reviews. Its
-explicit first-kill boundary preserves the quest roster. The cadence rollback
+kill boundary advances only to the next fight, preserving the quest roster;
+a non-fight step or danger ends the card. The cadence rollback
 retains the legacy 50-tick quest-combat burst and its existing kill boundaries.
 
 Utility/Activity exemption is an owning contract, not a cadence bypass.
@@ -927,7 +928,7 @@ The [decision queue](design-thread-queue.md#answered-owner-decisions--2026-10-15
 
 - Game speed permits ×1–×20. New-player onboarding recommends ×10; existing-player onboarding preserves the stored pace. A missing stored multiplier plays at ×1, while an unreadable stored value sanitizes to ×10.
 - Keep sourced XP amounts fixed when game speed changes.
-- Each card supplies 6 game ticks × speed. Handlers spend this budget. Quests and Dungeoneering deliberately keep one stage/room per card.
+- Each card supplies 6 game ticks × speed. Handlers spend this budget. Quests keep non-fight steps to one card and carry only into consecutive fights; Dungeoneering keeps one room per card.
 - Danger stops the card at every condition in decision 5. Combat can chain only within the budget and before danger.
 - Fish Flingers uses its sourced ten-minute duration and eight catches; Master Angler remains automatic by owner ruling. No past XP rollback.
 - Adaptive World day reads `ease > 0` revlog entries from the 60 completed Anki days before the current day, grouped at the scheduler cutoff. The median is bounded 100–1,000 cards; fewer than 7 study days uses 240. Query only on a boundary card, before Anki writes its row; fixed override remains available.

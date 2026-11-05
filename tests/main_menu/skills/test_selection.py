@@ -40,7 +40,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertTrue(toggle.isVisibleTo(dialog))
         self.assertFalse(panel.isVisibleTo(dialog))
         self.assertEqual(details_scroll.maximumHeight(), 190)
-        self.assertEqual(title.text(), "Cook raw shrimps (Lvl 1)")
+        self.assertEqual(title.text(), "Cook raw shrimps (Lvl\xa01)")
         self.assertIn("Success output: Shrimps x1", body.text())
         self.assertIn("Success chance:", body.text())
         self.assertNotIn("Source:", body.text())
@@ -53,7 +53,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         beef = _cooking_row(tree, "cook_beef")
         tree.setCurrentItem(beef)
         QApplication.processEvents()
-        self.assertEqual(title.text(), "Cook raw beef (Lvl 1)")
+        self.assertEqual(title.text(), "Cook raw beef (Lvl\xa01)")
         self.assertIn("Success output: Cooked meat x1", body.text())
         self.assertTrue(panel.isVisibleTo(dialog))
 
@@ -61,7 +61,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         shark = _cooking_row(tree, "cook_shark")
         tree.itemClicked.emit(shark, 0)
         QApplication.processEvents()
-        self.assertEqual(title.text(), "Cook raw shark (Lvl 80)")
+        self.assertEqual(title.text(), "Cook raw shark (Lvl\xa080)")
         self.assertIn("Locked due to:", body.text())
         self.assertEqual(self._cooking_calls, calls_before_locked_click)
 

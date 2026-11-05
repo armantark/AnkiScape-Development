@@ -119,3 +119,17 @@ class QuestFightCarryTests(ReviewedProfile):
         data = addon._state.player_data
         self.assertIn(first, data["quest_combat_encounters"]["witchs_house"])
         self.assertNotIn(second, data["quest_combat_active_encounters"].get("witchs_house", {}))
+
+    def test_empty_prayer_on_a_non_killing_tick_stops_immediately(self):
+        addon = self._quest(
+            prayer_level=99, combat_prayer_points=1, combat_prayers_enabled=True,
+            combat_selected_prayers=["thick_skin"], combat_prayer_uptime="100", combat_prayer_drain_counter=59.0,
+        )
+        ctx = addon._runtime_action_context()
+        addon._spend_card_on_action(ctx, "quest", addon._registered_answer_handler("Quests"))
+        result = addon._state.player_data["combat_last_result"]
+        self.assertEqual(ctx.card.stop_reason, "prayer_empty")
+        self.assertEqual(ctx.card.combat_ticks_spent, 1)
+        self.assertEqual(result["ticks_elapsed"], 1)
+        self.assertEqual(result["player_damage"], 0)
+        self.assertFalse(result["killed"])

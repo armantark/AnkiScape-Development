@@ -85,7 +85,7 @@ class SkillTargetSearchTest(unittest.TestCase):
         self.assertEqual(selector.count(), 1)
         row = selector.item(0)
         self.assertEqual(row.data(Qt.ItemDataRole.UserRole), "cook_nettle_tea")
-        self.assertEqual(row.text(), "Make nettle tea (Lvl 20)")
+        self.assertEqual(row.text(), "Make nettle tea (Lvl\xa020)")
         self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
         self.assertEqual(text_fit_defects(selector.parentWidget()), [])
 

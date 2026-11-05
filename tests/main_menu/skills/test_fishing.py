@@ -56,9 +56,9 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         )
 
         self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
-        self.assertEqual(sardine_row.text(), "✓ Catch sardine (Lvl 5) +1 more")
-        self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl 16) +2 more")
-        self.assertEqual(cave_eel_row.text(), "Catch slimy eel (Lvl 28) +1 more (Lumbridge Swamp Caves)")
+        self.assertEqual(sardine_row.text(), "✓ Catch sardine (Lvl\xa05) +1 more")
+        self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl\xa016) +2 more")
+        self.assertEqual(cave_eel_row.text(), "Catch slimy eel (Lvl\xa028) +1 more (Lumbridge Swamp Caves)")
         self.assertFalse(cave_eel_row.icon().isNull())
         tip = sardine_row.toolTip()
         self.assertIn("Outputs: Raw sardine", tip)

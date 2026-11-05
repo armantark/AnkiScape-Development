@@ -90,7 +90,7 @@ def _panel_title(dialog: "QDialog") -> str:
 def _find_skill_list(dialog: "QDialog") -> "QListWidget":
     """Return the QListWidget that holds the skill rows (not target/bank lists).
 
-    Skill rows are plain display names; target rows contain "(Lvl N)" markers.
+    Skill rows are plain display names; target rows contain "(Lvl\xa0N)" markers.
     """
     for lw in dialog.findChildren(QListWidget):
         texts = [lw.item(i).text() for i in range(lw.count())]

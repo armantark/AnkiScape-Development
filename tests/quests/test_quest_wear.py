@@ -198,3 +198,23 @@ class QuestWearTests(ReviewedProfile):
         self._finish(addon)
         self.assertEqual(data['equipment']['weapon'], 'Bronze 2h sword')
         self.assertNotIn('shield', data['equipment'])
+
+    def test_returning_two_handed_weapon_banks_a_shield_equipped_during_swap(self):
+        addon = self._quest('demon_slayer')
+        self._until_stage(addon, 7)
+        data = addon._state.player_data
+        self.assertTrue(addon.on_unequip_slot('shield'))
+        data['equipment']['weapon'] = 'Bronze 2h sword'
+        data['inventory']['Silverlight'] = 1
+        before = {item: data['inventory'].get(item, 0) + list(data['equipment'].values()).count(item)
+                  for item in ('Bronze 2h sword', 'Silverlight', 'Rune kiteshield')}
+        self._answer(addon)
+        self.assertEqual(data['equipment']['weapon'], 'Silverlight')
+        self.assertTrue(addon.on_equip_item('Rune kiteshield'))
+        addon.stop_action(addon)
+        self.assertEqual(data['equipment']['weapon'], 'Bronze 2h sword')
+        self.assertNotIn('shield', data['equipment'])
+        self.assertEqual(data['inventory']['Rune kiteshield'], 1)
+        self.assertFalse(data['quest_equipment_swap'])
+        self.assertEqual({item: data['inventory'].get(item, 0) + list(data['equipment'].values()).count(item)
+                          for item in before}, before)

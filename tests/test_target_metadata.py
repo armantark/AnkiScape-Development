@@ -88,7 +88,7 @@ class TargetMetadataTest(unittest.TestCase):
     def test_target_details_reuse_live_values_without_exposing_provenance(self):
         row = TargetRowMetadata(
             target_id="giant_rat",
-            label="Giant rat (Lvl 2)",
+            label="Giant rat (Lvl\xa02)",
             tooltip=(
                 "Accuracy: 83%\n"
                 "Your max hit: 41 LP\n"
@@ -100,7 +100,7 @@ class TargetMetadataTest(unittest.TestCase):
 
         details = target_details_from_row_pure(row)
 
-        self.assertEqual(details.title, "Giant rat (Lvl 2)")
+        self.assertEqual(details.title, "Giant rat (Lvl\xa02)")
         self.assertEqual(
             details.lines,
             (
@@ -1666,18 +1666,18 @@ class TargetMetadataTest(unittest.TestCase):
         runite = _row(rows, "runite")
 
         self.assertIsInstance(coal, TargetRowMetadata)
-        self.assertEqual(coal.label, "Coal (Lvl 30)")
+        self.assertEqual(coal.label, "Coal (Lvl\xa030)")
         self.assertTrue(coal.current)
         self.assertTrue(coal.enabled)
         self.assertEqual(coal.icon_path, ORE_IMAGES["Coal"])
         self.assertIn("Best usable pickaxe: Bronze pickaxe", coal.tooltip)
-        self.assertEqual(concentrated_coal.label, "Concentrated coal (Lvl 77)")
+        self.assertEqual(concentrated_coal.label, "Concentrated coal (Lvl\xa077)")
         self.assertEqual(concentrated_coal.icon_path, ORE_IMAGES["Coal"])
         self.assertFalse(concentrated_coal.enabled)
         self.assertIn("level 77", concentrated_coal.tooltip)
         self.assertIn("Living Rock Caverns deposit", concentrated_coal.tooltip)
         self.assertIn("does not model rock depletion", concentrated_coal.tooltip)
-        self.assertEqual(remains.label, "Living rock remains (Lvl 73)")
+        self.assertEqual(remains.label, "Living rock remains (Lvl\xa073)")
         self.assertEqual(remains.icon_path, ORE_IMAGES["Living minerals"])
         self.assertIn("Output: Living minerals x5-24", remains.tooltip)
         self.assertIn("Base XP: 25 per action", remains.tooltip)
@@ -1723,7 +1723,7 @@ class TargetMetadataTest(unittest.TestCase):
 
         self.assertFalse(tree.enabled)
         self.assertIn("no usable hatchet", tree.tooltip)
-        self.assertEqual(ivy.label, "Ivy (Lvl 68) — XP only")
+        self.assertEqual(ivy.label, "Ivy (Lvl\xa068) — XP only")
         self.assertTrue(ivy.current)
         self.assertIn("XP only — produces no logs.", ivy.tooltip)
 
@@ -1783,7 +1783,7 @@ class TargetMetadataTest(unittest.TestCase):
 
         shafts = _row(rows, "arrow_shafts")
 
-        self.assertEqual(shafts.label, "Arrow shafts (Logs) (Lvl 1)")
+        self.assertEqual(shafts.label, "Arrow shafts (Logs) (Lvl\xa01)")
         self.assertTrue(shafts.current)
         self.assertFalse(shafts.enabled)
         self.assertEqual(shafts.icon_path, FLETCHED_ITEM_IMAGES["Arrow shafts"])
@@ -1925,11 +1925,11 @@ class TargetMetadataTest(unittest.TestCase):
         shrimp = _row(rows, "catch_shrimp_anchovies")
         leaping = _row(rows, "catch_leaping_fish")
 
-        self.assertEqual(shrimp.label, "Catch shrimp (Lvl 1)/anchovies (Lvl 15)")
-        self.assertEqual(sardine.label, "Catch sardine (Lvl 5)/herring (Lvl 10)")
+        self.assertEqual(shrimp.label, "Catch shrimp (Lvl\xa01)/anchovies (Lvl\xa015)")
+        self.assertEqual(sardine.label, "Catch sardine (Lvl\xa05)/herring (Lvl\xa010)")
         self.assertEqual(
             leaping.label,
-            "Catch leaping trout (Lvl 48)/leaping salmon (Lvl 58)/leaping sturgeon (Lvl 70)",
+            "Catch leaping trout (Lvl\xa048)/leaping salmon (Lvl\xa058)/leaping sturgeon (Lvl\xa070)",
         )
         self.assertFalse(sardine.enabled)
         self.assertIn("Materials: Fishing bait x1 (you have 0)", sardine.tooltip)

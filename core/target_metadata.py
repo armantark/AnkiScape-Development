@@ -129,7 +129,7 @@ def summoning_target_rows(
         ]
         if reasons:
             tooltip_lines.append("Locked due to: " + ", ".join(reasons))
-        label = f"{getattr(action, 'display_name')} (Lvl {level}) — {xp:g} XP"
+        label = f"{getattr(action, 'display_name')} (Lvl\xa0{level}) — {xp:g} XP"
         if reasons:
             label += f" — Locked: {reasons[0]}"
         rows.append(
@@ -231,7 +231,7 @@ def thieving_target_rows(
             tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
 
         icon_name = str(spec.get("icon_name", spec.get("output_item", display_name)))
-        label = f"{display_name} (Lvl {level}) — {xp:g} XP"
+        label = f"{display_name} (Lvl\xa0{level}) — {xp:g} XP"
         if locked_reasons:
             label += f" — Locked: {locked_reasons[0]}"
         rows.append(TargetRowMetadata(
@@ -295,7 +295,7 @@ def agility_target_rows(
             )
         if locked_reasons:
             tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
-        label = f"{display_name} (Lvl {level})" if level > 1 else display_name
+        label = f"{display_name} (Lvl\xa0{level})" if level > 1 else display_name
         if locked_reasons:
             label += f" — Locked: {locked_reasons[0]}"
         rows.append(TargetRowMetadata(
@@ -335,7 +335,7 @@ def smithing_target_rows(
         station_word = "Smelt" if spec.get("station") == "furnace" else "Cast" if spec.get("station") == "furnace_process" else "Forge"
         group = _smithing_tier_of(spec)
 
-        label = f"{display_name} (Lvl {lvl_req})"
+        label = f"{display_name} (Lvl\xa0{lvl_req})"
         if output_qty > 1:
             label += f" — makes {output_qty}"
 
@@ -523,7 +523,7 @@ def crafting_target_rows(
         requirements = reqs if isinstance(reqs, Mapping) else {}
         group = str(spec.get("family", "other"))
 
-        label = f"{display_name} (Lvl {lvl_req})"
+        label = f"{display_name} (Lvl\xa0{lvl_req})"
         if output_qty > 1:
             label += f" — makes {output_qty}"
 
@@ -641,7 +641,7 @@ def cooking_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_id,
-                label=f"{display_name} (Lvl {lvl_req})" if has_level_requirement else display_name,
+                label=f"{display_name} (Lvl\xa0{lvl_req})" if has_level_requirement else display_name,
                 tooltip=tooltip,
                 enabled=not locked_reasons,
                 current=target_id == current_target,
@@ -684,7 +684,7 @@ def mining_target_rows(
         alt_item = data.get("alternate_output_item")
         alt_level = data.get("alternate_output_level")
 
-        label = f"{display_name} (Lvl {lvl_req})"
+        label = f"{display_name} (Lvl\xa0{lvl_req})"
         if weighted:
             label += " — variable output"
         elif isinstance(alt_item, str) and isinstance(alt_level, int):
@@ -789,7 +789,7 @@ def woodcutting_target_rows(
         lvl_req = int(data.get("level", 1) or 1)
         processing = data.get("action_type") == "processing"
         xp_only = output_item is None
-        label = f"{display} (Lvl {lvl_req})"
+        label = f"{display} (Lvl\xa0{lvl_req})"
         if xp_only:
             label += " — XP only"
 
@@ -888,7 +888,7 @@ def fletching_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_key,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=f"{display_name} (Lvl\xa0{lvl_req})",
                 tooltip=tooltip,
                 enabled=enabled,
                 current=target_key == current_target,
@@ -945,7 +945,7 @@ def herblore_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_key,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=f"{display_name} (Lvl\xa0{lvl_req})",
                 tooltip=tooltip,
                 enabled=enabled,
                 current=target_key == current_target,
@@ -1003,7 +1003,7 @@ def firemaking_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_key,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=f"{display_name} (Lvl\xa0{lvl_req})",
                 tooltip=tooltip,
                 enabled=enabled,
                 current=target_key == current_target,
@@ -1017,7 +1017,7 @@ def firemaking_target_rows(
 
 def _fishing_output_lines(fish_rows: Sequence[Mapping[str, object]]) -> str:
     return ", ".join(
-        f"{fish.get('output_item')} (Lvl {fish.get('level', 1)}, {fish.get('exp', 0)} XP)"
+        f"{fish.get('output_item')} (Lvl\xa0{fish.get('level', 1)}, {fish.get('exp', 0)} XP)"
         for fish in fish_rows
     )
 
@@ -1092,12 +1092,12 @@ def _ordered_fishing_label_fish(
 
 def _fishing_row_label(display_name: str, fish_rows: Sequence[Mapping[str, object]], fallback_level: int) -> str:
     if len(fish_rows) <= 1:
-        return f"{display_name} (Lvl {fallback_level})"
+        return f"{display_name} (Lvl\xa0{fallback_level})"
 
     catch_name, _, place = display_name.partition(" (")
     ordered = _ordered_fishing_label_fish(catch_name, fish_rows)
     parts = [
-        f"{_fishing_fish_label_name(fish)} (Lvl {int(fish.get('level', fallback_level) or fallback_level)})"
+        f"{_fishing_fish_label_name(fish)} (Lvl\xa0{int(fish.get('level', fallback_level) or fallback_level)})"
         for fish in ordered
     ]
     return "Catch " + "/".join(parts) + (f" ({place}" if place else "")
@@ -1248,7 +1248,7 @@ def hunter_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_key,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=f"{display_name} (Lvl\xa0{lvl_req})",
                 tooltip=tooltip,
                 enabled=not locked_reasons,
                 current=target_key == current_target,
@@ -1653,7 +1653,7 @@ def combat_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_id,
-                label=f"{display_name} (Lvl {level})",
+                label=f"{display_name} (Lvl\xa0{level})",
                 tooltip=tooltip,
                 search_terms=tuple(combat_observed_drops_for_target_pure(player_data, target_id)),
                 enabled=not locked_reasons,
@@ -1970,7 +1970,7 @@ def runecrafting_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_id,
-                label=f"{display_name} (Lvl {lvl_req})" if lvl_req > 1 else display_name,
+                label=f"{display_name} (Lvl\xa0{lvl_req})" if lvl_req > 1 else display_name,
                 tooltip=tooltip,
                 enabled=not reasons,
                 current=target_id == current_target,

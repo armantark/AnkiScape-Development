@@ -61,11 +61,11 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         tree = _find_smith_tree(dialog)
         rune = _smith_tier_node(tree, "Rune")
         levels = [
-            int(re.search(r"\(Lvl (\d+)\)", rune.child(i).text(0)).group(1))
+            int(re.search(r"\(Lvl\xa0(\d+)\)", rune.child(i).text(0)).group(1))
             for i in range(rune.childCount())
         ]
         self.assertEqual(levels, sorted(levels), f"Rune group not level-ordered: {levels}")
-        # Sanity: the smelt bar (Lvl 85) leads its level tie ahead of forge rows.
+        # Sanity: the smelt bar (Lvl\xa085) leads its level tie ahead of forge rows.
         self.assertEqual(rune.child(0).data(0, Qt.ItemDataRole.UserRole), "smelt_rune_bar")
 
     def test_smithing_groups_collapsed_by_default_except_current_target(self) -> None:
@@ -99,7 +99,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         dialog = self._open(pd)
         _goto_smithing(dialog)
         tree = _find_smith_tree(dialog)
-        # Rune platebody (Lvl 99) is above level -> locked with a level reason.
+        # Rune platebody (Lvl\xa099) is above level -> locked with a level reason.
         rune = _smith_row(tree, "forge_rune_platebody")
         self.assertTrue(rune.isDisabled())
         self.assertIn("level 99", rune.toolTip(0))

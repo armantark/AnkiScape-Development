@@ -75,7 +75,7 @@ class FlatTargetRowsTest(unittest.TestCase):
                 dialog, courses = self._open("agility", size)
                 dorgesh = _rows(courses)["dorgesh_kaan"]
                 self.assertFalse(dorgesh.flags() & Qt.ItemFlag.ItemIsEnabled)
-                self.assertEqual(dorgesh.text(), "Dorgesh-Kaan Agility Course (Lvl 80)")
+                self.assertEqual(dorgesh.text(), "Dorgesh-Kaan Agility Course (Lvl\xa080)")
                 self.assertIn("Locked due to: Death To The Dorgeshuun", dorgesh.toolTip())
                 self._assert_every_row_fits(courses)
 
@@ -94,27 +94,27 @@ class FlatTargetRowsTest(unittest.TestCase):
         rows = _rows(spots)
         leaping = rows["catch_leaping_fish"]
         self.assertFalse(leaping.flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertEqual(leaping.text(), "Catch leaping trout (Lvl 48) +2 more")
+        self.assertEqual(leaping.text(), "Catch leaping trout (Lvl\xa048) +2 more")
         self.assertIn("Leaping salmon", leaping.toolTip())
         self.assertIn("Leaping sturgeon", leaping.toolTip())
         self.assertIn("Locked due to: materials, side levels, Barbarian Fishing", leaping.toolTip())
         # Two spots share their catches and differ only by place.
-        self.assertEqual(rows["catch_cave_eel"].text(), "Catch slimy eel (Lvl 28) +1 more (Lumbridge Swamp Caves)")
-        self.assertEqual(rows["catch_slimy_eel"].text(), "Catch slimy eel (Lvl 28) +1 more (Mort Myre)")
+        self.assertEqual(rows["catch_cave_eel"].text(), "Catch slimy eel (Lvl\xa028) +1 more (Lumbridge Swamp Caves)")
+        self.assertEqual(rows["catch_slimy_eel"].text(), "Catch slimy eel (Lvl\xa028) +1 more (Mort Myre)")
         self._assert_every_row_fits(spots)
 
         tuna = rows["catch_tuna_swordfish"]
         self.assertTrue(tuna.flags() & Qt.ItemFlag.ItemIsEnabled)
         spots.itemClicked.emit(tuna)
         QApplication.processEvents()
-        self.assertEqual(tuna.text(), "✓ Catch tuna (Lvl 35) +1 more")
-        self.assertEqual(leaping.text(), "Catch leaping trout (Lvl 48) +2 more")
+        self.assertEqual(tuna.text(), "✓ Catch tuna (Lvl\xa035) +1 more")
+        self.assertEqual(leaping.text(), "Catch leaping trout (Lvl\xa048) +2 more")
 
         # A catch named only in the full label is still found by search.
         _find_named_line_edit(dialog, "fishingTargetSearchInput").setText("sturgeon")
         QApplication.processEvents()
         found = dialog.findChild(QListWidget, "fishingTargetTree")
-        self.assertEqual([item.text() for item in _rows(found).values()], ["Catch leaping trout (Lvl 48) +2 more"])
+        self.assertEqual([item.text() for item in _rows(found).values()], ["Catch leaping trout (Lvl\xa048) +2 more"])
         dialog.deleteLater()
 
 

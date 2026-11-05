@@ -393,6 +393,7 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
 from .runtime_actions_context import (
     RuntimeActionContext,
     stop_card,
+    _settle_card_tick_debt,
     stun_card,
     card_ticks_pure,
 )
@@ -748,14 +749,22 @@ def _charge_urn_for_action(
 def advance_shared_review_state_for_review(ctx: RuntimeActionContext) -> None:
     """Advance state that progresses on every answered review card."""
     grave = ctx.player_data.get("combat_grave", {}) or {}
-    if not isinstance(grave, dict) or not grave.get("items"):
+    if not isinstance(grave, dict) or not grave.get("items") or "walk_ticks_remaining" in grave or grave.get("walk_reviews_remaining"):
         return
-    walking = grave.get("walk_ticks_remaining", 0)
     updated = advance_combat_grave_review_pure(ctx.player_data, ctx.card.ticks_remaining)
-    if walking:
-        updated["card_tick_debt"] = int(updated.get("card_tick_debt", 0)) + min(walking, ctx.card.ticks_remaining)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+
+
+def spend_card_on_grave_walk(ctx: RuntimeActionContext) -> None:
+    if not _settle_card_tick_debt(ctx):
+        return
+    grave = ctx.player_data.get("combat_grave", {}) or {}
+    if "walk_ticks_remaining" not in grave and not grave.get("walk_reviews_remaining"):
+        return
+    ticks = min(grave.get("walk_ticks_remaining", 0), ctx.card.ticks_remaining)
+    ctx.player_data.update(advance_combat_grave_review_pure(ctx.player_data, ticks))
+    ctx.card.ticks_remaining -= ticks
 
 
 def _calendar_minutes_for_review(ctx: RuntimeActionContext) -> float:

@@ -12,8 +12,8 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         ore_list = self._open_mining(self.dialog)
         texts = [ore_list.item(i).text() for i in range(ore_list.count())]
         # Friendly display names, not raw IDs like "rune_essence"/"coal".
-        self.assertTrue(any(t.startswith("Copper (Lvl 1)") for t in texts), texts)
-        self.assertTrue(any(t.startswith("Coal (Lvl 30)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("Copper (Lvl\xa01)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("Coal (Lvl\xa030)") for t in texts), texts)
         self.assertFalse(any(t in ("rune_essence", "coal", "copper") for t in texts), texts)
 
     def test_mining_tooltip_shows_output_and_best_pickaxe(self) -> None:

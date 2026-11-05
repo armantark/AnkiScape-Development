@@ -48,7 +48,6 @@ from .logic_pure_landmarks import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
@@ -548,7 +547,7 @@ def restore_quest_equipment_pure(player_data, equipment_data=None, *, force=Fals
     )
     for slot, item in swap["displaced"].items():
         if item and inventory.get(item, 0) > 0:
-            inventory[item] -= 1
-            equipment[slot] = item
-    # Return the previously worn slots, including held gear outside the catalog.
+            wear_data = {**(equipment_data or {}), item: (equipment_data or {}).get(item, {"slot": slot})}
+            inventory, equipment, _ = equip_item_pure(item, inventory, equipment, wear_data)
+    # Held quest gear outside the catalog retains its original slot.
     return save_equipment_move_pure(data, (inventory, equipment, True), equipment_data)[0]

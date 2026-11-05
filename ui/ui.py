@@ -21450,7 +21450,7 @@ def show_main_menu(
     ge_catalog_layout.setContentsMargins(0, 0, 0, 0)
     ge_catalog_layout.setSpacing(6)
     ge_filter = CatalogFilterBar(
-        placeholder="Search exchangeable items…",
+        placeholder="Search exchangeable items",
         search_object_name="geItemSearchInput",
     )
     ge_filter.summary_label.setVisible(False)

@@ -45,8 +45,9 @@ owner wanted a run-energy analog. This contract is that analog.
 AnkiScape already charges a discrete, tunable "bank run": when the 28-slot carried pack
 fills (gathering) or cannot supply a recipe (processing), a review tick is spent banking
 instead of acting (`inventory_pure.py:470` `carried_bank_run_gate_pure`, sole skilling
-caller `runtime_actions.py:613`; combat has its own two-review gate at
-`d613f891:logic_pure.py:3779`). That spent review **is** the walk to the bank.
+caller in `runtime/runtime_actions_carried.py`). That spent review **is** the
+skilling walk to the bank; Combat instead spends a fixed 100-tick trip from
+the current card budget, shortened by Agility, weight and run energy credit.
 
 **Agility gives a level-scaled chance/degree of reducing that bank-run cost.** Higher
 Agility = you ran the trip instead of walking it. Sourced XP/hour rates are never touched.

@@ -4933,14 +4933,10 @@ def _advance_world_events_after_review() -> None:
     _state.player_data.update(goblin_updated)
 
 
-def _selected_review_action() -> tuple:
-    return _state.current_skill, _state.player_data.get("current_utility")
-
-
 def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
     # The card's steps belong to the action selected when it began, and a switch
     # ends them; a full queue entry hands the rest of the card to the next entry.
-    reviewed_action = _selected_review_action()
+    reviewed_action = (_state.current_skill, _state.player_data.get("current_utility"))
     queue_count = QueueCount(sys.modules[__name__])
     stepped_recovery = handler_key == "utility" and reviewed_action[1] != "bankstanding"
 
@@ -4953,13 +4949,14 @@ def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
             runtime_actions.apply_review_recovery(sys.modules[__name__], ctx.save_player_data, ticks=6)
         return result
 
+    ticks_before = max(0, review_ctx.card.ticks_remaining - int(review_ctx.player_data.get("card_tick_debt", 0)))
     progressed = runtime_actions.spend_card_budget(
         review_ctx, handler_key, queue_count.counted(step),
-        can_continue=lambda: not queue_count.full and _selected_review_action() == reviewed_action
+        can_continue=lambda: not queue_count.full and (_state.current_skill, _state.player_data.get("current_utility")) == reviewed_action
         and _can_start_current_action(review_ctx),
     )
     if progressed and not stepped_recovery and handler_key not in ("combat", "quest", "thieving", "agility"):
-        runtime_actions.apply_review_recovery(sys.modules[__name__], review_ctx.save_player_data)
+        runtime_actions.apply_review_recovery(sys.modules[__name__], review_ctx.save_player_data, ticks=ticks_before if handler_key == "utility" else ticks_before - max(0, review_ctx.card.ticks_remaining))
     if queue_count.hand_over():
         _spend_card_on_action(review_ctx, review_action_handler_key(_state.current_skill), _registered_answer_handler(_state.current_skill))
 
@@ -4977,6 +4974,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         review_ctx.save_player_data = lambda: None
         _begin_review_feedback_context(before_state.get("player_data", before_state))
         try:
+            runtime_actions.spend_card_on_grave_walk(review_ctx)
             if has_farm_step and not runtime_actions.spend_card_on_farm_queue(
                 review_ctx, runtime_actions.handle_farming_review_answer, runtime_actions.handle_farming_queue_answer,
             ):
