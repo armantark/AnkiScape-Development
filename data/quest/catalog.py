@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .stage_overrides.members.later.the_slug_menace import slug_menace_opening_journal_stages as _slug_menace_opening_journal_stages
 from .murder_mystery import murder_mystery_opening_journal_stages as _murder_mystery_opening_journal_stages
 from .watchtower_opening import opening_stage_requirements as _watchtower_opening_requirements
 from .dependencies import *
@@ -616,6 +617,7 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         )))
     journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
     journal_stages = _murder_mystery_opening_journal_stages(quest.id, journal_stages)
+    journal_stages = _slug_menace_opening_journal_stages(quest.id, journal_stages)
     requirements, journal_stages = compose_opening(quest.id, requirements, journal_stages)
     requirements = compose_grand_tree_requirements(quest.id, requirements)
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)

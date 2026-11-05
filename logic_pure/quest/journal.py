@@ -5,6 +5,7 @@ from ...data.quest.stage_overrides.members.later.animal_magnetism import (
 )
 from ..logic_pure_state import quest_state_pure, _positive_int
 from ..quest_action_proofs import quest_action_proof_completed_pure
+from .the_slug_menace import slug_menace_journal_row_pure
 from .another_cook import another_cook_journal_row_pure
 from .review_services import quest_review_journal_row_pure
 from .grand_tree import grand_tree_journal_rows_pure
@@ -64,6 +65,7 @@ def quest_journal_rows_pure(player_data, quest_id, quest_data):
         }
         row = another_cook_journal_row_pure(player_data, quest_id, row)
         row = quest_review_journal_row_pure(player_data, quest_id, row)
+        row = slug_menace_journal_row_pure(player_data, quest_id, row)
         row = hazeel_journal_row_pure(player_data, quest_id, row)
         row = toktz_opening_journal_row_pure(player_data, quest_id, row)
         row = elder_kiln_journal_row_pure(player_data, quest_id, row)

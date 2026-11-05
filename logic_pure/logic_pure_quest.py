@@ -36,6 +36,7 @@ from .quest.witchs_house import (
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
+from .quest import the_slug_menace
 from .quest.murder_mystery import (
     apply_murder_mystery_opening_items_pure, murder_mystery_silver_review_phase_pure,
     murder_mystery_silver_review_ready_pure, apply_murder_mystery_silver_review_pure,
@@ -43,57 +44,28 @@ from .quest.murder_mystery import (
 from ..data.combat_data import COMBAT_BURST_TICKS, DEFAULT_COMBAT_TARGET
 
 from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
-    _COMBAT_EXP_KEY_DISPLAY,
-    _COMBAT_STYLE_XP_KEYS,
-    _combat_roll_damage_lifepoints,
-    apply_combat_burst_pure,
-    apply_safe_combat_recovery_pure,
-    bank_gear_rows_pure,
-    combat_attack_style_trained_skills_pure,
-    combat_death_office_items_pure,
-    combat_death_office_reclaim_cost_pure,
-    combat_death_office_summary_pure,
-    combat_enemy_pressure_attack_pure,
-    combat_has_active_encounter_pure,
-    combat_hud_state_pure,
-    combat_supply_loadout_summary_pure,
-    combat_target_preview_pure,
-    combat_weapon_style_options_pure,
-    player_combat_level_pure,
-    reclaim_death_office_items_pure,
-    refill_combat_supply_loadout_pure,
-    set_combat_auto_eat_food_pure,
-    set_combat_auto_eat_threshold_pure,
-    set_combat_pack_mode_pure,
-    unload_combat_supply_loadout_pure,
+    _COMBAT_EXP_KEY_DISPLAY, _COMBAT_STYLE_XP_KEYS, _combat_roll_damage_lifepoints,
+    apply_combat_burst_pure, apply_safe_combat_recovery_pure, bank_gear_rows_pure,
+    combat_attack_style_trained_skills_pure, combat_death_office_items_pure, combat_death_office_reclaim_cost_pure,
+    combat_death_office_summary_pure, combat_enemy_pressure_attack_pure, combat_has_active_encounter_pure,
+    combat_hud_state_pure, combat_supply_loadout_summary_pure, combat_target_preview_pure,
+    combat_weapon_style_options_pure, player_combat_level_pure, reclaim_death_office_items_pure,
+    refill_combat_supply_loadout_pure, set_combat_auto_eat_food_pure, set_combat_auto_eat_threshold_pure,
+    set_combat_pack_mode_pure, unload_combat_supply_loadout_pure,
 )
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
-    COMBAT_GRAVE_RECOVERY_REVIEWS,
-    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-    _COMBAT_STAT_POTION_BY_DOSE,
-    _COMBAT_STAT_POTION_ITEM_NAMES,
-    _build_combat_potion_dose_lookup,
-    _combat_grave_items,
-    _combat_stored_loadout,
-    _copy_player_data_with_nested,
-    _non_negative_float,
-    _non_negative_int,
-    _positive_int,
-    _requirements_from_spec,
-    _sanitize_combat_bank_run,
-    _sanitize_combat_grave_state,
-    _sanitize_combat_supply_loadout,
-    _sanitize_death_office_state,
-    _signed_int,
-    default_combat_supply_loadout_pure,
-    quest_completed_pure,
-    quest_state_pure,
+    COMBAT_GRAVE_RECOVERY_REVIEWS, _COMBAT_DRAGONFIRE_POTION_BY_DOSE, _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE, _COMBAT_STAT_POTION_ITEM_NAMES, _build_combat_potion_dose_lookup,
+    _combat_grave_items, _combat_stored_loadout, _copy_player_data_with_nested,
+    _non_negative_float, _non_negative_int, _positive_int,
+    _requirements_from_spec, _sanitize_combat_bank_run, _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout, _sanitize_death_office_state, _signed_int,
+    default_combat_supply_loadout_pure, quest_completed_pure, quest_state_pure,
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .quest_action_proofs import quest_action_proof_completed_pure
+from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
 from .quest import grand_tree
 from .quest.progress_state import (
     _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS as _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS,
@@ -892,14 +864,31 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
     requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
     if blockers:
         return False
+    if quest_id == "the_slug_menace" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 1:
+        return the_slug_menace.apply_slug_menace_opening_pure(data)
     if quest_id == "murder_mystery" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 1:
         return apply_murder_mystery_opening_items_pure(data)
     if quest_id == "creature_of_fenkenstrain" and quest_current_stage_pure(data, quest_id, {quest_id: quest}) == 2:
         return apply_fenkenstrain_stage_two_items_pure(data)
-    return consume_stage_rows_pure(
-        data, quest_id, requirements, _quest_stage_item_pairs,
-        _quest_stage_item_option_groups, _quest_stage_strings, _positive_int,
-    )
+    return _apply_generic_quest_stage_items(data, quest_id, requirements)
+
+
+def _apply_generic_quest_stage_items(data, quest_id, requirements):
+    inventory = data["inventory"]
+    for requirement in requirements:
+        record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
+        for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
+            inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+        for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
+            selected = next(filter(lambda pair: _positive_int(inventory.get(pair[0], 0), 0) >= pair[1], options), None)
+            if selected is not None:
+                item_name, amount = selected
+                inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+        if bool(requirement.get("repeatable_until_consumed")):
+            continue
+        for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
+            inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
+    return True
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):

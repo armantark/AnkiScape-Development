@@ -28,5 +28,10 @@ def quest_card_blocker_text_pure(player_data, quest_id, quest_data):
 def quest_journal_view_rows_pure(player_data, quest_id, quest_data):
     """The journal rows, with the next supply step under the current stage."""
     rows = quest_journal_rows_pure(player_data, quest_id, quest_data)
+    if not rows and quest_id == "the_slug_menace" and quest_id in quest_data:
+        # Preview the opening before Start as well: an expanded card retains
+        # its journal body when the existing Start control activates the quest.
+        rows = (dict(stage=1, lines=quest_data[quest_id]["journal_stages"][1],
+                     completed=False, current=False),)
     text = quest_supply_step_text_pure(player_data, quest_id, quest_data)
     return tuple(dict(row, lines=(*row["lines"], text)) if text and row["current"] else row for row in rows)

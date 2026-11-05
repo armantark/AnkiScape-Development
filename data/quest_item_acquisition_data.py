@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .quest.stage_overrides.members.later.the_slug_menace import SLUG_MENACE_OPENING_ITEMS as _SLUG_MENACE_OPENING_ITEMS
 from .quest.murder_mystery_silver import MURDER_MYSTERY_SILVER_ITEMS
 from .quest.grand_tree import GRAND_TREE_OPENING_ITEMS
 from .quest.murder_mystery import MURDER_MYSTERY_OPENING_ITEMS as _MURDER_MYSTERY_OPENING_ITEMS
@@ -89,6 +90,7 @@ def quest_item_acquisition_activities_as_dict() -> dict[str, dict[str, Any]]:
 
 def quest_item_acquisition_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
+        **{name: dict(row) for name, row in _SLUG_MENACE_OPENING_ITEMS.items()},
         **{name: dict(row) for name, row in MURDER_MYSTERY_SILVER_ITEMS.items()},
         **{name: dict(row) for name, row in _MURDER_MYSTERY_OPENING_ITEMS.items()},
         **{name: dict(row) for name, row in GRAND_TREE_OPENING_ITEMS.items()},
@@ -100,3 +102,8 @@ def quest_item_acquisition_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "source": UGTHANKI_DUNG_SOURCE,
         }
     }
+
+
+def quest_item_acquisition_item_images_as_dict() -> dict[str, str]:
+    assets = Path(__file__).resolve().parent / 'quest' / 'slug_menace_assets'
+    return {'Commorb': str(assets / 'commorb.png'), 'Commorb v2': str(assets / 'commorb_v2.png')}

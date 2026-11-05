@@ -1728,10 +1728,10 @@ class TestQuestCatalog(unittest.TestCase):
             skrach["unlocks"],
         )
 
-        slug_stage_1 = data["the_slug_menace"]["stage_requirements"][0]
-        self.assertEqual(slug_stage_1["required_inventory"], {"Swamp paste": 1})
+        slug_stage_6 = data["the_slug_menace"]["stage_requirements"][5]
+        self.assertEqual(slug_stage_6["required_inventory"], {})
         self.assertEqual(
-            slug_stage_1["required_inventory_options"],
+            slug_stage_6["required_inventory_options"],
             (
                 ({"Rune essence": 5}, {"Pure essence": 5}),
                 ({"Earth talisman": 1}, {"Elemental talisman": 1}, {"Omni-talisman": 1}),

@@ -28,6 +28,7 @@ from ankiscape.logic_pure.quest.toktz_opening import toktz_opening_journal_row_p
 from ankiscape.logic_pure.quest.hazeel_journal import hazeel_journal_row_pure
 from ankiscape.logic_pure.quest.review_services import quest_review_journal_row_pure
 from ankiscape.logic_pure.quest.witchs_house import witchs_house_journal_rows_pure
+from ankiscape.logic_pure.quest.the_slug_menace import slug_menace_journal_row_pure
 from tests.runtime_actions.quests.animal_magnetism_helpers import (
     OLD_SENTINEL, QUEST_ID, SKILL_GATES, eligible_player, review,
 )
@@ -65,6 +66,7 @@ def previous_projection(player_data, quest_id, quest_data):
              current=not state["completed"] and stage == progress)))))))
         for stage in sorted(journal_stages) if stage <= progress
     )
+    rows = tuple(slug_menace_journal_row_pure(player_data, quest_id, row) for row in rows)
     rows = opening_journal_rows_pure(player_data, quest_id, rows)
     rows = grand_tree_journal_rows_pure(player_data, quest_id, rows)
     return witchs_house_journal_rows_pure(player_data, quest_id, rows)

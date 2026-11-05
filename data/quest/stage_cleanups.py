@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .one_small_favour import OPENING_PROOFS, OPENING_SOURCE
 from .toktz_opening import OPENING_CLEANUPS as _TOKTZ_OPENING_CLEANUPS
+from .stage_overrides.members.later.the_slug_menace import THE_SLUG_MENACE_CLEANUPS as _THE_SLUG_MENACE_CLEANUPS
 from .dependencies import *
 from .enakhra_opening import ENAKHRA_OPENING_CLEANUPS
 from .elder_kiln import ELDER_KILN_STAGE_CLEANUPS
@@ -743,31 +744,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_inventory=("Brimhaven", "Yanille", "Explorer's Ring 3"),
         ),
     ),
-    "the_slug_menace": (
-        QuestStageRequirementCleanup(
-            stage=1,
-            remove_required_inventory=(
-                "Earth talisman",
-                "Water talisman",
-                "Fire talisman",
-                "Air talisman",
-                "Mind talisman",
-                "Elemental talisman",
-                "Omni-talisman",
-                "Abyss",
-                "Great Orb Project",
-            ),
-            remove_required_inventory_options=("Rune essence", "Pure essence"),
-            add_required_inventory_options=(
-                (("Rune essence", 5), ("Pure essence", 5)),
-                (("Earth talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
-                (("Water talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
-                (("Fire talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
-                (("Air talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
-                (("Mind talisman", 1), ("Omni-talisman", 1)),
-            ),
-        ),
-    ),
+    "the_slug_menace": _THE_SLUG_MENACE_CLEANUPS,
     "gunnars_ground": (
         QuestStageRequirementCleanup(
             stage=1,

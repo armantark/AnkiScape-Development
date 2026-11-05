@@ -5,7 +5,10 @@ import re
 
 from ...data.quest.watchtower_opening import WATCHTOWER_ITEM_IMAGES as _WATCHTOWER_ITEM_IMAGES
 from ...data.quest.one_small_favour import BLUNT_HATCHET_ICON
-from .quest_items import QUEST_REWARD_ITEM_DATA as _QUEST_REWARD_ITEM_DATA
+from .quest_items import (
+    QUEST_REWARD_ITEM_DATA as _QUEST_REWARD_ITEM_DATA,
+    QUEST_ITEM_ASSET_OVERRIDES as _QUEST_ITEM_ASSET_OVERRIDES,
+)
 
 from .skill_sources import *
 from .competitive_minigame_sources import *
@@ -30,6 +33,7 @@ for _item_name in _QUEST_REWARD_ITEM_DATA:
     )
     if os.path.exists(_path):
         QUEST_ITEM_IMAGES[_item_name] = _path
+QUEST_ITEM_IMAGES.update(_QUEST_ITEM_ASSET_OVERRIDES)
 _hazeel_mark_path = os.path.join(current_dir, "data", "quest", "hazeel_assets", "mark_of_hazeel.png")
 if os.path.exists(_hazeel_mark_path):
     QUEST_ITEM_IMAGES["Mark of Hazeel"] = _hazeel_mark_path

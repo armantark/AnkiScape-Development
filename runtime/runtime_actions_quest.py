@@ -208,13 +208,15 @@ def _announce_quest_progress(
     if opening_message:
         ctx.show_activity_gain(opening_message)
         return
-    cook_message = another_cook_progress_message_pure(cook_phase)
+    deed_message = another_cook_progress_message_pure(cook_phase)
     state = ctx.player_data.get("quests", {}).get(quest_id, {})
+    if quest_id == "the_slug_menace" and state.get('progress') == 2:
+        deed_message = "Scanned Mayor Hobb with Commorb v2: two life forms. Savant is unsure what it means."
     progress_notice = f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}"
-    if cook_message:
+    if deed_message:
         # The collector keeps the last mixed activity message, so send the
         # performed deed and counter together, wrapped for the existing popup.
-        ctx.show_activity_gain('\n'.join((fill(cook_message, width=40), progress_notice)))
+        ctx.show_activity_gain('\n'.join((fill(deed_message, width=40), progress_notice)))
         return
     for message in quest_review_feedback_pure(repair_phase, progress_notice):
         ctx.show_activity_gain(message)
@@ -234,6 +236,11 @@ def _report_quest_progress_refusal(ctx, quest_id, quest):
     stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(ctx.player_data, quest_id, QUEST_DATA)
     if stage_blocker_reasons:
         _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
+    elif quest_id == "the_slug_menace" and quest_current_stage_pure(ctx.player_data, quest_id, QUEST_DATA) == 1:
+        ctx.show_error_message(
+            "Investigation not completed",
+            "The mayor's scan could not be completed. No items or quest progress changed.",
+        )
     elif quest_id == "murder_mystery" and quest_current_stage_pure(ctx.player_data, quest_id, QUEST_DATA) == 1:
         ctx.show_error_message(
             "Evidence not collected",
