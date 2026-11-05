@@ -58,7 +58,11 @@ class WitchsHouseRealUndoTest(unittest.TestCase):
         self.addon._show_exp = lambda *_args: None
         self.addon.ui.update_menu_visibility = lambda *_args: None
         self.addon.load_player_data()
-        self.set_player(buy_cheese(train_for_experiments(player_at())))
+        player = buy_cheese(train_for_experiments(player_at()))
+        player.update(combat_lifepoints=600, combat_prayers_enabled=False,
+                      combat_auto_eat_food=['Lobster'], combat_supply_loadout={'food': {'Lobster': 14}})
+        player['inventory']['Lobster'] = 1000
+        self.set_player(player)
 
     def set_player(self, player):
         self.addon._state.player_data = player
