@@ -796,4 +796,4 @@
 
 
 - 2026-11-05T11:19:21 — Pass 21 gate follow-up source inspection: git show --stat 33b084f used an unverified revision and exited 128 (stderr was redirected). Source comparisons use revisions from git log; no source change was based on that failed lookup.
-- 2026-11-05T11:45:00-08:00 — Pass 21 gate follow-up closure proof selected the historical Bork test ID from the failure log, but the fix had renamed it; run_tests.py refused No unambiguous unittest ID matched before execution. Re-list current BorkRewardTests IDs before selecting the renamed live-row payout test.
+- 2026-11-05 — Pass 21 gate follow-up closure proof selected the historical Bork test ID from the failure log, but the fix had renamed it; run_tests.py refused No unambiguous unittest ID matched before execution. Re-list current BorkRewardTests IDs before selecting the renamed live-row payout test.
