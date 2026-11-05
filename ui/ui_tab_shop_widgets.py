@@ -18,6 +18,53 @@ _TONES = {
 _LOCKED_FLAGS = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
 
+def _humanize_display(value: object, fallback: str = "") -> str:
+    text = str(value or fallback).replace("_", " ").strip()
+    # Only the first character changes case: backend ids are snake_case but
+    # human fallbacks may carry proper nouns that .capitalize() would eat.
+    return text[:1].upper() + text[1:]
+
+
+def _format_shop_price(value, currency_name: str) -> str:
+    if value is None:
+        return "N/A"
+    try:
+        amount = int(value)
+    except (TypeError, ValueError):
+        return "N/A"
+    return f"{amount:,} {currency_name}"
+
+
+def _shop_selector_label_from_result(result: dict) -> str:
+    kind = result.get("kind")
+    if kind == "stock":
+        price = _format_shop_price(result.get("buy_price"), "Coins")
+        stock = f"{int(result.get('current_quantity', 0) or 0):,}/{int(result.get('default_quantity', 0) or 0):,}"
+        lock = (
+            f" · {_humanize_display(result.get('lock_reason'))}"
+            if result.get("lock_reason")
+            else ""
+        )
+        # The wall goes before stock and price so a narrow list still shows it.
+        return f"{result.get('item_name')} · {result.get('shop_name')}{lock} · Stock {stock} · {price}"
+    label = "Service" if kind == "service" else "Vendor"
+    lock = (
+        f" · {_humanize_display(result.get('lock_reason'))}"
+        if result.get("lock_reason")
+        else ""
+    )
+    price = int(result.get("price", 0) or 0)
+    cost = (
+        "Free"
+        if price == 0
+        else f"{price:,} {result.get('currency_item_name', 'Coins')}"
+    )
+    return (
+        f"{label}: {result.get('display_name')} · "
+        f"{result.get('provider')}{lock} · {cost}"
+    )
+
+
 def mark_locked(item: QListWidgetItem, dim_color) -> None:
     """Dim a locked row and make it unselectable (ruling 4.29.5): a dim row alone still opened on click."""
     item.setForeground(dim_color)

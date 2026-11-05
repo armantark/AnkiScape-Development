@@ -59,7 +59,11 @@ from .ui import (
 
 def build_shop_tab(ctx) -> "QWidget":
     """Return the Shop page."""
-    from .ui_tab_shop_widgets import ROW_SIDE_PADDING, ShopResultChip, WrappedRowDelegate, is_openable, mark_locked, restore_current
+    from .ui_tab_shop_widgets import (
+        ROW_SIDE_PADDING, ShopResultChip, WrappedRowDelegate,
+        _format_shop_price, _humanize_display, _shop_selector_label_from_result,
+        is_openable, mark_locked, restore_current,
+    )
 
     player_data = ctx.player_data
     dialog = ctx.dialog
@@ -655,12 +659,6 @@ def build_shop_tab(ctx) -> "QWidget":
     def _safe_object_suffix(value: str) -> str:
         return "".join(ch if ch.isalnum() else "_" for ch in value)[:80]
 
-    def _humanize_display(value: object, fallback: str = "") -> str:
-        text = str(value or fallback).replace("_", " ").strip()
-        # Only the first character changes case: backend ids are snake_case but
-        # human fallbacks may carry proper nouns that .capitalize() would eat.
-        return text[:1].upper() + text[1:]
-
     def _visible_shop_defs() -> list:
         return [
             shop for shop in SHOP_DATA.values()
@@ -685,15 +683,6 @@ def build_shop_tab(ctx) -> "QWidget":
             if action.get("visibility") == "visible":
                 rows.append(("vendor_action", action))
         return rows
-
-    def _format_shop_price(value, currency_name: str) -> str:
-        if value is None:
-            return "N/A"
-        try:
-            amount = int(value)
-        except (TypeError, ValueError):
-            return "N/A"
-        return f"{amount:,} {currency_name}"
 
     def _inventory_count_for_ui(item_name: str) -> int:
         inventory = player_data.get("inventory", {}) or {}
@@ -810,6 +799,7 @@ def build_shop_tab(ctx) -> "QWidget":
             pass
 
     def _refresh_shop_views() -> None:
+        positions = [selector.verticalScrollBar().value() for selector in (shop_selector, reward_selector)]
         reward_shop_source_root._ankiscape_refresh_reward_shops()
         _populate_shop_selector()
         _populate_reward_selector()
@@ -817,6 +807,9 @@ def build_shop_tab(ctx) -> "QWidget":
         _populate_sell_inventory()
         _populate_shop_history()
         _populate_agility_reward_shops()
+        for selector, position in zip((shop_selector, reward_selector), positions):
+            selector.doItemsLayout()
+            selector.verticalScrollBar().setValue(position)
 
     def _refresh_after_shop_mutation(chip: ShopResultChip, message: str, ok: bool = True) -> None:
         _refresh_shop_views()
@@ -847,6 +840,12 @@ def build_shop_tab(ctx) -> "QWidget":
         if row is None:
             row = rows[0]
             shop_state["row_id"] = row.get("id", "")
+        identity = (shop_state["shop_id"], str(row.get("id", "")))
+        if shop_custom_qty.property("purchaseIdentity") != identity:
+            shop_custom_qty.setProperty("purchaseIdentity", identity)
+            shop_custom_qty.blockSignals(True)
+            shop_custom_qty.setValue(1)
+            shop_custom_qty.blockSignals(False)
         return row
 
     def _stock_tile_text(row: dict, currency_name: str) -> str:
@@ -970,6 +969,7 @@ def build_shop_tab(ctx) -> "QWidget":
                 shop_action_btn.setText("Buy")
                 shop_action_btn.setEnabled(False)
                 return
+            qty = int(shop_custom_qty.value())
             item_name = str(row.get("item_name", "Item"))
             price = _format_shop_price(row.get("buy_price"), str(view.get("currency_item_name", "Coins")))
             stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
@@ -1560,35 +1560,6 @@ def build_shop_tab(ctx) -> "QWidget":
         _refresh_transaction_panel()
         _populate_shop_history()
 
-    def _shop_selector_label_from_result(result: dict) -> str:
-        kind = result.get("kind")
-        if kind == "stock":
-            price = _format_shop_price(result.get("buy_price"), "Coins")
-            stock = f"{int(result.get('current_quantity', 0) or 0):,}/{int(result.get('default_quantity', 0) or 0):,}"
-            lock = (
-                f" · {_humanize_display(result.get('lock_reason'))}"
-                if result.get("lock_reason")
-                else ""
-            )
-            # The wall goes before stock and price so a narrow list still shows it.
-            return f"{result.get('item_name')} · {result.get('shop_name')}{lock} · Stock {stock} · {price}"
-        label = "Service" if kind == "service" else "Vendor"
-        lock = (
-            f" · {_humanize_display(result.get('lock_reason'))}"
-            if result.get("lock_reason")
-            else ""
-        )
-        price = int(result.get("price", 0) or 0)
-        cost = (
-            "Free"
-            if price == 0
-            else f"{price:,} {result.get('currency_item_name', 'Coins')}"
-        )
-        return (
-            f"{label}: {result.get('display_name')} · "
-            f"{result.get('provider')}{lock} · {cost}"
-        )
-
     def _populate_shop_selector() -> None:
         current_shop_id = shop_state.get("shop_id", "")
         query = shop_search.text().strip()
@@ -1609,7 +1580,7 @@ def build_shop_tab(ctx) -> "QWidget":
                     if result.get("visibility") == "visible_locked" or result.get("lock_reason"):
                         mark_locked(item, dim_text_color(shop_selector))
                     shop_selector.addItem(item)
-                    if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and selected_item is None:
+                    if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and result.get("row_id") == shop_state["row_id"]:
                         selected_item = item
                 restore_current(shop_selector, selected_item)
                 return
@@ -1778,13 +1749,14 @@ def build_shop_tab(ctx) -> "QWidget":
             shop_state["service_id"] = str(payload.get("id", ""))
             _refresh_service_preview()
 
-    shop_search.textChanged.connect(
-        lambda _text="": (
-            _populate_shop_selector(),
-            _populate_reward_selector(),
-            _render_shop_detail(),
-        )
-    )
+    def _on_shop_search_changed(_text: str) -> None:
+        _populate_shop_selector()
+        _populate_reward_selector()
+        _render_shop_detail()
+        shop_selector.scrollToTop()
+        reward_selector.scrollToTop()
+
+    shop_search.textChanged.connect(_on_shop_search_changed)
     shop_selector.itemClicked.connect(_on_shop_selector_clicked)
     shop_selector.currentItemChanged.connect(lambda current, _previous: _on_shop_selector_clicked(current) if current is not None else None)
     reward_selector.itemClicked.connect(_on_reward_selector_clicked)
