@@ -707,8 +707,6 @@ def _raid_review(
         "food": {},
         "potions": {},
         "stat_potions": {},
-        "ammo": {},
-        "runes": {},
         "finishers": {},
         "hazards": {},
         "cannonballs": 0,

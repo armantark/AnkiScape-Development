@@ -172,14 +172,7 @@ class TestThievingPureMechanics(unittest.TestCase):
                 "combat_lifepoints": 30,
                 "combat_auto_eat_threshold_percent": 40,
                 "combat_auto_eat_food": ["Lobster"],
-                "combat_supply_loadout": {
-                    "food": {"Lobster": 1},
-                    "potions": {},
-                    "stat_potions": {},
-                    "ammo": {},
-                    "runes": {},
-                    "cannonballs": 0,
-                },
+                "combat_supply_loadout": {'food': {"Lobster": 1}, 'potions': {}, 'stat_potions': {}, 'cannonballs': 0},
             },
             10,
         )

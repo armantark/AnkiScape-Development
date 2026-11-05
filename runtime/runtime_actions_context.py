@@ -278,6 +278,9 @@ _COMBAT_RECOVERY_STATE_KEYS = (
     "combat_current_levels",
     "combat_status_effects",
     "combat_supply_loadout",
+    "equipment_ammunition_count",
+    "combat_ava_incidental_items",
+    "combat_ava_incidental_ticks",
     "combat_grave",
 )
 

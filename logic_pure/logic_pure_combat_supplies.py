@@ -1,5 +1,6 @@
 """logic_pure_combat_supplies.py - split out of logic_pure.py; see that module's header."""
 
+from .combat.ammunition import equipped_ammo, carried_runes, refill_ammo, pack_runes, consume_ammo as _combat_consume_ranged_ammo, consume_runes as _combat_consume_loaded_rune_cost, carried_items, EQUIPMENT_DATA
 from typing import Iterable, Mapping, Optional
 
 from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
@@ -134,6 +135,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_preset_snapshot,
     _combat_protective_equipment_state,
     _combat_ranged_ammo_count,
+    _combat_compatible_ranged_ammo,
     _combat_ranged_locked_reasons,
     _combat_ranged_max_hit_old_hp,
     _combat_ranged_weapon_spec,
@@ -348,14 +350,8 @@ def _combat_refill_food_loadout(data):
 
 
 def _combat_loaded_ranged_ammo(data, weapon_spec):
-    if not isinstance(weapon_spec, Mapping):
-        return None
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    ammo_loadout = loadout.get("ammo", {}) or {}
-    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
-        if isinstance(ammo_name, str) and _non_negative_int(ammo_loadout.get(ammo_name, 0), 0) > 0:
-            return ammo_name
-    return None
+    compatible = (weapon_spec or {}).get("compatible_ammo", ())
+    return next((name for name, count in equipped_ammo(data).items() if name in compatible and count > 0), None)
 
 
 def _combat_banked_ranged_ammo_count(data, weapon_spec):
@@ -374,8 +370,7 @@ def _combat_banked_ranged_ammo_count(data, weapon_spec):
 def _combat_missing_loaded_runes(data, rune_cost):
     if not isinstance(rune_cost, Mapping) or not rune_cost:
         return {}
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    rune_loadout = loadout.get("runes", {}) or {}
+    rune_loadout = carried_runes(data)
     missing = {}
     for rune_name, amount in rune_cost.items():
         if not isinstance(rune_name, str):
@@ -603,7 +598,7 @@ def _combat_refill_hazard_loadout(data, enemy):
 def _combat_trim_food_to_capacity(data):
     """Keep mandatory supplies while returning excess food to the bank."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    excess_slots = max(0, _combat_supply_slots_used(data) - CARRIED_CAPACITY)
+    excess_slots = max(0, _combat_supply_slots_used(data) + carried_slots_used(carried_items(data), STACKABLE_ITEM_NAMES) - CARRIED_CAPACITY)
     if excess_slots <= 0:
         return
     food = dict(loadout.get("food", {}) or {})
@@ -671,6 +666,7 @@ def _combat_deposit_loot(data, target_id):
 
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
+    _combat_deposit_loot(data, target_id)
     # Every completed bank run includes a free altar stop (owner ruling).
     data["combat_prayer_points"] = _positive_int(data.get("prayer_level", 1), 1) * 10
     data["combat_prayer_drain_counter"] = 0.0
@@ -696,9 +692,6 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
         _combat_refill_magic_rune_loadout(data, rune_cost)
     _combat_refill_hazard_loadout(data, enemy)
     _combat_trim_food_to_capacity(data)
-    # The same bank trip deposits accumulated loot (owner: loot banks alongside
-    # supply depletion).
-    _combat_deposit_loot(data, target_id)
 
 
 def combat_near_death_without_food_pure(data, max_lifepoints=None):
@@ -938,94 +931,13 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
 
 
 def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
-    if not isinstance(weapon_spec, Mapping):
-        return
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    ammo_loadout = dict(loadout.get("ammo", {}) or {})
-    inventory = data.get("inventory", {}) or {}
-    if not isinstance(inventory, Mapping):
-        data["combat_supply_loadout"] = loadout
-        return
-    inventory = dict(inventory)
-    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
-        if not isinstance(ammo_name, str):
-            continue
-        available = _non_negative_int(inventory.get(ammo_name, 0), 0)
-        if available <= 0:
-            continue
-        inventory[ammo_name] = 0
-        ammo_loadout[ammo_name] = _non_negative_int(ammo_loadout.get(ammo_name, 0), 0) + available
-    loadout["ammo"] = {item: amount for item, amount in ammo_loadout.items() if amount > 0}
-    data["inventory"] = inventory
-    data["combat_supply_loadout"] = loadout
+    if weapon_spec:
+        compatible = _combat_compatible_ranged_ammo(weapon_spec, data.get("current_combat_target"), None)
+        refill_ammo(data, {**weapon_spec, "compatible_ammo": compatible}, EQUIPMENT_DATA)
 
 
 def _combat_refill_magic_rune_loadout(data, rune_cost):
-    if not isinstance(rune_cost, Mapping):
-        return
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    rune_loadout = dict(loadout.get("runes", {}) or {})
-    inventory = data.get("inventory", {}) or {}
-    if not isinstance(inventory, Mapping):
-        data["combat_supply_loadout"] = loadout
-        return
-    inventory = dict(inventory)
-    for rune_name in rune_cost:
-        if not isinstance(rune_name, str):
-            continue
-        available = _non_negative_int(inventory.get(rune_name, 0), 0)
-        if available <= 0:
-            continue
-        inventory[rune_name] = 0
-        rune_loadout[rune_name] = _non_negative_int(rune_loadout.get(rune_name, 0), 0) + available
-    loadout["runes"] = {item: amount for item, amount in rune_loadout.items() if amount > 0}
-    data["inventory"] = inventory
-    data["combat_supply_loadout"] = loadout
-
-
-def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
-    ammo_name = _combat_selected_ranged_ammo(data, weapon_spec, target_id)
-    if not isinstance(ammo_name, str):
-        return None
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    ammo_loadout = dict(loadout.get("ammo", {}) or {})
-    current = _non_negative_int(ammo_loadout.get(ammo_name, 0), 0)
-    if current <= 0:
-        return None
-    ammo_loadout[ammo_name] = current - 1
-    if ammo_loadout[ammo_name] <= 0:
-        ammo_loadout.pop(ammo_name, None)
-    loadout["ammo"] = ammo_loadout
-    data["combat_supply_loadout"] = loadout
-    return ammo_name
-
-
-def _combat_consume_loaded_rune_cost(data, rune_cost):
-    if not isinstance(rune_cost, Mapping) or not rune_cost:
-        return {}
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    rune_loadout = dict(loadout.get("runes", {}) or {})
-    if any(
-        _non_negative_int(rune_loadout.get(rune_name, 0), 0) < _positive_int(amount, 0)
-        for rune_name, amount in rune_cost.items()
-        if isinstance(rune_name, str)
-    ):
-        return None
-    used = {}
-    for rune_name, amount in rune_cost.items():
-        if not isinstance(rune_name, str):
-            continue
-        required = _positive_int(amount, 0)
-        if required <= 0:
-            continue
-        current = _non_negative_int(rune_loadout.get(rune_name, 0), 0)
-        rune_loadout[rune_name] = current - required
-        if rune_loadout[rune_name] <= 0:
-            rune_loadout.pop(rune_name, None)
-        used[rune_name] = required
-    loadout["runes"] = rune_loadout
-    data["combat_supply_loadout"] = loadout
-    return used
+    pack_runes(data, rune_cost, _combat_supply_slots_used(data) - _combat_loaded_food_count(data))
 
 
 def _combat_consume_magic_runes(data, spell_spec, _target_id, equipment_data=None):
@@ -1677,8 +1589,6 @@ def _combat_supply_slots_used(data):
     slots = 0
     for key in ("food", "potions", "stat_potions", "hazards"):
         slots += sum(_non_negative_int(amount, 0) for amount in (loadout.get(key, {}) or {}).values())
-    for key in ("ammo", "runes"):
-        slots += sum(1 for amount in (loadout.get(key, {}) or {}).values() if _non_negative_int(amount, 0) > 0)
     for item_name, amount in (loadout.get("finishers", {}) or {}).items():
         count = _non_negative_int(amount, 0)
         if count <= 0:

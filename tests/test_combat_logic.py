@@ -1,6 +1,7 @@
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from ankiscape.data.combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ALLOTMENT_SEED_DROP_TABLE,
@@ -3918,8 +3919,8 @@ class CombatLogicTest(unittest.TestCase):
     def test_ranged_burst_consumes_bronze_arrows_and_awards_ranged_xp(self):
         player = _player(
             combat_attack_style="ranged_accurate",
-            equipment={"weapon": "Shortbow"},
-            combat_supply_loadout={"ammo": {"Bronze arrows": 2}},
+            equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
+            combat_supply_loadout={}, equipment_ammunition_count=2,
         )
 
         # ticks=1 keeps the burst to one shot so this stays a single-kill ammo
@@ -3929,7 +3930,7 @@ class CombatLogicTest(unittest.TestCase):
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
             ticks=1,
-            rng=_rng([0.0, 0.999999, 0.0]),
+            rng=_rng([0.999999, 0.0, 0.999999, 0.0]),
         )
 
         self.assertTrue(ok)
@@ -3940,7 +3941,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["ammo_used"], {"Bronze arrows": 1})
         self.assertEqual(result["formula_source"], RANGED_FORMULA_SOURCE_PATH)
         self.assertEqual(result["xp_source"], RANGED_STRATEGY_SOURCE_PATH)
-        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 1})
+        self.assertEqual(equipped_ammo(new_data), {"Bronze arrows": 1})
         self.assertEqual(new_data["attack_exp"], 0.0)
         self.assertGreater(new_data["ranged_exp"], 0.0)
         self.assertGreater(new_data["constitution_exp"], 0.0)
@@ -3948,9 +3949,9 @@ class CombatLogicTest(unittest.TestCase):
     def test_ranged_burst_accepts_higher_arrow_tiers_for_supported_bows(self):
         player = _player(
             combat_attack_style="ranged_accurate",
-            equipment={"weapon": "Magic shortbow"},
+            equipment={**{"weapon": "Magic shortbow"}, 'ammunition': "Rune arrows"},
             inventory={"Bronze arrows": 1},
-            combat_supply_loadout={"ammo": {"Rune arrows": 2}},
+            combat_supply_loadout={}, equipment_ammunition_count=2,
             current_combat_target="giant_rat",
         )
 
@@ -3966,13 +3967,13 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["weapon"], "Magic shortbow")
         self.assertEqual(result["ammo"], "Rune arrows")
         self.assertEqual(result["ammo_used"], {"Rune arrows": 1})
-        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Rune arrows": 1})
+        self.assertEqual(equipped_ammo(new_data), {"Rune arrows": 1})
 
     def test_ranged_longrange_splits_xp_between_ranged_and_defense(self):
         player = _player(
             combat_attack_style="ranged_longrange",
-            equipment={"weapon": "Shortbow"},
-            combat_supply_loadout={"ammo": {"Bronze arrows": 2}},
+            equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
+            combat_supply_loadout={}, equipment_ammunition_count=2,
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -3980,7 +3981,7 @@ class CombatLogicTest(unittest.TestCase):
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
             ticks=50,
-            rng=_rng([0.0, 0.999999, 0.0]),
+            rng=_rng([0.999999, 0.0, 0.999999, 0.0]),
         )
 
         self.assertTrue(ok)
@@ -4083,7 +4084,7 @@ class CombatLogicTest(unittest.TestCase):
         player = _player(
             combat_attack_style="magic_standard",
             equipment={"weapon": "Staff"},
-            combat_supply_loadout={"runes": {"Air rune": 2, "Mind rune": 2}},
+            combat_supply_loadout={}, inventory={"Air rune": 2, "Mind rune": 2}, carried_inventory={'chicken': {"Air rune": 2, "Mind rune": 2}},
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -4102,7 +4103,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
         self.assertEqual(result["formula_source"], MAGIC_FORMULA_SOURCE_PATH)
         self.assertEqual(result["xp_source"], MAGIC_STRATEGY_SOURCE_PATH)
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(carried_runes(new_data), {"Air rune": 1, "Mind rune": 1})
         self.assertEqual(new_data["attack_exp"], 0.0)
         self.assertEqual(new_data["ranged_exp"], 0.0)
         self.assertGreater(new_data["magic_exp"], 5.5)
@@ -4117,7 +4118,7 @@ class CombatLogicTest(unittest.TestCase):
                 "weapon": "Staff of air",
                 "neck": ARCANE_CAPACITOR_CHARGED,
             },
-            combat_supply_loadout={"runes": {"Astral rune": 3}},
+            combat_supply_loadout={}, inventory={"Astral rune": 3}, carried_inventory={'chicken': {"Astral rune": 3}},
             quests={"lunar_diplomacy": {"completed": True}},
             livid_farm={
                 "borrowed_power_claimed": True,
@@ -4139,7 +4140,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["borrowed_power"])
         self.assertEqual(result["spell_id"], "wind_wave")
         self.assertEqual(result["runes_used"], {"Astral rune": 3})
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(new_data), {})
         self.assertEqual(new_data["combat_borrowed_power_spell"], "")
         self.assertEqual(
             new_data["livid_farm"]["arcane_capacitor_charges"],
@@ -4156,7 +4157,7 @@ class CombatLogicTest(unittest.TestCase):
             combat_attack_style="magic_standard",
             combat_borrowed_power_spell="fire_wave",
             equipment={"weapon": "Staff of fire"},
-            combat_supply_loadout={"runes": {"Astral rune": 3}},
+            combat_supply_loadout={}, inventory={"Astral rune": 3}, carried_inventory={'chicken': {"Astral rune": 3}},
             quests={"lunar_diplomacy": {"completed": True}},
             livid_farm={
                 "borrowed_power_claimed": True,
@@ -4182,7 +4183,7 @@ class CombatLogicTest(unittest.TestCase):
         player = _player(
             combat_attack_style="magic_standard",
             equipment={"weapon": "Staff of air"},
-            combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 2}},
+            combat_supply_loadout={}, inventory={"Air rune": 1, "Mind rune": 2}, carried_inventory={'chicken': {"Air rune": 1, "Mind rune": 2}},
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -4195,7 +4196,7 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(result["runes_used"], {"Mind rune": 1})
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(carried_runes(new_data), {"Air rune": 1, "Mind rune": 1})
         self.assertGreater(new_data["magic_exp"], 5.5)
 
     def test_fire_strike_with_staff_consumes_only_uncovered_runes(self):
@@ -4204,7 +4205,7 @@ class CombatLogicTest(unittest.TestCase):
             current_combat_spell="fire_strike",
             magic_level=13,
             equipment={"weapon": "Staff of fire"},
-            combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 1}},
+            combat_supply_loadout={}, inventory={"Air rune": 1, "Mind rune": 1}, carried_inventory={'chicken': {"Air rune": 1, "Mind rune": 1}},
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -4220,7 +4221,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["spell"], "Fire Strike")
         self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
         self.assertEqual(new_data["inventory"].get("Fire rune", 0), 0)
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(new_data), {})
         self.assertAlmostEqual(new_data["magic_exp"], 11.5)
 
     def test_fire_wave_with_staff_consumes_blood_and_air_runes_and_awards_base_xp_on_splash(self):
@@ -4229,7 +4230,7 @@ class CombatLogicTest(unittest.TestCase):
             current_combat_spell="fire_wave",
             magic_level=75,
             equipment={"weapon": "Staff of fire"},
-            combat_supply_loadout={"runes": {"Air rune": 5, "Blood rune": 1}},
+            combat_supply_loadout={}, inventory={"Air rune": 5, "Blood rune": 1}, carried_inventory={'chicken': {"Air rune": 5, "Blood rune": 1}},
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -4245,7 +4246,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["spell"], "Fire Wave")
         self.assertEqual(result["runes_used"], {"Air rune": 5, "Blood rune": 1})
         self.assertEqual(new_data["inventory"].get("Fire rune", 0), 0)
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(new_data), {})
         self.assertAlmostEqual(new_data["magic_exp"], 42.5)
         self.assertEqual(new_data["constitution_exp"], 0.0)
 
@@ -4253,7 +4254,7 @@ class CombatLogicTest(unittest.TestCase):
         player = _player(
             combat_attack_style="magic_standard",
             equipment={"weapon": "Staff"},
-            combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 1}},
+            combat_supply_loadout={}, inventory={"Air rune": 1, "Mind rune": 1}, carried_inventory={'chicken': {"Air rune": 1, "Mind rune": 1}},
         )
 
         new_data, ok, result = apply_combat_burst_pure(
@@ -4306,8 +4307,8 @@ class CombatLogicTest(unittest.TestCase):
         player = _player(
             combat_attack_style="magic_standard",
             equipment={"weapon": "Staff"},
-            inventory={"Air rune": 5, "Mind rune": 5},
-            combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 1}},
+            inventory={'Air rune': 6, 'Mind rune': 6},
+            combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 1, "Mind rune": 1}},
             combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
         )
 
@@ -4325,7 +4326,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
         self.assertEqual(new_data["inventory"]["Air rune"], 5)
         self.assertEqual(new_data["inventory"]["Mind rune"], 5)
-        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(new_data), {})
 
     def test_vengeance_pending_carries_across_reviews_without_recasting_from_bank(self):
         enemy_data = {
@@ -4348,17 +4349,15 @@ class CombatLogicTest(unittest.TestCase):
             combat_vengeance=True,
             combat_spellbook_swap="vengeance",
             quests={"lunar_diplomacy": {"completed": True}},
-            inventory={"Astral rune": 40, "Earth rune": 100, "Death rune": 20},
-            combat_supply_loadout={
-                "runes": {
+            inventory={'Astral rune': 47, 'Earth rune': 110, 'Death rune': 22, 'Cosmic rune': 2, 'Law rune': 1, 'Mind rune': 2},
+            combat_supply_loadout={}, carried_inventory={"vengeance_dummy": {
                     "Astral rune": 7,
                     "Earth rune": 10,
                     "Death rune": 2,
                     "Cosmic rune": 2,
                     "Law rune": 1,
                     "Mind rune": 2,
-                },
-            },
+                }},
         )
 
         first, ok, first_result = apply_combat_burst_pure(
@@ -4381,7 +4380,7 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
         self.assertTrue(first["combat_encounter"]["vengeance_pending"])
-        self.assertEqual(first["inventory"], player["inventory"])
+        self.assertEqual(first["inventory"], {name: count - first_result["runes_used"].get(name, 0) for name, count in player["inventory"].items()})
 
         second, ok, second_result = apply_combat_burst_pure(
             first,
@@ -4394,7 +4393,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(second_result["runes_used"], {"Mind rune": 1})
         self.assertGreater(second_result["player_damage"], 0)
         self.assertFalse(second["combat_encounter"]["vengeance_pending"])
-        self.assertEqual(second["inventory"], player["inventory"])
+        self.assertEqual(second["inventory"], {name: count - first_result["runes_used"].get(name, 0) - second_result["runes_used"].get(name, 0) for name, count in player["inventory"].items()})
         self.assertLess(second["magic_exp"] - first["magic_exp"], 112.0)
 
     def test_spellbook_swap_cost_is_paid_once_per_active_fight(self):
@@ -4421,10 +4420,8 @@ class CombatLogicTest(unittest.TestCase):
                 "dream_mentor": {"completed": True},
                 "lunar_diplomacy": {"completed": True},
             },
-            inventory={"Astral rune": 30, "Cosmic rune": 20, "Law rune": 10},
-            combat_supply_loadout={
-                "runes": {"Astral rune": 3, "Cosmic rune": 2, "Law rune": 1, "Fire rune": 6, "Mind rune": 2},
-            },
+            inventory={'Astral rune': 33, 'Cosmic rune': 22, 'Law rune': 11, 'Fire rune': 6, 'Mind rune': 2},
+            combat_supply_loadout={}, carried_inventory={"swap_dummy": {"Astral rune": 3, "Cosmic rune": 2, "Law rune": 1, "Fire rune": 6, "Mind rune": 2}},
         )
 
         first, ok, first_result = apply_combat_burst_pure(
@@ -4447,7 +4444,7 @@ class CombatLogicTest(unittest.TestCase):
         )
         self.assertTrue(ok)
         self.assertNotIn("Astral rune", second_result["runes_used"])
-        self.assertEqual(second["inventory"], player["inventory"])
+        self.assertEqual(second["inventory"], {name: count - first_result["runes_used"].get(name, 0) - second_result["runes_used"].get(name, 0) for name, count in player["inventory"].items()})
         self.assertGreaterEqual(first_result["xp_rewards"]["magic_exp"], 130.0)
         self.assertLess(second_result["xp_rewards"]["magic_exp"], 130.0)
 
@@ -4560,7 +4557,7 @@ class CombatLogicTest(unittest.TestCase):
             combat_vengeance=True,
             combat_spellbook_swap="vengeance",
             quests={"lunar_diplomacy": {"completed": True}},
-            combat_supply_loadout={"runes": {"Mind rune": 1}},
+            combat_supply_loadout={}, inventory={"Mind rune": 1}, carried_inventory={"vengeance_target": {"Mind rune": 1}},
             combat_encounter={
                 "target_id": "vengeance_target",
                 "enemy_lifepoints": 5,
@@ -4586,9 +4583,9 @@ class CombatLogicTest(unittest.TestCase):
     def test_active_ranged_encounter_does_not_refill_ammo_mid_fight(self):
         player = _player(
             combat_attack_style="ranged_rapid",
-            equipment={"weapon": "Shortbow"},
+            equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
             inventory={"Bronze arrows": 5},
-            combat_supply_loadout={"ammo": {"Bronze arrows": 1}},
+            combat_supply_loadout={}, equipment_ammunition_count=1,
             combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
         )
 
@@ -4605,13 +4602,13 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["stop_reason"], "out_of_ammo")
         self.assertEqual(result["ammo_used"], {"Bronze arrows": 1})
         self.assertEqual(new_data["inventory"]["Bronze arrows"], 5)
-        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {})
+        self.assertEqual(equipped_ammo(new_data), {})
 
     def test_ranged_rapid_uses_faster_bow_attack_speed(self):
         player = _player(
             combat_attack_style="ranged_rapid",
-            equipment={"weapon": "Shortbow"},
-            combat_supply_loadout={"ammo": {"Bronze arrows": 10}},
+            equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
+            combat_supply_loadout={}, equipment_ammunition_count=10,
             current_combat_target="giant_rat",
         )
 
@@ -4626,7 +4623,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(result["killed"])
         self.assertEqual(result["ammo_used"], {"Bronze arrows": 3})
-        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 7})
+        self.assertEqual(equipped_ammo(new_data), {"Bronze arrows": 7})
 
     def test_combat_burst_caps_to_one_kill_per_review_even_with_many_ticks(self):
         player = _player(current_combat_target="cow")
@@ -5084,14 +5081,14 @@ class CombatLogicTest(unittest.TestCase):
     def test_safe_recovery_refills_ranged_ammo_at_safe_boundary(self):
         player = _player(
             combat_attack_style="ranged_accurate",
-            equipment={"weapon": "Shortbow"},
+            equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
             inventory={"Bronze arrows": 12},
-            combat_supply_loadout={"ammo": {"Bronze arrows": 3}},
+            combat_supply_loadout={}, equipment_ammunition_count=3,
         )
 
         recovered = apply_safe_combat_recovery_pure(player)
 
-        self.assertEqual(recovered["combat_supply_loadout"]["ammo"], {"Bronze arrows": 3})
+        self.assertEqual(equipped_ammo(recovered), {"Bronze arrows": 3})
         self.assertEqual(recovered["inventory"]["Bronze arrows"], 12)
         self.assertEqual(recovered["combat_bank_run"], {})
 
@@ -5108,9 +5105,9 @@ class CombatLogicTest(unittest.TestCase):
         refilled = apply_safe_combat_recovery_pure(traveling, EQUIPMENT_DATA)
 
         self.assertEqual(traveling["combat_bank_run"], {"ticks_remaining": 40, "target_id": "chicken"})
-        self.assertEqual(traveling["combat_supply_loadout"]["ammo"], {})
+        self.assertEqual(equipped_ammo(traveling), {})
         self.assertEqual(refilled["combat_bank_run"], {})
-        self.assertEqual(refilled["combat_supply_loadout"]["ammo"], {"Bronze arrows": 12})
+        self.assertEqual(equipped_ammo(refilled), {"Bronze arrows": 12})
         self.assertEqual(refilled["inventory"]["Bronze arrows"], 0)
 
     def test_safe_recovery_magic_bank_run_completes_uncovered_rune_refill(self):
@@ -5129,9 +5126,9 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(traveling["combat_bank_run"], {"ticks_remaining": 40, "target_id": "chicken"})
         self.assertEqual(refilled["combat_bank_run"], {})
-        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 2, "Mind rune": 2})
-        self.assertEqual(refilled["inventory"]["Air rune"], 0)
-        self.assertEqual(refilled["inventory"]["Mind rune"], 0)
+        self.assertEqual(carried_runes(refilled), {"Air rune": 2, "Mind rune": 2})
+        self.assertEqual(refilled["inventory"]["Air rune"], carried_runes(refilled)["Air rune"])
+        self.assertEqual(refilled["inventory"]["Mind rune"], carried_runes(refilled)["Mind rune"])
         self.assertEqual(refilled["inventory"]["Fire rune"], 3)
 
     def test_stacked_combat_death_moves_existing_grave_to_death_office(self):
@@ -5539,11 +5536,11 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 20})
         self.assertEqual(refilled["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
-        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
+        self.assertEqual(carried_runes(refilled), {"Air rune": 5, "Mind rune": 5})
         self.assertEqual(refilled["inventory"]["Shark"], 10)  # max_safety caps food at 20; 10 stay banked
         self.assertEqual(refilled["inventory"]["Antipoison (2)"], 0)
-        self.assertEqual(refilled["inventory"]["Air rune"], 0)
-        self.assertEqual(refilled["inventory"]["Mind rune"], 0)
+        self.assertEqual(refilled["inventory"]["Air rune"], carried_runes(refilled)["Air rune"])
+        self.assertEqual(refilled["inventory"]["Mind rune"], carried_runes(refilled)["Mind rune"])
         self.assertEqual(refilled["inventory"]["Fire rune"], 5)
 
     def test_manual_refill_loadout_excludes_melee_vengeance_runes(self):
@@ -5558,26 +5555,24 @@ class CombatLogicTest(unittest.TestCase):
         refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
 
         self.assertTrue(ok, reason)
-        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(refilled), {})
         self.assertEqual(refilled["inventory"], runes)
 
     def test_fresh_melee_loadout_summary_has_no_runes(self):
         summary = combat_supply_loadout_summary_pure(_player(), EQUIPMENT_DATA)
 
-        self.assertEqual(summary["runes_loaded"], {})
+        self.assertEqual(summary["runes_carried"], {})
 
     def test_loadout_summary_hides_stale_melee_vengeance_runes(self):
         summary = combat_supply_loadout_summary_pure(
             _player(
                 combat_vengeance=True,
-                combat_supply_loadout={
-                    "runes": {"Astral rune": 4, "Death rune": 2},
-                },
+                combat_supply_loadout={}, inventory={"Astral rune": 4, "Death rune": 2}, carried_inventory={'chicken': {"Astral rune": 4, "Death rune": 2}},
             ),
             EQUIPMENT_DATA,
         )
 
-        self.assertEqual(summary["runes_loaded"], {})
+        self.assertEqual(summary["runes_carried"], {})
 
     def test_loadout_summary_shows_runes_for_a_magic_build(self):
         summary = combat_supply_loadout_summary_pure(
@@ -5585,30 +5580,26 @@ class CombatLogicTest(unittest.TestCase):
                 combat_attack_style="magic_standard",
                 equipment={"weapon": "Staff of fire"},
                 current_combat_spell="wind_strike",
-                combat_supply_loadout={
-                    "runes": {"Air rune": 5, "Mind rune": 5},
-                },
+                combat_supply_loadout={}, inventory={"Air rune": 5, "Mind rune": 5}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
             ),
             EQUIPMENT_DATA,
         )
 
         self.assertEqual(
-            summary["runes_loaded"], {"Air rune": 5, "Mind rune": 5}
+            summary["runes_carried"], {"Air rune": 5, "Mind rune": 5}
         )
 
     def test_loadout_summary_shows_ammo_for_a_ranged_build(self):
         summary = combat_supply_loadout_summary_pure(
             _player(
                 combat_attack_style="ranged_accurate",
-                equipment={"weapon": "Shortbow"},
-                combat_supply_loadout={
-                    "ammo": {"Bronze arrows": 10},
-                },
+                equipment={**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
+                combat_supply_loadout={}, equipment_ammunition_count=10,
             ),
             EQUIPMENT_DATA,
         )
 
-        self.assertEqual(summary["ammo_loaded"], {"Bronze arrows": 10})
+        self.assertEqual(summary["ammo_equipped"], {"Bronze arrows": 10})
 
     def test_non_magic_vengeance_does_not_charge_or_arm_during_a_burst(self):
         cases = (
@@ -5616,8 +5607,8 @@ class CombatLogicTest(unittest.TestCase):
             (
                 "ranged",
                 "ranged_rapid",
-                {"weapon": "Shortbow"},
-                {"ammo": {"Bronze arrows": 1}},
+                {"weapon": "Shortbow", "ammunition": "Bronze arrows"},
+                {},
             ),
         )
         for combat_class, style, equipment, loadout in cases:
@@ -5653,14 +5644,12 @@ class CombatLogicTest(unittest.TestCase):
         recovered = apply_safe_combat_recovery_pure(
             _player(
                 combat_encounter={},
-                combat_supply_loadout={
-                    "runes": {"Air rune": 5, "Mind rune": 5},
-                },
+                combat_supply_loadout={}, inventory={"Air rune": 5, "Mind rune": 5}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
             ),
             EQUIPMENT_DATA,
         )
 
-        self.assertEqual(recovered["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(recovered), {})
         self.assertEqual(recovered["inventory"]["Air rune"], 5)
         self.assertEqual(recovered["inventory"]["Mind rune"], 5)
 
@@ -5673,9 +5662,7 @@ class CombatLogicTest(unittest.TestCase):
             current_combat_target="chicken",
             combat_attack_style="accurate",
             combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1},
-            combat_supply_loadout={
-                "runes": {"Air rune": 5, "Mind rune": 5},
-            },
+            combat_supply_loadout={}, inventory={"Air rune": 5, "Mind rune": 5}, carried_inventory={"chicken": {"Air rune": 5, "Mind rune": 5}},
         )
 
         updated, ok, result = apply_combat_burst_pure(
@@ -5692,21 +5679,19 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["killed"])
         self.assertEqual(updated["combat_encounter"], {})
         self.assertEqual(
-            updated["combat_supply_loadout"]["runes"],
+            carried_runes(updated),
             {"Air rune": 5, "Mind rune": 5},
         )
-        self.assertNotIn("Air rune", updated["inventory"])
-        self.assertNotIn("Mind rune", updated["inventory"])
+        self.assertEqual(updated["inventory"]["Air rune"], 5)
+        self.assertEqual(updated["inventory"]["Mind rune"], 5)
 
     def test_combat_method_reconciliation_reloads_for_the_new_spell(self):
         player = _player(
             combat_attack_style="magic_standard",
             current_combat_spell="wind_strike",
             equipment={"weapon": "Staff of fire"},
-            inventory={"Air rune": 0, "Mind rune": 0, "Water rune": 7},
-            combat_supply_loadout={
-                "runes": {"Air rune": 5, "Mind rune": 5}
-            },
+            inventory={'Air rune': 5, 'Mind rune': 5, 'Water rune': 7},
+            combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
         )
 
         updated, ok, reason = reconcile_combat_method_pure(
@@ -5718,12 +5703,12 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(updated["current_combat_spell"], "water_strike")
         self.assertEqual(
-            updated["combat_supply_loadout"]["runes"],
+            carried_runes(updated),
             {"Air rune": 5, "Mind rune": 5, "Water rune": 7},
         )
         self.assertEqual(
             updated["inventory"],
-            {"Air rune": 0, "Mind rune": 0, "Water rune": 0},
+            {"Air rune": 5, "Mind rune": 5, "Water rune": 7},
         )
 
     def test_manual_refill_loads_the_selected_targets_finisher(self):
@@ -5813,15 +5798,8 @@ class CombatLogicTest(unittest.TestCase):
 
     def test_unload_combat_supply_loadout_returns_supplies_to_bank(self):
         player = _player(
-            inventory={"Shark": 2},
-            combat_supply_loadout={
-                "food": {"Shark": 3},
-                "potions": {"Antipoison (1)": 1},
-                "ammo": {"Bronze arrows": 5},
-                "runes": {"Air rune": 7},
-                "finishers": {"Ice cooler": 2},
-                "cannonballs": 2,
-            },
+            inventory={'Shark': 2, 'Air rune': 7},
+            combat_supply_loadout={'food': {"Shark": 3}, 'potions': {"Antipoison (1)": 1}, 'finishers': {"Ice cooler": 2}, 'cannonballs': 2}, equipment={'ammunition': "Bronze arrows"}, equipment_ammunition_count=5, carried_inventory={'chicken': {"Air rune": 7}},
         )
 
         unloaded, ok, reason = unload_combat_supply_loadout_pure(player)
@@ -5829,11 +5807,11 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(unloaded["inventory"]["Shark"], 5)
         self.assertEqual(unloaded["inventory"]["Antipoison (1)"], 1)
-        self.assertEqual(unloaded["inventory"]["Bronze arrows"], 5)
+        self.assertEqual(equipped_ammo(unloaded), {"Bronze arrows": 5})
         self.assertEqual(unloaded["inventory"]["Air rune"], 7)
         self.assertEqual(unloaded["inventory"]["Ice cooler"], 2)
         self.assertEqual(unloaded["inventory"]["Cannonball"], 2)
-        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
+        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
 
     def test_desert_lizard_manual_finisher_commits_one_atomic_kill(self):
         player = _player(
@@ -8001,10 +7979,8 @@ class CombatLogicTest(unittest.TestCase):
             current_combat_target="turoth",
             slayer_level=55,
             ranged_level=52,
-            equipment={"weapon": "Magic shortbow"},
-            combat_supply_loadout={
-                "ammo": {"Rune arrows": 10, "Broad arrows": 10},
-            },
+            equipment={"weapon": "Magic shortbow", "ammunition": "Broad arrows"},
+            inventory={"Rune arrows": 10}, combat_supply_loadout={}, equipment_ammunition_count=10,
         )
         low_ranged = _player(
             current_combat_target="turoth",
@@ -8091,9 +8067,10 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(mixed_ok)
         self.assertEqual(mixed_result["ammo"], "Broad arrows")
         self.assertEqual(mixed_result["ammo_used"], {"Broad arrows": 1})
+        self.assertEqual(mixed_after["inventory"]["Rune arrows"], 10)
         self.assertEqual(
-            mixed_after["combat_supply_loadout"]["ammo"],
-            {"Rune arrows": 10, "Broad arrows": 9},
+            equipped_ammo(mixed_after),
+            {"Broad arrows": 10},
         )
         self.assertEqual(
             combat_target_locked_reasons_pure(
@@ -8198,14 +8175,17 @@ class CombatLogicTest(unittest.TestCase):
             equipment={"weapon": "Staff"},
             slayer_level=35,
             quests={"desert_treasure": {"completed": True}},
-            combat_supply_loadout={
-                "runes": {
+            combat_supply_loadout={}, inventory={
                     "Air rune": 1,
                     "Fire rune": 1,
                     "Chaos rune": 2,
                     "Death rune": 2,
-                },
-            },
+                }, carried_inventory={"wall_beast": {
+                    "Air rune": 1,
+                    "Fire rune": 1,
+                    "Chaos rune": 2,
+                    "Death rune": 2,
+                }},
             combat_encounter={
                 "target_id": "wall_beast",
                 "enemy_lifepoints": 1050,

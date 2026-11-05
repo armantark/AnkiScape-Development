@@ -25,7 +25,7 @@ class CombatChainTests(unittest.TestCase):
     def test_a_reflected_kill_keeps_the_same_tick_low_lifepoint_stop(self):
         player = _player(combat_auto_flee=False, combat_attack_style="magic_standard",
                          current_combat_spell="confuse", equipment={"weapon": "Staff"},
-                         combat_supply_loadout={"runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
+                         combat_supply_loadout={}, inventory={"Water rune": 100, "Earth rune": 100, "Body rune": 100}, carried_inventory={'chicken': {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
                          combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,
                                            "player_attack_ticks_remaining": 99,
                                            "enemy_attack_ticks_remaining": 0, "vengeance_pending": True})
@@ -65,7 +65,7 @@ class CombatChainTests(unittest.TestCase):
     def test_the_next_enemy_starts_with_fresh_magic_effects_and_curse_ramp(self):
         player = _player(combat_auto_flee=False, combat_prayers_enabled=False, combat_attack_style="magic_standard",
                          current_combat_spell="confuse", equipment={"weapon": "Staff"},
-                         combat_supply_loadout={"runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
+                         combat_supply_loadout={}, inventory={"Water rune": 100, "Earth rune": 100, "Body rune": 100}, carried_inventory={'chicken': {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
                          combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,
                                            "magic_effects_applied": ("attack_drain",),
                                            "spell_enemy_attack_factor": 0.2,
@@ -85,7 +85,7 @@ class CombatChainTests(unittest.TestCase):
         player = _player(combat_auto_flee=False, constitution_level=99, combat_lifepoints=990,
                          combat_attack_style="magic_standard", current_combat_spell="confuse",
                          equipment={"weapon": "Staff"},
-                         combat_supply_loadout={"runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
+                         combat_supply_loadout={}, inventory={"Water rune": 100, "Earth rune": 100, "Body rune": 100}, carried_inventory={'chicken': {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
                          combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,
                                            "player_attack_ticks_remaining": 99,
                                            "enemy_attack_ticks_remaining": 0, "vengeance_pending": True,

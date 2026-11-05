@@ -1,5 +1,7 @@
 """logic_pure_combat_model.py - split out of logic_pure.py; see that module's header."""
 
+from .combat.recovery import reclaim_items as _combat_reclaim_items_to_player, lost_ammo_extras, merge_stack_extras
+from .combat.ammunition import equipped_ammo, carried_runes, best_ammo, EQUIPMENT_DATA, generate_ava_items, migrate_ammunition, sanitize_ammunition_state, equipment_slot_text
 from math import comb, floor, sqrt
 from .logic_pure_combat_food import combat_max_lifepoints_pure
 
@@ -531,6 +533,9 @@ def default_combat_state_pure():
         "combat_prayer_points": 10,
         "combat_prayer_drain_counter": 0.0,
         "combat_auto_prayer_training": False,
+        "combat_ava_incidental_items": True,
+        "combat_ava_incidental_ticks": 0,
+        "equipment_ammunition_count": 0,
         "combat_prayers_enabled": True,
         "combat_vengeance": False,
         "combat_dream_thrift": False,
@@ -594,40 +599,18 @@ def _sanitize_combat_recovery_progress(raw_progress):
     return {"stat_drain_ticks": stat_drain_ticks} if stat_drain_ticks > 0 else {}
 
 
-def _combat_reclaim_items_to_player(data, items, loadout):
-    """Return reclaimed gear to the player: re-equip the worn loadout into any
-    still-empty slot, then drop everything else back into the inventory. A slot
-    the player has re-filled since dying keeps its newer item, so the graved piece
-    falls to the inventory instead of clobbering it."""
-    remaining = [str(item_name) for item_name in items if isinstance(item_name, str) and item_name]
-    if isinstance(loadout, Mapping) and loadout:
-        equipment = dict(data.get("equipment", {}) or {})
-        for slot, item_name in loadout.items():
-            if not isinstance(slot, str) or not isinstance(item_name, str) or not item_name:
-                continue
-            if equipment.get(slot):
-                continue
-            if item_name in remaining:
-                remaining.remove(item_name)
-                equipment[slot] = item_name
-        data["equipment"] = equipment
-    inventory = dict(data.get("inventory", {}) or {})
-    for item_name in remaining:
-        inventory[item_name] = inventory.get(item_name, 0) + 1
-    data["inventory"] = inventory
-
-
 def _combat_death_office_items(raw_office):
     office = _sanitize_death_office_state(raw_office)
     return list(office.get("items", ()) or ())
 
 
-def _set_combat_death_office_items(data, items, source="combat_death_office", loadout=None):
+def _set_combat_death_office_items(data, items, source="combat_death_office", loadout=None, stack_extras=None):
     clean_items = [str(item_name) for item_name in items if isinstance(item_name, str) and item_name]
     if clean_items:
         office = {
             "items": clean_items,
             "source": source,
+            "stack_extras": dict(stack_extras or {}),
             "reclaim_cost": len(clean_items) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
         }
         if isinstance(loadout, Mapping) and loadout:
@@ -700,7 +683,7 @@ def _combat_transfer_old_grave_to_office(data):
             **_combat_stored_loadout(existing_office),
         }
         items = existing_office_items + existing_grave_items
-        _set_combat_death_office_items(data, items, "combat_stacked_grave", loadout)
+        _set_combat_death_office_items(data, items, "combat_stacked_grave", loadout, merge_stack_extras(existing_grave.get("stack_extras"), existing_office.get("stack_extras")))
 
 
 def _combat_apply_pvm_death(
@@ -739,6 +722,7 @@ def _combat_apply_pvm_death(
     for slot, item_name in discharged_equipment.items():
         target_equipment = protected_equipment if slot in protected_slots else equipment
         target_equipment[slot] = item_name
+    stack_extras = lost_ammo_extras(data, equipment)
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     active_target = carried_target_id if isinstance(carried_target_id, str) else data.get("current_combat_target")
     _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave)
@@ -751,6 +735,7 @@ def _combat_apply_pvm_death(
             "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
             "source": grave_source,
             "loadout": equipment,
+            "stack_extras": stack_extras,
         } if grave_items else {}
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
@@ -829,6 +814,7 @@ def _combat_apply_wilderness_death(
     loss["kept_slots"] = kept_slots
     loss["kept_items"] = tuple(kept_slots.values())
     _combat_apply_follower_death(data)
+    lost_ammo_extras(data, {slot: name for slot, name in discharged_equipment.items() if slot not in kept_slots})
     data["equipment"] = kept_slots
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
@@ -1115,6 +1101,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_prayer_points": min(prayer_max, _non_negative_int(player_data.get("combat_prayer_points", prayer_max), prayer_max)),
         "combat_prayer_drain_counter": max(0.0, float(player_data.get("combat_prayer_drain_counter", 0.0) or 0.0)),
         "combat_auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
+        **sanitize_ammunition_state(player_data),
         "combat_prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
         "combat_vengeance": bool(player_data.get("combat_vengeance", False)),
         "combat_dream_thrift": dream_thrift,
@@ -2026,8 +2013,7 @@ def combat_melee_attack_type_pure(player_data, equipment_data=None):
 
 
 def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
-    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    loaded = _non_negative_int((loadout.get("ammo", {}) or {}).get(ammo_name, 0), 0)
+    loaded = equipped_ammo(player_data).get(ammo_name, 0)
     encounter = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
     if active_encounter:
@@ -2055,16 +2041,14 @@ def _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo):
 def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id, allowed_ammo=None):
     if not isinstance(weapon_spec, Mapping):
         return None
-    compatible_ammo = _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo)
-    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    loaded_ammo = loadout.get("ammo", {}) or {}
-    for ammo_name in compatible_ammo:
-        if isinstance(ammo_name, str) and _non_negative_int(loaded_ammo.get(ammo_name, 0), 0) > 0:
-            return ammo_name
-    for ammo_name in compatible_ammo:
-        if isinstance(ammo_name, str) and _combat_ranged_ammo_count(player_data, ammo_name, target_id) > 0:
-            return ammo_name
-    return None
+    compatible = _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo)
+    for name, count in equipped_ammo(player_data).items():
+        if name in compatible and count > 0:
+            return name
+    encounter = player_data.get("combat_encounter") or {}
+    if encounter.get("target_id") == target_id:
+        return None
+    return best_ammo(player_data, compatible, EQUIPMENT_DATA) or best_ammo(player_data, compatible, EQUIPMENT_DATA, check_levels=False)
 
 
 def _combat_ranged_locked_reasons(player_data, target_id, equipment_data):
@@ -2200,15 +2184,14 @@ def _combat_required_rune_cost_pure(player_data, combat_class, spell_spec, equip
 
 
 def _combat_magic_rune_count(player_data, rune_name, target_id):
-    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    loaded = _non_negative_int((loadout.get("runes", {}) or {}).get(rune_name, 0), 0)
+    loaded = carried_runes(player_data, target_id).get(rune_name, 0)
     encounter = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
     if active_encounter:
         return loaded
     inventory = player_data.get("inventory", {}) or {}
     banked = _non_negative_int(inventory.get(rune_name, 0), 0) if isinstance(inventory, Mapping) else 0
-    return loaded + banked
+    return banked
 
 
 def _combat_magic_missing_runes(player_data, spell_spec, target_id, equipment_data=None):

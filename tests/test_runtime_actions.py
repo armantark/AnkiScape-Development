@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch
 from tests.habitat.fixtures import ready_shadow_habitat
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data
@@ -2888,7 +2889,7 @@ class TestRuntimeActions(unittest.TestCase):
     def test_combat_handler_finisher_repairs_stale_runes_when_fight_ends(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {'Air rune': 5, 'Mind rune': 5},
             "equipment": {},
             "current_combat_target": "desert_lizard",
             "combat_action": "finisher",
@@ -2896,11 +2897,7 @@ class TestRuntimeActions(unittest.TestCase):
                 "target_id": "desert_lizard",
                 "enemy_lifepoints": 30,
             },
-            "combat_supply_loadout": {
-                "runes": {"Air rune": 5, "Mind rune": 5},
-                "finishers": {"Ice cooler": 1},
-                "hazards": {"Waterskin (4)": 1},
-            },
+            "combat_supply_loadout": {'finishers': {"Ice cooler": 1}, 'hazards': {"Waterskin (4)": 1}}, 'carried_inventory': {"desert_lizard": {"Air rune": 5, "Mind rune": 5}},
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
             "attack_level": 99,
@@ -2917,7 +2914,7 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_encounter"], {})
-        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(player_data), {})
         self.assertEqual(player_data["inventory"]["Air rune"], 5)
         self.assertEqual(player_data["inventory"]["Mind rune"], 5)
         self.assertEqual(calls["saves"], 1)
@@ -3173,12 +3170,12 @@ class TestRuntimeActions(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
-            "equipment": {"weapon": "Shortbow"},
+            "equipment": {**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
             "current_combat_target": "chicken",
             "combat_attack_style": "ranged_accurate",
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
-            "combat_supply_loadout": {"ammo": {"Bronze arrows": 2}},
+            "combat_supply_loadout": {}, 'equipment_ammunition_count': 2,
             "attack_level": 1,
             "strength_level": 1,
             "defense_level": 1,
@@ -3192,14 +3189,14 @@ class TestRuntimeActions(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        ok = handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0]))
+        ok = handle_combat_answer(_context(player_data, calls, [0.99, 0.0, 0.999999, 0.99, 0.99, 0.99]))
 
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
         self.assertEqual(player_data["inventory"].get("Bronze arrows", 0), 0)
         # Chain kills keep firing after the first kill within the tick budget, so
         # the second carried arrow is spent on the follow-up shot too.
-        self.assertEqual(player_data["combat_supply_loadout"]["ammo"], {})
+        self.assertEqual(equipped_ammo(player_data), {})
         self.assertEqual(player_data["attack_exp"], 0.0)
         self.assertGreater(player_data["ranged_exp"], 0.0)
         self.assertGreater(player_data["constitution_exp"], 0.0)
@@ -3209,14 +3206,14 @@ class TestRuntimeActions(unittest.TestCase):
     def test_combat_handler_runs_magic_review_with_wind_strike_runes(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {'Air rune': 1, 'Mind rune': 1},
             "equipment": {"weapon": "Staff"},
             "current_combat_target": "chicken",
             "combat_attack_style": "magic_standard",
             "current_combat_spell": "wind_strike",
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
-            "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
+            "combat_supply_loadout": {}, 'carried_inventory': {"chicken": {"Air rune": 1, "Mind rune": 1}},
             "attack_level": 1,
             "strength_level": 1,
             "defense_level": 1,
@@ -3237,7 +3234,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["inventory"].get("Air rune", 0), 0)
         self.assertEqual(player_data["inventory"].get("Mind rune", 0), 0)
-        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(player_data), {})
         self.assertEqual(player_data["combat_last_result"]["combat_class"], "magic")
         self.assertEqual(player_data["combat_last_result"]["spell"], "Wind Strike")
         self.assertEqual(player_data["combat_last_result"]["stop_reason"], "out_of_runes")
@@ -3250,14 +3247,14 @@ class TestRuntimeActions(unittest.TestCase):
     def test_combat_handler_uses_staff_substitution_for_magic_runes(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {'Mind rune': 1},
             "equipment": {"weapon": "Staff of air"},
             "current_combat_target": "chicken",
             "combat_attack_style": "magic_standard",
             "current_combat_spell": "wind_strike",
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
-            "combat_supply_loadout": {"runes": {"Mind rune": 1}},
+            "combat_supply_loadout": {}, 'carried_inventory': {"chicken": {"Mind rune": 1}},
             "attack_level": 1,
             "strength_level": 1,
             "defense_level": 1,
@@ -3278,7 +3275,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["inventory"].get("Air rune", 0), 0)
         self.assertEqual(player_data["inventory"].get("Mind rune", 0), 0)
-        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(player_data), {})
         self.assertEqual(player_data["combat_last_result"]["runes_used"], {"Mind rune": 1})
         self.assertAlmostEqual(player_data["magic_exp"], 5.5)
         self.assertEqual(calls["errors"], [])

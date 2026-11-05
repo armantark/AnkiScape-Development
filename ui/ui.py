@@ -462,7 +462,7 @@ from ..data.summoning_data import (
 from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
 from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
 from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
-from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, equipment_slot_text, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import WICKED_HOOD_REQUIRED_MESSAGE, wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -4442,8 +4442,8 @@ def _combat_loadout_summary_text(summary: dict) -> str:
         f"Food: {_mapping_text(summary.get('food_loaded_items'))}\n"
         f"Potions: {_mapping_text(summary.get('potions_loaded_items'))}\n"
         f"Stat potions: {_mapping_text(summary.get('stat_potions_loaded_items'))}\n"
-        f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"
-        f"Runes: {_mapping_text(summary.get('runes_loaded'))}\n"
+        f"Ammunition: {_mapping_text(summary.get('ammo_equipped'))}\n"
+        f"Runes: {_mapping_text(summary.get('runes_carried'))}\n"
         f"Finishers: {_mapping_text(summary.get('finishers_loaded'))}\n"
         f"Hazard supplies: {_mapping_text(summary.get('hazards_loaded'))}"
     )
@@ -22735,8 +22735,6 @@ def show_main_menu(
                 "food_loaded_items",
                 "potions_loaded_items",
                 "stat_potions_loaded_items",
-                "ammo_loaded",
-                "runes_loaded",
                 "finishers_loaded",
                 "hazards_loaded",
             ):
@@ -25118,7 +25116,7 @@ def show_main_menu(
             slot_id = slot.id
             item_name = equipment.get(slot_id) if isinstance(equipment, dict) else None
             if isinstance(item_name, str) and item_name:
-                li = QListWidgetItem(f"{slot.label}: {item_name}")
+                li = QListWidgetItem(equipment_slot_text(player_data, slot, item_name))
                 definition = _item_def_for(item_name)
                 asset_path = definition.asset_path if definition is not None else None
                 icon_path = _bank_icon_path(item_name, asset_path) or equipment_slot_icon_path(slot_id)

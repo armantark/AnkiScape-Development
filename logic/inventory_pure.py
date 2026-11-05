@@ -671,6 +671,10 @@ def _owned_item_counts(player_data: Mapping[str, Any]) -> dict[str, int]:
         if isinstance(store, Mapping):
             for item_name, count in store.items():
                 counts[item_name] = counts.get(item_name, 0) + _clean_int(count, 0)
+    equipment = player_data.get("equipment") or {}
+    ammo = equipment.get("ammunition")
+    if ammo:
+        counts[ammo] = counts.get(ammo, 0) + _clean_int(player_data.get("equipment_ammunition_count", 1), 0)
     return counts
 
 

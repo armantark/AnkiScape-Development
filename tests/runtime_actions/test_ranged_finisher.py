@@ -3,6 +3,7 @@
 import unittest
 
 import pkg_alias  # noqa: F401
+from ankiscape.logic_pure.combat.ammunition import equipped_ammo, carried_runes
 from ankiscape.logic_pure.logic_pure_combat_model import combat_finisher_state_pure
 from tests import test_runtime_actions as _runtime
 
@@ -12,7 +13,7 @@ class RangedFinisherRuntimeTest(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
-            "equipment": {"weapon": "Shortbow"},
+            "equipment": {**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
             "current_combat_target": "rockslug",
             "combat_action": "finisher",
             "combat_attack_style": "ranged_accurate",
@@ -24,10 +25,7 @@ class RangedFinisherRuntimeTest(unittest.TestCase):
                 "target_id": "rockslug",
                 "enemy_lifepoints": 1,
             },
-            "combat_supply_loadout": {
-                "ammo": {"Bronze arrows": 2},
-                "finishers": {"Bag of salt": 1},
-            },
+            "combat_supply_loadout": {'finishers': {"Bag of salt": 1}}, 'equipment_ammunition_count': 2,
         }
         combat = _runtime.runtime_actions_combat
         state = combat_finisher_state_pure(player_data)
@@ -53,7 +51,7 @@ class RangedFinisherRuntimeTest(unittest.TestCase):
         self.assertEqual(player_data["combat_action"], "attack")
         self.assertEqual(player_data["combat_supply_loadout"]["finishers"], {})
         self.assertEqual(
-            player_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 2}
+            equipped_ammo(player_data), {"Bronze arrows": 2}
         )
         self.assertEqual(player_data["combat_lifepoints"], 100)
         self.assertEqual(calls["errors"], [])

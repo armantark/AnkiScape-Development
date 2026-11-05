@@ -467,8 +467,8 @@ def equipment_stat_totals_pure(
     equipment_data: Mapping[str, object],
 ) -> EquipmentBonuses:
     totals = {field: 0 for field in EQUIPMENT_BONUS_FIELDS}
-    for item_name in equipment.values():
-        if not isinstance(item_name, str):
+    for slot, item_name in equipment.items():
+        if slot == "ammunition" or not isinstance(item_name, str):
             continue
         spec = equipment_data.get(item_name)
         if spec is None:
@@ -487,6 +487,17 @@ def save_equipment_move_pure(current, move, equipment_data):
     updated = dict(current)
     updated["inventory"] = new_inventory
     updated["equipment"] = new_equipment
+    before_ammo = before_equipment.get("ammunition")
+    after_ammo = new_equipment.get("ammunition")
+    if before_ammo != after_ammo:
+        count = int(current.get("equipment_ammunition_count", 1 if before_ammo else 0))
+        if before_ammo:
+            new_inventory[before_ammo] += count - 1
+        count = 0
+        if after_ammo:
+            count = new_inventory.get(after_ammo, 0) + 1
+            new_inventory[after_ammo] = 0
+        updated["equipment_ammunition_count"] = count
     swap = current.get("quest_equipment_swap", {})
     if swap and any(before_equipment.get(slot) != new_equipment.get(slot) for slot in swap["displaced"]):
         updated["quest_equipment_swap"] = {}

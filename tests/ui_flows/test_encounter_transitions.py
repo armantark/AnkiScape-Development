@@ -100,11 +100,11 @@ class EncounterMethodChangeIntegrationTest(unittest.TestCase):
     def test_live_encounter_spell_change_applies_on_the_next_review(self):
         addon, encounter, errors = self._live_combat_addon(
             "ankiscape_combat_live_spell",
-            inventory={"Water rune": 5},
+            inventory={'Water rune': 5, 'Air rune': 5, 'Mind rune': 5},
             equipment={"weapon": "Staff"},
             combat_attack_style="magic_standard",
             combat_attack_style_type="auto",
-            combat_supply_loadout={"runes": {"Air rune": 5, "Mind rune": 5}},
+            combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
         )
 
         self.assertTrue(
@@ -144,11 +144,11 @@ class EncounterMethodChangeIntegrationTest(unittest.TestCase):
     def test_live_encounter_weapon_unequip_applies_on_the_next_review(self):
         addon, encounter, errors = self._live_combat_addon(
             "ankiscape_combat_live_weapon_unequip",
-            inventory={},
+            inventory={'Air rune': 5, 'Mind rune': 5},
             equipment={"weapon": "Staff"},
             combat_attack_style="magic_standard",
             combat_attack_style_type="auto",
-            combat_supply_loadout={"runes": {"Air rune": 5, "Mind rune": 5}},
+            combat_supply_loadout={}, carried_inventory={'chicken': {"Air rune": 5, "Mind rune": 5}},
         )
 
         self.assertTrue(addon.on_unequip_slot("weapon"))

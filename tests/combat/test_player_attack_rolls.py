@@ -19,17 +19,17 @@ from tests.test_warriors_guild import _player as guild_base_player
 def drain_player(combat_class, target=None, prayers=()):
     weapon, style, default_target, supplies = {
         "melee": ("Bronze sword", "accurate", "cockatrice", {}),
-        "ranged": ("Shortbow", "ranged_accurate", "cockatrice", {"ammo": {"Bronze arrows": 100}}),
-        "magic": ("Staff", "magic_standard", "basilisk", {"runes": {"Air rune": 100, "Mind rune": 100}}),
+        "ranged": ("Shortbow", "ranged_accurate", "cockatrice", {}),
+        "magic": ("Staff", "magic_standard", "basilisk", {"Air rune": 100, "Mind rune": 100}),
     }[combat_class]
     return _player(
         current_combat_target=target or default_target,
         attack_level=60, strength_level=60, defense_level=99,
         ranged_level=60, magic_level=60, agility_level=60, slayer_level=99,
         constitution_level=99, combat_lifepoints=990, combat_auto_flee=False,
-        combat_auto_eat_food=[], equipment={"weapon": weapon},
+        combat_auto_eat_food=[], equipment={"weapon": weapon, **({"ammunition": "Bronze arrows"} if combat_class == "ranged" else {})},
         combat_attack_style=style, combat_attack_style_type="stab",
-        combat_supply_loadout=supplies, prayer_level=99, combat_prayer_points=990,
+        inventory=supplies, carried_inventory={target or default_target: supplies}, equipment_ammunition_count=100, prayer_level=99, combat_prayer_points=990,
         combat_prayer_uptime="100", combat_selected_prayers=list(prayers), combat_prayers_enabled=bool(prayers),
         quests={"priest_in_peril": {"completed": True}},
     )
@@ -40,7 +40,7 @@ def charge_player(active):
     player.update(
         magic_level=99, current_combat_spell="saradomin_strike",
         equipment={"weapon": "Saradomin staff", "cape": "Saradomin cape"},
-        combat_supply_loadout={"runes": {"Air rune": 40, "Fire rune": 20, "Blood rune": 20}},
+        combat_supply_loadout={}, inventory={"Air rune": 40, "Fire rune": 20, "Blood rune": 20}, carried_inventory={player["current_combat_target"]: {"Air rune": 40, "Fire rune": 20, "Blood rune": 20}},
         mage_arena={"step": 5, "completed": True, "alignment": "saradomin", "attuned_spells": ["saradomin_strike"]},
         magic_charge_active=active, magic_charge_ticks_remaining=700,
     )

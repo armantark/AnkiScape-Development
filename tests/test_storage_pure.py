@@ -11,7 +11,7 @@ from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION,
 )
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
-from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
+from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure, carried_runes
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
@@ -512,7 +512,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["combat_lifepoints"], 100)
         self.assertEqual(data["combat_auto_eat_threshold_percent"], 40)
         self.assertIn("Shrimps", data["combat_auto_eat_food"])
-        self.assertEqual(data["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
+        self.assertEqual(data["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
         self.assertEqual(data["combat_special_attack_energy"], 100)
         self.assertEqual(data["combat_current_levels"], {})
         self.assertEqual(data["combat_status_effects"], {})
@@ -965,7 +965,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["combat_attack_style"], "accurate")
         self.assertEqual(migrated["current_combat_spell"], "wind_strike")
         self.assertEqual(migrated["combat_lifepoints"], 100)
-        self.assertEqual(migrated["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
+        self.assertEqual(migrated["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
         self.assertEqual(migrated["combat_special_attack_energy"], 100)
         self.assertEqual(migrated["combat_current_levels"], {})
         self.assertNotIn("combat_stat_drains", migrated)
@@ -2108,7 +2108,7 @@ class TestStoragePure(unittest.TestCase):
                 "equipment": {},
                 "combat_attack_style": "accurate",
                 "combat_encounter": {},
-                "combat_supply_loadout": {
+                "config_version": 126, "combat_supply_loadout": {
                     "runes": {"Air rune": 5, "Mind rune": 5},
                 },
             }
@@ -2117,7 +2117,7 @@ class TestStoragePure(unittest.TestCase):
         migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
         reloaded = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
 
-        self.assertEqual(migrated["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(carried_runes(migrated), {})
         self.assertEqual(migrated["inventory"]["Air rune"], 5)
         self.assertEqual(migrated["inventory"]["Mind rune"], 5)
         self.assertEqual(reloaded["inventory"]["Air rune"], 5)
@@ -2132,7 +2132,7 @@ class TestStoragePure(unittest.TestCase):
                 "combat_attack_style": "magic_standard",
                 "current_combat_spell": "wind_strike",
                 "combat_encounter": {},
-                "combat_supply_loadout": {
+                "config_version": 126, "combat_supply_loadout": {
                     "runes": {"Air rune": 5, "Mind rune": 5},
                 },
             }
@@ -2141,11 +2141,11 @@ class TestStoragePure(unittest.TestCase):
         migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
 
         self.assertEqual(
-            migrated["combat_supply_loadout"]["runes"],
-            {"Air rune": 5, "Mind rune": 5},
+            carried_runes(migrated),
+            {},
         )
-        self.assertEqual(migrated["inventory"].get("Air rune", 0), 0)
-        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 0)
+        self.assertEqual(migrated["inventory"].get("Air rune", 0), 5)
+        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 5)
 
     def test_activity_session_allowlist_covers_every_runtime_writer(self):
         writer_ids, unresolved = _activity_session_writer_ids()

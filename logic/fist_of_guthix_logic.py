@@ -393,14 +393,13 @@ def _build_combat_player(player_data: Mapping[str, Any], active: Mapping[str, An
     local["combat_vengeance"] = False
     local["combat_dream_thrift"] = False
     local["combat_spellbook_swap"] = ""
-    original_loadout = player_data.get("combat_supply_loadout", {})
-    ammo = original_loadout.get("ammo", {}) if isinstance(original_loadout, Mapping) else {}
+    runes = _allocate_generic_runes(player_data, supplies)
+    local["inventory"] = {**local["inventory"], **runes}
+    local["carried_inventory"] = {"fog_opponent": dict(runes)}
     local["combat_supply_loadout"] = {
         "food": {},
         "potions": {},
         "stat_potions": {},
-        "ammo": dict(ammo) if isinstance(ammo, Mapping) else {},
-        "runes": _allocate_generic_runes(player_data, supplies),
         "finishers": {},
         "hazards": {},
         "cannonballs": 0,

@@ -427,14 +427,7 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
 
     def test_combat_presets_never_snapshot_or_restore_finite_supplies(self):
         loaded = {
-            "combat_supply_loadout": {
-                "food": {"Lobster": 3},
-                "potions": {},
-                "stat_potions": {},
-                "ammo": {},
-                "runes": {},
-                "cannonballs": 0,
-            },
+            "combat_supply_loadout": {'food': {"Lobster": 3}, 'potions': {}, 'stat_potions': {}, 'cannonballs': 0},
             "combat_prayer_uptime": "70",
         }
         saved, ok = save_combat_preset_pure(loaded, "Bossing")
@@ -609,8 +602,8 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
             },
             "ranged": {
                 "combat_selected_prayers": ["eagle_eye"],
-                "equipment": {"weapon": "Shortbow"},
-                "combat_supply_loadout": {"ammo": {"Bronze arrows": 100}},
+                "equipment": {**{"weapon": "Shortbow"}, 'ammunition': "Bronze arrows"},
+                "combat_supply_loadout": {}, 'equipment_ammunition_count': 100,
             },
         }
         for combat_class, setup in setups.items():
@@ -619,7 +612,7 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
                 preview = combat_target_preview_pure(state, "hill_giant", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)
                 # The first draw lands the hit and the second is the top damage
                 # roll, which deals one LP below the max hit (1..max-1).
-                draws = iter((0.0, 0.999999999))
+                draws = iter((0.99, 0.0, 0.999999999) if combat_class == "ranged" else (0.0, 0.999999999))
                 _after, ok, result = apply_combat_burst_pure(
                     state, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=lambda: next(draws, 0.5), live_cadence=True
                 )

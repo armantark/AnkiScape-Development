@@ -96,8 +96,6 @@ def default_combat_supply_loadout_pure():
         "food": {},
         "potions": {},
         "stat_potions": {},
-        "ammo": {},
-        "runes": {},
         "finishers": {},
         "hazards": {},
         "cannonballs": 0,
@@ -136,14 +134,7 @@ def _sanitize_combat_supply_loadout(raw_loadout):
             and item_name in _COMBAT_STAT_POTION_ITEM_NAMES
             and _non_negative_int(amount, 0) > 0
         }
-    for key in ("ammo", "runes"):
-        raw_mapping = raw_loadout.get(key, {})
-        if isinstance(raw_mapping, Mapping):
-            loadout[key] = {
-                str(item_name): _non_negative_int(amount, 0)
-                for item_name, amount in raw_mapping.items()
-                if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
-            }
+
     raw_finishers = raw_loadout.get("finishers", {})
     if isinstance(raw_finishers, Mapping):
         loadout["finishers"] = {
@@ -225,6 +216,8 @@ def _sanitize_combat_grave_state(raw_grave):
     target_id = raw_grave.get("target_id")
     if isinstance(target_id, str) and target_id:
         state["target_id"] = target_id
+    if raw_grave.get("stack_extras"):
+        state["stack_extras"] = dict(raw_grave["stack_extras"])
     loadout = _combat_stored_loadout(raw_grave)
     if loadout:
         state["loadout"] = loadout
@@ -244,6 +237,8 @@ def _sanitize_death_office_state(raw_office):
     stored_cost = _non_negative_int(raw_office.get("reclaim_cost", 0), 0)
     if stored_cost > 0:
         state["reclaim_cost"] = stored_cost
+    if raw_office.get("stack_extras"):
+        state["stack_extras"] = dict(raw_office["stack_extras"])
     loadout = _combat_stored_loadout(raw_office)
     if loadout:
         state["loadout"] = loadout

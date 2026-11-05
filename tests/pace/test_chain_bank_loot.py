@@ -73,8 +73,7 @@ class ChainBankLootTests(unittest.TestCase):
         player = loaded_player(
             combat_attack_style="magic_standard", current_combat_spell="confuse",
             equipment={"weapon": "Staff"},
-            combat_supply_loadout={"food": {"Shrimps": 17},
-                                   "runes": {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
+            combat_supply_loadout={'food': {"Shrimps": 17}}, inventory={"Water rune": 100, "Earth rune": 100, "Body rune": 100}, carried_inventory={'chicken': {"Water rune": 100, "Earth rune": 100, "Body rune": 100}},
             combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1,
                               "player_attack_ticks_remaining": 99,
                               "enemy_attack_ticks_remaining": 0, "vengeance_pending": True},
