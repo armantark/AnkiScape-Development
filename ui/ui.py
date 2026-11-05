@@ -610,7 +610,7 @@ from ..logic.brawling_gloves_logic import (
     brawling_wilderness_enabled_pure,
 )
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
-from .review_hud_buttons import ReviewBankRunButton, add_review_ammo_title, attach_review_bank_run_button
+from .review_hud_buttons import ReviewBankRunButton, attach_review_bank_run_button, build_review_hud_action_row
 from ..logic.review_strip_logic import (
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
@@ -1446,7 +1446,6 @@ if HAS_QT:
     _HUD_ENEMY = "#E53935"  # Material red (enemy health)
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
-    from .review_hud_buttons import ReviewResumeButton
     from .ui_bank_grid import ResponsiveGridScrollArea
 
     class _BankDropButton(QToolButton):
@@ -2134,9 +2133,10 @@ if HAS_QT:
             self.setFixedSize(340, REVIEW_STRIP_HEIGHT)
 
             # Layout
-            root = QHBoxLayout(self)
-            root.setContentsMargins(12, 10, 12, 10)
-            root.setSpacing(10)
+            root = QGridLayout(self)
+            root.setContentsMargins(12, 4, 12, 4)
+            root.setHorizontalSpacing(10)
+            root.setVerticalSpacing(3)
 
             leading = QVBoxLayout()
             leading.setContentsMargins(0, 0, 0, 0)
@@ -2147,7 +2147,7 @@ if HAS_QT:
                 self.icon_lbl, 0, Qt.AlignmentFlag.AlignHCenter
             )
             leading.addStretch(1)
-            root.addLayout(leading)
+            root.addLayout(leading, 0, 0)
 
             info = QVBoxLayout()
             self._info_layout = info
@@ -2155,7 +2155,8 @@ if HAS_QT:
             info.setSpacing(4)
             self.title_lbl = QLabel("Skill")
             self.title_lbl.setStyleSheet("color: white; font-weight: 600;")
-            self.ammo_pickup_button = add_review_ammo_title(self, info, self.title_lbl)
+            self.title_lbl.setMinimumHeight(self.title_lbl.sizeHint().height())
+            info.addWidget(self.title_lbl)
 
             # The text and fill are separate so the progress fill never sits
             # behind the progress text.
@@ -2284,32 +2285,12 @@ if HAS_QT:
             )
             info.addWidget(self.enemy_progress)
 
-            self.chips_lbl = QLabel("")
-            self.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
-            self.slayer_lbl = QLabel("")
-            self.slayer_lbl.setObjectName("slayerAssignmentProgress")
-            self.slayer_lbl.setStyleSheet(self.chips_lbl.styleSheet())
-            self.slayer_lbl.setVisible(False)
-            # Slayer progress stacks under the chips beside the Bank run
-            # button: a row of its own overflows the fixed-height card.
-            chips_column = QVBoxLayout()
-            chips_column.setContentsMargins(0, 0, 0, 0)
-            chips_column.setSpacing(1)
-            chips_column.addWidget(self.chips_lbl)
-            chips_column.addWidget(self.slayer_lbl)
-            # Resume shows only at Bankstanding, where the chips are empty.
-            self.resume_button = ReviewResumeButton(self)
-            chips_column.addWidget(self.resume_button)
-            bottom_row = QHBoxLayout()
-            bottom_row.setContentsMargins(0, 0, 0, 0)
-            bottom_row.setSpacing(6)
-            bottom_row.addLayout(chips_column, 1)
-            self.action_column = QHBoxLayout()
-            self.action_column.setContentsMargins(0, 0, 0, 0)
-            bottom_row.addLayout(self.action_column)
-            info.addLayout(bottom_row)
+            # Both actions share the full card width; the icon column must not
+            # take space away from the pickup, chips and Bank run row.
+            root.addLayout(build_review_hud_action_row(self), 1, 0, 1, 2)
 
-            root.addLayout(info, 1)
+            root.addLayout(info, 0, 1)
+            root.setColumnStretch(1, 1)
 
             # Aesthetic container style
             self.setStyleSheet(

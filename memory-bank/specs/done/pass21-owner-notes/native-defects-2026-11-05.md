@@ -40,6 +40,9 @@ proved from those images alone.
 
 ## Title fix and geometry
 
+The height-only fix below did not resolve the later native title/pickup defect.
+The bottom-row fix and its verification are recorded under **HUD pickup layout**.
+
 The nested title row was compressed inside the fixed-height HUD. With a
 13-point Helvetica Neue font, the regression test measured 19 px of title height
 against a 21 px size hint and font height. Before the fix it failed all eight
@@ -141,3 +144,63 @@ OK
 Audited 1153 Markdown and 2 HTML files.
 Documentation audit passed.
 ```
+
+## HUD pickup layout
+
+The pickup button now shares a full-width bottom row with the combat chips and
+Bank run. The title owns the information column's full width. A grid lets the
+bottom row use the space below the icon; narrower vertical margins keep all
+rows inside the existing 128 px height. The complete action-row builder lives
+with the HUD buttons in `ui/review_hud_buttons.py`. No HUD text or gameplay rule changed.
+
+The real strip fixture builds through `update_review_hud`,
+`update_review_status_badge` and `update_review_bank_run_button`; its parent is
+shown before resizing and processing events. The regression uses the actual
+`Combat — Lv 51` title, Shortbow and Iron sword, and pile counts 0 and 42 in
+Fusion dark/light at 1000×700, 667×602 and 720×560. It checks title size hints,
+title/progress separation, title/pickup intersection, pickup containment and
+pickup/Bank run separation. The old same-row geometry passed the added
+intersection assertion at these fixture widths; the bottom-row assertion
+failed before the layout change with `AssertionError: 30 not less than 11`.
+The supplied native overlap itself was not reproduced in this fixture.
+
+The capture utility uses the same real build path with synthetic state and a
+13-point Helvetica Neue font. At DPR 2, both requested sizes and both themes
+have these logical-pixel rectangles `(x, y, width, height)`:
+
+| Element | N=0 | N=42 |
+| --- | --- | --- |
+| Title | `(50, 4, 278, 21)` | `(50, 4, 278, 21)` |
+| Pickup | `(143, 101, 92, 16)` | `(137, 101, 98, 16)` |
+| Bank run | `(241, 94, 87, 30)` | `(241, 94, 87, 30)` |
+
+The title size hint is 132×21. Title/pickup intersection is false in every
+capture. Pickup text/content widths are 78/78 for N=0 and 83/84 for N=42.
+All eight HUD captures were inspected: no cut text. Each has a full-window
+companion. Files and measurements are under
+`/Users/ArmanTarkhanian1/Documents/ankiscape-pass21/review/followup/`, named
+`hud-fix-{dark|light}-{1000x700|720x560}-ammo-{0|42}.png`, with
+`-window.png` companions and `hud-fix-geometry.json`.
+
+Reproduce the captures without a collection or save:
+
+```sh
+QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=2 .venv-qt/bin/python tools/maintenance/render_ground_ammunition_hud.py --output /Users/ArmanTarkhanian1/Documents/ankiscape-pass21/review/followup/
+```
+
+Required test command:
+
+```sh
+python3 run_tests.py tests.pace.test_ammunition_hud tests.test_review_hud tests.test_review_strip tests.integration_smoke.test_world_clock_and_routes tests.pace.test_ground_ammunition
+```
+
+Output saved in `hud-fix-tests.log`:
+
+```text
+Ran 67 tests in 4.512s
+
+OK
+```
+
+This is offscreen Qt evidence. Native Anki verification remains unperformed;
+the native tester's exact font and logical viewport configuration are unknown.

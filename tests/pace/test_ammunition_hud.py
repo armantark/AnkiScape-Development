@@ -37,17 +37,20 @@ class AmmunitionHudTest(unittest.TestCase):
         state.update(combat_lifepoints=450, current_combat_target="chicken")
         themes = (("light", "#f0f0f0", "#101010"), ("dark", "#202020", "#f0f0f0"))
         sizes = ((1000, 700), (667, 602), (720, 560))
-        for (theme, background, text), (width, height), weapon in product(themes, sizes, ("Shortbow", "Iron sword")):
+        for (theme, background, text), (width, height), weapon, count in product(themes, sizes, ("Shortbow", "Iron sword"), (0, 42)):
             palette = app.style().standardPalette()
             for role in (QPalette.ColorRole.Window, QPalette.ColorRole.Base, QPalette.ColorRole.Button):
                 palette.setColor(role, QColor(background))
             for role in (QPalette.ColorRole.WindowText, QPalette.ColorRole.Text, QPalette.ColorRole.ButtonText):
                 palette.setColor(role, QColor(text))
             app.setPalette(palette)
-            with self.subTest(theme=theme, size=(width, height), weapon=weapon):
+            with self.subTest(theme=theme, size=(width, height), weapon=weapon, count=count):
                 state["equipment"] = {"weapon": weapon}
+                state["ground_ammunition"] = [{"name": "Bronze arrows", "count": count, "expires_at": 350}]
                 self.ui.update_review_hud(state, "Combat")
+                self.ui.update_review_status_badge(state)
                 self.ui.update_review_bank_run_button(state, "combat", ammo_pickup_action=lambda: None)
+                self.strip.parent.show()
                 self.strip.parent.resize(width, height)
                 for _ in range(5):
                     QApplication.processEvents()
@@ -63,10 +66,15 @@ class AmmunitionHudTest(unittest.TestCase):
                 self.assertEqual(hud.height(), self.ui.REVIEW_STRIP_HEIGHT)
                 self.assertEqual(button.isVisible(), weapon == "Shortbow")
                 if button.isVisible():
-                    self.assertLess(title.geometry().right(), button.x())
-                    self.assertEqual(button.geometry().right(), hud.progress.geometry().right())
-                    self.assertLessEqual(title.y(), button.geometry().center().y())
-                    self.assertLessEqual(button.geometry().center().y(), title.geometry().bottom())
+                    self.assertEqual(button.text(), f"Pick up ammo ({count})")
+                    self.assertFalse(title.geometry().intersects(button.geometry()))
+                    self.assertLess(title.geometry().bottom(), button.y())
+                    self.assertTrue(hud.rect().contains(button.geometry()))
+                    bank = self.ui._BANK_RUN_BUTTON
+                    self.assertFalse(button.geometry().intersects(bank.geometry()))
+                    self.assertLess(button.geometry().right(), bank.x())
+                    self.assertLessEqual(button.y(), bank.geometry().bottom())
+                    self.assertLessEqual(bank.y(), button.geometry().bottom())
 
     def test_ammo_pickup_only_shows_for_weapons_that_use_ammo_and_click_refreshes(self):
         state = self.strip._state()

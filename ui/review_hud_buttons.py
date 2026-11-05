@@ -7,7 +7,7 @@ from ..core.last_action import resume_button_view_pure
 from ..logic.review_strip_logic import REVIEW_BANK_RUN_LABEL, REVIEW_BANK_RUN_TOOLTIP
 
 try:
-    from aqt.qt import QHBoxLayout, QLabel, QPushButton, QSizePolicy, Qt  # type: ignore
+    from aqt.qt import QHBoxLayout, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout  # type: ignore
 
     HAS_QT = True
 except Exception:
@@ -135,16 +135,33 @@ else:
             pass
 
 
-def add_review_ammo_title(hud, info, title):
-    # The fixed-height HUD can compress a nested row below its font metrics.
-    title.setMinimumHeight(title.sizeHint().height())
-    title_row = QHBoxLayout()
-    title_row.setContentsMargins(0, 0, 0, 0)
-    title_row.addWidget(title, 1)
-    button = ReviewAmmoPickupButton(hud)
-    title_row.addWidget(button)
-    info.addLayout(title_row)
-    return button
+def build_review_hud_action_row(hud):
+    hud.chips_lbl = QLabel("")
+    hud.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
+    hud.slayer_lbl = QLabel("")
+    hud.slayer_lbl.setObjectName("slayerAssignmentProgress")
+    hud.slayer_lbl.setStyleSheet(hud.chips_lbl.styleSheet())
+    hud.slayer_lbl.setVisible(False)
+    # Slayer progress stacks under the chips beside the Bank run
+    # button: a row of its own overflows the fixed-height card.
+    chips_column = QVBoxLayout()
+    chips_column.setContentsMargins(0, 0, 0, 0)
+    chips_column.setSpacing(1)
+    chips_column.addWidget(hud.chips_lbl)
+    chips_column.addWidget(hud.slayer_lbl)
+    # Resume shows only at Bankstanding, where the chips are empty.
+    hud.resume_button = ReviewResumeButton(hud)
+    chips_column.addWidget(hud.resume_button)
+    bottom_row = QHBoxLayout()
+    bottom_row.setContentsMargins(0, 0, 0, 0)
+    bottom_row.setSpacing(6)
+    bottom_row.addLayout(chips_column, 1)
+    hud.action_column = QHBoxLayout()
+    hud.action_column.setContentsMargins(0, 0, 0, 0)
+    hud.ammo_pickup_button = ReviewAmmoPickupButton(hud)
+    hud.action_column.addWidget(hud.ammo_pickup_button)
+    bottom_row.addLayout(hud.action_column)
+    return bottom_row
 
 
 def attach_review_bank_run_button(hud, button):

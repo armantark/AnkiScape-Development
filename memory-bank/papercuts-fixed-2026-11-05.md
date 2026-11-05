@@ -143,3 +143,20 @@ Evidence: 309289ed7c21651a55ca8e8684d78fa8e0ab4f4b imports pkg_alias before anki
 
 - 2026-11-05T11:11:22: Pass 21 probes: package imports require import pkg_alias before ankiscape; one inline probe omitted it and raised ModuleNotFoundError: No module named 'ankiscape'. Native-title test also overconstrained button/title centres (AssertionError: 2 not less than 2); replaced with row containment to preserve the original button position.
 - 2026-11-05T11:14:45: Pass 21 commit hook blocked verification matrix helpers: slop-gate: cognitive complexity above 15 was introduced; AmmunitionHudTest::test_combat_title_fits_with_and_without_pickup_at_laptop_size 19 (new), capture_hud 20 (new). Flattened independent matrix axes with itertools.product.
+
+## HUD layout investigation lookup and record limits
+
+Disposition: record_only.
+
+Evidence: The HUD task used bounded source reads after the truncated combined read; no docs/adr directory exists in this checkout. Both one-off tool incidents are preserved here instead of counting as unresolved product defects. The papercut containment check and docs audit verify this record repair.
+
+- 2026-11-05T19:31:09Z — HUD layout investigation: the initial combined memory-bank read exceeded the tool output budget and the ADR lookup reported "rg: docs/adr: IO error for operation on docs/adr: No such file or directory (os error 2)"; use bounded per-file reads and existing paths.
+- 2026-11-05T19:42:19Z — HUD evidence documentation audit reported "memory-bank/papercuts.md:1: papercuts_line_cap_exceeded: 800 papercut lines must stay under 800" after this turn recorded its lookup incident; retain the one-off incidents verbatim in the fixed log with record_only disposition.
+
+## HUD action-row construction has its own existing module
+
+Disposition: fixed.
+
+Evidence: The complete action-row builder now lives in ui/review_hud_buttons.py. ui/ui.py shrinks against HEAD; the helper passes function_metrics.py, and the required real-HUD selection reports Ran 67 tests in 4.512s, OK. DPR-2 geometry captures pass unchanged.
+
+- 2026-11-05T19:49:25Z — HUD layout commit hook rejected "slop-gate: code files above 1000 lines were grown:" and "ui/ui.py: 26423 lines (was 26416)"; move the complete action-row builder into ui/review_hud_buttons.py before retrying the commit.
