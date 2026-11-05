@@ -14,6 +14,8 @@ from ..core.menu_action_queue import (
     activity_started_by_move_pure,
     activity_started_by_remove_pure,
     menu_action_record_pure,
+    pick_can_start_pure,
+    plan_rows_pure,
     queue_add_view_pure,
     queue_panel_view_pure,
     queue_runs_surface_pure,
@@ -268,18 +270,28 @@ if HAS_QT:
         """The control on the Activities card that ``activity_id()`` names, empty when none is open."""
         return QueueAddControl(player_data, queue, lambda: utility_action_record_pure(activity_id()))
 
-    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target, active) -> bool:
-        """Hold a target picked while the queue runs this panel's action, for the queue controls only.
+    def held_by_queue(player_data: dict, held: dict, surface: str, apply, target, active, plan_only: bool = False) -> bool:
+        """Hold a plan-only target, or one picked while the queue runs this panel's action, for the queue controls only.
 
-        True when held: the running entry keeps its target, and the panel's
-        Start applies the pick through ``apply`` when the player presses it.
+        True when held: the saved target stays, and the panel's Start applies
+        the pick through ``apply`` when the player presses it.
         """
-        if not queue_runs_surface_pure(player_data, surface, active):
+        if not plan_only and not queue_runs_surface_pure(player_data, surface, active):
             held.pop(surface, None)
             return False
         held[surface] = (apply, target)
         notify_action_queue_changed()
         return True
+
+    def planned_target_selection(player_data: dict, held: dict, surface: str, rows: tuple, select, active) -> tuple:
+        """The panel's rows with their plan-only marks, and a click handler that holds what ``held_by_queue`` holds."""
+        rows = plan_rows_pure(player_data, surface, rows)
+        plan_only = {row.target_id for row in rows if row.plan_only}
+
+        def on_select(target) -> bool:
+            return not held_by_queue(player_data, held, surface, select, target, active(), target in plan_only) and select(target)
+
+        return rows, select and on_select
 
     def show_held_pick(selector, target) -> None:
         """Select the held row of a rebuilt list again; the selection style sets it apart from the training row."""
@@ -294,7 +306,7 @@ if HAS_QT:
         """A skill panel's Start: it reads as running only while the skill runs the target the panel shows.
 
         A held pick is another action, so the same button then starts that pick
-        ahead of the queue.
+        ahead of the queue, once the pick has its inputs.
         """
 
         def __init__(self, player_data: dict, surface: str, active, picked, texts: tuple, available):
@@ -305,19 +317,26 @@ if HAS_QT:
             self._picked = picked
             self._texts = texts
             self._available = available
-            self._training = None
+            self._shown = None
             _SIGNALS.changed.connect(self.refresh)
             self.refresh()
+
+        def pick_can_start(self) -> bool:
+            picked = self._picked()
+            return picked is None or pick_can_start_pure(self._player_data, self._surface, picked)
 
         def refresh(self) -> None:
             picked = self._picked()
             training = surface_trains_pick_pure(self._player_data, self._surface, self._active(), picked)
-            if training == self._training:
+            startable = self.pick_can_start()
+            # Asks ``available`` only when this changes, because that walks every target of the skill.
+            shown = (training, picked is None, startable)
+            if shown == self._shown:
                 return
-            self._training = training
+            self._shown = shown
             self.setProperty("ankiscapeCurrentlyTraining", training)
             self.setText(self._texts[0] if training else self._texts[1])
-            self.setEnabled(not training and (picked is not None or self._available()))
+            self.setEnabled(not training and startable and (picked is not None or self._available()))
             self.setStyleSheet(
                 _TRAINING_BUTTON_STYLE
                 if training

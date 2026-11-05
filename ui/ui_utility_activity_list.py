@@ -33,6 +33,7 @@ try:
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
+from ..core.action_registry import UTILITY_REVIEW_ACTION_DISPLAY_NAME
 from ..core.constants import (
     ACTIVITY_SURFACE_ID,
     BIRD_NEST_OPEN_TABLES,
@@ -44,6 +45,7 @@ from ..core.constants import (
     UTILITY_SURFACE_ID,
     current_dir,
 )
+from ..core.menu_action_queue import plan_rows_pure
 from ..core.search_match import match_rank
 from ..core.target_metadata import TargetRowMetadata, mage_arena_attunement_rows_pure, utility_activity_rows
 from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
@@ -267,7 +269,7 @@ def _surface_rows(player_data: dict, current: str, is_activities: bool) -> tuple
         if UTILITY_ACTIVITY_DATA.get(row.target_id, {}).get("surface") == surface_id
     )
     if not is_activities:
-        return rows
+        return plan_rows_pure(player_data, UTILITY_REVIEW_ACTION_DISPLAY_NAME, rows)
     return (
         *rows,
         TargetRowMetadata(
@@ -332,7 +334,9 @@ def _group_header(tree, group: str) -> "QTreeWidgetItem":
 def _group_row_item(row, group: str) -> "QTreeWidgetItem":
     item = _row_item(row.label, row.target_id, row.tooltip, row.icon_path)
     item.setData(0, _ACTIVITY_GROUP_ROLE, group)
-    if not row.navigation_enabled:
+    if row.plan_only:
+        item.setForeground(0, dim_text_color())
+    elif not row.navigation_enabled:
         item.setDisabled(True)
     return item
 

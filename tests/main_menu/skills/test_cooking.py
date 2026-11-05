@@ -75,7 +75,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertTrue(wine.isDisabled())
         self.assertIn("Bad output: Jug of bad wine x1, no XP", wine.toolTip(0))
         self.assertFalse(wine.icon(0).isNull())
-        self.assertTrue(malt.isDisabled())
+        self.assertFalse(malt.isDisabled())
         self.assertFalse(malt.icon(0).isNull())
         self.assertIn("Cannot burn or fail", malt.toolTip(0))
         for row in (poison_karambwan, thorough_karambwan, karambwanji):
@@ -243,7 +243,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         pd["inventory"] = {"Raw beef": 1}
         dialog = self._open(pd)
         tree = _goto_cooking(dialog)
-        locked = _cooking_row(tree, "cook_shrimps")
+        locked = _cooking_row(tree, "cook_shark")
         self.assertTrue(locked.isDisabled())
         before = list(self._cooking_calls)
         tree.itemClicked.emit(locked, 0)

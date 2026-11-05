@@ -1,4 +1,4 @@
-"""Lock reasons for Stats skill-guide rows.
+"""Lock reasons for a skill's targets, shared by the Stats skill guide and queue planning.
 
 Each skill's guide asks the same availability predicate its target list uses,
 so a quest, material, tool, or region wall dims the guide row exactly when it
@@ -83,6 +83,17 @@ def _own_level_cleared(player_data: Mapping[str, object], skill_id: str) -> dict
     return {**player_data, f"{skill_id}_level": _OWN_LEVEL_CLEARED}
 
 
+def target_lock_reasons_pure(
+    player_data: Mapping[str, object],
+    skill_id: str,
+    target_id: str,
+) -> tuple[str, ...]:
+    """Why the target list greys this target; empty for a skill with no such list."""
+
+    predicate = _PREDICATES.get(skill_id)
+    return tuple(predicate(player_data, target_id)) if predicate else ()
+
+
 def guide_target_lock_reasons_pure(
     player_data: Mapping[str, object],
     skill_id: str,
@@ -95,10 +106,7 @@ def guide_target_lock_reasons_pure(
     here would dim a row the player can train.
     """
 
-    predicate = _PREDICATES.get(skill_id)
-    if predicate is None:
-        return ()
-    return tuple(predicate(_own_level_cleared(player_data, skill_id), target_id))
+    return target_lock_reasons_pure(_own_level_cleared(player_data, skill_id), skill_id, target_id)
 
 
 def guide_slayer_family_lock_reasons_pure(player_data: Mapping[str, object], family) -> tuple[str, ...]:

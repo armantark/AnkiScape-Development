@@ -230,17 +230,16 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
             self.assertNotIn("coming soon", row.text(0).lower(), rid)
             # Locked only on materials (level 99 is met), same as any other recipe
             # whose materials you lack.
-            self.assertTrue(row.isDisabled(), f"{rid} should be material-gated")
             self.assertIn("materials", row.toolTip(0))
             self.assertNotIn("level", row.toolTip(0).split("Locked due to:")[-1])
 
     def test_crafting_disabled_row_click_does_not_change_target(self) -> None:
         # Bug fix: itemClicked fires on disabled rows, so clicking a locked target
         # must NOT make it active (otherwise the next review fails with
-        # "you don't have X"). Empty inventory locks every craft on materials.
+        # "you don't have X"). Level 1 locks this craft on its level.
         pd = _make_player_data()
         pd["inventory"] = {}
-        pd["crafting_level"] = 99
+        pd["crafting_level"] = 1
         pd["current_craft"] = None
         dialog = self._open(pd)
         tree = _goto_crafting(dialog)
@@ -302,7 +301,7 @@ class MainMenuWidgetTest(fixtures.MainMenuWidgetTest):
         self.assertIn("Base XP:", tip)
         self.assertIn("Gold bar x1 (you have 1)", tip)
         self.assertIn("Sapphire x1 (you have 0)", tip)
-        self.assertTrue(row.isDisabled())  # missing the sapphire
+        self.assertFalse(row.isDisabled())  # missing only the sapphire, so plan-only
 
     def test_crafting_unlocks_with_materials_and_persists_recipe_id(self) -> None:
         pd = _make_player_data()

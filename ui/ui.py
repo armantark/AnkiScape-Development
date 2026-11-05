@@ -1373,7 +1373,7 @@ def refresh_skill_availability(
                 continue
             buttons.append(button)
             is_current = bool(button.property("ankiscapeCurrentlyTraining"))
-            button.setEnabled(bool(available) and not is_current)
+            button.setEnabled(bool(available) and not is_current and button.pick_can_start())
             if not is_current:
                 button.setToolTip(skill_name if available else _TRAIN_UNAVAILABLE_TOOLTIPS[skill_name])
 
@@ -4799,7 +4799,8 @@ def show_main_menu(
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
     from .ui_action_queue import (
-        ActionQueuePanel, TrainButton, activity_queue_control, held_by_queue, menu_queue, show_held_pick, surface_queue_control,
+        ActionQueuePanel, TrainButton, activity_queue_control, held_by_queue, menu_queue, pick_can_start_pure, planned_target_selection,
+        show_held_pick, surface_queue_control,
     )
     from .ui_dnd_favourite import DndFavouriteControls
     from .ui_activity_leave import LeaveRule, leave_running_activity
@@ -4929,7 +4930,7 @@ def show_main_menu(
     def _prayer_available() -> bool:
         try:
             rows = prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET)
-            current = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
+            current = held_targets.get("Prayer", (None, None))[1] or str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
             row = next((candidate for candidate in rows if candidate.target_id == current), None)
             return bool(row and row.enabled)
         except Exception:
@@ -4971,32 +4972,22 @@ def show_main_menu(
             return False
 
     def _skill_available(display_name: str) -> bool:
-        if display_name == _COMBAT_HUB_NAME:
-            return _combat_available()
-        if display_name == "Smithing":
-            return _smithing_available()
-        if display_name == "Crafting":
-            return _craft_available()
-        if display_name == "Fletching":
-            return _fletch_available()
-        if display_name == "Firemaking":
-            return _firemaking_available()
-        if display_name == "Hunter":
-            return _hunter_available()
-        if display_name == "Cooking":
-            return _cooking_available()
-        if display_name == "Runecrafting":
-            return _runecrafting_available()
-        if display_name == "Herblore":
-            return _herblore_available()
-        if display_name == "Prayer":
-            return _prayer_available()
-        if display_name == "Thieving":
-            return _thieving_available()
-        if display_name == "Agility":
-            return _agility_available()
+        available = {
+            _COMBAT_HUB_NAME: _combat_available,
+            "Smithing": _smithing_available,
+            "Crafting": _craft_available,
+            "Fletching": _fletch_available,
+            "Firemaking": _firemaking_available,
+            "Hunter": _hunter_available,
+            "Cooking": _cooking_available,
+            "Runecrafting": _runecrafting_available,
+            "Herblore": _herblore_available,
+            "Prayer": _prayer_available,
+            "Thieving": _thieving_available,
+            "Agility": _agility_available,
+        }.get(display_name)
         # Both no-XP surfaces always have at least one runnable target.
-        return True
+        return available is None or available()
 
     def _refresh_active_label() -> None:
         active = state["active"]
@@ -5079,7 +5070,7 @@ def show_main_menu(
 
     # ---- target list builders (one per implemented skill) ----
     from .ui_target_search import (
-        build_searchable_target_selector, short_target_row_label, style_flat_target_list, style_grouped_target_tree,
+        build_searchable_target_selector, short_target_row_label, show_row_lock, style_flat_target_list, style_grouped_target_tree,
     )
     from .ui_utility_activity_list import UtilityActivityList
     from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
@@ -5099,8 +5090,7 @@ def show_main_menu(
                 icon = _pixel_path_icon(row.icon_path, 28)
                 if icon is not None:
                     item.setIcon(icon)
-            if not row.enabled:
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            show_row_lock(item, row)
             item.setToolTip(row.tooltip)
             target_list.addItem(item)
             if row.current:
@@ -5216,8 +5206,7 @@ def show_main_menu(
                     icon = _pixel_path_icon(row.icon_path, 28)
                     if icon is not None:
                         child.setIcon(0, icon)
-                if not row.enabled:
-                    child.setDisabled(True)
+                show_row_lock(child, row, 0)
                 child.setToolTip(0, row.tooltip)
                 parent.addChild(child)
                 child_items.append(child)
@@ -5303,10 +5292,8 @@ def show_main_menu(
         expanded_groups: Optional[set] = None,
         set_group_expanded=None,
     ) -> QWidget:
-        skill, select = state["skill"], on_select
-        on_select = select and (
-            lambda target: not held_by_queue(player_data, held_targets, skill, select, target, state["active"]) and select(target)
-        )
+        skill = state["skill"]
+        rows, on_select = planned_target_selection(player_data, held_targets, skill, rows, on_select, lambda: state["active"])
         if len(rows) < 25 or not any(row.group for row in rows):
             selector = _build_flat_target_list(
                 sorted(rows, key=lambda r: r.sort_key or (r.label,)),
@@ -19215,7 +19202,10 @@ def show_main_menu(
             selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
-            if not activate and held_by_queue(player_data, held_targets, surface_name, lambda _target: None, activity_id, state["active"]):
+            if not activate and held_by_queue(
+                player_data, held_targets, surface_name, lambda _target: None, activity_id, state["active"],
+                not pick_can_start_pure(player_data, surface_name, activity_id),
+            ):
                 activity_list.set_held_pick(activity_id)
                 return True
             if not _leave_running_activity(activity_id):
@@ -20781,7 +20771,7 @@ def show_main_menu(
             )
             if name == "Prayer":
                 train_btn.setObjectName("prayerTrainButton")
-            if state["active"] != name and not train_btn.isEnabled():
+            if state["active"] != name and not _skill_available(name):
                 train_btn.setToolTip(
                     prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"]
                     if name == "Prayer"
