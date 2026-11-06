@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import unittest
+from itertools import product
 from pathlib import Path
 
 import pkg_alias  # noqa: F401
@@ -391,31 +392,30 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
     def test_every_hard_tip_row_is_reachable_through_a_real_delivery(self):
         seen = {}
         customer_count = len(GNOME_RESTAURANT_CUSTOMERS)
-        for customer_index in range(customer_count):
-            for punctual in (True, False):
-                for tip_roll in [index / 40 for index in range(40)]:
-                    data = _hired()
-                    data, ok, _info = apply_gnome_restaurant_command_pure(
-                        data,
-                        "accept_order",
-                        {"difficulty": "hard"},
-                        _rng([customer_index / customer_count]),
-                    )
-                    self.assertTrue(ok)
-                    if not punctual:
-                        # Nineteen speed-10 cards spend the hard job's 1,100 ticks.
-                        for _beat in range(19):
-                            data = advance_gnome_restaurant_clock_pure(
-                                data, successful_answer=True, delivering=False, card_ticks=60
-                            )
-                    data = _deliverable(data)
-                    customer = str(data["gnome_restaurant"]["order"]["customer"])
-                    _updated, ok, result = apply_gnome_restaurant_review_pure(
-                        data, _rng([0.5, tip_roll, tip_roll, 0.0])
-                    )
-                    self.assertTrue(ok, result)
-                    self.assertEqual(result["good_tip"], punctual)
-                    seen.setdefault(result["tip_id"], set()).add(customer)
+        for customer_index, punctual in product(range(customer_count), (True, False)):
+            for tip_roll in [index / 40 for index in range(40)]:
+                data = _hired()
+                data, ok, _info = apply_gnome_restaurant_command_pure(
+                    data,
+                    "accept_order",
+                    {"difficulty": "hard"},
+                    _rng([customer_index / customer_count]),
+                )
+                self.assertTrue(ok)
+                if not punctual:
+                    # Nineteen speed-10 cards spend the hard job's 1,100 ticks.
+                    for _beat in range(19):
+                        data = advance_gnome_restaurant_clock_pure(
+                            data, successful_answer=True, delivering=False, card_ticks=60
+                        )
+                data = _deliverable(data)
+                customer = str(data["gnome_restaurant"]["order"]["customer"])
+                _updated, ok, result = apply_gnome_restaurant_review_pure(
+                    data, _rng([0.5, tip_roll, tip_roll, 0.0])
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["good_tip"], punctual)
+                seen.setdefault(result["tip_id"], set()).add(customer)
         self.assertEqual(set(seen), {row.id for row in GNOME_RESTAURANT_TIPS})
         # The customer-locked rows only ever come from the gnomes the source names.
         self.assertEqual(seen["gnome_scarf"], {"captain_ninto", "captain_daerkin"})
