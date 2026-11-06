@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loop overnight: 2 changes landed, most harvests changed nothing</title>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body><header><h1>Loop overnight: 2 changes landed</h1>
+<div class="tldr">Two player changes landed, but 26 of 28 finished AnkiScape items changed nothing, and Darkan merged nothing. Codex reaches 100% today. Three answers decide what the rest of the Codex week builds.</div>
+<details class="thread"><summary>Your questions</summary>
+<doc-quote via="prompt" from="Owner">I let the loop run overnight. How's it been going?</doc-quote>
+<doc-quote via="prompt" from="Owner">Again it's supposed to be a funnel. It doesn't matter if there's a time constraint. It's like an hourglass where there's a bunch of sand at the top and the bottleneck is the point where the grains of sand pass through. There will always be more sand to pass through.</doc-quote>
+</details></header>
+<main><doc-plan>
+
+<doc-claim><p>Three answers from you decide how the loop spends the Codex week.</p>
+<doc-mock frame="terminal" title="Waiting on you" w="470"><template>1. Can the loop build new screens, with a taste review?
+2. Selection picks only rows it can build now?
+3. At 100% Codex today: stop, or use credits?</template></doc-mock>
+<doc-note tone="info">The loop is the script that runs Sol and Astra on AnkiScape and Darkan without Claude. The dashboard has no open question: you answered all five overnight questions.</doc-note>
+
+<doc-claim><p><b>Blocked.</b> Four AnkiScape items stopped because the loop cannot build screens.</p>
+<doc-mock frame="terminal" title="Ended with no change: needs a screen" w="470"><template>1010 Kalphite Queen         boss encounter
+1040 Slayer master challenges challenge flow
+1180 Permanent weapon poison  coat and clean
+1210 Shilo fly-fishing route  bank route
+Loop can change: core logic logic_pure runtime
+                 data generated tests
+<span class="r">Not ui/</span>, unless you name it for one item</template></doc-mock>
+<doc-ask id="screens">
+<p>Can the loop build new screens, with a taste review?</p>
+<p>Your rule allows a new screen after a frontend-taste review, and keeps existing screens for you. The loop has no taste review step, so it leaves ui/ out completely. Yes adds ui/ for new screens and a taste vote before the gate.</p>
+<label><input type="radio" name="screens" value="yes" checked> Yes, new screens with a taste vote <small>existing screens still need your approval</small></label>
+<label><input type="radio" name="screens" value="no"> No <small>selection skips rows that need a screen</small></label>
+</doc-ask>
+<doc-note tone="warn">Bosses, Slayer challenges and other activities with their own panel wait on this answer.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> Selection picked 19 items that could not change the game.</p>
+<doc-mock frame="terminal" title="26 no-change items, by cause" w="470"><template>Brief allowed evidence only      8
+  4 Giant Dwarf seed-weight lists, Nature tablet,
+  TokKul-Zo route, QBD charms, one empty pick
+Known source hold, still open   11
+  Giant Mole x2, QBD, Tower of Life, 2 Hunter
+  chains, Overload, pyre ships, Phrin, blackjack,
+  Kalferberry
+Needs a screen (above)           4
+Current value kept               3
+  2 by your answers, Smuggler prices</template></doc-mock>
+<doc-ask id="selection">
+<p>Should selection pick only rows it can build now?</p>
+<p>Selection writes the brief for each item. It wrote 8 briefs that forbid any product change, and it picked 11 rows whose source holds were already known. Yes makes selection reject both kinds and pick the next buildable row.</p>
+<label><input type="radio" name="selection" value="yes" checked> Yes, buildable rows only <small>fewer harvests, more builds</small></label>
+<label><input type="radio" name="selection" value="no"> No <small>selection stays as it is</small></label>
+</doc-ask>
+<doc-note tone="warn">AnkiScape spent 267 million tokens overnight on selection, harvest and contract, for 2 landed changes.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> Codex reaches 100% today, and then both loops stop.</p>
+<doc-mock frame="terminal" title="Codex use, this week" w="470"><template>22:52 last night   34%
+08:05 this morning <span class="r">63%</span>
+100% forecast     16:20 worst case,
+                   19:50 at the overnight rate
+Reset              Thursday 29 October, about 10:00
+
+Overnight tokens   709 M
+  select, harvest, contract   512 M  (72%)
+  build, prove, review         197 M</template></doc-mock>
+<doc-ask id="budget">
+<p>What happens when Codex reaches 100% today?</p>
+<p>The loops wrap up at the 100% line that you raised. After that, nothing runs for about six days. Usage credits keep both loops running until you stop them.</p>
+<label><input type="radio" name="budget" value="stop" checked> Stop at 100% <small>loops wait for the 29 October reset</small></label>
+<label><input type="radio" name="budget" value="credits"> Continue on usage credits <small>runs until you stop it</small></label>
+</doc-ask>
+<doc-note tone="warn">I recommend the stop because most overnight tokens bought items that changed nothing. The selection fix changes that, but only for the hours before 100%.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>Players got two changes, and the loop got seven fixes.</p>
+<doc-mock frame="terminal" title="Overnight, 23:15 to 08:05" w="470"><template>AnkiScape main   2 player changes, not pushed
+Loop fixes       3 from your requests
+                 4 faults fixed after automatic Sol runs
+Luna test        failed 3 of 3; harvest stays Sol</template></doc-mock>
+<doc-note tone="info">Each player change passed Astra's review and the promotion gate before it merged. Main is 3 commits ahead of GitHub; nothing was pushed.</doc-note>
+
+<doc-claim><p><b>Landed.</b> Gilded pickaxes now need their metal tier's Mining level.</p>
+<doc-mock frame="terminal" title="8771ca180, item 1090" w="470"><template>                 before   after
+Gilded steel      1        6
+Gilded adamant    1       31
+Gilded rune       1       41
+Source: Darkan Pickaxe.java, wiki Mining 6550166,
+        Tip.It: gilding is cosmetic</template></doc-mock>
+<doc-note tone="info">The item came from the Lava Flow Mine row. It corrects the reward pickaxes only; the mine itself is not built.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Goldsmith gauntlets give 56.2 Smithing XP per gold bar.</p>
+<doc-mock frame="terminal" title="53f5824b3, item 1150" w="470"><template>Smelt a gold bar
+  without gauntlets      22.5 XP
+  <span class="g">with worn Goldsmith gauntlets   56.2 XP</span></template></doc-mock>
+<doc-note tone="info">The bonus applies only while the player wears the gauntlets.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Harvests now follow the sourcing ladder and the consensus check.</p>
+<doc-mock frame="terminal" title="fleet 9a32c16, 00:57" w="470"><template>AnkiScape  Darkan first, unless out of consensus
+Both       build 727, game-main 667, other caches,
+           dated wiki and articles, RS3 and OSRS,
+           labeled estimate
+Consensus  dated wiki and articles decide when
+           Darkan or build 727 disagrees
+Evidence   names the rung of each fact</template></doc-mock>
+<doc-note tone="info">The harvest lanes also stay full now (fleet f2610cb), and native checks no longer load your global rules and skills (fleet 2dd237b).</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Automatic Sol fixer runs repaired four loop faults overnight.</p>
+<doc-mock frame="terminal" title="Fleet commits after the fixer runs" w="470"><template>00:17 ecc42da  selector input above 1 MB: read
+00:24 1cd90b5  history from a file
+00:20 9d62f51  abandoned Git locks stopped Darkan
+02:21 e6227e7  unused proof claims held both
+02:30 0c12256  Darkan proof slots
+06:15 a8e8dde  Darkan reviews could not write reports</template></doc-mock>
+<doc-note tone="info">AnkiScape selection failed 21 times from 00:06 to 00:14 on the oversized input, then ran normally from 00:58.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Luna failed the harvest test, so harvesting stays on Sol.</p>
+<doc-mock frame="terminal" title="Tokens per harvest, millions" w="470"><template>                 Sol high   Luna max fast
+Ghosts Ahoy        4.1        5.4
+Item weights       3.0       17.2
+Double Astrals     3.0        8.4
+Sol fact-check rejected all 3 Luna packets</template></doc-mock>
+<doc-note tone="info">Luna missed values in Darkan's code and labeled consensus wrongly. At max effort it also used more tokens than Sol, so it saved nothing.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>Darkan merged nothing, and three AnkiScape items wait.</p>
+<doc-mock frame="terminal" title="In work" w="470"><template>Darkan     0 merged, 3 recorded blockers,
+           51 queued, 2 proving
+AnkiScape  1170 rabbit snaring at the gate
+           0007 crash fix parked
+           0340 test split, build try 29</template></doc-mock>
+<doc-note tone="info">Darkan is the 2012 server project. A unit merges only after its gameplay proof and Astra's independent review pass.</doc-note>
+
+<doc-claim><p><b>Blocked.</b> Darkan proofs failed 24 times and passed 4 times.</p>
+<doc-mock frame="terminal" title="Darkan prove and review, overnight" w="470"><template>23:38-02:24  both proof slots held by unused
+             claims; fixed at 02:21 and 02:30
+03:57-06:22  4 proofs passed; review said
+             "partial" 5 times (3401, 3403)
+3402         needs a shared NPC random fixture
+3396         try 33, author and prove repeat
+Queued       51: 49 contracts wait for an author</template></doc-mock>
+<doc-note tone="warn">The reviewer rejects a "partial" verdict, and the 3401 limits are thin period sources for healing values. Nothing here waits on you yet; the automatic fixer takes 3396 and 3402 when they turn red.</doc-note></doc-claim>
+
+<doc-claim><p><b>On branch.</b> White rabbit snaring is at the promotion gate.</p>
+<doc-mock frame="terminal" title="Item 1170" w="470"><template>08:01 build passed
+08:03 Astra review passed
+Gate  try 6 running</template></doc-mock>
+<doc-note tone="info">Its first gate failed at 07:40; the builder fixed the cause and Astra passed it again.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> The Collections crash fix is parked on a clipped Pets list.</p>
+<doc-mock frame="terminal" title="Item 0007, build 42" w="470"><template>Pets list at 720 x 560   410 points of content,
+                         266 visible
+Qt lane                  65 failures, 2 errors</template></doc-mock>
+<doc-note tone="warn">It waits on a builder fix; the automatic fixer tried it twice.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim aux="scope"><p>Nothing was pushed, and no existing screen changed.</p><doc-note tone="info">All numbers come from the loop's event logs and Git, measured at 08:05. The loop state is in ~/.local/state/sol-loop.</doc-note></doc-claim>
+</doc-plan></main></body></html>

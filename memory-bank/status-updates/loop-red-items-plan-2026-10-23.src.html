@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan: loop faults stop turning items red</title>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body><header><h1>Plan: loop faults stop turning items red</h1>
+<div class="tldr">Most red time starts at one place: a failed recovery run parks the item at once. The plan makes loop faults wait instead. Two answers set the cleanup rule and the target; the defaults are what I would build.</div>
+<details class="thread"><summary>Your questions</summary>
+<doc-quote via="prompt" from="Owner">So much red again bruh</doc-quote>
+<doc-quote via="prompt" from="Owner">Can we hillclimb to absolutely minimize the amount of times this keeps happening? What's a sensible target?</doc-quote>
+<doc-quote via="prompt" from="Owner">Pull in Fable as an reviewer of your plan if you need nth order reasoning</doc-quote>
+</details></header>
+<main><doc-plan>
+
+<doc-claim><p>A loop fault makes an item wait, and the item does not turn red.</p>
+<doc-mock frame="terminal" title="Where the red hours started" w="470"><template>                AnkiScape     Darkan
+Red item-hours  248           79
+  at recovery   <span class="r">218 (88%)</span>     16
+  at prove        0           46  proof slots
+Recovery runs   49            173
+  no answer     <span class="r">12</span>            <span class="r">32</span>
+Parks per 100 steps  4.3      1.9</template></doc-mock>
+<doc-note tone="info">Recovery is the Sol run that decides what to do after a step fails 3 times. Today a recovery run that fails or writes no answer parks the item at once, so most infrastructure faults end red.</doc-note>
+
+<doc-claim><p>The loop reads the tool errors it knows and waits on the named resource.</p>
+<doc-mock frame="terminal" title="Known errors become waits" w="470"><template>"Anki is already running"        wait: native screen
+"not confirmed stopped"          wait: remote test lane
+"both proof slots are held"      wait: proof slot
+"Input exceeds the maximum"      loop fault, fixer
+model at capacity / no answer    retry the same step
+anything else                    recovery, as today</template></doc-mock>
+<doc-note tone="info">A plain program does this sorting, not Sol, so the cause on the dashboard is exact. Sol recovery then sees only failures that the item itself caused.</doc-note></doc-claim>
+
+<doc-claim><p>Recovery gets its own tries before it can park an item.</p>
+<doc-mock frame="terminal" title="sol_loop.py fail(), today and planned" w="470"><template>Today    recovery fails once   -> red
+Planned  recovery fails 3x     -> red
+         recovery wrote nothing -> retry</template></doc-mock>
+<doc-note tone="info">Overnight, select-27 to select-32 each spent one recovery run that could not start, and each went red.</doc-note></doc-claim>
+
+<doc-claim><p>Every wait shows its cause and age, and long waits turn red.</p>
+<doc-mock frame="terminal" title="Dashboard row" w="470"><template>0007  waiting: native screen, 40 min
+      amber after 2 h, red after 4 h</template></doc-mock>
+<doc-note tone="info">Today a wait writes no event and has no limit, so a resource that never frees would hide the item. The 2-hour step matches the fixer's cadence.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>The loop clears what finished runs left behind.</p>
+<doc-mock frame="terminal" title="Leftovers today" w="470"><template>Test Anki, PID 80194     since 23:59, blocks 0007
+mpv 5800, 19244, 66319   from 17 and 22 October
+Proof slot A             13 h, freed by hand 08:47
+Remote lane record       09:18, blocks 0340</template></doc-mock>
+<doc-ask id="reap">
+<p>May the loop stop leftovers by what they are?</p>
+<p>Your rule lets an agent stop only processes that it started. PID 80194 came from a Part K native task, not from the loop, so a starter rule leaves 0007 stuck. The identity rule covers test Anki bundles in ankiscape-native temp folders and proof leftovers of ended claims, never /Applications/Anki.app.</p>
+<label><input type="radio" name="reap" value="identity" checked> Yes, by identity, with checks <small>clears 0007 now; never your own Anki</small></label>
+<label><input type="radio" name="reap" value="starter"> Only what loop runs started <small>0007 waits for you</small></label>
+<label><input type="radio" name="reap" value="ask"> No, ask me each time <small>items wait until you answer</small></label>
+</doc-ask>
+<doc-note tone="warn">0007 waits on this answer. With yes, I stop PID 80194 and the three mpv processes now.</doc-note>
+
+<doc-claim><p>The cleanup reads each tool's own lock, so no second lock can disagree.</p>
+<doc-mock frame="terminal" title="One source of truth per resource" w="470"><template>Native screen   session_guard.py, Anki check
+Remote lane     run_remote_tests.py pending record
+Proof slots     slot lock and run marker
+Before any stop: no live .pid mark in any item</template></doc-mock>
+<doc-note tone="info">The loops restarted 107 times so far and re-attaches running steps. The cleanup must wait for those, or it would kill a proof that is still valid.</doc-note></doc-claim>
+
+<doc-claim><p>The build step clears a dead test-lane record, as the gate already does.</p>
+<doc-mock frame="terminal" title="Item 0340" w="470"><template>clear_dead_lane()   called only in promote()
+build step          hits the same record, parks
+New test            build clears a record with no
+                    PID file and no host process</template></doc-mock>
+<doc-note tone="info">Fable found this: the build runs with full access, so the sandbox was not the cause.</doc-note></doc-claim>
+
+<doc-claim><p>Darkan proofs stop waiting inside Sol for a busy slot.</p>
+<doc-mock frame="terminal" title="darkan.py prompts" w="470"><template>Today    "wait and retry for at most 30 minutes"
+         inside each Codex run, 3 tries each
+Planned  the loop waits; Sol starts with a free slot</template></doc-mock>
+<doc-note tone="info">Waiting inside a Codex run spends quota for nothing.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>A fixed cause sends its items back to work by itself.</p>
+<doc-mock frame="terminal" title="Overnight" w="470"><template>00:17  selector input fixed
+09:40  select items still red, until Retry
+Planned  a passing loop commit requeues items
+         parked with a loop-code cause;
+         a freed resource resumes its waiters</template></doc-mock>
+<doc-note tone="info">This does for the loop what today's fixer change does for fixer runs: done means the items moved.</doc-note></doc-claim>
+
+<doc-claim><p>The loop's formal model checks the new resource rules.</p>
+<doc-mock frame="terminal" title="TLA+ work" w="470"><template>1. Sync SolLoop.tla and DarkanUnits.tla with
+   today's commits (maintain pass)
+2. DarkanUnits.tla gets shared resources:
+   held only by a live run, an owner task
+   or the cleanup
+3. A waiting item starts once the resource
+   is free, if a loop run held it</template></doc-mock>
+<doc-note tone="info">SolLoop.tla models one item, so a rule that couples items goes into DarkanUnits.tla, which models several units.</doc-note></doc-claim>
+
+<doc-claim><p>A daily number shows whether the loop gets better.</p>
+<doc-mock frame="terminal" title="Baseline, all days so far" w="470"><template>Parks per 100 steps   AnkiScape 4.3   Darkan 1.9
+Park to auto-resume   no automatic resume
+Unattended red hours  most of 248 and 79</template></doc-mock>
+<doc-ask id="target">
+<p>Which target should the hill-climb aim for?</p>
+<p>Red item-hours mostly measure the nights you are away: one evening park adds 8 hours. Fable proposes three rates that measure the loop, over 3 rolling days.</p>
+<label><input type="radio" name="target" value="rates" checked> Three rates <small>under 1 park per 100 steps; resume under 2 h; zero unattended red</small></label>
+<label><input type="radio" name="target" value="hours"> Red item-hours under 4 a day <small>simple, but rewards your attention</small></label>
+</doc-ask>
+<doc-note tone="warn">Each day the largest cause over 3 days gets the next structural fix; the fixer handles single new faults.</doc-note></doc-claim>
+
+<doc-claim aux="scope"><p>Acceptance checks, review strictness, your rules and the screens do not change.</p><doc-note tone="info">Order: waits and recovery tries, then auto-resume, then cleanup, then tests, then the model. Sol at xhigh builds it after the current Opus loop change lands, and Astra reviews it.</doc-note></doc-claim>
+</doc-plan></main></body></html>

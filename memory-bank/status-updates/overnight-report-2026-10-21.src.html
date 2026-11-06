@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape overnight: 11 player changes merged</title>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body><header><h1>AnkiScape overnight: 11 player changes merged</h1>
+<div class="tldr">Eleven player changes reached main overnight, and the gate takes 15 minutes in place of 29. Five answers from you release the rest. The antipoison values come from an emulator, and loop item 0330 fixes them.</div>
+<details class="thread"><summary>Your questions</summary>
+<doc-quote via="prompt" from="Owner">Also, overnight report?</doc-quote>
+<doc-quote via="prompt" from="Owner">No, the scale is not the same. The real game's immunity is about 10 times shorter than the game's values. … I can search the memory bank and git history for a decision about these values, or read the RSMod files to see if the 1500 is from the source. Which do you want?</doc-quote>
+</details></header>
+<main><doc-plan>
+
+<doc-claim><p>Five answers from you release the waiting work.</p>
+<doc-mock frame="terminal" title="Waiting on you" w="470"><template>1. Three more false texts: copy model rewrites?
+2. Surefooted aura row: show Active first?
+3. Loop may write the placeholder register?
+4. Build the AnkiScape AX Reader app?
+5. Staleness check, test split, Clan Wars stop</template></doc-mock>
+<doc-note tone="info">The loop shows no open question on the dashboard. These five come from the pace build and from items that the loop could not finish without you.</doc-note>
+
+<doc-claim><p><b>Blocked.</b> Three game texts are false at the new speeds.</p>
+<doc-mock frame="terminal" title="Checked with real answered cards" w="470"><template>Gnome Ball      "Three successful reviews"
+                <span class="r">false from x2</span>
+Circus          "tricks resolve one per answered card"
+                <span class="r">false from x2</span>
+Grand Exchange  "Offers advance once per answered card"
+                <span class="r">false at every speed</span>: the market
+                moves every 6 world minutes</template></doc-mock>
+<doc-ask id="texts">
+<p>May the copy model rewrite these three texts?</p>
+<p>Your 08:54 "yes" covered the other 10 false texts and 2 missing lines, not these three. Yes adds them to the copy run that the builder inserts next. No leaves them as they are.</p>
+<label><input type="radio" name="texts" value="yes" checked> Yes, rewrite them <small>same copy model and taste review</small></label>
+<label><input type="radio" name="texts" value="no"> No <small>the three texts stay false</small></label>
+</doc-ask>
+<doc-note tone="warn">The last Part I text insert waits on this answer.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> The Equipment tab never shows that a Surefooted aura protects you.</p>
+<doc-mock frame="terminal" title="Aura row at speed 10" w="470"><template>Today, right after activation:
+  Surefooted   Recharging · 200 reviews
+Proposed:
+  Surefooted   <span class="g">Active · 34 reviews left</span>
+  then         Recharging · 167 reviews</template></doc-mock>
+<doc-ask id="aura">
+<p>Show the aura as Active while it protects you?</p>
+<p>The recharge starts at activation, and the row shows the recharge first, so "Active" can never appear. This is older than the pace work. The fix swaps two branches and adds one test, but it changes an existing interface.</p>
+<label><input type="radio" name="aura" value="yes" checked> Yes, Active first, then Recharging</label>
+<label><input type="radio" name="aura" value="no"> No <small>the row stays as it is</small></label>
+</doc-ask>
+<doc-note tone="warn">Part J found this. Part J does not wait on it.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> Two loop items cannot build because they need provisional values.</p>
+<doc-mock frame="terminal" title="Ended with no change" w="470"><template>0220 Silvthrill rod     you approved provisional
+                        rod IDs and combat values
+0270 Barcrawl drinks    sources give only averages
+Both: the register file is outside the loop's
+      allowed paths (core, logic, data, tests …)</template></doc-mock>
+<doc-ask id="register">
+<p>May the loop write the placeholder register?</p>
+<p>Each provisional value needs a code marker and a row in memory-bank/placeholder-values.md. The loop may not write that file. Yes allows that one file and queues both items again.</p>
+<label><input type="radio" name="register" value="yes" checked> Yes, allow that one file</label>
+<label><input type="radio" name="register" value="no"> No <small>both items stay unbuilt</small></label>
+</doc-ask>
+<doc-note tone="warn">Silvthrill rod and Barcrawl drinks wait on this answer.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> The Collections crash fix waits for an Accessibility permission.</p>
+<doc-mock frame="terminal" title="Item 0007, native check" w="470"><template>ax_walker exited 3:
+  "host process lacks Accessibility permission"
+Candidate 6aea2823e: clean, not on main</template></doc-mock>
+<doc-ask id="axreader">
+<p>Build a small reader app that you allow one time?</p>
+<p>The native check reads the Collections list through macOS Accessibility. macOS gives that permission to an app, not to the loop's background job. Yes: I build "AnkiScape AX Reader", and you accept its prompt one time.</p>
+<label><input type="radio" name="axreader" value="yes" checked> Yes, build the app</label>
+<label><input type="radio" name="axreader" value="no"> No <small>accept a check without the reader, which is weak</small></label>
+</doc-ask>
+<doc-note tone="warn">The crash fix waits on this answer. Kimi votes also wait on you: the Kimi script cannot read its key file until macOS lets it read the Desktop folder.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> Three small choices each need one word.</p>
+<doc-mock frame="terminal" title="Small choices" w="470"><template>Memory-bank staleness check   9 days overdue
+Gate: 15 min, one large file   keeps one worker busy
+Clan Wars: low LP, no food     now ends the card,
+                               but death there is safe</template></doc-mock>
+<doc-ask id="small">
+<p>Which of these do you want?</p>
+<p>The staleness check re-checks the memory bank and removes old sections. The test split gives each large test class its own file, so the gate gets faster. Plan 2.1 has no safe-area exception for Clan Wars.</p>
+<label><input type="checkbox" name="small" value="staleness" checked> Run the staleness check</label>
+<label><input type="checkbox" name="small" value="split" checked> Split the large test files, through the loop</label>
+<label><input type="checkbox" name="small" value="clanwars"> Let Clan Wars skip the low-LP stop</label>
+</doc-ask>
+<doc-note tone="warn">Nothing else waits on these.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>Players got 11 changes on main overnight.</p>
+<doc-mock frame="terminal" title="Main at dce7f9e01" w="470"><template>Quests            10 changes
+Diary lamps       1 change
+Fish Flingers     records only, rewards unchanged
+Loop tools        3 changes, gate 29 → 15 min
+Darkan            45 text batches merged</template></doc-mock>
+<doc-note tone="info">Each change passed Astra's review and the promotion gate before it merged. Nothing was pushed.</doc-note>
+
+<doc-claim><p><b>Landed.</b> Ten quest changes follow their period sources and your rulings.</p>
+<doc-mock frame="terminal" title="Quest changes" w="470"><template>Cold War         suit arrives automatically; older
+                 saves get one missing suit
+Cold War         activated Ring of Charos works
+Cold War         your penguin greeting is saved
+Mourning's End I Oronwen repairs the trousers
+Horror f. t. Deep  Baby Dagannoth: 350 LP, not 700
+Black Knights'   needs 13 quest points
+Fremennik Isles  shield needs Woodcutting 56
+Lost Tribe       investigation, then cellar
+                 Legends': 5 quests, 108 QP
+4 quests         period prerequisite quests
+5 quests         recommended levels stop gating</template></doc-mock>
+<doc-note tone="info">Item 0300 checked eleven quests and changed two, Lost Tribe and Legends' Quest; the other nine keep their source holds. Desert Treasure no longer needs the optional Mining 50.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Diary lamps use period minimum levels, and Elite tiers pay every lamp.</p>
+<doc-mock frame="terminal" title="Achievement diary lamps" w="470"><template>Lamp minimum     period level where a source gives it
+Elite tiers      each attested lamp, for example
+                 Falador: 2 x 50,000 and 2 x 30,000 XP
+Older saves      get the missing lamps, no XP twice
+Fish Flingers    no reward change; its estimates
+                 are now marked provisional</template></doc-mock>
+<doc-note tone="info">Before this change, every diary lamp had minimum level 1, and each tier gave one lamp. Fish Flingers found no complete 2012 payout source, so its rewards did not change.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> A promotion gate now takes 15 minutes in place of 29.</p>
+<doc-mock frame="terminal" title="Gate time, last 8 runs each" w="470"><template>Before 00:36   median 28.7 min
+After 00:36    median 15.0 min
+Same tests, same audits, parallel workers
+
+Native checks can start from a stated save
+Bank search test waits for its timer</template></doc-mock>
+<doc-note tone="info">The loop is the script that runs Sol and Astra on AnkiScape and Darkan without Claude. It got 52 commits overnight, for example red on the dashboard only when you must act.</doc-note></doc-claim>
+
+<doc-claim><p><b>Landed.</b> Darkan merged 45 batches of corrected examine texts.</p>
+<doc-mock frame="terminal" title="Darkan text batches overnight" w="470"><template>Merged      45
+Dropped     76  review: source did not prove it
+In work      3
+Queued       7</template></doc-mock>
+<doc-note tone="info">Darkan is the 2012 server project. Astra's review drops each text that its dated 2012 source does not prove.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim><p>The pace change and the antipoison fix are in work.</p>
+<doc-mock frame="terminal" title="In work" w="470"><template>Pace change     Parts G, H accepted; I built;
+                J running
+Antipoison      loop item 0330, harvest step
+Four items      held: no period source yet</template></doc-mock>
+<doc-note tone="info">The pace change makes each card buy 3.6 seconds of 2012 game time times the game speed. It merges only after the native checks on 24 October.</doc-note>
+
+<doc-claim><p><b>On branch.</b> Part J proves equal XP for equal play time at each speed.</p>
+<doc-mock frame="terminal" title="goal/pace-calendar at 66e2f511b" w="470"><template>One hour of play     same XP at x1 and x10
+Quests, lamps, games same reward at x1 and x10
+Daily content        a 2012 player's share
+Fish Flingers Undo   save restored exactly
+Counters             wait ends on the shown card</template></doc-mock>
+<doc-note tone="warn">Next: the Settings scroll area and 13 new texts, then a second taste vote, a code review and all test lanes. Native checks and the merge wait for Codex on 24 October.</doc-note></doc-claim>
+
+<doc-claim><p><b>On branch.</b> Antipoison protection is 10 times the 2012 duration.</p>
+<doc-mock frame="terminal" title="Poison immunity per dose" w="470"><template>                 Antipoison    Super
+AnkiScape now    15 min        60 min
+RSMod emulator   1500 ticks    6000 ticks
+Darkan emulator  90 s          6 min
+OSRS wiki        90 s          6 min
+RS3 wiki         86 s          346 s
+
+Poison hits: every 30 ticks (18 s), not every 5
+Cave crawler: 36 hits x 30 ticks = 1,080 ticks</template></doc-mock>
+<doc-note tone="warn">You were right about the immunity. The values come from the RSMod emulator, not from a recorded choice. Loop item 0330 finds a 2012 wiki source, then fixes them and their test.</doc-note></doc-claim>
+
+<doc-claim><p><b>Blocked.</b> Four harvest items ended with no change to the game.</p>
+<doc-mock frame="terminal" title="Ended with no change" w="470"><template>Ghosts Ahoy      crossing length not settled
+Frost dragon     overworld bones already correct
+Beefy Bill       banking stays off (your ruling)
+Giant Dwarf      2,317 item weights not found</template></doc-mock>
+<doc-note tone="warn">None of them waits on you now. Ghosts Ahoy waits on the crossing length, which your 19:46 ruling says to settle first. Giant Dwarf waits on the missing item weights.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim aux="scope"><p>Nothing was pushed, and no interface changed without your approval.</p><doc-note tone="info">The Settings scroll area and the text rewrites use your 08:54 answers. The full log is ROOT-LEDGER.md in the pace-list evidence folder.</doc-note></doc-claim>
+</doc-plan></main></body></html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape pace list paused</title>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body><header><h1>AnkiScape paused until the Codex reset</h1>
+<div class="tldr">Five reviewed changes reached main today. The Collections crash fix and pace parts B to F wait on branches. Nothing needs an answer now. The conductor takes the rest on 24 October. Nothing was pushed.</div>
+<details class="thread"><summary>Your instruction</summary><doc-quote via="prompt" from="Owner">Anyway maybe we should wrap up both threads here. Again I'd rather work on another project</doc-quote></details></header>
+<main><doc-plan>
+<doc-claim><p>Three items wait on you, and none of them blocks work this week.</p>
+<doc-mock frame="terminal" title="Waiting on you" w="460"><template>Qt bug report: draft ready to paste
+Conductor start: preinstall check, then your OK
+Attunement fix round: your approval</template></doc-mock>
+<doc-note tone="info">The conductor is the script head that runs AnkiScape and Darkan on Codex. It starts at the Codex reset, 2026-10-24 13:40 PDT.</doc-note>
+<doc-claim><p><b>Blocked.</b> The Qt crash report waits for you to file it.</p>
+<doc-mock frame="terminal" title="File to paste into bugreports.qt.io" w="460"><template>ankiscape-goal-evidence-2026-10-17/
+  pace-list/p2-collections-crash/
+    qt-bugreport-draft.md</template></doc-mock>
+<doc-note tone="warn">It waits on you, because a Qt report goes out under your account.</doc-note></doc-claim>
+<doc-claim><p><b>Blocked.</b> The conductor needs your OK before it starts automatically.</p>
+<doc-mock frame="terminal" title="At the Codex reset" w="460"><template>1. Re-run Astra review 7 (conductor aec7029..ce704fe)
+2. Preinstall check of the LaunchAgent
+3. Your OK, then the switch</template></doc-mock>
+<doc-note tone="warn">It waits on the Codex reset and on your confirmation of the preinstall check.</doc-note></doc-claim>
+</doc-claim>
+<doc-claim><p>Players got five reviewed changes on main today.</p>
+<doc-mock frame="terminal" title="Landed on local main" w="460"><template>8310dec71  main-menu tab names no longer cut off
+d231f5597  carried packs stay the same after reopen
+b841cc373  Relicym's mixes use one pack slot per bottle
+a8d716216  Mining helmet and Rat pole corrections
+07704b95c  bird nest and rod corrections</template></doc-mock>
+<doc-note tone="info">Each change passed its review and the promotion gate before it landed. Main is at 8310dec71.</doc-note>
+</doc-claim>
+<doc-claim><p>Four player changes are built on branches and wait for Codex checks.</p>
+<doc-mock frame="terminal" title="Waits for the conductor" w="460"><template>Collections crash fix      native Anki check, then gate
+Pace parts B to F          parts G to J, then native check
+GLM tool fixes (4)         Sol or Astra review
+Legacy emerald sickle      GLM build running now</template></doc-mock>
+<doc-note tone="info">A native check runs the real Anki app with a copied profile. Only Codex can drive it, so these wait for the reset.</doc-note>
+<doc-claim><p><b>On branch.</b> Collections no longer crashes Anki when an accessibility app reads it.</p>
+<doc-mock frame="terminal" title="Qt-only reproduction on the MacBook Pro screen" w="460"><template>Old tree:   3 of 3 runs crashed
+Fixed tree: 300 cycles, 2,100 steps, 0 crashes
+Screenshots before and after: 0 pixels differ
+Family list: full names; Pets log: full Acquisition text</template></doc-mock>
+<doc-note tone="warn">Branch goal/collections-crash-fix-2026-10-18 at 758d50712. It waits on the native Anki check.</doc-note></doc-claim>
+<doc-claim><p><b>On branch.</b> Each review now moves one shared game clock by a fixed number of ticks.</p>
+<doc-mock frame="terminal" title="Pace parts B to F, all reviewed" w="460"><template>One card = 6 ticks x speed
+Thieving and Agility stuns: tick debt
+Summoning, Restaurant, timers: in ticks
+Fish Flingers: 8 catches over 10 minutes
+Counters: cards at the current speed</template></doc-mock>
+<doc-note tone="warn">Branch goal/pace-calendar at 0c81012f9. Parts G to J remain: danger stops, the calendar day, the x10 default with its texts, and verification.</doc-note></doc-claim>
+<doc-claim><p><b>On branch.</b> Four test and search tool fixes pass their tests.</p>
+<doc-mock frame="terminal" title="Root re-run, 19:06 PDT" w="460"><template>repo search        40 OK
+function metrics   15 OK
+test selectors     183 OK
+test host deadline 178 OK
+New tests fail on main: yes</template></doc-mock>
+<doc-note tone="warn">GLM 5.3 Flash wrote them. They wait for a Sol or Astra review. Two of them change the same new papercut file.</doc-note></doc-claim>
+</doc-claim>
+<doc-claim><p>Three unfinishable quest stages still have no complete source.</p>
+<doc-mock frame="terminal" title="Quest stages a player cannot finish" w="460"><template>Mourning's End I   Oronwen repair: 1 minute vs 2 minutes
+Cold War           Clockwork maker not yet checked
+In Aid of Myreque  rod item ID not settled
+80 quest fights    hidden levels: no 2012 source</template></doc-mock>
+<doc-note tone="info">GLM checked these sources today. The facts it quoted were exact, but it found no new source. A GLM task now sorts the 80 fights for your placeholder rule.</doc-note>
+</doc-claim>
+<doc-claim aux="scope"><p>Nothing was pushed, and no interface changed without your approval.</p><doc-note tone="info">The two widened Collections lists use your 13:58 approval. Every unmerged branch keeps its tests and records. The full log is ROOT-LEDGER.md in the pace-list folder.</doc-note></doc-claim>
+</doc-plan></main></body></html>

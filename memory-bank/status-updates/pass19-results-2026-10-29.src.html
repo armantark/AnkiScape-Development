@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 19 results</title>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/armantarkhanian/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body>
+<header>
+  <h1>Pass 19 notes in the game</h1>
+  <doc-changes new="2" changed="46"></doc-changes>
+  <div class="tldr">Pass 19 is on main on both Macs at 48c231acb; restart Anki to play it. Four choices from the build wait for you, and the checked answers are what I built.</div>
+  <details class="thread"><summary>Why · your Pass 19 notes</summary>
+    <doc-quote via="doc" from="owner" at="Pass 19 notes">When I add to a queue, it means I want it to start. I queued it to gather 1 doogle leaves and I thought the queue was going, but it was just running the activity I had selected and I gathered 140 of them before I realized. Wtf.</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 19 notes">I had selected nettles and also added it to the queue and it sat doing nothing for several cards before I noticed.</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 19 notes">Make it so that the sort and tickboxes for quests sorting/filtering gets saved</doc-quote>
+    <doc-quote via="doc" from="owner" at="Pass 19 notes">Make quest progress colorcoded like the real game. Red = not started, bright green = completed, yellow = in progress, cyan = selected/current</doc-quote>
+    <doc-quote via="prompt" from="owner" at="2026-10-29 22:57">Also yeah you could check all those in the tsv idc</doc-quote>
+    <doc-quote via="prompt" from="owner" at="2026-10-29 23:23">Those outlines are ugly tbh … I also don't think you should literally use ffff00 etc for the colors, they're too bright and saturated</doc-quote>
+  </details>
+</header>
+<main>
+<doc-plan>
+
+<!-- ═════ 1 · the queue starts on add ═════ -->
+<doc-claim id="queue">
+  <p><b>Held.</b> Adding an entry starts the queue at once, in place of what runs.</p>
+  <doc-mock frame="terminal" title="Event log · one card at 10x · your Doogle leaves case" w="470"><template><span class="dim">running by hand</span> Gather Doogle leaves
+<span class="dim">add to queue</span>   Gather Doogle leaves · 1
+<span class="g">+1</span> Doogle leaves
+Switched to Bankstanding · Queue finished after Gather Doogle leaves.
+
+<span class="dim">before the fix, the same card:</span> <span class="r">+20</span> Doogle leaves, queue still waiting</template></doc-mock>
+  <doc-note tone="info">The queue waited until the action you started by hand stopped, and a pickup never stops by itself. Now an add starts the queue unless it already runs, and the "Starts when … stops." line and "Start now" are gone.</doc-note>
+  <doc-ask id="paused">
+    <p>Should an add to a paused queue start it again?</p>
+    <p>Stop pauses the queue. In this build, an add to a paused queue starts it again from entry 1. The other choice adds the entry and leaves the queue paused until you press Resume queue.</p>
+    <label><input type="radio" name="paused" value="start" checked> Start it again <small>every add means "run the queue"</small></label>
+    <label><input type="radio" name="paused" value="wait"> Stay paused <small>only Resume queue restarts it</small></label>
+  </doc-ask>
+  <doc-claim>
+    <p>The queue runs only when its first entry is the action that runs.</p>
+    <doc-code src="core/action_queue.py" ref="48c231acb" lines="271-283"></doc-code>
+    <doc-note tone="info">A Start by hand pauses the queue only at the next card, so the add compares the running action with entry 1.</doc-note>
+    <doc-claim at="core/action_queue.py:302">
+      <p><b>action_queue.py:302</b> · add_to_action_queue()</p>
+      <doc-code src="core/action_queue.py" ref="48c231acb" lines="302-323"></doc-code>
+    </doc-claim>
+  </doc-claim>
+  <doc-claim>
+    <p>An add that cannot start says so, and your action continues.</p>
+    <doc-mock frame="terminal" title="Menu warning · Woodcutting runs, no star to join" w="470"><template><span class="dim">add to queue</span> Shooting Stars · 1
+<span class="y">Shooting Stars could not start.</span>
+<span class="dim">Woodcutting continues; the queue stays empty.</span></template></doc-mock>
+    <doc-note tone="info">The review found that this add reported success with no warning. The question about leaving a minigame session now also comes only for an add the queue takes.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<!-- ═════ 2 · quest list keeps its view ═════ -->
+<doc-claim id="view">
+  <p><b>Held.</b> The Quests tab keeps its sort, tickboxes and filters between menus.</p>
+  <doc-mock frame="terminal" title="Quests tab · close the menu and open it again" w="470"><template><span class="dim">menu 1</span>  Sort: Difficulty · Access: Free quests · ☑ Hide completed
+<span class="dim">menu 2</span>  Sort: Difficulty · Access: Free quests · ☑ Hide completed
+        <span class="g">same list, same count</span></template></doc-mock>
+  <doc-note tone="info">Anki's profile keeps the sort, both tickboxes and the Access, Difficulty, Length and Timeline lists, as it keeps the queue box's fold.</doc-note>
+  <doc-ask id="search">
+    <p>Should the search text be kept too?</p>
+    <p>The search box empties when the menu closes. Kept text can hide quests the next time you open the tab.</p>
+    <label><input type="radio" name="search" value="clear" checked> Empty it <small>a search is for one look</small></label>
+    <label><input type="radio" name="search" value="keep"> Keep it <small>the tab opens with your last search</small></label>
+  </doc-ask>
+  <doc-claim>
+    <p>One function shows the saved view and saves each change.</p>
+    <doc-code src="ui/ui_tab_quests.py" ref="48c231acb" lines="80-99"></doc-code>
+  </doc-claim>
+</doc-claim>
+
+<!-- ═════ 3 · quest colours ═════ -->
+<doc-claim id="colours">
+  <p><b>Changed.</b> Each quest name shows its progress in a softened game colour.</p>
+  <doc-shot src="page/quests-after-dark.webp" caption="Dark mode: green completed, yellow started, cyan runs now, red not started."></doc-shot>
+  <doc-note tone="info">The first build used the game's pure colours, which you said glare. These keep the hues at a lower saturation, and each reads at a contrast of 4.2:1 or more.</doc-note>
+  <doc-ask id="cyan">
+    <p>Which quest is cyan?</p>
+    <p>"Selected/current" can mean two quests. In this build, cyan marks the quest that runs now. The other choice also marks the quest you picked last while another skill runs.</p>
+    <label><input type="radio" name="cyan" value="running" checked> The quest that runs now <small>cyan goes when you switch to a skill</small></label>
+    <label><input type="radio" name="cyan" value="picked"> The quest picked last <small>cyan stays while you train a skill</small></label>
+  </doc-ask>
+  <doc-claim>
+    <p>Light mode uses darker shades, because yellow and cyan vanish on white.</p>
+    <doc-shot src="page/quests-after-light.webp" caption="Light mode, with Mining running, so no quest is cyan."></doc-shot>
+    <doc-ask id="scope">
+      <p>Should the status text take the colour too?</p>
+      <p>Only the name is coloured, as in the game's quest list. The status text after it ("Stage 1/5", "Not started") stays grey.</p>
+      <label><input type="radio" name="scope" value="name" checked> The name only <small>as the game's list</small></label>
+      <label><input type="radio" name="scope" value="both"> Name and status <small>more colour on each card</small></label>
+    </doc-ask>
+    <doc-claim at="ui/ui_tab_quests.py:46">
+      <p><b>ui_tab_quests.py:46</b> · _PROGRESS_COLOURS</p>
+      <doc-code src="ui/ui_tab_quests.py" ref="48c231acb" lines="46-65"></doc-code>
+    </doc-claim>
+  </doc-claim>
+</doc-claim>
+
+<!-- ═════ 4 · card outlines ═════ -->
+<doc-claim id="outlines">
+  <p><b>Changed.</b> Quest cards no longer draw a box around each label.</p>
+  <doc-shot src="page/quests-before-dark.webp" caption="Before: the card's border reached every label and button inside it."></doc-shot>
+  <doc-note tone="info">You called these outlines ugly. Now only the card has a frame, and its buttons take the same frame as "Add to queue".</doc-note>
+  <doc-claim>
+    <p>After: one frame per card, and framed buttons.</p>
+    <doc-shot src="page/quests-after-dark.webp" caption="After, dark mode."></doc-shot>
+  </doc-claim>
+</doc-claim>
+
+<!-- ═════ 5 · icons ═════ -->
+<doc-claim id="icons">
+  <p><b>Held.</b> 30 more icons now show their 2012 wiki art.</p>
+  <doc-shot src="page/icons-kept.webp" caption="Each pair: the old icon, then the 2012 icon."></doc-shot>
+  <doc-note tone="info">The wiki renamed these files after 2012 and left no redirect, so the 2012 sweep did not find them. The art tool now follows the wiki's rename log, so a later sweep finds them.</doc-note>
+  <doc-claim>
+    <p>Twenty icons stay as they are, each for a stated reason.</p>
+    <doc-mock frame="terminal" title="Not used" w="470"><template>6 goblins       one Port Sarim goblin for all six levels
+swamp lizard    a standing human
+adamant armour  worn by a woman; the hall shows a stand
+bullseye lantern lit; the game shows the unfinished lantern
+10 icons        no version before the 2012 cutoff
+Torag's hammers the download fails the wiki's checksum</template></doc-mock>
+  </doc-claim>
+</doc-claim>
+
+<!-- ═════ shared · scope ═════ -->
+<doc-claim aux="scope">
+  <p>Found during this pass and not changed.</p>
+  <doc-mock frame="terminal" title="Second-level findings" w="470"><template>Shop and Achievements tabs   do not keep their filters
+35 "checksum mismatch" icons may now download: the wiki's
+                              CDN recompresses cached images
+6 goblin provenance records  name a file the PNGs are not from
+5 fetch tools                 download today's art, so a forced
+                              re-fetch replaces the 2012 icons</template></doc-mock>
+</doc-claim>
+
+</doc-plan>
+</main>
+</body>
+</html>
